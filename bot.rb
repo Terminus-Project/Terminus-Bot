@@ -4,21 +4,19 @@ require 'socket'
 
 class TerminusBot
 
-  def initialize(server, port, channel)
-    @doneConnecting = false
-
-    @channel = channel
+  def initialize(server, port, channels)
+    @channels = channels
     $socket = TCPSocket.open(server, port)
-    say "NICK Terminus-Bot"
-    say "USER Terminus 0 * TerminusBot"
+    say "NICK " + BOTNICK
+    say "USER #{BOTIDENT} 0 * #{BOTNAME}"
   end
 
   def say(msg)
     $socket.puts(msg)
   end
 
-  def say_to_chan(msg)
-    sendMessage("PRIVMSG ##{@channel} :#{msg}")
+  def say_to_chan(msg, channel)
+    sendMessage("PRIVMSG #{channel} :#{msg}")
   end
 
   def run
@@ -50,14 +48,10 @@ class TerminusBot
           puts "[#{message.timestamp}] --#{message.speaker.nick}:#{message.origin}-- #{message.message}"
 
         when "376" #end of motd
-          say "JOIN ##{@channel}"
-          say_to_chan "#{1.chr}ACTION is done connecting.#{1.chr}"
-          @doneConnecting = true
+          say "JOIN #{@channels}"
           
         when "422" #motd not found
-          say "JOIN ##{@channel}"
-          say_to_chan "#{1.chr}ACTION is done connecting.#{1.chr}"
-          @doneConnecting = true
+          say "JOIN #{@channels}"
 
 	#else
         #  puts "Unknown message type: #{msg}"
@@ -100,7 +94,7 @@ Dir.foreach("modules") { |f|
 }
 
 puts "Done. Establishing IRC connection..."
-bot = TerminusBot.new("irc.sinsira.net", 6667, 'terminus-bot')
+bot = TerminusBot.new(SERVER, PORT, CHANNELS)
 
 puts "Terminus-Bot started! Running..."
 
