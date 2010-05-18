@@ -10,7 +10,7 @@ class Admin
 
   def cmd_quit(message)
     if message.args.empty?
-      sendMessage("QUIT :Terminus-Bot: TERMINATING")
+      sendMessage("QUIT :" + $config["Core"]["Bot"]["QuitMessage"])
     else
       sendMessage("QUIT :#{message.args}")
     end

@@ -9,8 +9,8 @@ class TerminusBot
     @channels = channels
     @network = Network.new()
     $socket = TCPSocket.open(server, port)
-    raw "NICK " + BOTNICK
-    raw "USER #{BOTIDENT} 0 * #{BOTNAME}"
+    raw "NICK " + $config["Core"]["Bot"]["Nickname"]
+    raw "USER #{$config["Core"]["Bot"]["Ident"]} 0 * #{$config["Core"]["Bot"]["RealName"]}"
   end
 
   def raw(msg)
@@ -180,24 +180,24 @@ class TerminusBot
 
         when "376" #end of motd
           $log.debug('parser') { "End of MOTD." }
-          raw "JOIN #{@channels}"
+          raw "JOIN #{$config["Core"]["Server"]["Channels"].join(",")}"
           
         when "422" #motd not found
           $log.debug('parser') { "MOTD not found." }
-          raw "JOIN #{@channels}"
+          raw "JOIN #{$config["Core"]["Server"]["Channels"].join(",")}"
 
-	else
-          $log.debug('parser') { "Unknown message type: #{msg}" }
+	#else
+        #  $log.debug('parser') { "Unknown message type: #{msg}" }
       end
     end
   end
 
-  def quit(quitMessage = "Terminus-Bot: Terminating.")
+  def quit(quitMessage = $config["Core"]["Bot"]["QuitMessage"])
     raw 'QUIT :' + quitMessage
   end
 
   def attemptHook(cmd, msg)
-    if cmd =~ /\A#{CMDPREFIX}(.*)/
+    if cmd =~ /\A#{Regexp.escape $config["Core"]["Bot"]["CommandPrefix"]}(.*)/
       cmd = $1
       
       $modules.each do |m|
@@ -214,7 +214,11 @@ $log.info('init') { 'Terminus-Bot is now starting.' }
 
 $log.debug('init') { 'Loading configuration.' }
 puts "Loading configuration..."
-load "conf.rb"
+#Yeah, this is a class, but it isn't with the classes.
+#It has to be loaded first!
+load "config.rb"
+
+Config.new
 
 $log.debug('init') { 'Loading core bot files.' }
 puts "Loading bot core..."
@@ -227,7 +231,10 @@ Dir.foreach("modules") { |f| load "./modules/#{f}" unless f.match(/^\.+$/) }
 
 $log.debug('init') { 'Firing off the bot.' }
 puts "Done. Establishing IRC connection..."
-bot = TerminusBot.new(SERVER, PORT, CHANNELS)
+bot = TerminusBot.new(
+  $config["Core"]["Server"]["Address"],
+  $config["Core"]["Server"]["Port"],
+  $config["Core"]["Server"]["Channels"])
 
 $log.info('init') { 'Bot started! Now running.' }
 puts "Terminus-Bot started! Running..."
