@@ -20,3 +20,11 @@
   def reply(message, reply)
     sendRaw("PRIVMSG #{message.replyTo} :#{reply}")
   end
+
+  def sendPrivmsg(destination, message)
+    sendRaw("PRIVMSG #{destination} :#{message}")
+  end
+
+  def sendNotice(destination, message)
+    sendRaw("NOTICE #{destination} :#{message}")
+  end

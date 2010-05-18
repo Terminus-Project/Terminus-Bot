@@ -28,19 +28,27 @@ class TerminusBot
         next
       end
       
-      msgArr = msg.match(/^:?(.*)$/)[1].split(' ')
+      msgArr = msg.match(/^:?(.*)$/)
+      msg = msgArr[1]
+      msgArr = msgArr[1].split(' ')
 
       case msgArr[1]
         when "PRIVMSG"
-          content = msg.match(/PRIVMSG .* :(.*)$/)[1]
+          content = msg.match(/^[^:]+:(.*)$/)[1]
           message = IRCMessage.new(msgArr[2], content, msgArr[0])
+
+          if message.message.include? 1.chr
+            # CTCP!
+            # TODO: handle these!
+            next
+          end
 
           #puts "[#{message.timestamp}] <#{message.speaker.nick}:#{message.destination}> #{message.message}"
           
           attemptHook(message.msgArr[0], message)
 
         when "NOTICE"
-          content = msg.match(/NOTICE .* :(.*)$/)[1]
+          content = msg.match(/^[^:]+:(.*)$/)[1]
           message = IRCMessage.new(msgArr[2], content, msgArr[0])
 
           #puts "[#{message.timestamp}] --#{message.speaker.nick}:#{message.destination}-- #{message.message}"
@@ -197,12 +205,16 @@ class TerminusBot
   end
 
   def attemptHook(cmd, msg)
+    cmd.downcase!
+
     isChannel = $network.isChannel? msg.destination
 
     if cmd =~ /\A#{Regexp.escape $config["Core"]["Bot"]["CommandPrefix"]}(.*)/
       cmd = $1
+      cmd.gsub!(/[^a-z]/, "_")
       fireHooks(cmd, msg)
     elsif not isChannel
+     cmd.gsub!(/[^a-z]/, "_")
       fireHooks(cmd, msg)
     end
       

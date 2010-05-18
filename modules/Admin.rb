@@ -4,6 +4,23 @@ class Admin
     @admins = Hash.new()
   end
 
+  def hasLevel(message, minLevel)
+    getSpeakerAccessLevel(message) >= minLevel
+  end
+
+  def checkPermission(message, minLevel)
+    unless hasLevel(message, minLevel)
+      reply(message, "You do not have permission to do that.")
+
+      $log.info('admin') { "Nick #{message.speaker.nick} tried to use #{message.msgArr[1]} with insufficient access level." }
+
+      return false
+    end
+    $log.info('admin') { "Nick #{message.speaker.nick} used #{message.msgArr[1]}" }
+
+    return true
+  end
+
   def getSpeakerAccessLevel(message)
     getAccessLevel(message.speaker.fullMask)
   end
@@ -40,19 +57,25 @@ class Admin
     end
   end
 
+  def cmd_raw(message)
+    sendRaw(message.args) if checkPermission(message, 9)
+  end
+
   def cmd_join(message)
-    sendRaw("JOIN #{message.args}")
+    sendRaw("JOIN #{message.args}") if checkPermission(message, 5)
   end
 
   def cmd_part(message)
-    sendRaw("PART #{message.args}")
+    sendRaw("PART #{message.args}") if checkPermission(message, 5)
   end
 
   def cmd_quit(message)
-    if message.args.empty?
-      sendRaw("QUIT :" + $config["Core"]["Bot"]["QuitMessage"])
-    else
-      sendRaw("QUIT :#{message.args}")
+    if checkPermission(message, 9)
+      if message.args.empty?
+        sendRaw("QUIT :" + $config["Core"]["Bot"]["QuitMessage"])
+      else
+        sendRaw("QUIT :#{message.args}")
+      end
     end
   end
 
