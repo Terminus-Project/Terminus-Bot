@@ -9,30 +9,26 @@ class TerminusBot
     @channels = channels
     @network = Network.new()
     $socket = TCPSocket.open(server, port)
-    say "NICK " + BOTNICK
-    say "USER #{BOTIDENT} 0 * #{BOTNAME}"
+    raw "NICK " + BOTNICK
+    raw "USER #{BOTIDENT} 0 * #{BOTNAME}"
   end
 
-  def say(msg)
+  def raw(msg)
     $socket.puts(msg)
-  end
-
-  def say_to_chan(msg, channel)
-    sendMessage("PRIVMSG #{channel} :#{msg}")
   end
 
   def run
     until $socket.eof? do
-      msg = $socket.gets
+      msg = $socket.gets.chomp
       #puts msg
 
       # go ahead and handle server PING first
-      if msg.match(/^PING :(.*)$/)
-        say "PONG #{$~[1]}"
+      if msg =~ /^PING (:.*)$/
+        raw "PONG #{$1}"
         next
       end
       
-      msgArr = msg.match(/^:?(.*)$/)[1].split(/ /)
+      msgArr = msg.match(/^:?(.*)$/)[1].split(' ')
 
       case msgArr[1]
         when "PRIVMSG"
@@ -107,10 +103,10 @@ class TerminusBot
         when "366" #end of names list
 
         when "376" #end of motd
-          say "JOIN #{@channels}"
+          raw "JOIN #{@channels}"
           
         when "422" #motd not found
-          say "JOIN #{@channels}"
+          raw "JOIN #{@channels}"
 
 	#else
         #  puts "Unknown message type: #{msg}"
@@ -121,16 +117,16 @@ class TerminusBot
   end
 
   def quit(quitMessage = "Terminus-Bot: Terminating.")
-    say 'QUIT ' + quitMessage
+    raw 'QUIT ' + quitMessage
   end
 
   def attemptHook(cmd, msg)
-    if cmd.match(/\A#{CMDPREFIX}(.*)/)
-      cmd = $~[1]
+    if cmd =~ /\A#{CMDPREFIX}(.*)/
+      cmd = $1
       
       $modules.each do |m|
-         m.send("cmd_#{cmd}",msg) unless not m.respond_to?("cmd_#{cmd}")
          $log.debug('bot') { "attemptHook #{m} -> cmd_#{cmd}" }
+         m.send("cmd_#{cmd}",msg) if m.respond_to?("cmd_#{cmd}")
       end
     end
   end

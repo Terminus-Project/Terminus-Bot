@@ -5,7 +5,7 @@
     Thread.new {
       while true
         msg = @@messageQueue.pop
-        puts "*** SENDER: #{msg}"
+        $log.debug('outgoing') { "Sent: #{msg}" }
         $socket.puts(msg)
         sleep MESSAGEDELAY
       end
