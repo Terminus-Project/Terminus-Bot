@@ -1,6 +1,7 @@
 class Config
   require 'yaml'
   require 'fileutils'
+  require 'digest/md5'
 
   def initialize(configFile = "config.yaml")
     @configFile = configFile
@@ -53,6 +54,8 @@ class Config
         puts "\n\nThat's it! To log in to the bot on IRC, just send the bot the following in a query: LOGIN #{adminUser} #{adminPassword}"
         puts "For more information, please visit the Terminus-Bot web site.\n\n"
         puts "Applying new configuration..."
+
+        adminPassword = Digest::MD5.hexdigest(adminPassword)
 
         $config = Hash.new()
 

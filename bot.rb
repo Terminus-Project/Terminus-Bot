@@ -208,6 +208,21 @@ class TerminusBot
   end
 end
 
+def enumerateIncludes(dir)
+  $log.debug('init-enum') { "Enumerating files in #{dir}" }
+  Dir.foreach(dir) { |f|
+    unless f =~ /\A\.\.?\Z/
+      f = dir + '/' + f
+      if File.directory? f
+        enumerateIncludes(f)
+      elsif File.exists? f
+        load f
+      end
+    end
+  }
+
+end
+
 $log = Logger.new('logs/system.log', 'weekly');
 
 $log.info('init') { 'Terminus-Bot is now starting.' }
@@ -222,7 +237,7 @@ Config.new
 
 $log.debug('init') { 'Loading core bot files.' }
 puts "Loading bot core..."
-Dir.foreach("classes") { |f| load "./classes/#{f}" unless f.match(/^\.+$/) }
+enumerateIncludes("./includes/")
 
 $log.debug('init') { 'Loading modules.' }
 puts "Loading modules..."
@@ -242,3 +257,5 @@ puts "Terminus-Bot started! Running..."
 trap("INT"){ bot.quit }
 
 bot.run
+
+
