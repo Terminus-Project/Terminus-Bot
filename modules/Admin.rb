@@ -9,7 +9,7 @@ class Admin
   end
 
   def cmd_quit(message = "Terminus Bot: Terminating")
-    sendMessage("QUIT #{message}")
+    sendMessage("QUIT :#{message}")
   end
 
 
