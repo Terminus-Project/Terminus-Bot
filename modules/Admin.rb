@@ -8,8 +8,12 @@ class Admin
     sendMessage("PART #{message.args}")
   end
 
-  def cmd_quit(message = "Terminus Bot: Terminating")
-    sendMessage("QUIT :#{message}")
+  def cmd_quit(message)
+    if message.args == ""
+      sendMessage("QUIT :Terminus-Bot: TERMINATING")
+    else
+      sendMessage("QUIT :#{message.args}")
+    end
   end
 
 
