@@ -1,13 +1,13 @@
 # Class: IRCMessage
-# Message, origin, speaker, etc.
+# Message, destination, speaker, etc.
 
 require 'date'
 
 class IRCMessage
-  attr_reader :origin, :message, :speaker, :timestamp, :msgArr, :args
+  attr_reader :destination, :message, :speaker, :timestamp, :msgArr, :args, :replyTo
 
-  def initialize(origin, message, speaker)
-    @origin = origin
+  def initialize(destination, message, speaker)
+    @destination = destination
     @message = message
     @speaker = IRCUser.new(speaker)
     @timestamp = DateTime.now
@@ -15,6 +15,11 @@ class IRCMessage
     @args = @msgArr.clone()
     @args.delete_at(0)
     @args = @args.join(" ")
+    if $network.isChannel? destination
+      @replyTo = @destination
+    else
+      @replyTo = @speaker.nick
+    end
   end
 
 end

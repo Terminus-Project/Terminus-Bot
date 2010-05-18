@@ -13,6 +13,10 @@
       $log.debug('outgoing') { "Thread stopped." }
     }
 
-  def sendMessage(msg)
+  def sendRaw(msg)
     @@messageQueue.push(msg)
+  end
+
+  def reply(message, reply)
+    sendRaw("PRIVMSG #{message.replyTo} :#{reply}")
   end

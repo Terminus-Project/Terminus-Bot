@@ -57,6 +57,8 @@ class Config
 
         adminPassword = Digest::MD5.hexdigest(adminPassword)
 
+        adminUserObj = AdminUser.new(adminUser, adminPassword, 10)
+
         $config = Hash.new()
 
         $config["Modules"] = Hash.new()
@@ -77,9 +79,9 @@ class Config
         $config["Core"]["Bot"]["QuitMessage"] = "Terminus-Bot: Terminating"
         $config["Core"]["Bot"]["CommandPrefix"] = cmdPrefix
 
-        $config["Core"]["Bot"]["Users"] = Array.new()
+        $config["Core"]["Bot"]["Users"] = Hash.new()
 
-        $config["Core"]["Bot"]["Users"].push([adminUser => adminPassword])
+        $config["Core"]["Bot"]["Users"][adminUser] = adminUserObj
 
         puts "Saving configuration to disk..."
 

@@ -7,7 +7,7 @@ class TerminusBot
 
   def initialize(server, port, channels)
     @channels = channels
-    @network = Network.new()
+    $network = Network.new()
     $socket = TCPSocket.open(server, port)
     raw "NICK " + $config["Core"]["Bot"]["Nickname"]
     raw "USER #{$config["Core"]["Bot"]["Ident"]} 0 * #{$config["Core"]["Bot"]["RealName"]}"
@@ -35,7 +35,7 @@ class TerminusBot
           content = msg.match(/PRIVMSG .* :(.*)$/)[1]
           message = IRCMessage.new(msgArr[2], content, msgArr[0])
 
-          #puts "[#{message.timestamp}] <#{message.speaker.nick}:#{message.origin}> #{message.message}"
+          #puts "[#{message.timestamp}] <#{message.speaker.nick}:#{message.destination}> #{message.message}"
           
           attemptHook(message.msgArr[0], message)
 
@@ -43,49 +43,49 @@ class TerminusBot
           content = msg.match(/NOTICE .* :(.*)$/)[1]
           message = IRCMessage.new(msgArr[2], content, msgArr[0])
 
-          #puts "[#{message.timestamp}] --#{message.speaker.nick}:#{message.origin}-- #{message.message}"
+          #puts "[#{message.timestamp}] --#{message.speaker.nick}:#{message.destination}-- #{message.message}"
 
         when "004"
-          @network.currentServer = msgArr[3]
-          @network.serverSoftware = msgArr[4]
+          $network.currentServer = msgArr[3]
+          $network.serverSoftware = msgArr[4]
         when "005"
           msgArr.each { |param|
             paramArr = param.split("=")
             case paramArr[0]
               when "NETWORK"
-                @network.name = paramArr[1]
+                $network.name = paramArr[1]
               when "MAXCHANNELS"
-                @network.maxChannels = paramArr[1]
+                $network.maxChannels = paramArr[1]
               when "CHANNELLEN"
-                @network.maxChannelNameLength = paramArr[1]
+                $network.maxChannelNameLength = paramArr[1]
               when "TOPICLEN"
-                @network.maxTopicLength = paramArr[1]
+                $network.maxTopicLength = paramArr[1]
               when "KICKLEN"
-                @network.maxKickLength = paramArr[1]
+                $network.maxKickLength = paramArr[1]
               when "AWAYLEN"
-                @network.maxAwayLength = paramArr[1]
+                $network.maxAwayLength = paramArr[1]
               when "MAXTARGETS"
-                @network.maxTargets = paramArr[1]
+                $network.maxTargets = paramArr[1]
               when "MODES"
-                @network.maxModes = paramArr[1]
+                $network.maxModes = paramArr[1]
               when "CHANTYPES"
-                @network.channelTypes = paramArr[1]
+                $network.channelTypes = paramArr[1]
               when "CHANMODES"
-                @network.channelModes = paramArr[1]
+                $network.channelModes = paramArr[1]
               when "CASEMAPPING"
-                @network.caseMapping = paramArr[1]
+                $network.caseMapping = paramArr[1]
               when "PREFIX"
-                @network.prefixes = paramArr[1]
+                $network.prefixes = paramArr[1]
               when "MAXLIST"
                 maxListArrs = paramArr[1].split(",")
                 maxListArrs.each { |maxListArr|
                   maxListArr = maxListArr.split(":")                  
                   if maxListArr[0] == "b"
-                    @network.maxBans = maxListArr[1]
+                    $network.maxBans = maxListArr[1]
                   elsif maxListArr[0] == "e"
-                    @network.maxExempts = maxListArr[1]
+                    $network.maxExempts = maxListArr[1]
                   elsif maxListArr[0] == "I"
-                    @network.maxInviteExempts = maxListArr[1]
+                    $network.maxInviteExempts = maxListArr[1]
                   else
                     $log.warn('parser') { "Invalid MAXLIST parameter: #{maxListArr.join(":")}" }
                   end
@@ -197,14 +197,22 @@ class TerminusBot
   end
 
   def attemptHook(cmd, msg)
+    isChannel = $network.isChannel? msg.destination
+
     if cmd =~ /\A#{Regexp.escape $config["Core"]["Bot"]["CommandPrefix"]}(.*)/
       cmd = $1
+      fireHooks(cmd, msg)
+    elsif not isChannel
+      fireHooks(cmd, msg)
+    end
       
+  end
+
+  def fireHooks(cmd, msg)
       $modules.each do |m|
          $log.debug('bot') { "attemptHook #{m} -> cmd_#{cmd}" }
          m.send("cmd_#{cmd}",msg) if m.respond_to?("cmd_#{cmd}")
       end
-    end
   end
 end
 
@@ -227,17 +235,16 @@ $log = Logger.new('logs/system.log', 'weekly');
 
 $log.info('init') { 'Terminus-Bot is now starting.' }
 
-$log.debug('init') { 'Loading configuration.' }
-puts "Loading configuration..."
-#Yeah, this is a class, but it isn't with the classes.
-#It has to be loaded first!
-load "config.rb"
-
-Config.new
 
 $log.debug('init') { 'Loading core bot files.' }
 puts "Loading bot core..."
 enumerateIncludes("./includes/")
+
+$log.debug('init') { 'Loading configuration.' }
+puts "Loading configuration..."
+load "config.rb"
+
+Config.new
 
 $log.debug('init') { 'Loading modules.' }
 puts "Loading modules..."
