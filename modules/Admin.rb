@@ -9,7 +9,7 @@ class Admin
   end
 
   def cmd_quit(message)
-    if message.args == ""
+    if message.args.empty?
       sendMessage("QUIT :Terminus-Bot: TERMINATING")
     else
       sendMessage("QUIT :#{message.args}")

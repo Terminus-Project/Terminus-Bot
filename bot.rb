@@ -35,14 +35,14 @@ class TerminusBot
           content = msg.match(/PRIVMSG .* :(.*)$/)[1]
           message = IRCMessage.new(msgArr[2], content, msgArr[0])
 
-          # echo it! - probably need to move this elsewhere
           #puts "[#{message.timestamp}] <#{message.speaker.nick}:#{message.origin}> #{message.message}"
+          
           attemptHook(message.msgArr[0], message)
+
         when "NOTICE"
           content = msg.match(/NOTICE .* :(.*)$/)[1]
           message = IRCMessage.new(msgArr[2], content, msgArr[0])
 
-          # echo it! - probably need to move this elsewhere
           #puts "[#{message.timestamp}] --#{message.speaker.nick}:#{message.origin}-- #{message.message}"
 
         when "004"
