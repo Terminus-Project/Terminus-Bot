@@ -18,7 +18,11 @@
   end
 
   def reply(message, reply)
-    sendRaw("PRIVMSG #{message.replyTo} :#{reply}")
+    if message.type == CHANNEL
+      sendPrivmsg(message.replyTo, reply)
+    else
+      sendNotice(message.replyTo, reply)
+    end
   end
 
   def sendPrivmsg(destination, message)
