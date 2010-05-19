@@ -5,8 +5,9 @@ require 'logger'
 
 class TerminusBot
 
-  def initialize(server, port, channels)
+  def initialize(server, port, channels, configClass)
     @channels = channels
+    @configClass = configClass
     $network = Network.new()
     $socket = TCPSocket.open(server, port)
     raw "NICK " + $config["Core"]["Bot"]["Nickname"]
@@ -38,8 +39,25 @@ class TerminusBot
           message = IRCMessage.new(msgArr[2], content, msgArr[0])
 
           if message.message.include? 1.chr
-            # CTCP!
-            # TODO: handle these!
+            #CTCP
+            
+            ctcpData = msg.match(/#{1.chr}([^ ]+) ?(.*)#{1.chr}/)
+
+            case ctcpData[1]
+              when "VERSION"
+                sendNotice(message.speaker.nick, "#{1.chr}VERSION #{$config["Core"]["Bot"]["Version"]}#{1.chr}")
+              when "URL"
+                sendNotice(message.speaker.nick, "#{1.chr}URL #{$config["Core"]["Bot"]["URL"]}#{1.chr}")
+              #when "TIME"
+              #needs to implement rfc 822 section 5
+              #  sendNotice(message.speaker.nick, "#{1.chr}TIME #{}#{1.chr}")
+              when "PING"
+                sendNotice(message.speaker.nick, "#{1.chr}PING #{ctcpData[2]}#{1.chr}")
+              when "CLIENTINFO"
+                sendNotice(message.speaker.nick, "#{1.chr}CLIENTINFO VERSION PING URL #{1.chr}")
+              else
+                sendNotice(message.speaker.nick, "#{1.chr}ERRMSG #{ctcpData[1]} DEPRECATED#{1.chr}")
+              end
             next
           end
 
@@ -198,6 +216,13 @@ class TerminusBot
         #  $log.debug('parser') { "Unknown message type: #{msg}" }
       end
     end
+
+    $log.info('exit') { "Socket closed, starting exit procedure." }
+
+    @configClass.saveConfig
+    
+    $log.info('exit') { "Exit procedures complete. Exiting!" }
+    exit
   end
 
   def quit(quitMessage = $config["Core"]["Bot"]["QuitMessage"])
@@ -256,7 +281,7 @@ $log.debug('init') { 'Loading configuration.' }
 puts "Loading configuration..."
 load "config.rb"
 
-Config.new
+configClass = Config.new
 
 $log.debug('init') { 'Loading modules.' }
 puts "Loading modules..."
@@ -268,7 +293,8 @@ puts "Done. Establishing IRC connection..."
 bot = TerminusBot.new(
   $config["Core"]["Server"]["Address"],
   $config["Core"]["Server"]["Port"],
-  $config["Core"]["Server"]["Channels"])
+  $config["Core"]["Server"]["Channels"],
+  configClass)
 
 $log.info('init') { 'Bot started! Now running.' }
 puts "Terminus-Bot started! Running..."
