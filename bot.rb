@@ -296,6 +296,8 @@ class TerminusBot
     #
     #   "message" is an IRCMessage object which represents the message
     #     that fired the event.
+    
+    fireHooks("bot_onMessageReceived", msg)
       
   end
 
