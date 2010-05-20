@@ -57,6 +57,10 @@ class Admin
     end
   end
 
+  def cmd_eval(message)
+    reply(message, eval(message.args), true) if checkPermission(message, 9)
+  end
+
   def cmd_raw(message)
     sendRaw(message.args) if checkPermission(message, 9)
   end
