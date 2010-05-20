@@ -3,11 +3,16 @@ class IRCUser
   attr_reader :nick, :ident, :host, :lastMessage, :accessLevel, :channelModes, :fullMask
 
   def initialize(fullString)
-    parts = fullString.match(/(.*)!(.*)@(.*)/)
     @fullMask = fullString
-    @nick = parts[1]
-    @ident = parts[2]
-    @host = parts[3]
+    if fullString =~ fullString.match(/(.*)!(.*)@(.*)/)
+      @nick = $1
+      @ident = $2
+      @host = $3
+    else
+      @nick = fullString
+      @ident = ""
+      @host = ""
+    end
     @accessLevel = 0
     @channelModes = ""
   end

@@ -73,6 +73,7 @@ class Config
         $config["Core"]["Bot"] = Hash.new()
         $config["Core"]["Bot"]["Nickname"] = botNick
         $config["Core"]["Bot"]["Ident"] = ident
+        $config["Core"]["Bot"]["URL"] = "http://github.com/kabaka/Terminus-Bot"
         $config["Core"]["Bot"]["MessageDelay"] = 0.25
         $config["Core"]["Bot"]["RealName"] = realname
         $config["Core"]["Bot"]["Version"] = "Terminus-Bot Version 0.1-alpha"

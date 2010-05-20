@@ -257,23 +257,52 @@ class TerminusBot
   end
 
   def attemptHook(msg)
+
+    # First, we're going to fire command hooks. The first word of the
+    # message is used as the command name. If the message is sent in
+    # a channel, the command prefix must be used, and is extracted
+    # via regular expression.
+    #
+    # The header of the function in the module must be:
+    #
+    #  cmd_name(message)
+    #
+    #   "name" is the word that will trigger the command. 
+    #   "message" is an IRCMessage object that represents the message
+    #     that triggered the command.
+
     cmd = msg.msgArr[0].downcase
 
     if cmd =~ /\A#{Regexp.escape $config["Core"]["Bot"]["CommandPrefix"]}(.*)/
       cmd = $1
       cmd.gsub!(/[^a-z]/, "_")
-      fireHooks(cmd, msg)
+      fireHooks("cmd_#{cmd}", msg)
     elsif msg.type == PRIVATE
       cmd.gsub!(/[^a-z]/, "_")
-      fireHooks(cmd, msg)
+      fireHooks("cmd_#{cmd}", msg)
     end
+
+    # Now that we're done with those, we'll fire generic events.
+    # These will be functions that fire every single time a message
+    # is received. No trigger word is required, and no command prefix
+    # will be checked or removed.
+    #
+    # Modules should use these events to perform their own parsing on
+    # messages.
+    #
+    # The function header in the module should be:
+    #
+    #   bot_onMesageReceived(message)
+    #
+    #   "message" is an IRCMessage object which represents the message
+    #     that fired the event.
       
   end
 
   def fireHooks(cmd, msg)
       $modules.each do |m|
-         $log.debug('bot') { "attemptHook #{m} -> cmd_#{cmd}" }
-         m.send("cmd_#{cmd}",msg) if m.respond_to?("cmd_#{cmd}")
+         $log.debug('bot') { "attemptHook #{m} -> #{cmd}" }
+         m.send(cmd,msg) if m.respond_to?(cmd)
       end
   end
 end
