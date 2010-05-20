@@ -60,6 +60,8 @@ class TerminusBot
             ctcpData = msg.match(/#{1.chr}([^ ]+) ?(.*)#{1.chr}/)
 
             case ctcpData[1]
+              when "ACTION"
+                # will fire an event soon!
               when "VERSION"
                 sendNotice(message.speaker.nick, "#{1.chr}VERSION #{$config["Core"]["Bot"]["Version"]}#{1.chr}")
               when "URL"
