@@ -2,10 +2,26 @@
 
 require 'socket'
 require 'logger'
+require 'thread'
+require 'timeout'
 
 class TerminusBot
 
   def initialize(server, port, channels, configClass)
+    $log.debug("pool") { "Thread pool init started." }
+    @incomingQueue = Queue.new
+    
+    @threads = Array.new(5) {
+      Thread.new {
+        $log.debug("pool") { "Thread started." }
+        while true
+          request = @incomingQueue.pop
+
+          attemptHook(request)
+        end
+      }
+    }
+
     @channels = channels
     @configClass = configClass
     $network = Network.new()
@@ -63,7 +79,8 @@ class TerminusBot
 
           #puts "[#{message.timestamp}] <#{message.speaker.nick}:#{message.destination}> #{message.message}"
           
-          attemptHook(message.msgArr[0], message)
+          #attemptHook(message.msgArr[0], message)
+          work(message)
 
         when "NOTICE"
           content = msg.match(/^[^:]+:(.*)$/)[1]
@@ -71,6 +88,10 @@ class TerminusBot
 
           #puts "[#{message.timestamp}] --#{message.speaker.nick}:#{message.destination}-- #{message.message}"
 
+        # And now, on to the numerical codes.
+        # I don't have all of these on here, but it would
+        # be trivial to add more. What I do have here is
+        # mostly for logging and debugging, anyway.
         when "004"
           $network.currentServer = msgArr[3]
           $network.serverSoftware = msgArr[4]
@@ -119,7 +140,7 @@ class TerminusBot
           
             end
           }
-
+=begin
         when "324" #channel modes
         when "331" #no topic
         when "332" #channel topic
@@ -195,7 +216,7 @@ class TerminusBot
         when "491" #no o-lines for your host
         when "501" #unknown mode flag
         when "502" #cannot change mode for other users
-
+=end
         when "353" #names list
           names = msg.match(/.*:(.*)/)
           names = names[1].split(" ")
@@ -222,24 +243,28 @@ class TerminusBot
     @configClass.saveConfig
     
     $log.info('exit') { "Exit procedures complete. Exiting!" }
+    $log.close
+
     exit
+  end
+
+  def work(message)
+    @incomingQueue.push(message)
   end
 
   def quit(quitMessage = $config["Core"]["Bot"]["QuitMessage"])
     raw 'QUIT :' + quitMessage
   end
 
-  def attemptHook(cmd, msg)
-    cmd.downcase!
-
-    isChannel = $network.isChannel? msg.destination
+  def attemptHook(msg)
+    cmd = msg.msgArr[0].downcase
 
     if cmd =~ /\A#{Regexp.escape $config["Core"]["Bot"]["CommandPrefix"]}(.*)/
       cmd = $1
       cmd.gsub!(/[^a-z]/, "_")
       fireHooks(cmd, msg)
-    elsif not isChannel
-     cmd.gsub!(/[^a-z]/, "_")
+    elsif msg.type == PRIVATE
+      cmd.gsub!(/[^a-z]/, "_")
       fireHooks(cmd, msg)
     end
       

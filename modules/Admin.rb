@@ -10,13 +10,13 @@ class Admin
 
   def checkPermission(message, minLevel)
     unless hasLevel(message, minLevel)
-      reply(message, "You do not have permission to do that.")
+      reply(message, "You do not have permission to do that.", true)
 
-      $log.info('admin') { "Nick #{message.speaker.nick} tried to use #{message.msgArr[1]} with insufficient access level." }
+      $log.info('admin') { "Nick #{message.speaker.nick} tried to use #{message.msgArr[0]} with insufficient access level." }
 
       return false
     end
-    $log.info('admin') { "Nick #{message.speaker.nick} used #{message.msgArr[1]}" }
+    $log.info('admin') { "Nick #{message.speaker.nick} used #{message.msgArr[0]}" }
 
     return true
   end
@@ -37,7 +37,7 @@ class Admin
 
   def cmd_login(message)
     if $network.isChannel? message.destination
-      reply(message, "You may only use that command in a query.")
+      reply(message, "You may only use that command in a query.", true)
     else
       if not message.msgArr.length == 3
         reply(message, "Please give both a user name and password.")

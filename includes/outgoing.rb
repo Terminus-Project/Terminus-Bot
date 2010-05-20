@@ -17,7 +17,9 @@
     @@messageQueue.push(msg)
   end
 
-  def reply(message, reply)
+  def reply(message, reply, nickPrefix = false)
+    reply = "#{message.speaker}: #{reply}" if nickPrefix
+
     if message.type == CHANNEL
       sendPrivmsg(message.replyTo, reply)
     else

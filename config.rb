@@ -90,6 +90,16 @@ class Config
         puts "Done! Continuing with bot start."
 
       end
+
+      Thread.new {
+        $log.debug('config') { "Periodic configuration save thread started." }
+        while true
+          sleep 300 # save config every 5 minutes
+          saveConfig
+        end
+        $log.debug('config') { "Periodic configuration save thread ending." }
+      }
+
     else
       $log.error('config') { "Configuration file #{configFile} is not writable!" }
       puts "Your configuration file #{configFile} is not writable! Exiting."
