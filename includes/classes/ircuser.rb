@@ -4,7 +4,7 @@ class IRCUser
 
   def initialize(fullString)
     @fullMask = fullString
-    if fullString =~ fullString.match(/(.*)!(.*)@(.*)/)
+    if fullString =~ /(.*)!(.*)@(.*)/
       @nick = $1
       @ident = $2
       @host = $3

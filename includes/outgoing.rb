@@ -18,7 +18,7 @@
   end
 
   def reply(message, reply, nickPrefix = false)
-    reply = "#{message.speaker}: #{reply}" if nickPrefix
+    reply = "#{message.speaker.nick}: #{reply}" if nickPrefix
 
     if message.type == CHANNEL
       sendPrivmsg(message.replyTo, reply)

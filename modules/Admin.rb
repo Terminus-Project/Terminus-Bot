@@ -36,7 +36,7 @@ class Admin
   end
 
   def cmd_login(message)
-    if $network.isChannel? message.destination
+    if message.type == PRIVATE
       reply(message, "You may only use that command in a query.", true)
     else
       if not message.msgArr.length == 3
