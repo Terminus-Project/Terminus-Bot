@@ -45,14 +45,13 @@ class TerminusBot
         next
       end
       
-      msgArr = msg.match(/^:?(.*)$/)
-      msg = msgArr[1]
-      msgArr = msgArr[1].split(' ')
+      msg = msg.match(/^:?(.*)$/)[1]
+      msgArr = msg.split(' ')
 
       case msgArr[1]
         when "PRIVMSG"
           content = msg.match(/^[^:]+:(.*)$/)[1]
-          message = IRCMessage.new(msgArr[2], content, msgArr[0])
+          message = IRCMessage.new(msg, msgArr[2], content, msgArr[0])
 
           if message.message.include? 1.chr
             #CTCP
@@ -86,7 +85,8 @@ class TerminusBot
 
         when "NOTICE"
           content = msg.match(/^[^:]+:(.*)$/)[1]
-          message = IRCMessage.new(msgArr[2], content, msgArr[0])
+          message = IRCMessage.new(msg, msgArr[2], content, msgArr[0])
+          work(message)
 
           #puts "[#{message.timestamp}] --#{message.speaker.nick}:#{message.destination}-- #{message.message}"
 
@@ -142,6 +142,20 @@ class TerminusBot
           
             end
           }
+        when "JOIN" #We're joining something!
+          channel = msg.match(/:(.*)/)[1]
+          $log.debug('parser') { "Joining: #{channel}" }
+
+          # If this channel isn't in config, put it in.
+
+          $config["Core"]["Server"]["Channels"] << channel unless $config["Core"]["Server"]["Channels"].include? channel
+        when "NICK" #We're changing nicks!
+          nick = msg.match(/:(.*)/)[1]
+          $log.debug('parser') { "Nick changed: #{nick}" }
+
+          $config["Core"]["Bot"]["Nickname"] = nick
+
+          
 =begin
         when "324" #channel modes
         when "331" #no topic
@@ -305,7 +319,7 @@ class TerminusBot
 
   def fireHooks(cmd, msg)
       $modules.each do |m|
-         $log.debug('bot') { "attemptHook #{m} -> #{cmd}" }
+         #$log.debug('bot') { "attemptHook #{m} -> #{cmd}" }
          m.send(cmd,msg) if m.respond_to?(cmd)
       end
   end

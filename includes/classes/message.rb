@@ -13,9 +13,10 @@ CHANNEL = 2
 require 'date'
 
 class IRCMessage
-  attr_reader :destination, :message, :speaker, :timestamp, :msgArr, :args, :replyTo, :type
+  attr_reader :destination, :message, :speaker, :timestamp, :msgArr, :args, :replyTo, :type, :raw
 
-  def initialize(destination, message, speaker)
+  def initialize(raw, destination, message, speaker)
+    @raw = raw
     @destination = destination
     @message = message
     @speaker = IRCUser.new(speaker)
