@@ -16,6 +16,11 @@ class IRCMessage
   attr_reader :destination, :message, :speaker, :timestamp, :msgArr, :args, :replyTo, :type, :raw
 
   def initialize(raw, destination, message, speaker)
+    
+    # TODO: We should be able to parse the message here and determine
+    #       type and everything else, not do it separately for each
+    #       message type.
+
     @raw = raw
     @destination = destination
     @message = message

@@ -30,6 +30,8 @@ class TerminusBot
     raw "USER #{$config["Core"]["Bot"]["Ident"]} 0 * #{$config["Core"]["Bot"]["RealName"]}"
   end
 
+  # This bypasses throttling, so don't use it directly without
+  # a very good reason!
   def raw(msg)
     $socket.puts(msg)
   end
@@ -53,42 +55,35 @@ class TerminusBot
           content = msg.match(/^[^:]+:(.*)$/)[1]
           message = IRCMessage.new(msg, msgArr[2], content, msgArr[0])
 
-          if message.message.include? 1.chr
+          if msg =~ /#{1.chr}([^ ]+) ?(.*)#{1.chr}/
             #CTCP
-            
-            ctcpData = msg.match(/#{1.chr}([^ ]+) ?(.*)#{1.chr}/)
 
-            case ctcpData[1]
+            case $1
               when "ACTION"
-                # will fire an event soon!
+                # TODO: will fire an event soon!
               when "VERSION"
                 sendNotice(message.speaker.nick, "#{1.chr}VERSION #{$config["Core"]["Bot"]["Version"]}#{1.chr}")
               when "URL"
                 sendNotice(message.speaker.nick, "#{1.chr}URL #{$config["Core"]["Bot"]["URL"]}#{1.chr}")
               #when "TIME"
-              #needs to implement rfc 822 section 5
+              #TODO: needs to implement rfc 822 section 5
               #  sendNotice(message.speaker.nick, "#{1.chr}TIME #{}#{1.chr}")
               when "PING"
-                sendNotice(message.speaker.nick, "#{1.chr}PING #{ctcpData[2]}#{1.chr}")
+                sendNotice(message.speaker.nick, "#{1.chr}PING #{$1}#{1.chr}")
               when "CLIENTINFO"
-                sendNotice(message.speaker.nick, "#{1.chr}CLIENTINFO VERSION PING URL #{1.chr}")
+                sendNotice(message.speaker.nick, "#{1.chr}CLIENTINFO VERSION PING URL#{1.chr}")
               else
-                sendNotice(message.speaker.nick, "#{1.chr}ERRMSG #{ctcpData[1]} DEPRECATED#{1.chr}")
+                sendNotice(message.speaker.nick, "#{1.chr}ERRMSG #{$2} UNKNOWN#{1.chr}")
               end
             next
           end
-
-          #puts "[#{message.timestamp}] <#{message.speaker.nick}:#{message.destination}> #{message.message}"
           
-          #attemptHook(message.msgArr[0], message)
           work(message)
 
         when "NOTICE"
           content = msg.match(/^[^:]+:(.*)$/)[1]
           message = IRCMessage.new(msg, msgArr[2], content, msgArr[0])
           work(message)
-
-          #puts "[#{message.timestamp}] --#{message.speaker.nick}:#{message.destination}-- #{message.message}"
 
         # And now, on to the numerical codes.
         # I don't have all of these on here, but it would
@@ -146,9 +141,8 @@ class TerminusBot
           channel = msg.match(/:(.*)/)[1]
           $log.debug('parser') { "Joining: #{channel}" }
 
-          # If this channel isn't in config, put it in.
-
           $config["Core"]["Server"]["Channels"] << channel unless $config["Core"]["Server"]["Channels"].include? channel
+
         when "NICK" #We're changing nicks!
           nick = msg.match(/:(.*)/)[1]
           $log.debug('parser') { "Nick changed: #{nick}" }
@@ -237,11 +231,15 @@ class TerminusBot
           names = msg.match(/.*:(.*)/)
           names = names[1].split(" ")
           names.each { |name|
-            # these will go into a channel object once that's ready
+            # TODO: these will go into a channel object once that's ready
           }
         when "366" #end of names list
 
         when "376" #end of motd
+          # TODO: This and 422 should probably call some function somewhere
+          # that also checks if we already joined channels. No sense in
+          # re-joining if some plugin is just getting the MOTD!
+
           $log.debug('parser') { "End of MOTD." }
           raw "JOIN #{$config["Core"]["Server"]["Channels"].join(",")}"
           
@@ -257,6 +255,9 @@ class TerminusBot
     $log.info('exit') { "Socket closed, starting exit procedure." }
 
     @configClass.saveConfig
+    # TODO: Add an event for modules to notify them of the close.
+    #       Once notified, wait for each function to exit before
+    #       continuing.
     
     $log.info('exit') { "Exit procedures complete. Exiting!" }
     $log.close
