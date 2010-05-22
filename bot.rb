@@ -374,6 +374,8 @@ def enumerateIncludes(dir)
 
 end
 
+Dir.mkdir 'logs' unless File.directory? 'logs'
+
 $log = Logger.new('logs/system.log', 'weekly');
 
 $log.info('init') { 'Terminus-Bot is now starting.' }
