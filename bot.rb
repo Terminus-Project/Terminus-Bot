@@ -99,14 +99,14 @@ class TerminusBot
               when "URL"
                 sendNotice(message.speaker.nick, "#{1.chr}URL #{$config["Core"]["Bot"]["URL"]}#{1.chr}")
               when "TIME"
-              # implements rfc 822 section 5 as date-time
+                # implements rfc 822 section 5 as date-time
                 sendNotice(message.speaker.nick, "#{1.chr}TIME #{DateTime.now.strftime("%d %m %y %H:%M:%S %z")}#{1.chr}")
               when "PING"
                 sendNotice(message.speaker.nick, "#{1.chr}PING #{$1}#{1.chr}")
               when "CLIENTINFO"
                 sendNotice(message.speaker.nick, "#{1.chr}CLIENTINFO VERSION PING URL TIME#{1.chr}")
               else
-                sendNotice(message.speaker.nick, "#{1.chr}ERRMSG #{$2} UNKNOWN#{1.chr}")
+                sendNotice(message.speaker.nick, "#{1.chr}ERRMSG #{$2} QUERY UNKNOWN#{1.chr}")
               end
             next
           end
@@ -170,7 +170,8 @@ class TerminusBot
           
             end
           }
-        when "JOIN" #We're joining something!
+        when "JOIN" # Someone is joining something!
+          # TODO: This runs when anyone joins a channel we're in. Bad!
           channel = msg.match(/:(.*)/)[1]
           $log.debug('parser') { "Joining: #{channel}" }
 
@@ -269,16 +270,12 @@ class TerminusBot
         when "366" #end of names list
 
         when "376" #end of motd
-          # TODO: This and 422 should probably call some function somewhere
-          # that also checks if we already joined channels. No sense in
-          # re-joining if some plugin is just getting the MOTD!
-
           $log.debug('parser') { "End of MOTD." }
-          raw "JOIN #{$config["Core"]["Server"]["Channels"].join(",")}"
-          
+          finishedConnecting          
+
         when "422" #motd not found
           $log.debug('parser') { "MOTD not found." }
-          raw "JOIN #{$config["Core"]["Server"]["Channels"].join(",")}"
+          finishedConnecting          
 
 	#else
         #  $log.debug('parser') { "Unknown message type: #{msg}" }
@@ -298,10 +295,21 @@ class TerminusBot
     exit
   end
 
+  def finishedConnecting
+    # This should run once when we're done connecting.
+    # Set modes, join channels, and do whatever else we need.
+    unless @alreadyFinished
+      sendMode($config["Core"]["Bot"]["Nickname"], "+B")
+      sendRaw "JOIN #{$config["Core"]["Server"]["Channels"].join(",")}"
+      @alreadyFinished = true
+    end
+  end
+
   def work(message)
     @incomingQueue.push(message)
   end
 
+  # This is only used when we intercept an interrupt...
   def quit(quitMessage = $config["Core"]["Bot"]["QuitMessage"])
     raw 'QUIT :' + quitMessage
   end
@@ -373,6 +381,27 @@ def enumerateIncludes(dir)
   }
 
 end
+
+print <<EOF
+ 
+ _______                  _                        ____        _
+|__   __|                (_)                      |   _\\      | |
+   | | ___ _ __ _ __ ___  _ _ __  _   _ ___ ______| |_) | ___ | |_
+   | |/ _ \\ '__| '_ ` _ \\| | '_ \\| | | / __|______|  _ < / _ \\| __|
+   | |  __/ |  | | | | | | | | | | |_| \\__ \\      | |_) | (_) | |_
+   |_|\\___|_|  |_| |_| |_|_|_| |_|\\__,_|___/      |____/ \\___/ \\__|
+
+Terminus-Bot: An IRC bot to solve all of the problems with IRC bots.
+Copyright (C) 2010  Terminus-Bot Development Team
+
+This program is free software: you can redistribute it and/or modify it under the terms of the GNU Affero General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Affero General Public License for more details.
+
+You should have received a copy of the GNU Affero General Public License along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+EOF
+
 
 Dir.mkdir 'logs' unless File.directory? 'logs'
 

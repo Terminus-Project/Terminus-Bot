@@ -56,3 +56,7 @@
   def sendNotice(destination, message)
     sendRaw("NOTICE #{destination} :#{message}")
   end
+
+  def sendMode(target, mode, parameters = "")
+    sendRaw("MODE #{target}#{" #{parameters}" unless parameters.empty?}")
+  end
