@@ -45,21 +45,17 @@ class Scheduler
 
       while true
 
-        sleep 1 - previousTime
+        sleep 1 - previousTime # Subtract previous execution time to
+                               # try to get us close to just one second
+                               # of sleep time.
         now = Time.now.to_i
-
-        #$configClass.saveConfig if now % 300 == 0 #Let's save the config every five minutes.
 
         @schedule.each { |item|
           if (item.time <= now and not item.repeat) or (item.repeat and now % item.time == 0)
+            
             $log.debug('scheduler') { "Running scheduled task." }
 
-            begin
-              item.task.call
-            rescue => err
-              log.error('scheduler') { "Task failed:" }
-              log.error('scheduler') { err }
-            end
+            item.task.call rescue log.error('scheduler') { "\"#{item.name}\" failed." }
 
             @schedule.delete item unless item.repeat
           end
@@ -67,7 +63,8 @@ class Scheduler
         previousTime = now - Time.now.to_i
       end
 
-    } rescue $log.error('scheduler') { "Thread ended." }
+    }
+    rescue $log.error('scheduler') { "Thread ended." }
 
   end
 
