@@ -41,9 +41,11 @@ class Scheduler
       # then go back to sleep.
       $log.debug('scheduler') { "Thread started." }
 
+      previousTime = 0
+
       while true
 
-        sleep 1
+        sleep 1 - previousTime
         now = Time.now.to_i
 
         #$configClass.saveConfig if now % 300 == 0 #Let's save the config every five minutes.
@@ -62,7 +64,7 @@ class Scheduler
             @schedule.delete item unless item.repeat
           end
         }
-
+        previousTime = now - Time.now.to_i
       end
 
     } rescue $log.error('scheduler') { "Thread ended." }

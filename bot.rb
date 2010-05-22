@@ -60,7 +60,7 @@ class TerminusBot
 
     # Some servers don't send PING and end up disconnecting us!
     # So let's talk to them, just in case. 4 minutes seems good.
-    $scheduler.add("Keep-Alive Pinger", Proc.new { raw("PING " + DateTime.now.to_i) }, 360, true)
+    $scheduler.add("Keep-Alive Pinger", Proc.new { sendRaw("PING #{Time.now.to_i}") }, 360, true)
   end
 
   # This bypasses throttling, so don't use it directly without
