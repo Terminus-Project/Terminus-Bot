@@ -35,6 +35,14 @@
   end
 
   def reply(message, replyStr, nickPrefix = false)
+
+    if replyStr.kind_of? Array
+      replyStr.each { |reply|
+        reply(message, reply, nickPrefix)
+      }
+      return
+    end
+
     if replyStr.length > 400
       nextStr = replyStr.slice!(0..399)
       reply(message, nextStr, nickPrefix)

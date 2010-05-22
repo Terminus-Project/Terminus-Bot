@@ -65,9 +65,10 @@ class Admin
         username = message.msgArr[1]
         password = Digest::MD5.hexdigest(message.msgArr[2])
 
-        $log.info("admin") { "Login attempt from #{message.destination} with user name #{username} and password #{password}" }
+        $log.info("admin") { "Login attempt from #{message.speaker.nick} with user name #{username} and password #{password}" }
 
-        if $config["Core"]["Bot"]["Users"][username].password == password
+        passwordOK = $config["Core"]["Bot"]["Users"][username].password == password
+        if passwordOK
           reply(message, "Success!")
           @admins[message.speaker.fullMask] = $config["Core"]["Bot"]["Users"][username]
         else
@@ -78,7 +79,12 @@ class Admin
   end
 
   def cmd_eval(message)
-    reply(message, eval(message.args), true) if checkPermission(message, 9)
+    begin
+      result = eval(message.args)
+    rescue => e 
+      result = "There was an error processing your request: #{e}"
+    end
+    reply(message, result, true) if checkPermission(message, 9)
   end
 
   def cmd_schedule(message)

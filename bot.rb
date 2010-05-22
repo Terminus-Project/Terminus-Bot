@@ -39,6 +39,8 @@ class TerminusBot
             Timeout::timeout(30){ attemptHook(request) }
           rescue Timeout::Error => e
             $log.warn("pool") { "Request timed out: #{request}" }
+          rescue => e
+            $log.warn("pool") { "Request failed: #{e}" }
           end
         end
       }
@@ -409,35 +411,47 @@ $log = Logger.new('logs/system.log', 'weekly');
 
 $log.info('init') { 'Terminus-Bot is now starting.' }
 
-
-$log.debug('init') { 'Loading core bot files.' }
-puts "Loading bot core..."
-enumerateIncludes("./includes/")
+puts "Loading configuration..."
 
 $log.debug('init') { 'Loading configuration.' }
-puts "Loading configuration..."
 load "config.rb"
 
 configClass = Config.new
 
-$log.debug('init') { 'Loading modules.' }
-puts "Loading modules..."
-$modules = Array.new()
-Dir.foreach("modules") { |f| load "./modules/#{f}" unless f.match(/^\.+$/) }
+puts "Configuration loaded. Running in background..."
 
-$log.debug('init') { 'Firing off the bot.' }
-puts "Done. Establishing IRC connection..."
-bot = TerminusBot.new(
-  $config["Core"]["Server"]["Address"],
-  $config["Core"]["Server"]["Port"],
-  $config["Core"]["Server"]["Channels"],
-  configClass)
+pid = fork do
 
-$log.info('init') { 'Bot started! Now running.' }
-puts "Terminus-Bot started! Running..."
 
-trap("INT"){ bot.quit("Interrupted by host system. Exiting!") }
+  $log.debug('init') { 'Loading core bot files.' }
+  enumerateIncludes("./includes/")
 
-bot.run
+  # We have the classes we need to build our config. Go!
+  configClass.readConfig
+
+  $log.debug('init') { 'Loading modules.' }
+  $modules = Array.new()
+  Dir.foreach("modules") { |f| load "./modules/#{f}" unless f.match(/^\.+$/) }
+
+  $log.debug('init') { 'Firing off the bot.' }
+  #puts "Done. Establishing IRC connection..."
+  bot = TerminusBot.new(
+    $config["Core"]["Server"]["Address"],
+    $config["Core"]["Server"]["Port"],
+    $config["Core"]["Server"]["Channels"],
+    configClass)
+
+  $log.info('init') { 'Bot started! Now running.' }
+
+  trap("INT"){ bot.quit("Interrupted by host system. Exiting!") }
+  trap("TERM"){ bot.quit("Terminated by host system. Exiting!") }
+  trap("KILL"){ bot.quit("Killed by host system. Exiting!") }
+
+  trap("HUP", "IGNORE") # We don't need to die on HUP.
+
+  bot.run
+end
+
+Process.detach pid
 
 
