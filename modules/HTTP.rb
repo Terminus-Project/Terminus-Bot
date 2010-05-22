@@ -33,7 +33,7 @@ class HTTP
 
       page.skip_until(/<title>/i)
       title = page.scan_until(/<\/title>/i)
-      title = title[0..title.length - 9].gsub(/\n/, " ").gsub(/^\s+/,"").gsub(/\s+$/, "").gsub(/\s+/, " ") rescue "I was unable to determine the title of the page."
+      title = title[0..title.length - 9].strip.gsub(/\n/, " ").gsub(/\s+/, " ") rescue "I was unable to determine the title of the page."
       
       reply(message, title, true)
        
