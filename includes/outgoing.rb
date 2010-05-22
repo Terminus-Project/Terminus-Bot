@@ -66,5 +66,5 @@
   end
 
   def sendMode(target, mode, parameters = "")
-    sendRaw("MODE #{target}#{" #{parameters}" unless parameters.empty?}")
+    sendRaw("MODE #{target} #{mode}#{" #{parameters}" unless parameters.empty?}")
   end

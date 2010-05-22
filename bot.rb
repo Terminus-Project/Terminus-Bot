@@ -180,10 +180,11 @@ class TerminusBot
           $config["Core"]["Server"]["Channels"] << channel unless $config["Core"]["Server"]["Channels"].include? channel
 
         when "NICK" #We're changing nicks!
+          #TODO: This runs every time someone changes nicks! Make is smart!
           nick = msg.match(/:(.*)/)[1]
           $log.debug('parser') { "Nick changed: #{nick}" }
 
-          $config["Core"]["Bot"]["Nickname"] = nick
+          #$config["Core"]["Bot"]["Nickname"] = nick
 
           
 =begin
@@ -301,9 +302,17 @@ class TerminusBot
     # This should run once when we're done connecting.
     # Set modes, join channels, and do whatever else we need.
     unless @alreadyFinished
+
+      # Tell the server we're a bot.
+      # TODO: Make sure the server supports this mode.
       sendMode($config["Core"]["Bot"]["Nickname"], "+B")
+
+      # TODO: Feed this through something in outgoing.rb to split up
+      #       joins that exceed the server maximum found in $network.
       sendRaw "JOIN #{$config["Core"]["Server"]["Channels"].join(",")}"
+
       @alreadyFinished = true
+
     end
   end
 
@@ -387,7 +396,7 @@ end
 print <<EOF
  
  _______                  _                        ____        _
-|__   __|                (_)                      |   _\\      | |
+|__   __|                (_)                      |  _ \\      | |
    | | ___ _ __ _ __ ___  _ _ __  _   _ ___ ______| |_) | ___ | |_
    | |/ _ \\ '__| '_ ` _ \\| | '_ \\| | | / __|______|  _ < / _ \\| __|
    | |  __/ |  | | | | | | | | | | |_| \\__ \\      | |_) | (_) | |_
@@ -421,7 +430,6 @@ configClass = Config.new
 puts "Configuration loaded. Running in background..."
 
 pid = fork do
-
 
   $log.debug('init') { 'Loading core bot files.' }
   enumerateIncludes("./includes/")
