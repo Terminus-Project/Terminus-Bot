@@ -35,17 +35,32 @@ class TerminusBot
         while true
           request = @incomingQueue.pop
 
-          attemptHook(request)
+          begin
+            Timeout::timeout(30){ attemptHook(request) }
+          rescue Timeout::Error => e
+            $log.warn("pool") { "Request timed out: #{request}" }
+          end
         end
       }
     }
 
+    $scheduler = Scheduler.new(configClass)
+    $scheduler.start
+
+
     @channels = channels
     @configClass = configClass
+
+    $scheduler.add("Configuration Auto-Save", Proc.new { @configClass.saveConfig }, 300, true)
+
     $network = Network.new()
     $socket = TCPSocket.open(server, port)
     raw "NICK " + $config["Core"]["Bot"]["Nickname"]
     raw "USER #{$config["Core"]["Bot"]["Ident"]} 0 * #{$config["Core"]["Bot"]["RealName"]}"
+
+    # Some servers don't send PING and end up disconnecting us!
+    # So let's talk to them, just in case. 4 minutes seems good.
+    $scheduler.add("Keep-Alive Pinger", Proc.new { raw("PING " + DateTime.now.to_i) }, 360, true)
   end
 
   # This bypasses throttling, so don't use it directly without
@@ -83,13 +98,13 @@ class TerminusBot
                 sendNotice(message.speaker.nick, "#{1.chr}VERSION #{$config["Core"]["Bot"]["Version"]}#{1.chr}")
               when "URL"
                 sendNotice(message.speaker.nick, "#{1.chr}URL #{$config["Core"]["Bot"]["URL"]}#{1.chr}")
-              #when "TIME"
-              #TODO: needs to implement rfc 822 section 5
-              #  sendNotice(message.speaker.nick, "#{1.chr}TIME #{}#{1.chr}")
+              when "TIME"
+              # implements rfc 822 section 5 as date-time
+                sendNotice(message.speaker.nick, "#{1.chr}TIME #{DateTime.now.strftime("%d %m %y %H:%M:%S %z")}#{1.chr}")
               when "PING"
                 sendNotice(message.speaker.nick, "#{1.chr}PING #{$1}#{1.chr}")
               when "CLIENTINFO"
-                sendNotice(message.speaker.nick, "#{1.chr}CLIENTINFO VERSION PING URL#{1.chr}")
+                sendNotice(message.speaker.nick, "#{1.chr}CLIENTINFO VERSION PING URL TIME#{1.chr}")
               else
                 sendNotice(message.speaker.nick, "#{1.chr}ERRMSG #{$2} UNKNOWN#{1.chr}")
               end
@@ -390,7 +405,7 @@ bot = TerminusBot.new(
 $log.info('init') { 'Bot started! Now running.' }
 puts "Terminus-Bot started! Running..."
 
-trap("INT"){ bot.quit }
+trap("INT"){ bot.quit("Interrupted by host system. Exiting!") }
 
 bot.run
 

@@ -34,13 +34,18 @@
     @@messageQueue.push(msg)
   end
 
-  def reply(message, reply, nickPrefix = false)
-    reply = "#{message.speaker.nick}: #{reply}" if nickPrefix
+  def reply(message, replyStr, nickPrefix = false)
+    if replyStr.length > 400
+      nextStr = replyStr.slice!(0..399)
+      reply(message, nextStr, nickPrefix)
+    end
+
+    replyStr = "#{message.speaker.nick}: #{replyStr}" if nickPrefix
 
     if message.type == CHANNEL
-      sendPrivmsg(message.replyTo, reply)
+      sendPrivmsg(message.replyTo, replyStr)
     else
-      sendNotice(message.replyTo, reply)
+      sendNotice(message.replyTo, replyStr)
     end
   end
 

@@ -81,6 +81,10 @@ class Admin
     reply(message, eval(message.args), true) if checkPermission(message, 9)
   end
 
+  def cmd_schedule(message)
+    reply(message, $scheduler.schedule.join(", "), true) if checkPermission(message, 9)
+  end
+
   def cmd_raw(message)
     sendRaw(message.args) if checkPermission(message, 9)
   end
