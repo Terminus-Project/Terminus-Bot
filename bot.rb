@@ -372,8 +372,11 @@ class TerminusBot
 
   def fireHooks(cmd, msg)
       $modules.each do |m|
-         #$log.debug('bot') { "attemptHook #{m} -> #{cmd}" }
-         m.send(cmd,msg) if m.respond_to?(cmd)
+         begin
+           m.send(cmd,msg) if m.respond_to?(cmd)
+         rescue => e
+           $log.warn("fireHooks") { "Module failed to complete #{cmd}: #{e}" }
+         end
       end
   end
 end
