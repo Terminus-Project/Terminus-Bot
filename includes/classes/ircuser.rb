@@ -42,4 +42,8 @@ class IRCUser
     @channelModes = ""
   end
 
+  def to_s
+    "#{nick}!#{ident}@#{host}"
+  end
+
 end

@@ -56,7 +56,7 @@ class Admin
   end
 
   def cmd_login(message)
-    unless message.type == PRIVATE
+    unless message.private?
       reply(message, "You may only use that command in a query.", true)
     else
       if not message.msgArr.length == 3

@@ -21,40 +21,54 @@
 #Declare to constants since we don't have enums in Ruby.
 #There are more graceful solutions, but this will do for now.
 
-#SERVER = 0
-PRIVATE = 1 #don't care if it's a notice or query right now
-CHANNEL = 2
-#CTCP = 3
+CTCP_REQUEST = -2
+CTCP_REPLY = -1
+SERVER_MSG = 0
+PRIVMSG = 1
+NOTICE = 2
+NICK_CHANGE = 3
+JOIN_CHANNEL = 4
+PART_CHANNEL = 5
+
 
 require 'date'
 
 class IRCMessage
-  attr_reader :destination, :message, :speaker, :timestamp, :msgArr, :args, :replyTo, :type, :raw
+  attr_reader :destination, :message, :speaker, :timestamp, :msgArr, :args, :replyTo, :type, :raw, :rawArr
 
-  def initialize(raw, destination, message, speaker)
-    
-    # TODO: We should be able to parse the message here and determine
-    #       type and everything else, not do it separately for each
-    #       message type.
+  def initialize(raw, type)
+
+    case type
+      when 4..5
+        @message = raw.match(/:(.*)/)[1]
+      when -2..-1
+        @message = raw.match(/#{1.chr}(.*)#{1.chr}/)[1]
+      else
+        @message = raw.match(/^[^:]+:(.*)$/)[1] rescue raw
+    end
 
     @raw = raw
-    @destination = destination
-    @message = message
-    @speaker = IRCUser.new(speaker)
-    @timestamp = DateTime.now
+    @rawArr = raw.split(" ")
+
     @msgArr = message.split(" ")
+
+    @type = type
+    @destination = @rawArr[2]
+    @speaker = IRCUser.new(@rawArr[0])
+    @timestamp = DateTime.now
+
     @args = @msgArr.clone()
     @args.delete_at(0)
     @args = @args.join(" ")
 
-    #determine type, reply destination
-    if $network.isChannel? destination
-      @replyTo = @destination
-      @type = CHANNEL
-    else
-      @type = PRIVATE
-      @replyTo = @speaker.nick
-    end
+    @replyTo = (self.private? ? @speaker.nick : @destination)
+  end
 
+  def private?
+    not $network.isChannel? @destination
+  end
+
+  def to_s
+    @message
   end
 end

@@ -50,7 +50,7 @@
 
     replyStr = "#{message.speaker.nick}: #{replyStr}" if nickPrefix
 
-    if message.type == CHANNEL
+    unless message.private?
       sendPrivmsg(message.replyTo, replyStr)
     else
       sendNotice(message.replyTo, replyStr)
