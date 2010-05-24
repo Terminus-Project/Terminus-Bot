@@ -28,6 +28,7 @@ class ScheduleItem
   end
 
   def to_s
-    "#{name} at #{time}#{" (repeated)" if @repeat}"
+    "\"#{@name}\" will run #{@repeat ? "every #{@time} seconds" : "at #{@time} (epoch)"}."
   end
+
 end

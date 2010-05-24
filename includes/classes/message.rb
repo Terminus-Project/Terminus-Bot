@@ -34,16 +34,17 @@ PART_CHANNEL = 5
 require 'date'
 
 class IRCMessage
-  attr_reader :destination, :message, :speaker, :timestamp, :msgArr, :args, :replyTo, :type, :raw, :rawArr
+  attr_reader :destination, :message, :speaker, :timestamp, :msgArr, :args, :replyTo, :type, :raw, :rawArr, :bot
 
-  def initialize(raw, type)
+  def initialize(raw, type, bot)
+    @bot = bot
 
     case type
-      when 4..5
+      when JOIN_CHANNEL..PART_CHANNEL
         @message = raw.match(/:(.*)/)[1]
-      when -2..-1
+      when CTCP_REQUEST..CTCP_REPLY
         @message = raw.match(/#{1.chr}(.*)#{1.chr}/)[1]
-      else
+      else # privmsg, notice, scheduled (pseudo-privmsg)
         @message = raw.match(/^[^:]+:(.*)$/)[1] rescue raw
     end
 

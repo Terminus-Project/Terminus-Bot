@@ -269,7 +269,7 @@ class TerminusBot
       #  $log.debug('parser') { "Unknown message type: #{msg}" }
     end
 
-    attemptHook(IRCMessage.new(msg, type))
+    attemptHook(IRCMessage.new(msg, type, self))
   end
 
   def finishedConnecting
@@ -323,9 +323,9 @@ class TerminusBot
       end
     end
     
+    fireHooks("bot_raw", msg)
+
     case msg.type
-      when SERVER_MSG
-        fireHooks("bot_raw", msg)
       when PRIVMSG
         fireHooks("bot_privmsg", msg)
       when CTCP_REQUEST
@@ -432,7 +432,7 @@ pid = fork do
 
   trap("INT"){ bot.quit("Interrupted by host system. Exiting!") }
   trap("TERM"){ bot.quit("Terminated by host system. Exiting!") }
-  trap("KILL"){ bot.quit("Killed by host system. Exiting!") }
+  trap("KILL"){ exit } # Kill (signal 9) is pretty hardcore. Just exit!
 
   trap("HUP", "IGNORE") # We don't need to die on HUP.
 

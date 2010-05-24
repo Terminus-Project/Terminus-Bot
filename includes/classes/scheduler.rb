@@ -30,8 +30,15 @@ class Scheduler
   end
 
   def add(name, task, time, repeat = false)
-    @schedule << ScheduleItem.new(name, task, time, repeat)
+
+    newItem = ScheduleItem.new(name, task, time, repeat)
+
+    @schedule << newItem
+
     $log.debug('scheduler') { "New task \"#{name}\" added to run at #{time}#{" and repeat" if repeat}." }
+
+    return newItem
+
   end
 
   def start
@@ -45,22 +52,28 @@ class Scheduler
 
       while true
 
-        sleep 1 - previousTime # Subtract previous execution time to
+        sleep 1.0 - previousTime # Subtract previous execution time to
                                # try to get us close to just one second
                                # of sleep time.
         now = Time.now.to_i
 
-        @schedule.each { |item|
-          if (item.time <= now and not item.repeat) or (item.repeat and now % item.time == 0)
+        begin
+          @schedule.each { |item|
+            if (item.time <= now and not item.repeat) or (item.repeat and now % item.time == 0)
             
-            $log.debug('scheduler') { "Running scheduled task." }
+              $log.debug('scheduler') { "Running scheduled task \"#{item.name}\"." }
 
-            item.task.call rescue log.error('scheduler') { "\"#{item.name}\" failed." }
+              item.task.call rescue log.error('scheduler') { "\"#{item.name}\" failed." }
 
-            @schedule.delete item unless item.repeat
-          end
-        }
+              @schedule.delete item unless item.repeat
+            end
+          }
+        rescue => e
+          log.error('scheduler') { "Scheduler failed while looping through items!" }
+        end
+
         previousTime = now - Time.now.to_i
+        previousTime = 1.0 if previousTime > 1.0
       end
 
     }
