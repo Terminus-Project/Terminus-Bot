@@ -17,11 +17,14 @@
 #
 
 class Config
+
+  attr :config
+
   require 'yaml'
   require 'fileutils'
   require 'digest/md5'
 
-  def initialize(configFile = "config.yaml")
+  def initialize(configFile = "configuration")
     @configFile = configFile
 
     unless File.exists? configFile
@@ -66,32 +69,24 @@ class Config
 
       adminPassword = Digest::MD5.hexdigest(adminPassword)
 
+      require "includes/classes/adminuser.rb"
       adminUserObj = AdminUser.new(adminUser, adminPassword, 10)
 
-      $config = Hash.new()
+      @config = Hash.new()
 
-      $config["Modules"] = Hash.new()
-
-      $config["Core"] = Hash.new()
-      $config["Core"]["Modules"] = Hash.new()
-      $config["Core"]["Server"] = Hash.new()
-      $config["Core"]["Server"]["Address"] = serverAddress
-      $config["Core"]["Server"]["Port"] = serverPort
-      $config["Core"]["Server"]["Channels"] = channels.split(/, ?/)
-
-      $config["Core"]["Bot"] = Hash.new()
-      $config["Core"]["Bot"]["Nickname"] = botNick
-      $config["Core"]["Bot"]["Ident"] = ident
-      $config["Core"]["Bot"]["URL"] = "http://github.com/kabaka/Terminus-Bot"
-      $config["Core"]["Bot"]["MessageDelay"] = 0.25
-      $config["Core"]["Bot"]["RealName"] = realname
-      $config["Core"]["Bot"]["Version"] = "Terminus-Bot Version 0.1-alpha"
-      $config["Core"]["Bot"]["QuitMessage"] = "Terminus-Bot: Terminating"
-      $config["Core"]["Bot"]["CommandPrefix"] = cmdPrefix
-
-      $config["Core"]["Bot"]["Users"] = Hash.new()
-
-      $config["Core"]["Bot"]["Users"][adminUser] = adminUserObj
+      @config["Nick"] = botNick
+      @config["Address"] = serverAddress
+      @config["Port"] = serverPort.to_i
+      @config["Channels"] = channels.split(', ?')
+      @config["UserName"] = ident
+      @config["RealName"] = realname
+      @config["URL"] = "http://github.com/kabaka/Terminus-Bot"
+      @config["Version"] = "Terminus-Bot 0.2-alpha"
+      @config["QuitMessage"] = "Terminus-Bot: Terminating"
+      @config["Prefix"] = ";"
+      @config["Throttle"] = 0.1
+      @config["Users"] = Hash.new
+      @config["Users"][adminUser] = adminUserObj
 
       puts "Saving configuration to disk..."
 
@@ -104,12 +99,12 @@ class Config
 
   def readConfig()
     $log.debug('config') { "Reading #{@configFile}" }
-    $config = YAML::load(File.open(@configFile, 'r'))
-    $config = "" unless $config
+    @config = YAML::load(File.open(@configFile, 'r'))
+    @config = "" unless @config
   end
 
   def saveConfig()
-    File.touch @configFile unless File.exists? @configFile
+    FileUtils.touch @configFile unless File.exists? @configFile
 
     unless File.writable? @configFile
       $log.fatal('config') { "#{@configFile} is not writable!" }
@@ -117,7 +112,7 @@ class Config
     end
 
     $log.debug('config') { "Saving #{@configFile}" }
-    YAML::dump($config, File.open(@configFile, 'w'))
+    YAML::dump(@config, File.open(@configFile, 'w'))
   end
 
 end

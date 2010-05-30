@@ -23,9 +23,9 @@ class CTCP
   def bot_ctcpRequest(message)
     case message.msgArr[0]
       when "VERSION"
-        sendNotice(message.speaker.nick, "#{1.chr}VERSION #{$config["Core"]["Bot"]["Version"]}#{1.chr}")
+        sendNotice(message.speaker.nick, "#{1.chr}VERSION #{$bot.config["Version"]}#{1.chr}")
       when "URL"
-          sendNotice(message.speaker.nick, "#{1.chr}URL #{$config["Core"]["Bot"]["URL"]}#{1.chr}")
+          sendNotice(message.speaker.nick, "#{1.chr}URL #{$bot.config["URL"]}#{1.chr}")
       when "TIME"
         # implements rfc 822 section 5 as date-time
         sendNotice(message.speaker.nick, "#{1.chr}TIME #{DateTime.now.strftime("%d %m %y %H:%M:%S %z")}#{1.chr}")

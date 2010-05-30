@@ -26,8 +26,12 @@ require 'timeout'
 class TerminusBot
 
   attr_reader :configClass, :modules, :network, :modConfig
+  attr :config
 
-  def initialize(server, port, channels, configClass)
+  def initialize(configClass)
+
+    @config = configClass.config
+
     $log.debug("pool") { "Thread pool init started." }
     @incomingQueue = Queue.new
     
@@ -53,7 +57,6 @@ class TerminusBot
 
     $log.debug('initialize') { 'Loading modules.' }
 
-    @channels = channels
     @configClass = configClass
     @mod_config = ModuleConfiguration.new
 
@@ -72,9 +75,9 @@ class TerminusBot
     $scheduler.add("Configuration Auto-Save", Proc.new { @configClass.saveConfig }, 300, true)
 
     @network = Network.new
-    $socket = TCPSocket.open(server, port)
-    raw "NICK " + $config["Core"]["Bot"]["Nickname"]
-    raw "USER #{$config["Core"]["Bot"]["Ident"]} 0 * #{$config["Core"]["Bot"]["RealName"]}"
+    $socket = TCPSocket.open(@config["Address"], @config["Port"])
+    raw "NICK " + @config["Nick"]
+    raw "USER #{@config["UserName"]} 0 * #{@config["RealName"]}"
 
     # Some servers don't send PING and end up disconnecting us!
     # So let's talk to them, just in case. 4 minutes seems good.
@@ -295,11 +298,11 @@ class TerminusBot
 
       # Tell the server we're a bot.
       # TODO: Make sure the server supports this mode.
-      sendMode($config["Core"]["Bot"]["Nickname"], "+B")
+      sendMode(@config["Nick"], "+B")
 
       # TODO: Feed this through something in outgoing.rb to split up
       #       joins that exceed the server maximum found in @network.
-      sendRaw "JOIN #{$config["Core"]["Server"]["Channels"].join(",")}"
+      sendRaw "JOIN #{@config["Channels"].join(",")}"
 
       @alreadyFinished = true
 
@@ -307,7 +310,7 @@ class TerminusBot
   end
 
   # This is only used when we intercept an interrupt...
-  def quit(quitMessage = $config["Core"]["Bot"]["QuitMessage"])
+  def quit(quitMessage = @config["QuitMessage"])
     raw 'QUIT :' + quitMessage
   end
 
@@ -329,7 +332,7 @@ class TerminusBot
     if msg.type == PRIVMSG or msg.type == NOTICE
       cmd = msg.msgArr[0].downcase
 
-      if cmd =~ /\A#{Regexp.escape $config["Core"]["Bot"]["CommandPrefix"]}(.*)/
+      if cmd =~ /\A#{Regexp.escape @config["Prefix"]}(.*)/
         cmd = $1
         cmd.gsub!(/[^a-z]/, "_")
         fireHooks("cmd_#{cmd}", msg)
@@ -434,11 +437,7 @@ pid = fork do
 
   $log.debug('init') { 'Firing off the bot.' }
   #puts "Done. Establishing IRC connection..."
-  $bot = TerminusBot.new(
-    $config["Core"]["Server"]["Address"],
-    $config["Core"]["Server"]["Port"],
-    $config["Core"]["Server"]["Channels"],
-    configClass)
+  $bot = TerminusBot.new(configClass)
 
   $log.info('init') { 'Bot started! Now running.' }
 

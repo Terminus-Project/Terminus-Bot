@@ -66,10 +66,10 @@ class Admin
 
         $log.info("admin") { "Login attempt from #{message.speaker.nick} with user name #{username} and password #{password}" }
 
-        passwordOK = $config["Core"]["Bot"]["Users"][username].password == password
+        passwordOK = $bot.config["Users"][username].password == password
         if passwordOK
           reply(message, "Success!")
-          @admins[message.speaker.fullMask] = $config["Core"]["Bot"]["Users"][username]
+          @admins[message.speaker.fullMask] = $bot.config["Users"][username]
         else
           reply(message, "Failure!")
         end
@@ -105,7 +105,7 @@ class Admin
   def cmd_quit(message)
     if checkPermission(message, 9)
       if message.args.empty?
-        sendRaw("QUIT :" + $config["Core"]["Bot"]["QuitMessage"])
+        sendRaw("QUIT :" + $bot.config["QuitMessage"])
       else
         sendRaw("QUIT :#{message.args}")
       end

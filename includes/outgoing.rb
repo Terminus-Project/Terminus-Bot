@@ -25,7 +25,7 @@
         msg = @@messageQueue.pop
         $log.debug('outgoing') { "Sent: #{msg}" }
         $socket.puts(msg)
-        #sleep $config["Core"]["Bot"]["MessageDelay"]
+        sleep $bot.config["Throttle"]
       end
       $log.debug('outgoing') { "Thread stopped." }
     }
