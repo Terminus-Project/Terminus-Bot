@@ -25,13 +25,23 @@ require 'timeout'
 
 class TerminusBot
 
-  attr_reader :configClass, :modules, :network, :modConfig
-  attr :config
+  attr_reader :configClass, :modules, :network, :modConfig, :config
+  attr_writer :config, :modConfig
 
   def initialize(configClass)
 
     @config = configClass.config
+    @configClass = configClass
 
+  end
+
+  # This bypasses throttling, so don't use it directly without
+  # a very good reason!
+  def raw(msg)
+    $socket.puts(msg)
+  end
+
+  def run
     $log.debug("pool") { "Thread pool init started." }
     @incomingQueue = Queue.new
     
@@ -54,11 +64,11 @@ class TerminusBot
 
     $scheduler = Scheduler.new(configClass)
     $scheduler.start
+    @configClass = configClass
 
     $log.debug('initialize') { 'Loading modules.' }
 
-    @configClass = configClass
-    @mod_config = ModuleConfiguration.new
+    @modConfig = ModuleConfiguration.new
 
     @modules = Array.new()
     Dir.foreach("modules") { |f|
@@ -79,18 +89,10 @@ class TerminusBot
     raw "NICK " + @config["Nick"]
     raw "USER #{@config["UserName"]} 0 * #{@config["RealName"]}"
 
+    $scheduler.add("Keep-Alive Pinger", Proc.new { sendRaw("PING #{Time.now.to_i}") }, 360, true)
+
     # Some servers don't send PING and end up disconnecting us!
     # So let's talk to them, just in case. 4 minutes seems good.
-    $scheduler.add("Keep-Alive Pinger", Proc.new { sendRaw("PING #{Time.now.to_i}") }, 360, true)
-  end
-
-  # This bypasses throttling, so don't use it directly without
-  # a very good reason!
-  def raw(msg)
-    $socket.puts(msg)
-  end
-
-  def run
     until $socket.eof? do
       msg = $socket.gets.chomp
 

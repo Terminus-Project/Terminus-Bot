@@ -21,19 +21,28 @@
 class ModuleConfiguration
 
   def initialize
-    @modules = Hash.new
+    $bot.config["ModuleConfig"] = Hash.new unless $bot.config.key? "ModuleConfig"
+  end
+
+  def addModule(modName)
+    $bot.config["ModuleConfig"][modName] = Hash.new unless exists? modName
   end
 
   def get(modName, key)
-    @modules[modName][key]
+    $bot.config["ModuleConfig"][modName][key] rescue nil
   end
 
   def put(modName, key, value)
-    @modules[modName][key] = value
+    addModule(modName)
+    $bot.config["ModuleConfig"][modName][key] = value
   end
 
   def delete(modName, key)
-    @modules[modName].delete key
+    $bot.config["ModuleConfig"][modName].delete key rescue nil
+  end
+
+  def exists?(modName)
+    $bot.config["ModuleConfig"].key? modName
   end
 
 end
