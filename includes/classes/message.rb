@@ -34,11 +34,9 @@ PART_CHANNEL = 5
 require 'date'
 
 class IRCMessage
-  attr_reader :destination, :message, :speaker, :timestamp, :msgArr, :args, :replyTo, :type, :raw, :rawArr, :bot
+  attr_reader :destination, :message, :speaker, :timestamp, :msgArr, :args, :replyTo, :type, :raw, :rawArr
 
-  def initialize(raw, type, bot)
-    @bot = bot
-
+  def initialize(raw, type)
     case type
       when JOIN_CHANNEL..PART_CHANNEL
         @message = raw.match(/:(.*)/)[1]
@@ -66,7 +64,7 @@ class IRCMessage
   end
 
   def private?
-    not $network.isChannel? @destination
+    not $bot.network.isChannel? @destination
   end
 
   def to_s

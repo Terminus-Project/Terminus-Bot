@@ -25,6 +25,8 @@ require 'timeout'
 
 class TerminusBot
 
+  attr_reader :configClass, :modules, :network, :modConfig
+
   def initialize(server, port, channels, configClass)
     $log.debug("pool") { "Thread pool init started." }
     @incomingQueue = Queue.new
@@ -49,13 +51,27 @@ class TerminusBot
     $scheduler = Scheduler.new(configClass)
     $scheduler.start
 
+    $log.debug('initialize') { 'Loading modules.' }
 
     @channels = channels
     @configClass = configClass
+    @mod_config = ModuleConfiguration.new
+
+    @modules = Array.new()
+    Dir.foreach("modules") { |f|
+      unless f =~ /^\.+$/
+        begin
+          load "./modules/#{f}"
+          @modules << eval("#{f.match(/([^\.]+)/)[1]}.new")
+        rescue => e
+          $log.error('initialize') { "I was unable to load the module #{f}: #{e}" }
+        end
+      end
+    }
 
     $scheduler.add("Configuration Auto-Save", Proc.new { @configClass.saveConfig }, 300, true)
 
-    $network = Network.new()
+    @network = Network.new
     $socket = TCPSocket.open(server, port)
     raw "NICK " + $config["Core"]["Bot"]["Nickname"]
     raw "USER #{$config["Core"]["Bot"]["Ident"]} 0 * #{$config["Core"]["Bot"]["RealName"]}"
@@ -119,46 +135,46 @@ class TerminusBot
       # be trivial to add more. What I do have here is
       # mostly for logging and debugging, anyway.
       when "004"
-        $network.currentServer = msgArr[3]
-        $network.serverSoftware = msgArr[4]
+        @network.currentServer = msgArr[3]
+        @network.serverSoftware = msgArr[4]
       when "005"
         msgArr.each { |param|
           paramArr = param.split("=")
           case paramArr[0]
             when "NETWORK"
-              $network.name = paramArr[1]
+              @network.name = paramArr[1]
             when "MAXCHANNELS"
-              $network.maxChannels = paramArr[1]
+              @network.maxChannels = paramArr[1]
             when "CHANNELLEN"
-              $network.maxChannelNameLength = paramArr[1]
+              @network.maxChannelNameLength = paramArr[1]
             when "TOPICLEN"
-              $network.maxTopicLength = paramArr[1]
+              @network.maxTopicLength = paramArr[1]
             when "KICKLEN"
-              $network.maxKickLength = paramArr[1]
+              @network.maxKickLength = paramArr[1]
             when "AWAYLEN"
-              $network.maxAwayLength = paramArr[1]
+              @network.maxAwayLength = paramArr[1]
             when "MAXTARGETS"
-              $network.maxTargets = paramArr[1]
+              @network.maxTargets = paramArr[1]
             when "MODES"
-              $network.maxModes = paramArr[1]
+              @network.maxModes = paramArr[1]
             when "CHANTYPES"
-              $network.channelTypes = paramArr[1]
+              @network.channelTypes = paramArr[1]
             when "CHANMODES"
-              $network.channelModes = paramArr[1]
+              @network.channelModes = paramArr[1]
             when "CASEMAPPING"
-              $network.caseMapping = paramArr[1]
+              @network.caseMapping = paramArr[1]
             when "PREFIX"
-              $network.prefixes = paramArr[1]
+              @network.prefixes = paramArr[1]
             when "MAXLIST"
               maxListArrs = paramArr[1].split(",")
               maxListArrs.each { |maxListArr|
                 maxListArr = maxListArr.split(":")                  
                 if maxListArr[0] == "b"
-                  $network.maxBans = maxListArr[1]
+                  @network.maxBans = maxListArr[1]
                 elsif maxListArr[0] == "e"
-                  $network.maxExempts = maxListArr[1]
+                  @network.maxExempts = maxListArr[1]
                 elsif maxListArr[0] == "I"
-                  $network.maxInviteExempts = maxListArr[1]
+                  @network.maxInviteExempts = maxListArr[1]
                 else
                   $log.warn('parser') { "Invalid MAXLIST parameter: #{maxListArr.join(":")}" }
                 end
@@ -269,7 +285,7 @@ class TerminusBot
       #  $log.debug('parser') { "Unknown message type: #{msg}" }
     end
 
-    attemptHook(IRCMessage.new(msg, type, self))
+    attemptHook(IRCMessage.new(msg, type))
   end
 
   def finishedConnecting
@@ -282,7 +298,7 @@ class TerminusBot
       sendMode($config["Core"]["Bot"]["Nickname"], "+B")
 
       # TODO: Feed this through something in outgoing.rb to split up
-      #       joins that exceed the server maximum found in $network.
+      #       joins that exceed the server maximum found in @network.
       sendRaw "JOIN #{$config["Core"]["Server"]["Channels"].join(",")}"
 
       @alreadyFinished = true
@@ -345,7 +361,7 @@ class TerminusBot
   end
 
   def fireHooks(cmd, msg = nil)
-      $modules.each do |m|
+      @modules.each do |m|
          begin
            if m.respond_to?(cmd)
              msg == nil ? m.send(cmd) : m.send(cmd,msg)
@@ -416,13 +432,9 @@ pid = fork do
   # We have the classes we need to build our config. Go!
   configClass.readConfig
 
-  $log.debug('init') { 'Loading modules.' }
-  $modules = Array.new()
-  Dir.foreach("modules") { |f| load "./modules/#{f}" unless f.match(/^\.+$/) }
-
   $log.debug('init') { 'Firing off the bot.' }
   #puts "Done. Establishing IRC connection..."
-  bot = TerminusBot.new(
+  $bot = TerminusBot.new(
     $config["Core"]["Server"]["Address"],
     $config["Core"]["Server"]["Port"],
     $config["Core"]["Server"]["Channels"],
@@ -430,13 +442,13 @@ pid = fork do
 
   $log.info('init') { 'Bot started! Now running.' }
 
-  trap("INT"){ bot.quit("Interrupted by host system. Exiting!") }
-  trap("TERM"){ bot.quit("Terminated by host system. Exiting!") }
+  trap("INT"){ $bot.quit("Interrupted by host system. Exiting!") }
+  trap("TERM"){ $bot.quit("Terminated by host system. Exiting!") }
   trap("KILL"){ exit } # Kill (signal 9) is pretty hardcore. Just exit!
 
   trap("HUP", "IGNORE") # We don't need to die on HUP.
 
-  bot.run
+  $bot.run
 end
 
 Process.detach pid

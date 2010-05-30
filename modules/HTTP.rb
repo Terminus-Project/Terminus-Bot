@@ -43,5 +43,3 @@ class HTTP
   end
 
 end
-
-$modules.push(HTTP.new)

@@ -39,5 +39,3 @@ class CTCP
   end
 
 end
-
-$modules.push(CTCP.new)

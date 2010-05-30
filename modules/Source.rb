@@ -18,6 +18,13 @@
 #
 #
 
+# This module is here for compliance with the AGPLv3 license!
+# You CANNOT remove this module. If you do, you MUST provide
+# some other means for the bot to provide a link to its source
+# code. And if you customize the bot and release your own version,
+# since it must ALSO be bound my the AGPLv3 license, you must change
+# the link to the source here to a link to your source, or provide
+# another means to get the link.
 class Source
 
   def cmd_source(message)
@@ -25,5 +32,3 @@ class Source
   end
 
 end
-
-$modules.push(Source.new)

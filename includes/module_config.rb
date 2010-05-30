@@ -18,16 +18,22 @@
 #
 #
 
-class Say
+class ModuleConfiguration
 
-
-  def cmd_say(message)
-    reply(message, message.args)
+  def initialize
+    @modules = Hash.new
   end
 
-  def cmd_act(message)
-    reply(message, "#{1.chr}ACTION #{message.args}#{1.chr}")
+  def get(modName, key)
+    @modules[modName][key]
   end
 
+  def put(modName, key, value)
+    @modules[modName][key] = value
+  end
+
+  def delete(modName, key)
+    @modules[modName].delete key
+  end
 
 end

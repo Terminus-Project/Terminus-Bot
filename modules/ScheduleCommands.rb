@@ -68,5 +68,3 @@ class ScheduleCommands
   end
 
 end
-
-$modules.push(ScheduleCommands.new)

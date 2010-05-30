@@ -32,5 +32,3 @@ class Greetings
     end
   end
 end
-
-$modules.push(Greetings.new)
