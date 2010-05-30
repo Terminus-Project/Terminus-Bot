@@ -25,13 +25,14 @@ require 'timeout'
 
 class TerminusBot
 
-  attr_reader :configClass, :modules, :network, :modConfig, :config
+  attr_reader :configClass, :modules, :network, :modConfig, :config, :channels
   attr_writer :config, :modConfig
 
   def initialize(configClass)
 
     @config = configClass.config
     @configClass = configClass
+    @channels = Hash.new
 
   end
 
@@ -190,8 +191,17 @@ class TerminusBot
       when "JOIN" # Someone is joining something!
         type = JOIN_CHANNEL
 
+      when "PART" # Someone is joining something!
+        type = PART_CHANNEL
+
       when "NICK" # Someone is changing nicks!
         type = NICK_CHANGE
+
+      when "352" #who reply
+
+        type = WHO_REPLY
+
+      when "315" #end of who reply
         
 =begin
       when "324" #channel modes
@@ -204,8 +214,6 @@ class TerminusBot
       when "348" #exception mask reply
       when "349" #end of exception masks
       when "351" #server version reply
-      when "352" #who reply
-      when "315" #end of who reply
       when "364" #links
       when "365" #end of links
       when "367" #ban list
@@ -269,14 +277,9 @@ class TerminusBot
       when "491" #no o-lines for your host
       when "501" #unknown mode flag
       when "502" #cannot change mode for other users
-=end
       when "353" #names list
-        #names = msg.match(/.*:(.*)/)
-        #names = names[1].split(" ")
-        #names.each { |name|
-          # TODO: these will go into a channel object once that's ready
-        #}
       when "366" #end of names list
+=end
 
       when "376" #end of motd
         $log.debug('parser') { "End of MOTD." }
@@ -290,7 +293,7 @@ class TerminusBot
       #  $log.debug('parser') { "Unknown message type: #{msg}" }
     end
 
-    attemptHook(IRCMessage.new(msg, type))
+    processIRCMessage(IRCMessage.new(msg, type))
   end
 
   def finishedConnecting
@@ -316,7 +319,7 @@ class TerminusBot
     raw 'QUIT :' + quitMessage
   end
 
-  def attemptHook(msg)
+  def processIRCMessage(msg)
 
     # First, we're going to fire command hooks. The first word of the
     # message is used as the command name. If the message is sent in
@@ -346,6 +349,7 @@ class TerminusBot
     
     fireHooks("bot_raw", msg)
 
+    # We'll fire module hooks and run core stuff in the same go.
     case msg.type
       when PRIVMSG
         fireHooks("bot_privmsg", msg)
@@ -355,11 +359,36 @@ class TerminusBot
         fireHooks("bot_ctcpReply", msg)
       when NOTICE
         fireHooks("bot_notice", msg)
+      when WHO_REPLY
+        #0-amethyst.sinsira.net 1-352 2-Terminus-Bot 3-#terminus-bot 4-Kabaka 5-sectoradmin.sinsira.net 6-emerald.sinsira.net 7-Kabaka 8-Hr*~ :9-1 10-Kabaka!
+        # <channel> <user> <host> <server> <nick>
+        # ( "H" / "G" > ["*"] [ ( "@" / "+" ) ]
+        # :<hopcount> <real name>"
+        $log.debug('process') { "Who Reply: #{msg.raw}" }
+        @channels[msg.rawArr[3]] = Channel.new(msg.rawArr[3]) if @channels[msg.rawArr[3]] == nil
+        
+        whoUser = IRCUser.new("#{msg.rawArr[7]}!#{msg.rawArr[4]}@#{msg.rawArr[5]}")
+
+        @channels[msg.rawArr[3]].join(whoUser)
+
       when NICK_CHANGE
+        @channels[msg.destination].changeNick(msg.origin, msg.speaker.nick)
+
         fireHooks("bot_nickChange", msg)
       when JOIN_CHANNEL
+        $log.debug('process') { "Join: #{msg}" }
+        @channels[msg.message] = Channel.new(msg.message) if @channels[msg.message] == nil
+
+        @channels[msg.message].join(msg.speaker)
+        if msg.speaker.nick == @config["Nick"]
+          sendRaw("WHO #{msg.message}")
+        end
+
         fireHooks("bot_joinChannel", msg)
       when PART_CHANNEL
+        $log.debug('process') { "Part: #{msg}" }
+        @channels[msg.destination].part(msg.speaker)
+
         fireHooks("bot_partChannel", msg)
     end
  

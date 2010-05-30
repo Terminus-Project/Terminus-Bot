@@ -20,12 +20,50 @@
 
 class Channel
 
-  attr_writer :name, :users, :topic, :key, :bans
-
-  # TODO: Finish this class!
+  attr_reader :name, :users, :bans
+  attr :topic, :key
 
   def initialize(name)
+    $log.debug('channel') { "New channel: #{name}" }
     @name = name
-  end  
+    @users = Array.new
+    @topic = ""
+    @key = ""
+    @bans = Array.new
+  end
+
+  def join(user)
+    $log.debug('channel') { "User #{user} joined #{@name}" }
+    @users << user unless @users.include? user
+  end
+
+  def part(user)
+    $log.debug('channel') { "User #{user} parted #{@name}" }
+    @users.delete user
+  end
+
+  def nickChange(oldNick, newNick)
+    $log.debug('channel') { "Nick change #{oldNick} -> #{newNick} in #{@name}" }
+    @users.each { |u|
+      if u.nick == oldNick
+        u.nick = newNick
+        return u
+      end
+    }
+  end
+
+  def isOn?(user)
+    @users.each { |u|
+      return u if user == u
+    }
+  end
+
+  def addBan(mask)
+    @bans << mask
+  end
+
+  def to_s
+   "#{@name} [#{@users.join(", ")}]"
+  end
 
 end

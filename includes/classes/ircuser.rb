@@ -19,13 +19,10 @@
 #
 
 class IRCUser
-  attr_writer :nick, :ident, :host, :lastMessage, :accessLevel, :channelModes
-  attr_reader :nick, :ident, :host, :lastMessage, :accessLevel, :channelModes, :fullMask
+  attr :nick, :ident, :host, :lastMessage, :accessLevel, :channelModes
+  attr_reader :fullMask
 
-  # TODO: Make sure this works everywhere, create some type of association
-  #       between these objects and the IRC network. There needs to be
-  #       a way to track users in multiple channels without keeping
-  #       duplicates in each.
+  include Comparable
 
   def initialize(fullString)
     @fullMask = fullString
@@ -44,6 +41,10 @@ class IRCUser
 
   def to_s
     "#{nick}!#{ident}@#{host}"
+  end
+
+  def <=>(other)
+    self.to_s <=> other.to_s
   end
 
 end

@@ -29,6 +29,7 @@ NOTICE = 2
 NICK_CHANGE = 3
 JOIN_CHANNEL = 4
 PART_CHANNEL = 5
+WHO_REPLY = 6
 
 
 require 'date'
@@ -39,7 +40,7 @@ class IRCMessage
   def initialize(raw, type)
     case type
       when JOIN_CHANNEL..PART_CHANNEL
-        @message = raw.match(/:(.*)/)[1]
+        @message = raw.match(/:(.*)/)[1] rescue ""
       when CTCP_REQUEST..CTCP_REPLY
         @message = raw.match(/#{1.chr}(.*)#{1.chr}/)[1]
       else # privmsg, notice, scheduled (pseudo-privmsg)
