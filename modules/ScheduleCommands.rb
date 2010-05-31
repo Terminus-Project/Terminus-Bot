@@ -18,52 +18,48 @@
 #
 #
 
-class ScheduleCommands
+def cmd_scheduler(message)
 
-  def cmd_scheduler(message)
+  case message.msgArr[1].downcase
+    when "add"
+      # scheduler add repeat? time command
+      if message.msgArr.length < 3
+        reply(message, "Usage: scheduler add [repeat] time command", true)
+        return
+      end
 
-    case message.msgArr[1].downcase
-      when "add"
-        # scheduler add repeat? time command
-        if message.msgArr.length < 3
-          reply(message, "Usage: scheduler add [repeat] time command", true)
-          return
-        end
+      repeat = message.msgArr[2].downcase == "repeat"
 
-        repeat = message.msgArr[2].downcase == "repeat"
+      if repeat
+        time = message.msgArr[3]
+        command = message.msgArr.clone()
+        command.slice!(0, 4)
+        command = command.join(" ")
+      else
+        time = (message.msgArr[2].to_i + Time.now.to_i)
+        command = message.msgArr.clone()
+        command.slice!(0, 3)
+        command = command.join(" ")
+      end
 
-        if repeat
-          time = message.msgArr[3]
-          command = message.msgArr.clone()
-          command.slice!(0, 4)
-          command = command.join(" ")
-        else
-          time = (message.msgArr[2].to_i + Time.now.to_i)
-          command = message.msgArr.clone()
-          command.slice!(0, 3)
-          command = command.join(" ")
-        end
+      fakeRaw = message.raw.match(/^([^:]+:)(.*)$/)[1]
+      fakeRaw = fakeRaw + command
+      cmdMsg = IRCMessage.new(fakeRaw, message.type, message.bot)
 
-        fakeRaw = message.raw.match(/^([^:]+:)(.*)$/)[1]
-        fakeRaw = fakeRaw + command
-        cmdMsg = IRCMessage.new(fakeRaw, message.type, message.bot)
+      added = $scheduler.add("#{command} (#{message.speaker.nick})",
+        Proc.new {
+          message.bot.attemptHook(cmdMsg)
+        },
+        time.to_i,
+        repeat) rescue "Failed to add item."
+    
+      reply(message, added.to_s, true)
 
-        added = $scheduler.add("#{command} (#{message.speaker.nick})",
-          Proc.new {
-            message.bot.attemptHook(cmdMsg)
-          },
-          time.to_i,
-          repeat) rescue "Failed to add item."
-      
-        reply(message, added.to_s, true)
-
-      when "delete"
+    when "delete"
 
 
-      when "list"
+    when "list"
 
-
-    end
 
   end
 

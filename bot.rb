@@ -75,8 +75,10 @@ class TerminusBot
     Dir.foreach("modules") { |f|
       unless f =~ /^\.+$/
         begin
-          load "./modules/#{f}"
-          @modules << eval("#{f.match(/([^\.]+)/)[1]}.new")
+          modName = f.match(/([^\.]+)/)[1]
+          mod = IO.read("./modules/#{f}")
+          mod = "class Mod_#{modName} \n #{mod} \n end \n Mod_#{modName}.new"
+          @modules << eval(mod)
         rescue => e
           $log.error('initialize') { "I was unable to load the module #{f}: #{e}" }
         end
@@ -245,7 +247,7 @@ class TerminusBot
       when "404" #cannot send to channel
       when "405" #too many channels
       when "406" #was no such nick
-      <F6>when "407" #too many targets
+      when "407" #too many targets
       when "412" #no text to send
       when "415" #bad server/host mask
       when "421" #unknown command

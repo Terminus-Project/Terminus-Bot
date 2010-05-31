@@ -18,67 +18,64 @@
 #
 #
 
-class AutoMode
 
+def cmd_automode(message)
 
-  def cmd_automode(message)
+  #TODO: Permissions!
 
-    #TODO: Permissions!
-
-    if message.private?
-      reply(message, "Please use this in the channel you want to modify.", true)
-      return
-    end
-
-    case message.msgArr[1]
-      when "add"
-
-        if message.msgArr.length == 3
-          config = $bot.modConfig.get("automode", message.destination)
-
-          config = Array.new if config == nil
-
-          config << message.msgArr[2]
-          $bot.modConfig.put("automode", message.destination, config)
-          reply(message, "Automode added.", true)
-        else
-          reply(message, "Please provide the additional modes to set on join: automode add <mode(s)>", true)
-        end
-      when "delete"
-        config = $bot.modConfig.get("automode", message.destination)
-        if config == nil
-          reply(message, "No automodes are set for this channel.", true)
-        else
-          if config.include? message.msgArr[2]
-            config.delete message.msgArr[2]
-            reply(message, "Automode deleted.", true)
-          else
-            reply(message, "That automode was not set.", true)
-          end
-        end
-      when "list"
-        config = $bot.modConfig.get("automode", message.destination)
-        if config == nil
-          reply(message, "No automodes are set for this channel.", true)
-        else
-          reply(message, config.join(", "), true)
-        end
-
-      else
-        reply(message, "Try: add, delete, or list", true)
-    end
-
+  if message.private?
+    reply(message, "Please use this in the channel you want to modify.", true)
+    return
   end
 
-  def bot_joinChannel(message)
-    config = $bot.modConfig.get("automode", message.message)
-    return nil if config == nil
+  case message.msgArr[1]
+    when "add"
 
-    modeParams = ""
+      if message.msgArr.length == 3
+        config = $bot.modConfig.get("automode", message.destination)
 
-    config.length.times { modeParams = "#{modeParams} #{message.speaker.nick}" }
+        config = Array.new if config == nil
 
-    sendMode(message.message, config.join(""), modeParams)
+        config << message.msgArr[2]
+        $bot.modConfig.put("automode", message.destination, config)
+        reply(message, "Automode added.", true)
+      else
+        reply(message, "Please provide the additional modes to set on join: automode add <mode(s)>", true)
+      end
+    when "delete"
+      config = $bot.modConfig.get("automode", message.destination)
+      if config == nil
+        reply(message, "No automodes are set for this channel.", true)
+      else
+        if config.include? message.msgArr[2]
+          config.delete message.msgArr[2]
+          reply(message, "Automode deleted.", true)
+        else
+          reply(message, "That automode was not set.", true)
+        end
+      end
+    when "list"
+      config = $bot.modConfig.get("automode", message.destination)
+      if config == nil
+        reply(message, "No automodes are set for this channel.", true)
+      else
+        reply(message, config.join(", "), true)
+      end
+
+    else
+      reply(message, "Try: add, delete, or list", true)
   end
 
 end
+
+def bot_joinChannel(message)
+  config = $bot.modConfig.get("automode", message.message)
+  return nil if config == nil
+
+  modeParams = ""
+
+  config.length.times { modeParams = "#{modeParams} #{message.speaker.nick}" }
+
+  sendMode(message.message, config.join(""), modeParams)
+end
+
