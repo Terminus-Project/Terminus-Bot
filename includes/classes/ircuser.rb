@@ -19,8 +19,8 @@
 #
 
 class IRCUser
-  attr :nick, :ident, :host, :lastMessage, :accessLevel, :channelModes
-  attr_reader :fullMask
+  attr_writer :nick, :ident, :host, :lastMessage, :accessLevel, :channelModes
+  attr_reader :fullMask, :nick, :ident, :host, :lastMessage, :accessLevel, :channelModes
 
   include Comparable
 

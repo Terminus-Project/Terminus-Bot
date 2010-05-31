@@ -22,6 +22,7 @@ require 'socket'
 require 'logger'
 require 'thread'
 require 'timeout'
+require 'strscan'
 
 class TerminusBot
 
@@ -172,7 +173,22 @@ class TerminusBot
             when "CASEMAPPING"
               @network.caseMapping = paramArr[1]
             when "PREFIX"
-              @network.prefixes = paramArr[1]
+              prefixArr = paramArr[1].match(/^\(([^\)]+)\)(.*)$/)
+              if prefixArr[1].length != prefixArr[2].length
+                $log.warn('parser') { "The IRC server has provided an oddly-formatted list of nick mode prefixes." }
+              end
+
+              @network.prefixes = Hash.new()
+              scannerPrefixes = StringScanner.new(prefixArr[1])
+              scannerModes = StringScanner.new(prefixArr[2])
+
+              scanLength = (prefixArr[1].length >= prefixArr[2].length ? prefixArr[2].length : prefixArr[1].length) - 1
+
+              for i in 0..scanLength
+                @network.prefixes[prefixArr[2][i].chr] = prefixArr[1][i].chr
+              end
+
+              $log.debug('parser') { "Prefixes: #{@network.prefixes}" }
             when "MAXLIST"
               maxListArrs = paramArr[1].split(",")
               maxListArrs.each { |maxListArr|
@@ -378,8 +394,15 @@ class TerminusBot
         @channels[msg.rawArr[3]] = Channel.new(msg.rawArr[3]) if @channels[msg.rawArr[3]] == nil
         
         whoUser = IRCUser.new("#{msg.rawArr[7]}!#{msg.rawArr[4]}@#{msg.rawArr[5]}")
+        whoModes = Array.new
+
+        msg.rawArr[8].each_char { |c|
+          whoModes << @network.prefixes[c] if @network.prefixes.keys.include? c
+        }
 
         @channels[msg.rawArr[3]].join(whoUser)
+        @channels[msg.rawArr[3]].users[whoUser.nick].channelModes = whoModes
+        
 
       when NICK_CHANGE
         @channels[msg.destination].changeNick(msg.origin, msg.speaker.nick)
