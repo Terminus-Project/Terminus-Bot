@@ -32,6 +32,7 @@
 
   def sendRaw(msg)
     @@messageQueue.push(msg)
+    return msg
   end
 
   def reply(message, replyStr, nickPrefix = false)

@@ -36,11 +36,27 @@ class IRCUser
       @host = ""
     end
     @accessLevel = 0
-    @channelModes = ""
+    @channelModes = Array.new
   end
 
   def to_s
     "#{nick}!#{ident}@#{host}"
+  end
+
+  def isChannelOp?
+    @channelModes.include? 'o' or @channelModes.include? 'a' or @channelModes.include? 'q'
+  end
+
+  def isVoiced?
+    @channelModes.include? 'v'
+  end
+
+  def isChannelOwner?
+    @channelModes.include? 'q'
+  end
+
+  def isChannelHalfOp?
+    @channelModes.include? 'h'
   end
 
   def <=>(other)

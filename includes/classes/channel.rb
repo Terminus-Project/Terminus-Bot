@@ -20,36 +20,37 @@
 
 class Channel
 
-  attr_reader :name, :users, :bans
-  attr :topic, :key
+  attr_reader :name, :users, :bans, :key, :banExempt, :inviteExempt
+  attr :topic, :modes, :limit
 
   def initialize(name)
     $log.debug('channel') { "New channel: #{name}" }
     @name = name
-    @users = Array.new
+    @users = Hash.new
     @topic = ""
     @key = ""
+    @modes = Array.new
     @bans = Array.new
+    @banExempt = Array.new
+    @inviteExempt = Array.new
   end
 
   def join(user)
     $log.debug('channel') { "User #{user} joined #{@name}" }
-    @users << user unless @users.include? user
+    @users[user.nick] = user unless @users.include? user
   end
 
   def part(user)
     $log.debug('channel') { "User #{user} parted #{@name}" }
-    @users.delete user
+    @users.delete user.nick
   end
 
   def nickChange(oldNick, newNick)
     $log.debug('channel') { "Nick change #{oldNick} -> #{newNick} in #{@name}" }
-    @users.each { |u|
-      if u.nick == oldNick
-        u.nick = newNick
-        return u
-      end
-    }
+    user = @users[oldNick]
+    user.nick = newNick
+    @users[newNick] = user
+    @users.delete oldNick
   end
 
   def isOn?(user)
@@ -58,12 +59,96 @@ class Channel
     }
   end
 
-  def addBan(mask)
-    @bans << mask
+  def to_s
+   "#{@name} #{@modes} [#{@users.values.join(", ")}]"
   end
 
-  def to_s
-   "#{@name} [#{@users.join(", ")}]"
+  def addBan(mask)
+    @bans << mask unless @bans.include? mask
+  end
+
+  def addBanExempt(mask)
+    @banExempt << mask unless @banExempt.include? mask
+  end
+
+  def addInviteExempt(mask)
+    @inviteExempt << mask unless @inviteExempt.include? mask
+  end
+
+
+  def nickModeChange(mode, nick, plus)
+    u = @users[nick]
+    if plus
+      u.channelModes << mode
+    else
+      u.channelModes.delete mode
+    end
+    return u
+  end
+
+  def modeChange(mode)
+    $log.debug('channel') { "Mode change: #{mode}" }
+    plus = true
+    modeArr = mode.split(" ")
+
+    modeArr[0].each_char { |c|
+      case c
+        when '+'
+          plus = true
+        when '-'
+          plus = false
+        when 'v'
+          self.nickModeChange(c, modeArr[1], plus)
+          modeArr.delete_at 1
+        when 'h'
+          self.nickModeChange(c, modeArr[1], plus)
+          modeArr.delete_at 1
+        when 'o'
+          self.nickModeChange(c, modeArr[1], plus)
+          modeArr.delete_at 1
+        when 'a'
+          self.nickModeChange(c, modeArr[1], plus)
+          modeArr.delete_at 1
+        when 'q'
+          self.nickModeChange(c, modeArr[1], plus)
+          modeArr.delete_at 1
+        when 'b'
+          if plus
+            @bans << modeArr[1] unless @bans.include? modeArr[1]
+          else
+            @bans.delete modeArr[1]
+          end
+          modeArr.delete_at 1
+        when 'l'
+          plus ? @limit = modeArr[1] : @limit = ""
+          modeArr.delete_at 1
+        when 'k'
+          plus ? @key = modeArr[1] : @key = ""
+          modeArr.delete_at 1
+        when 'e'
+          if plus
+            @banExempt << modeArr[1] unless @banExempt.include? modeArr[1]
+          else
+            @banExempt.delete modeArr[1]
+          end
+          modeArr.delete_at 1
+        when 'I'
+          if plus
+            @inviteExempt << modeArr[1] unless @inviteExempt.include? modeArr[1]
+          else
+            @inviteExempt.delete modeArr[1]
+          end
+          modeArr.delete_at 1
+        else
+          $log.warn('channel') { "Unknown channel mode #{c}." } unless $bot.network.channelModes.include? c
+
+          if plus
+            @modes << c unless @modes.include? c
+          else
+            @modes.delete c
+          end
+      end
+    }
   end
 
 end

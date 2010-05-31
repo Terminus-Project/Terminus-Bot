@@ -188,6 +188,9 @@ class TerminusBot
         
           end
         }
+      when "MODE" # Someone is joining something!
+        type = MODE_CHANGE
+
       when "JOIN" # Someone is joining something!
         type = JOIN_CHANNEL
 
@@ -198,25 +201,30 @@ class TerminusBot
         type = NICK_CHANGE
 
       when "352" #who reply
-
         type = WHO_REPLY
-
-      when "315" #end of who reply
         
-=begin
       when "324" #channel modes
-      when "331" #no topic
+        type = CHANNEL_MODES
+
       when "332" #channel topic
+        type = CHANNEL_TOPIC
+
+      when "367" #ban list
+        type = BAN_LIST
+      when "348" #exception mask reply
+        type = BAN_EXEMPT_LIST
+      when "346" #invite mask data
+        type = INVITE_EXEMPT_LIST
+=begin
+      when "315" #end of who reply
+      when "331" #no topic
       when "341" #invite success
       when "342" #summoning
-      when "346" #invite mask data
       when "347" #end of invite masks
-      when "348" #exception mask reply
       when "349" #end of exception masks
       when "351" #server version reply
       when "364" #links
       when "365" #end of links
-      when "367" #ban list
       when "368" #end of ban list
       when "375" #motd start
       when "381" #oper success
@@ -237,7 +245,7 @@ class TerminusBot
       when "404" #cannot send to channel
       when "405" #too many channels
       when "406" #was no such nick
-      when "407" #too many targets
+      <F6>when "407" #too many targets
       when "412" #no text to send
       when "415" #bad server/host mask
       when "421" #unknown command
@@ -376,20 +384,38 @@ class TerminusBot
 
         fireHooks("bot_nickChange", msg)
       when JOIN_CHANNEL
-        $log.debug('process') { "Join: #{msg}" }
         @channels[msg.message] = Channel.new(msg.message) if @channels[msg.message] == nil
 
         @channels[msg.message].join(msg.speaker)
         if msg.speaker.nick == @config["Nick"]
           sendRaw("WHO #{msg.message}")
+          sendRaw("MODE #{msg.message}")
+          sendRaw("MODE #{msg.message} b")
+          sendRaw("MODE #{msg.message} e")
+          sendRaw("MODE #{msg.message} I")
         end
 
         fireHooks("bot_joinChannel", msg)
       when PART_CHANNEL
-        $log.debug('process') { "Part: #{msg}" }
         @channels[msg.destination].part(msg.speaker)
 
         fireHooks("bot_partChannel", msg)
+      when CHANNEL_MODES
+        mode = msg.rawArr[4..msg.rawArr.length].join(" ")
+
+        @channels[msg.rawArr[3]].modeChange(mode)
+      when MODE_CHANGE
+        unless msg.private?
+          mode = msg.rawArr[3..msg.rawArr.length].join(" ")
+
+          @channels[msg.destination].modeChange(mode)
+        end
+      when BAN_LIST
+        @channels[msg.rawArr[3]].addBan(msg.rawArr[4])
+      when INVITE_EXEMPT_LIST
+        @channels[msg.rawArr[3]].addInviteExempt(msg.rawArr[4])
+      when BAN_EXEMPT_LIST
+        @channels[msg.rawArr[3]].addBanExempt(msg.rawArr[4])
     end
  
   end
