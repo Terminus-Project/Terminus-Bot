@@ -20,8 +20,8 @@
 
 class Channel
 
-  attr_reader :name, :users, :bans, :key, :banExempt, :inviteExempt
-  attr :topic, :modes, :limit
+  attr_reader :name, :users, :bans, :key, :banExempt, :inviteExempt, :limit, :modes, :topic
+  attr_writer :topic, :modes
 
   def initialize(name)
     $log.debug('channel') { "New channel: #{name}" }
@@ -46,6 +46,7 @@ class Channel
   end
 
   def nickChange(oldNick, newNick)
+    return false unless @users.key? oldNick
     $log.debug('channel') { "Nick change #{oldNick} -> #{newNick} in #{@name}" }
     user = @users[oldNick]
     user.nick = newNick

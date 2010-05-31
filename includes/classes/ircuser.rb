@@ -20,12 +20,11 @@
 
 class IRCUser
   attr_writer :nick, :ident, :host, :lastMessage, :accessLevel, :channelModes
-  attr_reader :fullMask, :nick, :ident, :host, :lastMessage, :accessLevel, :channelModes
+  attr_reader :nick, :ident, :host, :lastMessage, :accessLevel, :channelModes
 
   include Comparable
 
   def initialize(fullString)
-    @fullMask = fullString
     if fullString =~ /(.*)!(.*)@(.*)/
       @nick = $1
       @ident = $2
@@ -37,6 +36,10 @@ class IRCUser
     end
     @accessLevel = 0
     @channelModes = Array.new
+  end
+
+  def fullMask
+    self.to_s
   end
 
   def to_s

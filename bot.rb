@@ -405,7 +405,16 @@ class TerminusBot
         
 
       when NICK_CHANGE
-        @channels[msg.destination].changeNick(msg.origin, msg.speaker.nick)
+        #WiZ!jto@tolsun.oulu.fi NICK Kilroy
+        newNick = msg.rawArr[2].match(/:?(.*)/)[1]
+        @channels.each_value { |chan|
+          chan.nickChange(msg.speaker.nick, newNick)
+        }
+
+        if @config["Nick"] == msg.speaker.nick
+          $log.info('process') { "Bot is changing nick to #{newNick}" }
+          @config["Nick"] = newNick
+        end
 
         fireHooks("bot_nickChange", msg)
       when JOIN_CHANNEL
@@ -425,6 +434,9 @@ class TerminusBot
         @channels[msg.destination].part(msg.speaker)
 
         fireHooks("bot_partChannel", msg)
+      when CHANNEL_TOPIC
+        $log.debug('process') { "New topic for channel #{msg.rawArr[3]}" }
+        @channels[msg.rawArr[3]].topic = msg.message
       when CHANNEL_MODES
         mode = msg.rawArr[4..msg.rawArr.length].join(" ")
 
