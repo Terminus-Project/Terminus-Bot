@@ -21,10 +21,11 @@
 
 def cmd_automode(message)
 
-  #TODO: Permissions!
-
   if message.private?
     reply(message, "Please use this in the channel you want to modify.", true)
+    return
+  elsif not $bot.channels[message.destination].users[message.speaker.nick].isChannelOp?
+    reply(message, "Only channel operators may use this command.", true)
     return
   end
 
