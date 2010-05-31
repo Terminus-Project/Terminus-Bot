@@ -67,6 +67,7 @@ class Config
       puts "For more information, please visit the Terminus-Bot web site.\n\n"
       puts "Applying new configuration..."
 
+      # TODO: Needs a little salt.
       adminPassword = Digest::MD5.hexdigest(adminPassword)
 
       require "includes/classes/adminuser.rb"
