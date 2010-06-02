@@ -20,10 +20,10 @@
 
 
 def cmd_say(message)
-  reply(message, message.args)
+  reply(message, message.args, false)
 end
 
 def cmd_act(message)
-  reply(message, "#{1.chr}ACTION #{message.args}#{1.chr}")
+  reply(message, "#{1.chr}ACTION #{message.args}#{1.chr}", false)
 end
 

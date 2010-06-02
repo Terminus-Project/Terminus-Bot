@@ -35,7 +35,7 @@
     return msg
   end
 
-  def reply(message, replyStr, nickPrefix = false)
+  def reply(message, replyStr, nickPrefix = true)
 
     if replyStr.kind_of? Array
       replyStr.each { |reply|
