@@ -69,3 +69,7 @@
   def sendMode(target, mode, parameters = "")
     sendRaw("MODE #{target} #{mode}#{" #{parameters}" unless parameters.empty?}")
   end
+
+  def sendCTCP(destination, message)
+    sendRaw("PRIVMSG #{destination} :#{1.chr}#{message}#{1.chr}")
+  end
