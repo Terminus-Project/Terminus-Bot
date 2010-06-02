@@ -31,6 +31,8 @@ def bot_ctcpRequest(message)
       sendNotice(message.speaker.nick, "#{1.chr}PING #{message.msgArr[1]}#{1.chr}")
     when "CLIENTINFO"
       sendNotice(message.speaker.nick, "#{1.chr}CLIENTINFO VERSION PING URL TIME#{1.chr}")
+    when "ACTION"
+      # Don't do anything!
     else
       sendNotice(message.speaker.nick, "#{1.chr}ERRMSG #{message.msgArr[0]} QUERY UNKNOWN#{1.chr}")
   end
