@@ -465,6 +465,9 @@ class TerminusBot
            end
          rescue => e
            $log.warn("fireHooks") { "Module failed to complete #{cmd}: #{e}" }
+           unless msg == nil
+             reply(msg, "There was a problem executing your command with one of my modules. Sorry!")
+           end
          end
       end
   end

@@ -44,6 +44,8 @@
       return
     end
 
+    replyStr.to_s! unless replyStr.kindOf? String
+
     if replyStr.length > 400
       nextStr = replyStr.slice!(0..399)
       reply(message, nextStr, nickPrefix)
