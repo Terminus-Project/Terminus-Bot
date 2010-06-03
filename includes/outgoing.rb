@@ -51,6 +51,8 @@
       reply(message, nextStr, nickPrefix)
     end
 
+    replyStr = "I tried to send you an empty reply. Oops!" if replyStr.length == 0
+
     replyStr = "#{message.speaker.nick}: #{replyStr}" if nickPrefix
 
     unless message.private?

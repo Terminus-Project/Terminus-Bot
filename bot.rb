@@ -26,7 +26,7 @@ require 'strscan'
 
 class TerminusBot
 
-  attr_reader :configClass, :modules, :network, :modConfig, :config, :channels
+  attr_reader :configClass, :modules, :network, :modConfig, :config, :channels, :modHelp
   attr_writer :config, :modConfig
 
   def initialize(configClass)
@@ -71,17 +71,20 @@ class TerminusBot
     $log.debug('initialize') { 'Loading modules.' }
 
     @modConfig = ModuleConfiguration.new
+    @modHelp = ModuleHelp.new
 
     @modules = Array.new()
     Dir.foreach("modules") { |f|
       unless f =~ /^\.+$/
+        line = 0
         begin
           modName = f.match(/([^\.]+)/)[1]
           mod = IO.read("./modules/#{f}")
           mod = "class Mod_#{modName} \n #{mod} \n end \n Mod_#{modName}.new"
-          @modules << eval(mod)
+          @modules << eval(mod, nil, f, line)
         rescue => e
           $log.error('initialize') { "I was unable to load the module #{f}: #{e}" }
+          puts e.backtrace
         end
       end
     }
