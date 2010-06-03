@@ -44,7 +44,7 @@
       return
     end
 
-    replyStr.to_s! unless replyStr.kindOf? String
+    replyStr.to_s! unless replyStr.kind_of? String
 
     if replyStr.length > 400
       nextStr = replyStr.slice!(0..399)
