@@ -27,7 +27,7 @@ class Config
   def initialize(configFile = "configuration")
     @configFile = configFile
 
-    unless File.exists? configFile
+    if File.zero? configFile or not File.exists? configFile
       # The configuration file doesn't exist! Let's ask the user
       # for some things so we can generate one.
         

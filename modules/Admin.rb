@@ -17,10 +17,6 @@
 #
 #
 
-def initialize
-  @admins = Hash.new()
-end
-
 def hasLevel(message, minLevel)
   getSpeakerAccessLevel(message) >= minLevel
 end
@@ -43,7 +39,7 @@ def getSpeakerAccessLevel(message)
 end
 
 def getAccessLevel(hostmask)
-  @admins[hostmask].accessLevel rescue 0
+  $bot.admins[hostmask].accessLevel rescue 0
 end
 
 def cmd_level(message)
@@ -67,7 +63,7 @@ def cmd_login(message)
       passwordOK = $bot.config["Users"][username].password == password
       if passwordOK
         reply(message, "Success!")
-        @admins[message.speaker.fullMask] = $bot.config["Users"][username]
+        $bot.admins[message.speaker.fullMask] = $bot.config["Users"][username]
       else
         reply(message, "Failure!")
       end

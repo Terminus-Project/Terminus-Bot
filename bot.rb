@@ -26,14 +26,15 @@ require 'strscan'
 
 class TerminusBot
 
-  attr_reader :configClass, :modules, :network, :modConfig, :config, :channels, :modHelp
-  attr_writer :config, :modConfig
+  attr_reader :configClass, :modules, :network, :modConfig, :config, :channels, :modHelp, :admins
+  attr_writer :admins
 
   def initialize(configClass)
 
     @config = configClass.config
     @configClass = configClass
     @channels = Hash.new
+    @admins = Hash.new
 
   end
 
