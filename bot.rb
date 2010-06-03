@@ -518,6 +518,9 @@ EOF
 
 if File.exists? ".lock"
   puts "The lock file .lock exists! If Terminus-Bot is running, you must close it to start it again. You may not run two of the same Terminus-Bots at the same time."
+
+  puts "The bot was running as PID #{`cat .lock`.chomp}. Since there is no totally reliable cross-platform way to check for running processes by PID, I am unable to determine if it is still active. Please check on your own!"
+
   puts "If the bot is not running, delete \".lock\". (WARNING: If you delete the lock file and the bot is running, you may lose all of your bot's configuration!)"
   exit
 end
@@ -567,6 +570,8 @@ pid = fork do
 
   $bot.run
 end
+
+File.open(".lock", "w").puts(pid)
 
 Process.detach pid
 
