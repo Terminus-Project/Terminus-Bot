@@ -22,7 +22,7 @@ def initialize
   $bot.modHelp.registerModule("Help", "Provide help on using bot commands and modules.")
   $bot.modHelp.registerCommand("Help", "commands", "List all available commands.")
   $bot.modHelp.registerCommand("Help", "modules", "List all loaded modules.")
-  $bot.modHelp.registerCommand("Help", "help", "Provide syntax and help for using a command. The module name, if given, will ensure the help shown is for that module's command, in case of duplicates.", "[module] command")
+  $bot.modHelp.registerCommand("Help", "help", "Provide syntax and help for using a command.", "command")
 end
 
 def cmd_commands(message)
@@ -41,7 +41,7 @@ def cmd_help(message)
   if message.msgArr.length == 1
     help = "For a list of commands, use #{BOLD}commands#{NORMAL}. For a list of loaded modules, use #{BOLD}modules#{NORMAL}. For help on a specific command, use #{BOLD}help command#{NORMAL}."
   else
-    help = $bot.modHelp.getCommandHelp(message.msgArr[1], message.msgArr[2]).to_s
+    help = $bot.modHelp.getCommandHelp(message.args)
   end
 
   reply(message, help)

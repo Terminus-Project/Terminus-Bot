@@ -19,6 +19,14 @@
 #
 
 
+def initialize
+  $bot.modHelp.registerModule("AutoMode", "The bot may be configured to automatically set modes to every user on join.")
+
+  $bot.modHelp.registerCommand("AutoMode", "automode list", "List the modes which will automatically be applied to joining users in this channel.")
+  $bot.modHelp.registerCommand("AutoMode", "automode add", "Add a mode to automatically apply to joining users. A + or - should be given, depending on IRC daemon requirements.", "mode(s)")
+  $bot.modHelp.registerCommand("AutoMode", "automode delete", "No longer set the specified mode for joining users. A + or - must be given if one is included in the setting that is being deleted.", "mode(s)")
+end
+
 def cmd_automode(message)
 
   if message.private?

@@ -22,6 +22,11 @@ require "net/http"
 require "uri"
 require "strscan"
 
+def initialize
+  $bot.modHelp.registerModule("HTTP", "Provide basic HTTP functions, such as title fetching.")
+
+  $bot.modHelp.registerCommand("HTTP", "title", "Attempt to fetch the title of the given URL.", "URL")
+end
 
 def cmd_title(message)
   if message.args =~ /(https?:\/\/.+\..*)/

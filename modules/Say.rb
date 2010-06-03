@@ -18,6 +18,12 @@
 #
 #
 
+def initialize
+  $bot.modHelp.registerModule("Say", "Basic speaking commands.")
+
+  $bot.modHelp.registerCommand("Say", "act", "Perform an action (as in /me).", "action")
+  $bot.modHelp.registerCommand("Say", "say", "Say text.", "text")
+end
 
 def cmd_say(message)
   reply(message, message.args, false)

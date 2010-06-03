@@ -38,23 +38,21 @@ class ModuleHelp
     @modules[name] = ModuleHelpObject.new(name, description)
   end
 
-  def getCommandHelp(name, owner = nil)
-    if owner == nil
+  def getCommandHelp(name)
 
-      @modules.each_value { |mod|
-        cmd = mod.getCommand(name)
+    helps = Array.new
 
-        unless cmd == nil
-          return cmd.to_s
-        end
+    @modules.each_value { |mod|
+      cmd = mod.getCommand(name)
 
-      }
+      unless cmd == nil
+        helps << cmd.to_s
+      end
 
-      return nil
+    }
 
-    else
-      return @modules[owner].getCommand(name).to_s
-    end
+    return helps
+
   end
 
   def getModuleHelp(name)

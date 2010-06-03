@@ -20,6 +20,10 @@
 
 def initialize
   @pings = Hash.new
+
+  $bot.modHelp.registerModule("Ping", "Allow users to discover their latency to the bot.")
+
+  $bot.modHelp.registerCommand("Ping", "ping", "The bot will ping the user via CTCP and then announce the time taken for a reply to arrive.")
 end
 
 def cmd_ping(message)

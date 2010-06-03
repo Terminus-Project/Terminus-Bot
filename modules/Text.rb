@@ -20,6 +20,22 @@
 
 require "uri"
 
+
+def initialize
+  $bot.modHelp.registerModule("Text", "Simple text manipulation commands.")
+
+  $bot.modHelp.registerCommand("Text", "length", "Measure the length of the provided text.", "text")
+  $bot.modHelp.registerCommand("Text", "reverse", "Reverse text.", "text")
+  $bot.modHelp.registerCommand("Text", "upcase", "Convert text to all upper-case.", "text")
+  $bot.modHelp.registerCommand("Text", "downcase", "Convert text to all lower-case.", "text")
+  $bot.modHelp.registerCommand("Text", "swapcase", "Change all upper-case characters in text to lower-case, and all lower-case characters to upper-case.", "text")
+  $bot.modHelp.registerCommand("Text", "oct", "Treats leading characters of text as a string of octal digits (with an optional sign) and returns the corresponding number. Returns 0 if the conversion fails.", "text")
+  $bot.modHelp.registerCommand("Text", "hex", "Treats leading characters from str as a string of hexadecimal digits (with an optional sign and an optional 0x) and returns the corresponding number. Zero is returned on error. ", "text")
+  $bot.modHelp.registerCommand("Text", "oct", "Return the Integer ordinal of a one-character string.", "text")
+  $bot.modHelp.registerCommand("Text", "urlencode", "Escapes text as a URL parameter.", "text")
+  $bot.modHelp.registerCommand("Text", "urldecode", "Decodes text as an encoded URL parameter.", "text")
+end
+
 def cmd_length(message)
   reply(message, message.args.length.to_s)
 end

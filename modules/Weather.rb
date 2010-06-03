@@ -22,6 +22,15 @@ require "uri"
 require 'net/http'
 require 'rexml/document'
 
+def initialize
+  $bot.modHelp.registerModule("Weather", "Weather information look-ups with persistent location memory.")
+
+  $bot.modHelp.registerCommand("Weather", "weather-default", "Set or delete your default weather location. If delete is specified, any default will be removed. if location is specified, your user@host will be associated with that location.", "[delete] [location]")
+  $bot.modHelp.registerCommand("Weather", "weather", "View current conditions for the specified location. If none is specified, your default location is used. If no default is set and a location is specified, save the new location as your default.", "[location]")
+  $bot.modHelp.registerCommand("Weather", "forecast", "View a short-term forecase for the specified location. If none is specified, your default location is used. If no default is set and a location is specified, save the new location as your default.", "[location]")
+end
+
+
 def getDefault(message)
   user = message.speaker.ident + "@" + message.speaker.host
 

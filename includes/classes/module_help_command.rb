@@ -11,7 +11,7 @@ class ModuleHelpCommand
   end
 
   def to_s
-    "#{BOLD}#{@name}#{NORMAL} #{UNDERLINE}#{@args}#{NORMAL} - #{@help}"
+    "#{BOLD}#{@name}#{NORMAL} #{UNDERLINE}#{@args}#{NORMAL}#{" " unless @args == nil}- #{@help}"
   end
 
 end

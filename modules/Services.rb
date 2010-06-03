@@ -18,6 +18,15 @@
 #
 #
 
+def initialize
+  $bot.modHelp.registerModule("Services", "Facilitate services authentication.")
+
+  $bot.modHelp.registerCommand("Services", "services automatic", "Activate or deactivate automatic identification with services. If no value is given, show the current value.", "[on|off]")
+  $bot.modHelp.registerCommand("Services", "services ident", "Send IDENTIFY command to services.")
+  $bot.modHelp.registerCommand("Services", "services nickserv", "Set the NickServ name (and optionally user@host) to use when identifying with NickServ or recognizing NickServ ident requests. If no value is provided, show the current value.", "[nickserv]")
+  $bot.modHelp.registerCommand("Services", "services password", "Sets the password to use with NickServ. If none is given, show the current value.", "[password]")
+end
+
 def cmd_services(message)
   case message.msgArr[1].downcase
 
