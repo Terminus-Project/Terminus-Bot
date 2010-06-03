@@ -23,6 +23,7 @@ require 'logger'
 require 'thread'
 require 'timeout'
 require 'strscan'
+require 'fileutils'
 
 class TerminusBot
 
@@ -123,6 +124,9 @@ class TerminusBot
 
     fireHooks("bot_exiting")
     
+    $log.info('exit') { "Removing lock file .lock" }
+    File.delete ".lock"
+
     $log.info('exit') { "Exit procedures complete. Exiting!" }
     $log.close
 
@@ -512,6 +516,13 @@ You should have received a copy of the GNU Affero General Public License along w
 
 EOF
 
+if File.exists? ".lock"
+  puts "The lock file .lock exists! If Terminus-Bot is running, you must close it to start it again. You may not run two of the same Terminus-Bots at the same time."
+  puts "If the bot is not running, delete \".lock\". (WARNING: If you delete the lock file and the bot is running, you may lose all of your bot's configuration!)"
+  exit
+end
+
+FileUtils.touch ".lock"
 
 Dir.mkdir 'logs' unless File.directory? 'logs'
 
