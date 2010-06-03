@@ -35,7 +35,7 @@ def checkPermission(message, minLevel)
 end
 
 def getSpeakerAccessLevel(message)
-  getAccessLevel(message.speaker.fullMask)
+  getAccessLevel(message.speaker.partialMask)
 end
 
 def getAccessLevel(hostmask)
@@ -63,7 +63,7 @@ def cmd_login(message)
       passwordOK = $bot.config["Users"][username].password == password
       if passwordOK
         reply(message, "Success!")
-        $bot.admins[message.speaker.fullMask] = $bot.config["Users"][username]
+        $bot.admins[message.speaker.partialMask] = $bot.config["Users"][username]
       else
         reply(message, "Failure!")
       end

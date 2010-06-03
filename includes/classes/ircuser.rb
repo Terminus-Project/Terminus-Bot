@@ -42,6 +42,10 @@ class IRCUser
     self.to_s
   end
 
+  def partialMask
+    "#{ident}@#{host}"
+  end
+
   def to_s
     "#{nick}!#{ident}@#{host}"
   end

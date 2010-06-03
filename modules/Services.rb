@@ -28,7 +28,7 @@ def initialize
 end
 
 def cmd_services(message)
-  level = $bot.admins[message.speaker.fullMask].accessLevel rescue 0
+  level = $bot.admins[message.speaker.partialMask].accessLevel rescue 0
 
   if level < 8 then
     reply(message, "You do not have sufficient bot access privileges to use this command.")
