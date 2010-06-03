@@ -528,6 +528,12 @@ Dir.mkdir 'logs' unless File.directory? 'logs'
 
 $log = Logger.new('logs/system.log', 'weekly');
 
+if ARGV.include? "--debug"
+  $log.level = Logger::DEBUG
+else
+  $log.level = Logger::INFO
+end
+
 $log.info('init') { 'Terminus-Bot is now starting.' }
 
 puts "Loading configuration..."

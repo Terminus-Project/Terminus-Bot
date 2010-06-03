@@ -37,18 +37,48 @@
 
   def reply(message, replyStr, nickPrefix = true)
 
+    replyStr.to_s! unless replyStr.kind_of? String
+
+    if replyStr.length > 400
+      
+      replyArr = replyStr.split(" ")
+      buffer = ""
+      bufferArr = Array.new
+
+      replyArr.each { |word|
+
+        if "#{buffer} #{word}".length < 400
+          buffer += " #{word}"
+        else
+          bufferArr << buffer.strip unless buffer.empty?
+          buffer.clear
+
+          if word.length < 400
+            buffer = word
+          else
+            word.each_char { |c|
+              buffer += c
+              if buffer.length == 400
+                bufferArr << buffer.strip
+                buffer.clear
+              end
+            }
+          end
+        end
+      
+      }
+
+      bufferArr << buffer.strip unless buffer.empty?
+
+      replyStr = bufferArr
+
+    end
+
     if replyStr.kind_of? Array
       replyStr.each { |reply|
         reply(message, reply, nickPrefix)
       }
       return
-    end
-
-    replyStr.to_s! unless replyStr.kind_of? String
-
-    if replyStr.length > 400
-      nextStr = replyStr.slice!(0..399)
-      reply(message, nextStr, nickPrefix)
     end
 
     replyStr = "I tried to send you an empty reply. Oops!" if replyStr.length == 0
