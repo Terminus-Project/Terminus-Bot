@@ -45,9 +45,8 @@ def getDefault(message)
       return message.args
     end
   else
-    if message.args.empty?
-      return config
-    return message.args
+    return message.args unless message.args.empty?
+    return config
   end
 end
 
