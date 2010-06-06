@@ -22,6 +22,16 @@ class Network
   attr_reader :name, :currentServer, :serverSoftware, :maxBans, :maxExempts, :maxInviteExempts, :maxNickLength, :maxChannelNameLength, :maxTopicLength, :maxKickLength, :maxAwayLength, :maxTargets, :maxModes, :channelTypes, :prefixes, :channelModes, :caseMapping, :maxChannels
   attr_writer :name, :currentServer, :serverSoftware, :maxBans, :maxExempts, :maxInviteExempts, :maxNickLength, :maxChannelNameLength, :maxTopicLength, :maxKickLength, :maxAwayLength, :maxTargets, :maxModes, :channelTypes, :prefixes, :channelModes, :caseMapping, :maxChannels
 
+  # Check if the given string is a channel. During connection
+  # to the server, most servers send a list of channel types, such
+  # as #. If the given string starts with one of those types, this
+  # will return true.
+  # @param [String] str The string to test.
+  # @return [Boolean] True if the given string is a channel.
+  # @example
+  #   network.isChannel? "Terminus-Bot" #=> false
+  # @example
+  #   network.isChannel? "#terminus-bot" #=> true
   def isChannel?(str)
     channelTypes.include? str[0] rescue false
   end

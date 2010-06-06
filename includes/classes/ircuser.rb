@@ -24,6 +24,8 @@ class IRCUser
 
   include Comparable
 
+  # Create a new user object by parsing a full hostmask (nick!user@host).
+  # @param [String] fullString A full hostmask in the form nick!user@host
   def initialize(fullString)
     if fullString =~ /(.*)!(.*)@(.*)/
       @nick = $1
@@ -38,36 +40,43 @@ class IRCUser
     @channelModes = Array.new
   end
 
-  def fullMask
-    self.to_s
-  end
-
+  # @return [String] user@host
   def partialMask
     "#{ident}@#{host}"
   end
 
+  # @return [String] nick!user@host
   def to_s
     "#{nick}!#{ident}@#{host}"
   end
 
+  # Determine if this user is a channel operator. This is
+  # only useful if this object is a child of a Channel object.
+  # @return [Boolean] True if channel modes contain o, a, or q.
   def isChannelOp?
     @channelModes.include? 'o' or @channelModes.include? 'a' or @channelModes.include? 'q'
   end
 
+  # @return [Boolean] True if channel modes contain v.
   def isVoiced?
     @channelModes.include? 'v'
   end
 
+  # @return [Boolean] True if channel modes contain q.
   def isChannelOwner?
     @channelModes.include? 'q'
   end
 
+  # @return [Boolean] True if channel modes contain h.
   def isChannelHalfOp?
     @channelModes.include? 'h'
   end
 
+  # Comparison is done based on the hostmask
+  # @see IRCUser#to_s
   def <=>(other)
     self.to_s <=> other.to_s
   end
 
+  alias :fullMask :to_s
 end

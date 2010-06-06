@@ -94,7 +94,7 @@ def cmd_weather(message)
   dewpoint = root.elements["//dewpoint_string"].text
   link = root.elements["//forecast_url"].text
 
-  updatedTime = "Updated #{Time.now.to_i - updatedTime} seconds ago"
+  updatedTime = "Updated #{Time.now.utc.to_i - updatedTime} seconds ago"
 
   reply = "[#{BOLD}#{credit}#{NORMAL} for #{BOLD}#{stationLocation}#{NORMAL}] "
   reply += "Current Conditions: #{COLOR}07#{weather}#{NORMAL}; "

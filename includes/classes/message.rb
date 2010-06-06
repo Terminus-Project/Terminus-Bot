@@ -69,10 +69,22 @@ class IRCMessage
     @replyTo = (self.private? ? @speaker.nick : @destination)
   end
 
+  # Determine if a message was sent privately or in public (to a channel).
+  # @return [Boolean] True if the message was not sent to a channel.
+  # @example
+  #   if message.private?
+  #     $log.info("myModule") { "Someone sent me a private message!" }
+  #   else
+  #     $log.info("myModule") { "Someone sent a message to a channel." }
+  #   end  
   def private?
     not $bot.network.isChannel? @destination
   end
-
+  
+  # Return a string representation of the user as nick!user@host
+  # @example
+  #   puts user.to_s
+  #   # => "Terminus-Bot!Terminus@terminus.net"
   def to_s
     @message
   end

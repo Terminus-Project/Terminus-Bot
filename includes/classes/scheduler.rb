@@ -22,13 +22,21 @@ class Scheduler
 
   attr_reader :schedule
 
+  # Create a new scheduler object.
+  # @param [Config] configClass This should be the same object used by the bot.
   def initialize(configClass)
+    # TODO: Do this better!
     @configClass = configClass
     @schedule = Array.new
 
     $log.debug('scheduler') { "Class initialized." }
   end
 
+  # Add a new task to this scheduler
+  # @param [String] name A user-readable name for the task.
+  # @param [Proc] task A Proc object that will be executed when scheduled.
+  # @param [Integer] time The time to run the task. If it is a repeated task, it will run at time % epoch == 0. If is not repeated, it will run at this epoch time.
+  # @param [Boolean] repeat If true, repeat this task. Otherwise, execute at the given time and then delete.
   def add(name, task, time, repeat = false)
 
     newItem = ScheduleItem.new(name, task, time, repeat)
@@ -41,6 +49,8 @@ class Scheduler
 
   end
 
+  # Start the scheduler. Only call this once!
+  # The scheduler thread works like this: Sleep for one second; iterate through tasks, execute those that run this second, execute non-repeating tasks we missed, sleep for one second minus the time it took to run this last time. It's imperfect, but works.
   def start
 
     Thread.new {

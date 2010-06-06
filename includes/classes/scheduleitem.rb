@@ -20,6 +20,11 @@
 class ScheduleItem
   attr_reader :task, :time, :repeat, :name
 
+  # Create an object representing a scheduled task.
+  # @param [String] name A user-readable name for the task.
+  # @param [Proc] task A Proc object that will be executed when scheduled.
+  # @param [Integer] time The time to run the task. If it is a repeated task, it will run at time % epoch == 0. If is not repeated, it will run at this epoch time.
+  # @param [Boolean] repeat If true, repeat this task. Otherwise, execute at the given time and then delete.
   def initialize(name, task, time, repeat)
     @name = name
     @task = task
@@ -27,6 +32,8 @@ class ScheduleItem
     @repeat = repeat
   end
 
+  # Create a string representing this task.
+  # @return [String] name will run [every time seconds / at time (epoch)].
   def to_s
     "\"#{@name}\" will run #{@repeat ? "every #{@time} seconds" : "at #{@time} (epoch)"}."
   end

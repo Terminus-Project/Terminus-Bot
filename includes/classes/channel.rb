@@ -23,6 +23,10 @@ class Channel
   attr_reader :name, :users, :bans, :key, :banExempt, :inviteExempt, :limit, :modes, :topic
   attr_writer :topic, :modes
 
+  # Create a new Chanel object for the named channel. All relevant data structures get initialized here.
+  # @param [String] name The name of the channel to be represented by this object
+  # @example
+  # chan = Channel.new("#terminus-bot")
   def initialize(name)
     $log.debug('channel') { "New channel: #{name}" }
     @name = name
@@ -35,16 +39,26 @@ class Channel
     @inviteExempt = Array.new
   end
 
+  # Add a user to this channel object.
+  # @param [IRCUser] user The object representing the user that is joining.
   def join(user)
     $log.debug('channel') { "User #{user} joined #{@name}" }
     @users[user.nick] = user unless @users.include? user
   end
 
+  # Remove a user from this channel object.
+  # @param [IRCUser] user The object representing the user that is parting.
   def part(user)
     $log.debug('channel') { "User #{user} parted #{@name}" }
     @users.delete user.nick
   end
 
+  # Change a user's nick in this channel. The change affects both the
+  # index in the user list and the nick in the user object.
+  # @param [String] oldNick The nick from which the user is changing.
+  # @param [String] newNick The nick to which the user is changing.
+  # @example Changing a nick in one of the core channel objects.
+  #   $bot.channels["#terminus-bot"].nickChange("Kabaka", "Dragon")
   def nickChange(oldNick, newNick)
     return false unless @users.key? oldNick
     $log.debug('channel') { "Nick change #{oldNick} -> #{newNick} in #{@name}" }
@@ -54,29 +68,49 @@ class Channel
     @users.delete oldNick
   end
 
+  # Check if a user is present in this channel.
+  # @param [IRCUser] user The user for which to check.
+  # @return [Boolean] Returns true if the user is matched to one in this channel.
   def isOn?(user)
     @users.each { |u|
       return u if user == u
     }
   end
 
+  # Return a string representation of this channel.
+  # @return [string] "name mode_array [users]"
   def to_s
    "#{@name} #{@modes} [#{@users.values.join(", ")}]"
   end
 
+  # Add a ban mask to the bot's list of active bans for this channel
+  # @param [String] mask Hostmask that is banned from the channel.
   def addBan(mask)
     @bans << mask unless @bans.include? mask
   end
 
+  # Add a ban mask to the bot's list of active bans exempts for this channel
+  # @param [String] mask Hostmask that is exempt from bans from the channel.
   def addBanExempt(mask)
     @banExempt << mask unless @banExempt.include? mask
   end
 
+  # Add a ban mask to the bot's list of active invite exempts for this channel
+  # @param [String] mask Hostmask that is always invited to the channel.
   def addInviteExempt(mask)
     @inviteExempt << mask unless @inviteExempt.include? mask
   end
 
 
+  # An internal helper method for modeChange(). When a channel
+  # mode affects a user (such as +v for voice), this method
+  # makes the appropriate change to the user object representing
+  # that nick.
+  # @param [String] mode The mode being added or removed.
+  # @param [String] nick The nick which is affected by the change
+  # @param [Boolean] plus True if the mode is being added, false if it is being removed.
+  # @example Terminus-Bot has gained voice.
+  #   nickModeChange("v", "Terminus-Bot", true)
   def nickModeChange(mode, nick, plus)
     u = @users[nick]
     if plus
@@ -87,6 +121,12 @@ class Channel
     return u
   end
 
+  # Change channel modes. This method will parse the full
+  # channel mode change string and update user objects as
+  # appropriate.
+  # @param [String] mode The string containing the mode change(s).
+  # @example Various mode changes
+  #   chan.modeChange("+vo-k Terminus-Bot Terminus-Bot secret-key")
   def modeChange(mode)
     $log.debug('channel') { "Mode change: #{mode}" }
     plus = true

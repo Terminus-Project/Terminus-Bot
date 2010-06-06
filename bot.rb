@@ -30,6 +30,10 @@ class TerminusBot
   attr_reader :configClass, :modules, :network, :modConfig, :config, :channels, :modHelp, :admins
   attr_writer :admins
 
+  # Create a new instance of Terminus-Bot. This will initialize
+  # a few data structures, though most of the real work happens
+  # when run() is called.
+  # @param [Config] configClass The Config class object that contains the bot's settings.
   def initialize(configClass)
 
     @config = configClass.config
@@ -39,12 +43,18 @@ class TerminusBot
 
   end
 
-  # This bypasses throttling, so don't use it directly without
-  # a very good reason!
+  # Send a raw string directly to the IRC server. This bypasses
+  # throttling, so it should not be called directly.
+  # @param [String] msg The data to send to the IRC server.
+  # @example Join a channel
+  # raw("JOIN #terminus-bot")
+  # @example Kick someone with the kick reason "spammer"
+  # raw("KICK haxor :spammer")
   def raw(msg)
     $socket.puts(msg)
   end
 
+  # Start the bot! Initialize the thread pool, load modules, and connect.
   def run
     $log.debug("pool") { "Thread pool init started." }
     @incomingQueue = Queue.new
@@ -133,6 +143,8 @@ class TerminusBot
     exit
   end
 
+  # This is for the thread pool workers to call when they get a message.
+  # @param [String] msg A raw string from the IRC server.
   def messageReceived(msg)
     msg = msg.match(/^:?(.*)$/)[1]
     msgArr = msg.split(' ')
@@ -330,9 +342,10 @@ class TerminusBot
     processIRCMessage(IRCMessage.new(msg, type))
   end
 
+  
+  # This should run once when we're done connecting.
+  # Set modes, join channels, and do whatever else we need.
   def finishedConnecting
-    # This should run once when we're done connecting.
-    # Set modes, join channels, and do whatever else we need.
     unless @alreadyFinished
 
       # Tell the server we're a bot.
@@ -348,11 +361,19 @@ class TerminusBot
     end
   end
 
-  # This is only used when we intercept an interrupt...
+  # Send a QUIT message to the server. This will (hopefully) cause
+  # the server to disconnect us.
+  # @param [String] quitMessage The quit message to use when disconnecting. This may be shown to users as a quit message, depending on server configuration.
+  # @example
+  # quit("Gee, look at the time! Gotta go!")
   def quit(quitMessage = @config["QuitMessage"])
     raw 'QUIT :' + quitMessage
   end
 
+  # Once we're done parsing the message, we send it here.
+  # First, we'll send it off to command hooks (cmd_name) in the
+  # modules. Then, we fire generic events, such as bot_raw and bot_notice.
+  # @param [IRCMessage] msg An object representing the parsed server message.
   def processIRCMessage(msg)
 
     # First, we're going to fire command hooks. The first word of the
@@ -465,6 +486,14 @@ class TerminusBot
  
   end
 
+  # Try to fire the given method in all loaded modules with
+  # optional message parameter.
+  # @param [String] cmd The name of the method that will be called.
+  # @param [IRCMessage] msg An object representing a parsed server message. This won't be used in a few cases.
+  # @example
+  # fireHooks("bot_quit")
+  # @example
+  # fireHooks("bot_notice", message)
   def fireHooks(cmd, msg = nil)
       @modules.each do |m|
          begin
@@ -481,6 +510,10 @@ class TerminusBot
   end
 end
 
+# Load all files in the given directory.
+# @param [String] dir The base directory from which files will be recursively loades.
+# @example
+# enumerateIncludes("./includes/")
 def enumerateIncludes(dir)
   $log.debug('init-enum') { "Enumerating files in #{dir}" }
   Dir.foreach(dir) { |f|

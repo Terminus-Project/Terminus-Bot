@@ -18,11 +18,23 @@
 #
 #
 
+# IRC character code for bold text.
 BOLD = 2.chr
+
+# IRC character code for normal text.
 NORMAL = 15.chr
+
+# IRC character code for fixed pitch text.
 FIXED_PITCH = 17.chr
+
+# IRC character code for reverse formatted text.
 REVERSE = 18.chr
+
+# IRC character code for italic text.
 ITALIC = 29.chr
+
+# IRC character code for underlined text.
 UNDERLINE = 31.chr
 
+# IRC character code for colored text.
 COLOR = 3.chr
