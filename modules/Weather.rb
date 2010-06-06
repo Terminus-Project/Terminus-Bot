@@ -32,7 +32,7 @@ end
 
 
 def getDefault(message)
-  user = message.speaker.ident + "@" + message.speaker.host
+  user = message.speaker.partialMask
 
   config = $bot.modConfig.get("weather", user)
 
@@ -45,12 +45,14 @@ def getDefault(message)
       return message.args
     end
   else
-    return config
+    if message.args.empty?
+      return config
+    return message.args
   end
 end
 
 def cmd_weather_default(message)
-  user = message.speaker.ident + "@" + message.speaker.host
+  user = message.speaker.partialMask
 
   if message.args.empty?
     $bot.modConfig.delete("weather", user)
@@ -69,6 +71,7 @@ def cmd_weather(message)
 
   if location == nil
     reply(message, "You do not have a default location, and so you must provide one.")
+    return
   end
 
   url = "http://api.wunderground.com/auto/wui/geo/WXCurrentObXML/index.xml?query=#{URI.escape(location)}"
@@ -76,7 +79,7 @@ def cmd_weather(message)
   body = Net::HTTP.get URI.parse(url)
   root = (REXML::Document.new(body)).root
 
-  weather = root.elements["//weather"].text
+  weather = root.elements["//weather"].text rescue nil
 
   if weather == nil
     reply(message, "That does not appear to be a valid location. If it is, try being more specific, or specify the location in another way.")
@@ -115,15 +118,16 @@ def cmd_forecast(message)
 
   if location == nil
     reply(message, "You do not have a default location, and so you must provide one.")
+    return
   end
   url = "http://api.wunderground.com/auto/wui/geo/ForecastXML/index.xml?query=#{URI.escape(location)}"
 
   body = Net::HTTP.get URI.parse(url)
   root = (REXML::Document.new(body)).root.elements["//txt_forecast"]
 
-  date = root.elements["date"].text
+  date = root.elements["date"].text rescue nil
 
-  if date.empty?
+  if date == nil
     reply(message, "That does not appear to be a valid location. If it is, try being more specific, or specify the location in another way.")
     return
   end
