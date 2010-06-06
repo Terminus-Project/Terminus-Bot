@@ -131,7 +131,7 @@ def cmd_forecast(message)
     return
   end
 
-  reply = "[#{BOLD}Forecast for #{message.args}#{NORMAL} as of #{BOLD}#{date}#{NORMAL}] "
+  reply = "[#{BOLD}Forecast for #{location}#{NORMAL} as of #{BOLD}#{date}#{NORMAL}] "
 
   root.elements.each("forecastday") { |element|
     title = element.elements["title"].text
