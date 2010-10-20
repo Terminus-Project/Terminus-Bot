@@ -83,7 +83,7 @@ class Config
       @config["UserName"] = ident
       @config["RealName"] = realname
       @config["URL"] = "http://github.com/kabaka/Terminus-Bot"
-      @config["Version"] = "Terminus-Bot 0.2-alpha"
+      @config["Version"] = "Terminus-Bot 0.3-alpha"
       @config["QuitMessage"] = "Terminus-Bot: Terminating"
       @config["Prefix"] = ";"
       @config["Throttle"] = 0.1

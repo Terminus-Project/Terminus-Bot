@@ -72,6 +72,10 @@ class IRCUser
     @channelModes.include? 'h'
   end
 
+  def adminLevel
+    $bot.admins[self.partialMask].accessLevel rescue 0
+  end
+
   # Comparison is done based on the hostmask
   # @see IRCUser#to_s
   def <=>(other)
