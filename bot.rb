@@ -66,7 +66,7 @@ class TerminusBot
           request = @incomingQueue.pop
 
           begin
-            Timeout::timeout(30){ messageReceived(request) }
+            Timeout::timeout(45){ messageReceived(request) }
           rescue Timeout::Error => e
             $log.warn("pool") { "Request timed out: #{request}" }
           rescue => e
@@ -130,9 +130,8 @@ class TerminusBot
 
     $log.info('exit') { "Socket closed, starting exit procedure." }
 
-    @configClass.saveConfig
-
     fireHooks("bot_exiting")
+    @configClass.saveConfig
     
     $log.info('exit') { "Removing lock file .lock" }
     File.delete ".lock"
@@ -549,7 +548,7 @@ You should have received a copy of the GNU Affero General Public License along w
 
 EOF
 
-if File.exists? ".lock"
+if File.exists? ".lock" and not File.zero? ".lock"
   puts "The lock file .lock exists! If Terminus-Bot is running, you must close it to start it again. You may not run two of the same Terminus-Bots at the same time."
 
   puts "The bot was running as PID #{`cat .lock`.chomp}. Since there is no totally reliable cross-platform way to check for running processes by PID, I am unable to determine if it is still active. Please check on your own!"

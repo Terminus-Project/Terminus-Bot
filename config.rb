@@ -39,6 +39,7 @@ class Config
 
       puts "What is the port to which the bot should connect? (6667 is probably fine.)"
       serverPort = gets.chomp
+      serverPort = 6667 if serverPort.empty?
 
       puts "What nick name should the bot use?"
       botNick = gets.chomp
@@ -99,6 +100,8 @@ class Config
   end
 
   def readConfig()
+    FileUtils.copy @configFile, "#{@configFile}.bak"
+
     $log.debug('config') { "Reading #{@configFile}" }
     @config = YAML::load(File.open(@configFile, 'r'))
     @config = "" unless @config
@@ -113,6 +116,7 @@ class Config
     end
 
     $log.debug('config') { "Saving #{@configFile}" }
+
     YAML::dump(@config, File.open(@configFile, 'w'))
   end
 

@@ -69,7 +69,7 @@ def cmd_weather(message)
   location = getDefault(message)
 
   if location == nil
-    reply(message, "You do not have a default location, and so you must provide one.")
+    reply(message, "You do not have a default location, so you must provide one.")
     return
   end
 
@@ -116,7 +116,7 @@ def cmd_forecast(message)
   location = getDefault(message)
 
   if location == nil
-    reply(message, "You do not have a default location, and so you must provide one.")
+    reply(message, "You do not have a default location, so you must provide one.")
     return
   end
   url = "http://api.wunderground.com/auto/wui/geo/ForecastXML/index.xml?query=#{URI.escape(location)}"
@@ -136,7 +136,7 @@ def cmd_forecast(message)
   root.elements.each("forecastday") { |element|
     title = element.elements["title"].text
     text = element.elements["fcttext"].text
-    reply += "[#{BOLD}#{title}#{NORMAL}] #{text}] "
+    reply += "[#{BOLD}#{title}#{NORMAL}] #{text} "
   }
 
   reply(message, reply)

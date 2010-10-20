@@ -53,6 +53,14 @@
   #   reply(message, "The answer is no!", false) # The answer is no! 
   def reply(message, replyStr, nickPrefix = true)
 
+    if replyStr.kind_of? Array
+      replyStr.each { |reply|
+        reply(message, reply, nickPrefix)
+      }
+      return
+    end
+
+
     replyStr.to_s! unless replyStr.kind_of? String
 
     if replyStr.length > 400
@@ -88,13 +96,6 @@
 
       replyStr = bufferArr
 
-    end
-
-    if replyStr.kind_of? Array
-      replyStr.each { |reply|
-        reply(message, reply, nickPrefix)
-      }
-      return
     end
 
     replyStr = "I tried to send you an empty reply. Oops!" if replyStr.length == 0
