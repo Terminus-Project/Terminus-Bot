@@ -56,11 +56,15 @@ def cmd_login(message)
       reply(message, "Please give both a user name and password.")
     else
       username = message.msgArr[1]
-      password = Digest::MD5.hexdigest(message.msgArr[2])
+
+      stored = $bot.config["Users"][username].password.split(":")
+
+      password = Digest::MD5.hexdigest("#{message.msgArr[2]}#{stored[1]}")
+
+      passwordOK = $bot.config["Users"][username].password == "#{password}:#{stored[1]}"
 
       $log.info("admin") { "Login attempt from #{message.speaker.nick} with user name #{username} and password #{password}" }
 
-      passwordOK = $bot.config["Users"][username].password == password
       if passwordOK
         reply(message, "Success!")
         $bot.admins[message.speaker.partialMask] = $bot.config["Users"][username]
