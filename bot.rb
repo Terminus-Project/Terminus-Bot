@@ -549,12 +549,37 @@ You should have received a copy of the GNU Affero General Public License along w
 EOF
 
 if File.exists? ".lock" and not File.zero? ".lock"
-  puts "The lock file .lock exists! If Terminus-Bot is running, you must close it to start it again. You may not run two of the same Terminus-Bots at the same time."
+  pid = Integer(IO.read(".lock").chomp)
 
-  puts "The bot was running as PID #{`cat .lock`.chomp}. Since there is no totally reliable cross-platform way to check for running processes by PID, I am unable to determine if it is still active. Please check on your own!"
+  begin
+    Process.getpgid( pid )
+    puts "This Terminus-Bot appears to be running as #{pid}. You may only run one at a time."
+    puts "If (and only if) you know this is an error, delete the .lock file and try again."
+    exit
+  rescue Errno::ESRCH
+    puts "It looks like Terminus-Bot did not exit gracefully last time it was run. Checking for problems..."
 
-  puts "If the bot is not running, delete \".lock\". (WARNING: If you delete the lock file and the bot is running, you may lose all of your bot's configuration!)"
-  exit
+    if File.zero? "configuration" and not File.zero? "configuration.bak"
+ 
+      puts "The configuration file is empty. Since there is a back-up, I will recover and use it."
+
+      FileUtils.cp "configuration.bak", "configuration"
+
+      if File.zero? "configuration"
+        puts "It looks like I wasn't able to recover your configuration file. I copied the back-up, but it appears empty as well."
+        puts "Please check recent logs (found in the logs directory). They might contain hints about what went wrong in the first place."
+        puts "Please contact the Terminus-Bot development team at <http://terminus-bot.net/> for help."
+        exit
+      else
+        puts "Recovery successful!"
+        puts "Any changes to configuration or module data since the last run has been lost."
+        exit
+      end
+    end
+
+    puts "Done recovering from errors."
+
+  end
 end
 
 FileUtils.touch ".lock"
