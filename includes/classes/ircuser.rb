@@ -50,6 +50,36 @@ class IRCUser
     "#{nick}!#{ident}@#{host}"
   end
 
+  # @return [String] nick!user@*.host.name
+  def maskedFullMask
+    "#{nick}!#{self.maskedPartialMask}"
+  end
+
+  # @return [String] user@*.host.name
+  def maskedPartialMask
+    arr = host.split('.')
+
+    if arr.length > 1
+      if arr[arr.length] == "IP" and arr.length == 5
+        return "#{ident}@#{arr[0]}#{arr[1]}.*"
+      end
+ 
+      return "#{ident}@*.#{arr[arr.length-2]}.#{arr[arr.length-1]}"
+
+    end
+
+    self.partialMask
+  end
+
+  # @return [Boolean] True if given hostmask matches nick!ident@host.
+  def compareMask(mask)
+    full = self.to_s
+    mask = mask.gsub("*", "(.*)")
+    mask = mask.gsub(".", "\.")
+
+    full =~ /#{mask}/
+  end
+
   # Determine if this user is a channel operator. This is
   # only useful if this object is a child of a Channel object.
   # @return [Boolean] True if channel modes contain o, a, or q.
