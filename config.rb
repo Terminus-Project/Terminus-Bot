@@ -103,7 +103,11 @@ class Config
     FileUtils.copy @configFile, "#{@configFile}.bak"
 
     $log.debug('config') { "Reading #{@configFile}" }
-    @config = YAML::load(File.open(@configFile, 'r'))
+
+    f = File.open(@configFile, 'r')
+    @config = YAML::load(f)
+    f.close
+
     @config = "" unless @config
   end
 
@@ -117,7 +121,9 @@ class Config
 
     $log.debug('config') { "Saving #{@configFile}" }
 
-    YAML::dump(@config, File.open(@configFile, 'w'))
+    f = File.open(@configFile, 'w')
+    YAML::dump(@config, f)
+    f.close
   end
 
 end
