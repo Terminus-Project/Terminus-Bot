@@ -89,11 +89,15 @@ def cmd_raw(message)
 end
 
 def cmd_join(message)
-  sendRaw("JOIN #{message.args}") if checkPermission(message, 5)
+  return true if not checkPermission(message, 5)
+  sendRaw("JOIN #{message.args}")
+  $bot.config["Channels"] << message.args unless $bot.config["Channels"].include? message.args
 end
 
 def cmd_part(message)
-  sendRaw("PART #{message.args}") if checkPermission(message, 5)
+  return true if not checkPermission(message, 5)
+  sendRaw("PART #{message.args}")
+  $bot.config["Channels"].delete(message.args) if $bot.config["Channels"].include? message.args
 end
 
 def cmd_quit(message)
