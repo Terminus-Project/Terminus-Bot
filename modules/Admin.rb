@@ -104,6 +104,22 @@ def cmd_part(message)
   $bot.config["Channels"].delete(message.args) if $bot.config["Channels"].include? message.args
 end
 
+def cmd_adminadd(message)
+  return true if not checkPermission(message, 9)
+
+  if message.msgArr.length != 4
+    reply(message, "Usage: adminadd #{UNDERLINE}username#{NORMAL} #{UNDERLINE}password#{NORMAL} #{UNDERLINE}level#{NORMAL}")
+    return true
+  end  
+
+  salt = (0...5).map{65.+(rand(25)).chr}.join
+
+  adminPassword = "#{Digest::MD5.hexdigest("#{message.msgArr[2]}#{salt}")}:#{salt}"
+  adminUserObj = AdminUser.new(message.msgArr[1], adminPassword, message.msgArr[3])
+  $bot.config["Users"][message.msgArr[1]] = adminUserObj
+  reply(message, "User #{BOLD}#{message.msgArr[1]}#{NORMAL} added with admin level #{BOLD}#{message.msgArr[3]}#{NORMAL}.")
+end
+
 def cmd_quit(message)
   if checkPermission(message, 9)
     if message.args.empty?
