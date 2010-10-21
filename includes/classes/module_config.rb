@@ -45,6 +45,36 @@ class ModuleConfiguration
     $bot.config["ModuleConfig"][modName][key] rescue nil
   end
 
+  # Return all configuration keys for the specified module.
+  # If the module doesn't exist, return nil.
+  # @param [String] modName The name of the module for which we are doing this lookup
+  # @return [Array] An array containing the configuration keys.
+  # @example Get a list of channels configured for automatic mode assignment such as for AutoModes module
+  #   modConfig.getKeys("automodes") #=> {"#terminus-bot", "#help"}
+  def getKeys(modName)
+    $bot.config["ModuleConfig"][modName].keys
+  end
+
+  # Return all configuration values for the specified module.
+  # If the module doesn't exist, return nil.
+  # @param [String] modName The name of the module for which we are doing this lookup
+  # @return [Array] An array containing the configuration values.
+  # @example Get a list of modes configured used for automatic mode assignment such as for AutoModes module
+  #   modConfig.getValues("automodes") #=> {"+v", "+o", "+v"}
+  def getValues(modName)
+    $bot.config["ModuleConfig"][modName].values
+  end
+
+  # Return a Hash table containing the configuration for the specified module.
+  # If the module doesn't exist, return nil.
+  # @param [String] modName The name of the module for which we are doing this lookup
+  # @return [Hash] An array containing the configuration values.
+  # @example Get a Hash table of channels and their associated automatically-assigned modes such as for AutoModes module
+  #   modConfig.getAll("automodes") #=> {"#general" => "+v", "#help" => "+v"}
+  def getAll(modName)
+    $bot.config["ModuleConfig"][modName]
+  end
+
   # Store a value for the named key for the specified module.
   # @param [String] modName The name of the module.
   # @param [Object] key The key for the value we want to save.
