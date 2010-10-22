@@ -111,7 +111,7 @@ def getCookies(mask)
 
   if cookies == nil
     cookies = 0
-    setCookies(message, mask, cookies)
+    setCookies(mask, cookies)
   end
 
   return cookies
