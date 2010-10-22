@@ -54,8 +54,8 @@
   def reply(message, replyStr, nickPrefix = true)
 
     if replyStr.kind_of? Array
-      replyStr.each { |reply|
-        reply(message, reply, nickPrefix)
+      replyStr.each { |replyItem|
+        reply(message, replyItem, nickPrefix)
       }
       return
     end
@@ -94,7 +94,9 @@
 
       bufferArr << buffer.strip unless buffer.empty?
 
-      replyStr = bufferArr
+      #replyStr = bufferArr
+      reply(message, bufferArr, nickPrefix)
+      return true
 
     end
 
