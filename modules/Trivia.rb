@@ -27,6 +27,7 @@ def initialize
   $bot.modHelp.registerCommand("Trivia", "trivia stop", "End the current trivia game.", "")
 
   @active = Hash.new
+  @scores = Hash.new
 end
 
 def cmd_trivia(message)
@@ -63,6 +64,8 @@ def cmd_trivia(message)
           @active[message.destination] = Questions.new
 
         end
+        
+        @scores[message.destination] = Hash.new
 
       else
 
@@ -84,9 +87,30 @@ def cmd_trivia(message)
 
       if @active.include? message.destination
 
-        @active.delete(message.destination)
-
         reply(message, "#{BOLD}#{message.speaker.nick}#{NORMAL} has ended the game.", false)
+
+        announceScores(message.destination)
+        
+        winnerName = "None"
+        winnerScore = 0
+
+        @scores[message.destination].each { |player, score|
+
+          if score > winnerScore
+
+            winnerName = player
+            winnerScore = score
+
+          elsif score == winnerScore
+            winnerName << ", #{player}"
+          end
+
+        }
+
+        reply(message, "The winner is: #{BOLD}#{winnerName}#{NORMAL} with #{BOLD}#{winnerScore} points!#{NORMAL}", false)
+
+        @active.delete(message.destination)
+        @scores.delete(message.destination)
 
       else
         reply(message, "There is no trivia game in progress in this channel.")
@@ -103,7 +127,7 @@ def cmd_trivia(message)
       reply(message, replyList)
 
     when "score"
-      reply(message, "This command is not yet implemented.")
+      announceScores(message.destination)
 
   end
 end
@@ -113,9 +137,34 @@ def bot_privmsg(message)
 
   if checkAnswer(message)
     reply(message, "Correct!")
+ 
+    unless @scores[message.destination].include? message.speaker.nick
+      @scores[message.destination][message.speaker.nick] = 1
+    else
+      @scores[message.destination][message.speaker.nick] += 1   
+    end
+
+    announceScores(message.destination)
+
     sleep 5
-    askQuestion(message.destination)
+    askQuestion(message.destination) rescue $log.warn('trivia') { "I wasn't able to get a question for the active trivia game. Maybe someone stopped the game during sleep?" }
   end
+end
+
+def announceScores(channel)
+
+  @scores[channel].sort { |player, score| player[1] <=> score[1] }
+
+  str = ""
+
+  @scores[channel].each { |player, score|
+    str << "#{player}: #{score}, "
+  }
+
+  str = str[0..str.length-3] if str.length > 2
+
+  sendPrivmsg(channel, "#{BOLD}Scores:#{NORMAL} #{str}")
+
 end
 
 def askQuestion(channel)
