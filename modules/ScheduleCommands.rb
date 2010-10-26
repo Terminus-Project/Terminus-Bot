@@ -52,7 +52,7 @@ def cmd_scheduler(message)
 
       fakeRaw = message.raw.match(/^([^:]+:)(.*)$/)[1]
       fakeRaw = fakeRaw + command
-      cmdMsg = IRCMessage.new(fakeRaw, message.type, message.bot)
+      cmdMsg = IRCMessage.new(fakeRaw, message.type)
 
       added = $scheduler.add("#{command} (#{message.speaker.nick})",
         Proc.new {
