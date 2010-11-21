@@ -60,6 +60,8 @@ def cmd_eat(message)
 
   setCookies($bot.channels[message.destination].users[message.msgArr[1]].maskedPartialMask, receiver-1)
 
+  reply(message, "#{message.speaker.nick} ate #{BOLD}#{message.msgArr[1]}#{NORMAL}'s cookie.", false)
+
 end
 
 def cmd_cookie(message)
@@ -88,6 +90,9 @@ def cmd_cookie(message)
 
     if sending < 1
       reply(message, "You must give at least one cookie.")
+      return true
+    elsif sender < 1
+      reply(message, "You don't have any cookies.")
       return true
     elsif sender < sending
       reply(message, "You only have #{BOLD}#{sender}#{NORMAL} cookies.")
