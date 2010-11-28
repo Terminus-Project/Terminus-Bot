@@ -41,8 +41,19 @@ class ModuleConfiguration
   # @return [Object] The stored configuration variable.
   # @example Look up a value for automatic mode assignment such as for AutoModes module
   #   modConfig.get("automodes", "#terminus-bot") #=> "+v"
-  def get(modName, key)
-    $bot.config["ModuleConfig"][modName][key] rescue nil
+  def default(modName, key, value)
+    $bot.config["ModuleConfig"][modName][key] = value unless $bot.config["ModuleConfig"][modName].has_key? key
+  end
+
+  # Return the value for the named key for the specified module.
+  # If the key doesn't exist, return nil.
+  # @param [String] modName The name of the module for which we are doing this lookup
+  # @param [Object] key The key for the value we want to retrieve.
+  # @return [Object] The stored configuration variable.
+  # @example Look up a value for automatic mode assignment such as for AutoModes module
+  #   modConfig.get("automodes", "#terminus-bot") #=> "+v"
+  def get(modName, key, default = nil)
+    $bot.config["ModuleConfig"][modName][key] rescue default
   end
 
   # Return all configuration keys for the specified module.

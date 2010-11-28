@@ -55,6 +55,22 @@ class IRCUser
     "#{nick}!#{self.maskedPartialMask}"
   end
 
+  # @return [String] *.host.name
+  def maskedPartialHost
+    arr = host.split('.')
+
+    if arr.length > 1
+      if arr[arr.length] == "IP" and arr.length == 5
+        return "#{arr[0]}#{arr[1]}.*"
+      end
+ 
+      return "*.#{arr[arr.length-2]}.#{arr[arr.length-1]}"
+
+    end
+
+    self.host
+  end
+
   # @return [String] user@*.host.name
   def maskedPartialMask
     arr = host.split('.')

@@ -329,15 +329,16 @@ class TerminusBot
       when "376" #end of motd
         $log.debug('parser') { "End of MOTD." }
         finishedConnecting          
+        type = END_OF_MOTD
 
       when "422" #motd not found
         $log.debug('parser') { "MOTD not found." }
         finishedConnecting          
+        type = END_OF_MOTD
 
       #else
       #  $log.debug('parser') { "Unknown message type: #{msg}" }
     end
-
     processIRCMessage(IRCMessage.new(msg, type))
   end
 
@@ -405,6 +406,8 @@ class TerminusBot
 
     # We'll fire module hooks and run core stuff in the same go.
     case msg.type
+      when END_OF_MOTD
+	fireHooks("bot_endofmotd", msg)
       when PRIVMSG
         fireHooks("bot_privmsg", msg)
       when CTCP_REQUEST
