@@ -42,6 +42,7 @@ class ModuleConfiguration
   # @example Look up a value for automatic mode assignment such as for AutoModes module
   #   modConfig.get("automodes", "#terminus-bot") #=> "+v"
   def default(modName, key, value)
+    addModule(modName)
     $bot.config["ModuleConfig"][modName][key] = value unless $bot.config["ModuleConfig"][modName].has_key? key
   end
 
