@@ -354,6 +354,8 @@ class TerminusBot
 
       # TODO: Feed this through something in outgoing.rb to split up
       #       joins that exceed the server maximum found in @network.
+
+      sleep 2 # Pause for 1 second for nickserv auth / vhosts
       sendRaw "JOIN #{@config["Channels"].join(",")}"
 
       @alreadyFinished = true
