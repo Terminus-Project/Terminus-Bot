@@ -120,7 +120,7 @@ end
 
 def cmd_kick(message)
   return false unless permission? message
-  sendRaw("KICK #{message.destination} #{message.msgArr[1]} :#{message.speaker.nick} made me do it!")
+  sendKick(message.destination, message.msgArr[1], "#{message.speaker.nick} made me do it!")
 end
 
 def cmd_invite(message)

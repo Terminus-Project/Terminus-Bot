@@ -148,3 +148,11 @@
   def sendCTCP(destination, message)
     sendRaw("PRIVMSG #{destination} :#{1.chr}#{message}#{1.chr}")
   end
+
+  # Attempt to kick the specified nick from a channel with an optional reason.
+  # @param [String] channel The channel from whcih the user will be kicked
+  # @param [String] nick The nick of the user being kicked.
+  # @param [String] reason The reason for the kick.
+  def sendKick(channel, nick, reason = "")
+    sendRaw("KICK #{channel} #{nick} :#{reason}")
+  end
