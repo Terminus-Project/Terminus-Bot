@@ -19,19 +19,19 @@
 #
 
 def initialize
-  $bot.modHelp.registerModule("Battle", "IRC role-play battle tracker.")
+  registerModule("Battle", "IRC role-play battle tracker.")
 
-  $bot.modHelp.registerCommand("Battle", "battle", "Start or stop the battle in the current channel.", "")
-  $bot.modHelp.registerCommand("Battle", "health", "View the health of all active players in this channel.", "")
-  $bot.modHelp.registerCommand("Battle", "heal", "Heal players to maximum health. If no nick is given, all players are reset.", "nick")
-  #$bot.modHelp.registerCommand("Battle", "", "", "")
-  #$bot.modHelp.registerCommand("Battle", "", "", "")
+  registerCommand("Battle", "battle", "Start or stop the battle in the current channel.", "")
+  registerCommand("Battle", "health", "View the health of all active players in this channel.", "")
+  registerCommand("Battle", "heal", "Heal players to maximum health. If no nick is given, all players are reset.", "nick")
+  #registerCommand("Battle", "", "", "")
+  #registerCommand("Battle", "", "", "")
 
   @active = Hash.new
-  $bot.modConfig.put("battle", "startingHP", 1000) if $bot.modConfig.get("battle", "startingHP") == nil 
-  $bot.modConfig.put("battle", "maxDamage", 225) if $bot.modConfig.get("battle", "maxDamage") == nil 
-  $bot.modConfig.put("battle", "minDamage", -50) if $bot.modConfig.get("battle", "minDamage") == nil 
-  $bot.modConfig.put("battle", "missChance", 20) if $bot.modConfig.get("battle", "missChance") == nil 
+  set("startingHP", 1000) if get("startingHP") == nil 
+  set("maxDamage", 225) if get("maxDamage") == nil 
+  set("minDamage", -50) if get("minDamage") == nil 
+  set("missChance", 20) if get("missChance") == nil 
 end
 
 def cmd_battle(message)
@@ -70,7 +70,7 @@ def getHealth(message, target)
 
   return @active[chan][target] if @active[chan].include? target
 
-  return $bot.modConfig.get("battle", "startingHP")
+  return get("startingHP")
 end
 
 def setHealth(message, target, health)
@@ -80,7 +80,7 @@ def setHealth(message, target, health)
 end
 
 def healPlayer(message, target)
-  setHealth(message, target, $bot.modConfig.get("battle", "startingHP"))
+  setHealth(message, target, get("startingHP"))
 end
 
 def attackPlayer(message, target, weapon)
@@ -90,14 +90,14 @@ def attackPlayer(message, target, weapon)
     reply(message, "#{target} is already dead.", false)
   end
 
-  damage = $bot.modConfig.get("battle", "minDamage") + rand($bot.modConfig.get("battle", "maxDamage")-$bot.modConfig.get("battle", "minDamage"))
+  damage = get("minDamage") + rand(get("maxDamage")-get("minDamage"))
 
   new = current - damage
   new = 0 if new < 0
 
   setHealth(message, target, new)
 
-  if rand(100) < Integer($bot.modConfig.get("battle", "missChance"))
+  if rand(100) < Integer(get("missChance"))
     reply(message, "#{target} dodges #{message.speaker.nick}'s #{weapon}.", false)
   elsif damage > 0
     reply(message, "#{message.speaker.nick}'s #{weapon} hits #{target} for #{BOLD}#{damage} damage#{NORMAL}.", false)

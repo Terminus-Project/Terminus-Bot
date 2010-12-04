@@ -23,9 +23,9 @@ require "uri"
 require "json"
 
 def initialize
-  $bot.modHelp.registerModule("IMDB", "Look up movies on the Internet Movie Database.")
+  registerModule("IMDB", "Look up movies on the Internet Movie Database.")
 
-  $bot.modHelp.registerCommand("IMDB", "imdb", "Find information about a movie by searching the Internet Movie Database.", "title")
+  registerCommand("IMDB", "imdb", "Find information about a movie by searching the Internet Movie Database.", "title")
 end
 
 #curl -e http://www.my-ajax-site.com \

@@ -19,9 +19,9 @@
 #
 
 def initialize
-  $bot.modHelp.registerModule("Insult", "Hate generator.")
+  registerModule("Insult", "Hate generator.")
 
-  $bot.modHelp.registerCommand("Insult", "insult", "Be mean. If a target is given, I will insult the target.", "target")
+  registerCommand("Insult", "insult", "Be mean. If a target is given, I will insult the target.", "target")
 end
 
 def cmd_insult(message)

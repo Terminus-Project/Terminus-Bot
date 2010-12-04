@@ -19,11 +19,11 @@
 #
 
 def initialize
-  $bot.modHelp.registerModule("Cookies", "Exchange or earn delicious (virtual) snacks.")
+  registerModule("Cookies", "Exchange or earn delicious (virtual) snacks.")
 
-  $bot.modHelp.registerCommand("Cookies", "cookie", "Give one or more of your cookies to another user. If no nick is given, check how many cookies you have.", "nick number")
-  $bot.modHelp.registerCommand("Cookies", "bake", "Bake a dozen cookies for yourself.", "")
-  $bot.modHelp.registerCommand("Cookies", "eat", "Eat someone's cookie.", "nick")
+  registerCommand("Cookies", "cookie", "Give one or more of your cookies to another user. If no nick is given, check how many cookies you have.", "nick number")
+  registerCommand("Cookies", "bake", "Bake a dozen cookies for yourself.", "")
+  registerCommand("Cookies", "eat", "Eat someone's cookie.", "nick")
 end
 
 def cmd_bake(message)
@@ -112,7 +112,7 @@ def cmd_cookie(message)
 end
 
 def getCookies(mask)
-  cookies = $bot.modConfig.get("cookies", mask)
+  cookies = get(mask)
 
   if cookies == nil
     cookies = 0
@@ -123,5 +123,5 @@ def getCookies(mask)
 end
 
 def setCookies(mask, amount)
-  $bot.modConfig.put("cookies", mask, amount)
+  set(mask, amount)
 end

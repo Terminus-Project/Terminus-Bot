@@ -41,9 +41,9 @@ END_OF_MOTD=13
 require 'date'
 
 class IRCMessage
-  attr_reader :destination, :message, :speaker, :timestamp, :msgArr, :args, :replyTo, :type, :raw, :rawArr
+  attr_reader :destination, :message, :speaker, :timestamp, :msgArr, :args, :replyTo, :type, :raw, :rawArr, :bot
 
-  def initialize(raw, type)
+  def initialize(bot, raw, type)
     case type
       when JOIN_CHANNEL..PART_CHANNEL
         @message = raw.match(/:(.*)/)[1] rescue ""
@@ -53,6 +53,8 @@ class IRCMessage
         @message = raw.match(/^[^:]+:(.*)$/)[1] rescue raw
     end
 
+    @bot = bot
+
     @raw = raw
     @rawArr = raw.split(" ")
 
@@ -60,7 +62,7 @@ class IRCMessage
 
     @type = type
     @destination = @rawArr[2]
-    @speaker = IRCUser.new(@rawArr[0])
+    @speaker = IRCUser.new(bot, @rawArr[0])
     @timestamp = DateTime.now
 
     @args = @msgArr.clone()
@@ -79,7 +81,11 @@ class IRCMessage
   #     $log.info("myModule") { "Someone sent a message to a channel." }
   #   end  
   def private?
-    not $bot.network.isChannel? @destination
+    not @bot.network.isChannel? @destination
+  end
+
+  def reply(str, nickPrefix = false)
+    @bot.reply(self, str, nickPrefix)
   end
   
   # Return a string representation of the user as nick!user@host

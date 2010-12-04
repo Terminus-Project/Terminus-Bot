@@ -18,7 +18,7 @@
 
 class Config
 
-  attr :config
+  attr_accessor :config
 
   require 'yaml'
   require 'fileutils'
@@ -27,7 +27,9 @@ class Config
   def initialize(configFile = "configuration")
     @configFile = configFile
 
+    $log.debug('initialize') { 'Checking for existing configuration file.' }
     if File.zero? configFile or not File.exists? configFile
+      $log.debug('initialize') { 'No configuration file found. Prompting user for basic options.' }
       # The configuration file doesn't exist! Let's ask the user
       # for some things so we can generate one.
         
@@ -72,8 +74,10 @@ class Config
 
       adminPassword = "#{Digest::MD5.hexdigest("#{adminPassword}#{salt}")}:#{salt}"
 
-      require "includes/classes/adminuser.rb"
-      adminUserObj = AdminUser.new(adminUser, adminPassword, 10)
+      adminUserObj["Username"] = adminUser
+      adminUserObj["Password"] = adminPassword
+      adminUserObj["AccessLevel"] = 10
+
 
       @config = Hash.new()
 
@@ -98,6 +102,10 @@ class Config
       puts "Done! Continuing with bot start."
 
     end
+
+    self.readConfig
+
+    $log.debug('initialize') { 'Done loading configuration.' }
   end
 
   def readConfig()

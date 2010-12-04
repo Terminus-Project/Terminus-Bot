@@ -26,7 +26,7 @@ class IRCUser
 
   # Create a new user object by parsing a full hostmask (nick!user@host).
   # @param [String] fullString A full hostmask in the form nick!user@host
-  def initialize(fullString)
+  def initialize(bot, fullString)
     if fullString =~ /(.*)!(.*)@(.*)/
       @nick = $1
       @ident = $2
@@ -119,7 +119,7 @@ class IRCUser
   end
 
   def adminLevel
-    $bot.admins[self.partialMask].accessLevel rescue 0
+    $bot.admins[self.partialMask]["AccessLevel"] rescue 0
   end
 
   # Comparison is done based on the hostmask

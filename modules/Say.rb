@@ -19,17 +19,17 @@
 #
 
 def initialize
-  $bot.modHelp.registerModule("Say", "Basic speaking commands.")
+  registerModule("Say", "Basic speaking commands.")
 
-  $bot.modHelp.registerCommand("Say", "act", "Perform an action (as in /me).", "action")
-  $bot.modHelp.registerCommand("Say", "say", "Say text.", "text")
+  registerCommand("Say", "act", "Perform an action (as in /me).", "action")
+  registerCommand("Say", "say", "Say text.", "text")
 end
 
 def cmd_say(message)
-  reply(message, message.args, false)
+  message.reply(message.args, false)
 end
 
 def cmd_act(message)
-  reply(message, "#{1.chr}ACTION #{message.args}#{1.chr}", false)
+  message.reply("#{1.chr}ACTION #{message.args}#{1.chr}", false)
 end
 

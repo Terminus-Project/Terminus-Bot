@@ -19,49 +19,46 @@
 #
 
 def initialize
-  $bot.modHelp.registerModule("Services", "Facilitate services authentication.")
+  registerModule("Services", "Facilitate services authentication.")
 
-  $bot.modHelp.registerCommand("Services", "services automatic", "Activate or deactivate automatic identification with services. If no value is given, show the current value.", "[on|off]")
-  $bot.modHelp.registerCommand("Services", "services ident", "Send IDENTIFY command to services.")
-  $bot.modHelp.registerCommand("Services", "services nickserv", "Set the NickServ name (and optionally user@host) to use when identifying with NickServ or recognizing NickServ ident requests. If no value is provided, show the current value.", "[nickserv]")
-  $bot.modHelp.registerCommand("Services", "services password", "Sets the password to use with NickServ. If none is given, show the current value.", "[password]")
+  registerCommand("Services", "services automatic", "Activate or deactivate automatic identification with services. If no value is given, show the current value.", "[on|off]")
+  registerCommand("Services", "services ident", "Send IDENTIFY command to services.")
+  registerCommand("Services", "services nickserv", "Set the NickServ name (and optionally user@host) to use when identifying with NickServ or recognizing NickServ ident requests. If no value is provided, show the current value.", "[nickserv]")
+  registerCommand("Services", "services password", "Sets the password to use with NickServ. If none is given, show the current value.", "[password]")
 end
 
 def cmd_services(message)
-  if message.speaker.adminLevel < 8 then
-    reply(message, "You do not have sufficient bot access privileges to use this command.")
-    return
-  end
+  return unless checkAdmin(message, 8)
   
   case message.msgArr[1].downcase
 
     when "nickserv"
       if message.msgArr[2] == nil
-        current = $bot.modConfig.get("services", "NickServ")
+        current = get("NickServ")
         if current == nil
           reply(message, "NickServ is not set.")
         else
           reply(message, current)
         end
       else
-        $bot.modConfig.put("services", "NickServ", message.msgArr[2])
+        set("NickServ", message.msgArr[2])
         reply(message, "Changed successfully.")
       end
     when "password"
       if message.msgArr[2] == nil
-        current = $bot.modConfig.get("services", "Password")
+        current = get("Password")
         if current == nil
           reply(message, "Password is not set.")
         else
           reply(message, current)
         end
       else
-        $bot.modConfig.put("services", "Password", message.msgArr[2])
+        set("Password", message.msgArr[2])
         reply(message, "Changed successfully.")
       end
     when "automatic"
       if message.msgArr[2] == nil
-        current = $bot.modConfig.get("services", "Automatic")
+        current = get("Automatic")
         if current == nil
           reply(message, "Automatic is not set.")
         else
@@ -69,7 +66,7 @@ def cmd_services(message)
         end
       else
         if message.msgArr[2].downcase == "on" or message.msgArr[2].downcase == "off"
-          $bot.modConfig.put("services", "Automatic", message.msgArr[2].downcase)
+          set("Automatic", message.msgArr[2].downcase)
           reply(message, "Changed successfully.")
         else
           reply(message, "Invalid choice: must be #{BOLD}off#{NORMAL} or #{BOLD}on#{NORMAL}.")
@@ -85,8 +82,8 @@ def bot_notice(message)
   if message.message =~ /nickname is registered/i
     $log.debug('services') { "Auto-identify checking for match: #{message.message} from #{message.speaker.to_s}" }
 
-    nickserv = $bot.modConfig.get("services", "NickServ")
-    auto = $bot.modConfig.get("services", "Automatic")
+    nickserv = get("NickServ")
+    auto = get("Automatic")
 
     return if nickserv == nil or auto == nil
 
@@ -99,8 +96,8 @@ def bot_notice(message)
 end
 
 def sendIdentMessage
-  destination = $bot.modConfig.get("services", "NickServ")
-  password = $bot.modConfig.get("services", "Password")
+  destination = get("NickServ")
+  password = get("Password")
 
   sendPrivmsg(destination, "IDENTIFY #{password}")
   sendPrivmsg(destination, "UPDATE")

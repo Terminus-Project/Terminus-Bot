@@ -20,11 +20,11 @@
 
 
 def initialize
-  $bot.modHelp.registerModule("AutoMode", "The bot may be configured to automatically set modes to every user on join.")
+  registerModule("AutoMode", "The bot may be configured to automatically set modes to every user on join.")
 
-  $bot.modHelp.registerCommand("AutoMode", "automode list", "List the modes which will automatically be applied to joining users in this channel.")
-  $bot.modHelp.registerCommand("AutoMode", "automode add", "Add a mode to automatically apply to joining users. A + or - should be given, depending on IRC daemon requirements.", "mode(s)")
-  $bot.modHelp.registerCommand("AutoMode", "automode delete", "No longer set the specified mode for joining users. A + or - must be given if one is included in the setting that is being deleted.", "mode(s)")
+  registerCommand("AutoMode", "automode list", "List the modes which will automatically be applied to joining users in this channel.")
+  registerCommand("AutoMode", "automode add", "Add a mode to automatically apply to joining users. A + or - should be given, depending on IRC daemon requirements.", "mode(s)")
+  registerCommand("AutoMode", "automode delete", "No longer set the specified mode for joining users. A + or - must be given if one is included in the setting that is being deleted.", "mode(s)")
 end
 
 def cmd_automode(message)
@@ -41,30 +41,31 @@ def cmd_automode(message)
     when "add"
 
       if message.msgArr.length == 3
-        config = $bot.modConfig.get("automode", message.destination)
+        config = get(message.destination)
 
         config = Array.new if config == nil
 
         config << message.msgArr[2]
-        $bot.modConfig.put("automode", message.destination, config)
+        set(message.destination, config)
         reply(message, "Automode added.", true)
       else
         reply(message, "Please provide the additional modes to set on join: automode add <mode(s)>", true)
       end
     when "delete"
-      config = $bot.modConfig.get("automode", message.destination)
+      config = get(message.destination)
       if config == nil
         reply(message, "No automodes are set for this channel.", true)
       else
         if config.include? message.msgArr[2]
           config.delete message.msgArr[2]
+          set(message.destination, config)
           reply(message, "Automode deleted.", true)
         else
           reply(message, "That automode was not set.", true)
         end
       end
     when "list"
-      config = $bot.modConfig.get("automode", message.destination)
+      config = get(message.destination)
       if config == nil
         reply(message, "No automodes are set for this channel.", true)
       else
@@ -78,7 +79,7 @@ def cmd_automode(message)
 end
 
 def bot_joinChannel(message)
-  config = $bot.modConfig.get("automode", message.message)
+  config = get(message.message)
   return nil if config == nil
 
   modeParams = ""

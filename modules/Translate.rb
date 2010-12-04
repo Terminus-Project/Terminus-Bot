@@ -23,9 +23,9 @@ require "uri"
 require "json"
 
 def initialize
-  $bot.modHelp.registerModule("Translator", "Translate text using Google Translate.")
+  registerModule("Translator", "Translate text using Google Translate.")
 
-  $bot.modHelp.registerCommand("Translator", "translate", "Translate text with Google Translate. Languages must be specified with their two-character abbreviations.", "from to text")
+  registerCommand("Translator", "translate", "Translate text with Google Translate. Languages must be specified with their two-character abbreviations.", "from to text")
 end
 
 #curl -e http://www.my-ajax-site.com \

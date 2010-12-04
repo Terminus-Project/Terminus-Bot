@@ -19,10 +19,10 @@
 #
 
 def initialize
-  $bot.modHelp.registerModule("Help", "Provide help on using bot commands and modules.")
-  $bot.modHelp.registerCommand("Help", "commands", "List all available commands.")
-  $bot.modHelp.registerCommand("Help", "modules", "List all loaded modules.")
-  $bot.modHelp.registerCommand("Help", "help", "Provide syntax and help for using a command.", "command")
+  registerModule("Help", "Provide help on using bot commands and modules.")
+  registerCommand("Help", "commands", "List all available commands.")
+  registerCommand("Help", "modules", "List all loaded modules.")
+  registerCommand("Help", "help", "Provide syntax and help for using a command.", "command")
 end
 
 def cmd_commands(message)

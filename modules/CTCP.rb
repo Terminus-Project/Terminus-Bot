@@ -21,19 +21,19 @@
 def bot_ctcpRequest(message)
   case message.msgArr[0]
     when "VERSION"
-      sendNotice(message.speaker.nick, "#{1.chr}VERSION #{$bot.config["Version"]}#{1.chr}")
+      sendNotice(message.speaker.nick, "\1VERSION #{$bot.config["Version"]}\1")
     when "URL"
-        sendNotice(message.speaker.nick, "#{1.chr}URL #{$bot.config["URL"]}#{1.chr}")
+        sendNotice(message.speaker.nick, "\1URL #{$bot.config["URL"]}\1")
     when "TIME"
       # implements rfc 822 section 5 as date-time
-      sendNotice(message.speaker.nick, "#{1.chr}TIME #{DateTime.now.strftime("%d %m %y %H:%M:%S %z")}#{1.chr}")
+      sendNotice(message.speaker.nick, "\1TIME #{DateTime.now.strftime("%d %m %y %H:%M:%S %z")}\1")
     when "PING"
-      sendNotice(message.speaker.nick, "#{1.chr}PING #{message.msgArr[1]}#{1.chr}")
+      sendNotice(message.speaker.nick, "\1PING #{message.msgArr[1]}\1")
     when "CLIENTINFO"
-      sendNotice(message.speaker.nick, "#{1.chr}CLIENTINFO VERSION PING URL TIME#{1.chr}")
+      sendNotice(message.speaker.nick, "\1CLIENTINFO VERSION PING URL TIME\1")
     when "ACTION"
       # Don't do anything!
     else
-      sendNotice(message.speaker.nick, "#{1.chr}ERRMSG #{message.msgArr[0]} QUERY UNKNOWN#{1.chr}")
+      sendNotice(message.speaker.nick, "\1ERRMSG #{message.msgArr[0]} QUERY UNKNOWN\1")
   end
 end

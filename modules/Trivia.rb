@@ -19,12 +19,12 @@
 #
 
 def initialize
-  $bot.modHelp.registerModule("Trivia", "Trivia games.")
+  registerModule("Trivia", "Trivia games.")
 
-  $bot.modHelp.registerCommand("Trivia", "trivia start", "Begin a trivia game. If a category is specified, questions are restricted to that category. If not, all categories are used.", "category")
-  $bot.modHelp.registerCommand("Trivia", "trivia list", "List available trivia categories.", "")
-  $bot.modHelp.registerCommand("Trivia", "trivia score", "Show score information. If a player name is provided, detailed information for that player is provided.", "player")
-  $bot.modHelp.registerCommand("Trivia", "trivia stop", "End the current trivia game.", "")
+  registerCommand("Trivia", "trivia start", "Begin a trivia game. If a category is specified, questions are restricted to that category. If not, all categories are used.", "category")
+  registerCommand("Trivia", "trivia list", "List available trivia categories.", "")
+  registerCommand("Trivia", "trivia score", "Show score information. If a player name is provided, detailed information for that player is provided.", "player")
+  registerCommand("Trivia", "trivia stop", "End the current trivia game.", "")
 
   @active = Hash.new
   @scores = Hash.new

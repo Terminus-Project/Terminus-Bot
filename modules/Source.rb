@@ -27,9 +27,9 @@
 # another means to get the link.
 
 def initialize
-  $bot.modHelp.registerModule("Source", "Give users a link directly to the bot's source code and documentation.")
+  registerModule("Source", "Give users a link directly to the bot's source code and documentation.")
 
-  $bot.modHelp.registerCommand("Source", "source", "Provide a link to this bot's source code and documentation.")
+  registerCommand("Source", "source", "Provide a link to this bot's source code and documentation.")
 end
 
 def cmd_source(message)

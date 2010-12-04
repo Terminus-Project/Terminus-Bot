@@ -23,12 +23,12 @@ require "uri"
 require "strscan"
 
 def initialize
-  $bot.modHelp.registerModule("UrbanDict", "Look up words on UrbanDictionary.com.")
+  registerModule("UrbanDict", "Look up words on UrbanDictionary.com.")
 
-  $bot.modHelp.registerCommand("UrbanDict", "ud", "Fetch definition of word from UrbanDictionary.com.", "word")
+  registerCommand("UrbanDict", "ud", "Fetch definition of word from UrbanDictionary.com.", "word")
   @baseURL = "http://www.urbandictionary.com/define.php?term="
 
-  $bot.modConfig.put("urbandict", "maxDefinitions", 3) if $bot.modConfig.get("urbandict", "maxDefinitions") == nil
+  default("maxDefinitions", 3)
 end
 
 def cmd_ud(message)
@@ -41,7 +41,7 @@ def cmd_ud(message)
   definitions = Array.new
   count = 0
 
-  while page.skip_until(/<div class='definition'>/i) != nil and count < $bot.modConfig.get("urbandict", "maxDefinitions")
+  while page.skip_until(/<div class='definition'>/i) != nil and count < get("maxDefinitions", 3)
     count += 1
 
     definition = page.scan_until(/<\/div>/i)

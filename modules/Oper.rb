@@ -19,24 +19,24 @@
 #
 
 def initialize()
-  $bot.modHelp.registerModule("Oper", "Automatically OPER the bot on connect.")
+  registerModule("Oper", "Automatically OPER the bot on connect.")
 
-  $bot.modHelp.registerCommand("Oper", "oper", "Attempt to OPER the bot.", "")
+  registerCommand("Oper", "oper", "Attempt to OPER the bot.", "")
 
-  $bot.modConfig.default("Oper", "enabled", false)
-  $bot.modConfig.default("Oper", "username", "")
-  $bot.modConfig.default("Oper", "password", "")
+  default("enabled", false)
+  default("username", "")
+  default("password", "")
 end
 
 def cmd_oper(message)
-  return if message.speaker.adminLevel < 8
+  return if message.speaker.adminLevel < 7
 
   reply(message, "I will attempt to log in as an IRC operator.")
-  sendRaw("OPER #{$bot.modConfig.get("Oper", "username")} #{$bot.modConfig.get("Oper", "password")}")
+  sendRaw("OPER #{get("username")} #{get("password")}")
 end
 
 def bot_endofmotd(message)
-  if $bot.modConfig.get("Oper", "enabled")
-    sendRaw("OPER #{$bot.modConfig.get("Oper", "username")} #{$bot.modConfig.get("Oper", "password")}")
+  if get("enabled", false)
+    sendRaw("OPER #{get("username")} #{get("password")}")
   end
 end

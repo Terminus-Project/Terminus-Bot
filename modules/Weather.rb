@@ -23,24 +23,24 @@ require 'net/http'
 require 'rexml/document'
 
 def initialize
-  $bot.modHelp.registerModule("Weather", "Weather information look-ups with persistent location memory.")
+  registerModule("Weather", "Weather information look-ups with persistent location memory.")
 
-  $bot.modHelp.registerCommand("Weather", "weather-default", "Set or delete your default weather location. If delete is specified, any default will be removed. if location is specified, your user@host will be associated with that location.", "[delete] [location]")
-  $bot.modHelp.registerCommand("Weather", "weather", "View current conditions for the specified location. If none is specified, your default location is used. If no default is set and a location is specified, save the new location as your default.", "[location]")
-  $bot.modHelp.registerCommand("Weather", "forecast", "View a short-term forecase for the specified location. If none is specified, your default location is used. If no default is set and a location is specified, save the new location as your default.", "[location]")
+  registerCommand("Weather", "weather-default", "Set or delete your default weather location. If delete is specified, any default will be removed. if location is specified, your user@host will be associated with that location.", "[delete] [location]")
+  registerCommand("Weather", "weather", "View current conditions for the specified location. If none is specified, your default location is used. If no default is set and a location is specified, save the new location as your default.", "[location]")
+  registerCommand("Weather", "forecast", "View a short-term forecase for the specified location. If none is specified, your default location is used. If no default is set and a location is specified, save the new location as your default.", "[location]")
 end
 
 
 def getDefault(message)
   user = message.speaker.partialMask
 
-  config = $bot.modConfig.get("weather", user)
+  config = get(user)
 
   if config == nil
     if message.args.empty?
       return nil
     else
-      $bot.modConfig.put("weather", user, message.args)
+      set(user, message.args)
       reply(message, "I have set your default location to #{message.args}. To change this, use the command #{BOLD}WEATHER-DEFAULT#{NORMAL}")
       return message.args
     end
@@ -54,11 +54,11 @@ def cmd_weather_default(message)
   user = message.speaker.partialMask
 
   if message.args.empty?
-    $bot.modConfig.delete("weather", user)
+    delete(user)
 
     reply(message, "I have deleted your default weather location. If you want to set a new one, use the command #{BOLD}WEATHER-DEFAULT#{NORMAL} or just use any weather-related commands.")
   else
-    $bot.modConfig.put("weather", user, message.args)
+    set(user, message.args)
 
     reply(message, "I have set your default location to #{message.args}. You can change it at any time using the same command. To remove it, don't give a location.")
   end

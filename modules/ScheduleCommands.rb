@@ -19,14 +19,15 @@
 #
 
 def initialize
-  $bot.modHelp.registerModule("Scheduler", "Schedule commands to run at specified times or intervals.")
+  registerModule("Scheduler", "Schedule commands to run at specified times or intervals.")
 
-  $bot.modHelp.registerCommand("Scheduler", "scheduler add", "Schedule command to run at time. If repeat is given, repeat every 'time' seconds from epoch. If repeat is not given, run in 'time' seconds from now.", "[repeat] time command")
+  registerCommand("Scheduler", "scheduler add", "Schedule command to run at time. If repeat is given, repeat every 'time' seconds from epoch. If repeat is not given, run in 'time' seconds from now.", "[repeat] time command")
 #  $bot.modHelp.registerCommand("Scheduler", "scheduler delete", "")
 #  $bot.modHelp.registerCommand("Scheduler", "scheduler list", "")
 end
 
 def cmd_scheduler(message)
+  return unless checkAdmin(message, 2)
 
   case message.msgArr[1].downcase
     when "add"

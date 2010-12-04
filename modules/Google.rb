@@ -23,19 +23,18 @@ require "uri"
 require "json"
 
 def initialize
-  $bot.modHelp.registerModule("Google", "Search the Internet with Google.")
+  registerModule("Google", "Search the Internet with Google.")
 
-  $bot.modHelp.registerCommand("Google", "g", "Search for web pages using Google.", "query")
-  $bot.modHelp.registerCommand("Google", "gimage", "Search for images using Google.", "query")
-  $bot.modHelp.registerCommand("Google", "gvideo", "Search for images using Google.", "query")
-  $bot.modHelp.registerCommand("Google", "gbook", "Search for images using Google.", "query")
-  $bot.modHelp.registerCommand("Google", "gpatent", "Search for images using Google.", "query")
-  $bot.modHelp.registerCommand("Google", "gblog", "Search for images using Google.", "query")
-  $bot.modHelp.registerCommand("Google", "gnews", "Search for images using Google.", "query")
+  registerCommand("Google", "g", "Search for web pages using Google.", "query")
+  registerCommand("Google", "gimage", "Search for images using Google.", "query")
+  registerCommand("Google", "gvideo", "Search for images using Google.", "query")
+  registerCommand("Google", "gbook", "Search for images using Google.", "query")
+  registerCommand("Google", "gpatent", "Search for images using Google.", "query")
+  registerCommand("Google", "gblog", "Search for images using Google.", "query")
+  registerCommand("Google", "gnews", "Search for images using Google.", "query")
 
-  # TODO: Make these config variables.
-  @useragent = "sinsira.net"
-  @resultLimit = 3
+  default("useragent", "sinsira.net")
+  default("resultLimit", 3)
 
   @baseURL = "http://ajax.googleapis.com/ajax/services/search/"
 end
@@ -117,7 +116,7 @@ def getResult(query, type)
   uri = URI.parse(url)
   http = Net::HTTP.new(uri.host, uri.port)
   request = Net::HTTP::Get.new(uri.request_uri)
-  request.initialize_http_header({"User-Agent" => "sinsira.net"})
+  request.initialize_http_header({"User-Agent" => get("useragent")})
   response = http.request(request)
 
   if response.code != "200"
@@ -127,9 +126,10 @@ def getResult(query, type)
   response = JSON.parse(response.body)
   results = Array.new
   num = 0
+  limit = get("resultLimit")
 
   response["responseData"]["results"].each { |result|
-    break if num >= @resultLimit
+    break if num >= limit
 
     case type
       when "web"

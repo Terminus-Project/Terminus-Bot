@@ -19,10 +19,10 @@
 #
 
 def initialize
-  $bot.modHelp.registerModule("Spy", "Relay channel activity from one channel to another (one-way).")
+  registerModule("Spy", "Relay channel activity from one channel to another (one-way).")
 
-  $bot.modHelp.registerCommand("Spy", "spy", "Begin relaying channel activity from target to destination (but not the other way).", "target destination")
-  $bot.modHelp.registerCommand("Spy", "unspy", "Stop relaying channel activity.", "target")
+  registerCommand("Spy", "spy", "Begin relaying channel activity from target to destination (but not the other way).", "target destination")
+  registerCommand("Spy", "unspy", "Stop relaying channel activity.", "target")
 end
 
 def bot_privmsg(message)
@@ -34,7 +34,7 @@ def bot_notice(message)
 end
 
 def spy(message)
-  spying = $bot.modConfig.get("Spy", message.destination, nil)
+  spying = get(message.destination, nil)
 
   return if spying == nil
 
@@ -49,18 +49,18 @@ def cmd_spy(message)
     return true
   end
 
-  spying = $bot.modConfig.get("Spy", message.msgArr[1], nil)
+  spying = get(message.msgArr[1], nil)
 
   if spying != nil
     if spying == message.msgArr[2]
       reply(message, "I am already relaying activity from #{message.msgArr[1]} to #{message.msgArr[2]}.")
     else
       reply(message, "One-way relay from #{message.msgArr[1]} will now send to #{message.msgArr[2]}.")
-      $bot.modConfig.put("Spy", message.msgArr[1], message.msgArr[2])
+      set(message.msgArr[1], message.msgArr[2])
     end
   else
     reply(message, "One-way relay from #{message.msgArr[1]} now sending to #{message.msgArr[2]}.")
-    $bot.modConfig.put("Spy", message.msgArr[1], message.msgArr[2])
+    set(message.msgArr[1], message.msgArr[2])
   end
 end
 
@@ -72,10 +72,10 @@ def cmd_unspy(message)
     return true
   end
 
-  spying = $bot.modConfig.get("Spy", message.msgArr[1], nil)
+  spying = get(message.msgArr[1], nil)
 
   if spying != nil
-    $bot.modConfig.delete("Spy", message.msgArr[1])
+    delete(message.msgArr[1])
     reply(message, "I will no longer spy on #{message.msgArr[1]}.")
   else
     reply(message, "I am not spying on #{message.msgArr[1]}.")

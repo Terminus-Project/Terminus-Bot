@@ -18,34 +18,38 @@
 #
 #
 
-require "net/http"
-require "uri"
-require "strscan"
+module IRC
 
-def initialize
-  registerModule("HTTP", "Provide basic HTTP functions, such as title fetching.")
+  class Incoming
 
-  registerCommand("HTTP", "title", "Attempt to fetch the title of the given URL.", "URL")
+    attr_accessor :recvq
 
-  default("enabled", true)
-end
-
-def cmd_title(message)
-  return unless get("enabled", true)
-
-  if message.args =~ /(https?:\/\/.+\..*)/
-    $log.debug('http') { "Getting title for #{$1}" }
-
-    page = StringScanner.new(Net::HTTP.get URI.parse($1))
-
-    page.skip_until(/<title>/i)
-    title = page.scan_until(/<\/title>/i)
-    title = title[0..title.length - 9].strip.gsub(/\n/, " ").gsub(/\s+/, " ") rescue "I was unable to determine the title of the page."
+    def initialize(bot)
+      # This could be in its own class, but it will always
+      # be this and always be simple, so that seems like overkill.
+      @recvq = Queue.new
     
-    reply(message, title, true)
-     
-  else
-    reply(message, "That doesn't look like a valid HTTP URL.", true)
-  end
-end
+      @threads = Array.new(5) {
+        Thread.new {
 
+          $log.debug("pool") { "Thread started." }
+
+          while true
+            request = @recvq.pop
+
+            begin
+              Timeout::timeout(45){ bot.messageReceived(request) }
+            rescue Timeout::Error => e
+              $log.warn("pool") { "Request timed out: #{request}" }
+            rescue => e
+              $log.warn("pool") { "Request failed: #{e}" }
+              $log.debug("pool") { e.backtrace } if $options[:debug]
+            end
+          end
+        }
+      }
+    end
+
+  end # class Incoming
+
+end # module IRC

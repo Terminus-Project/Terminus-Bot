@@ -19,22 +19,22 @@
 #
 
 def initialize
-  $bot.modHelp.registerModule("ChannelOperator", "Allows channel operators to use the bot to perform channel moderation functions.")
+  registerModule("ChannelOperator", "Allows channel operators to use the bot to perform channel moderation functions.")
 
-  $bot.modHelp.registerCommand("ChannelOperator", "voice", "Set mode +v to nick.", "nick")
-  $bot.modHelp.registerCommand("ChannelOperator", "devoice", "Set mode -v to nick.", "nick")
-  $bot.modHelp.registerCommand("ChannelOperator", "op", "Set mode +o to nick.", "nick")
-  $bot.modHelp.registerCommand("ChannelOperator", "deop", "Set mode +o to nick.", "nick")
-  $bot.modHelp.registerCommand("ChannelOperator", "halfop", "Set mode +h to nick.", "nick")
-  $bot.modHelp.registerCommand("ChannelOperator", "dehalfop", "Set mode -h to nick.", "nick")
-  $bot.modHelp.registerCommand("ChannelOperator", "admin", "Set mode +a to nick.", "nick")
-  $bot.modHelp.registerCommand("ChannelOperator", "deadmin", "Set mode -a to nick.", "nick")
-  $bot.modHelp.registerCommand("ChannelOperator", "owner", "Set mode +q to nick.", "nick")
-  $bot.modHelp.registerCommand("ChannelOperator", "deowner", "Set mode -q to nick.", "nick")
-  $bot.modHelp.registerCommand("ChannelOperator", "mode", "Sets channel mode.", "mode")
-  $bot.modHelp.registerCommand("ChannelOperator", "kick", "Kicks the specified user from the channel.", "nick")
-  $bot.modHelp.registerCommand("ChannelOperator", "invite", "Invites nick to the channel.", "nick")
-  $bot.modHelp.registerCommand("ChannelOperator", "topic", "Sets the topic, if given. Otherwise, sends an empty TOPIC command to the server. Depending on server configuration, this may clear the channel topic.", "[topic]")
+  registerCommand("ChannelOperator", "voice", "Set mode +v to nick.", "nick")
+  registerCommand("ChannelOperator", "devoice", "Set mode -v to nick.", "nick")
+  registerCommand("ChannelOperator", "op", "Set mode +o to nick.", "nick")
+  registerCommand("ChannelOperator", "deop", "Set mode +o to nick.", "nick")
+  registerCommand("ChannelOperator", "halfop", "Set mode +h to nick.", "nick")
+  registerCommand("ChannelOperator", "dehalfop", "Set mode -h to nick.", "nick")
+  registerCommand("ChannelOperator", "admin", "Set mode +a to nick.", "nick")
+  registerCommand("ChannelOperator", "deadmin", "Set mode -a to nick.", "nick")
+  registerCommand("ChannelOperator", "owner", "Set mode +q to nick.", "nick")
+  registerCommand("ChannelOperator", "deowner", "Set mode -q to nick.", "nick")
+  registerCommand("ChannelOperator", "mode", "Sets channel mode.", "mode")
+  registerCommand("ChannelOperator", "kick", "Kicks the specified user from the channel.", "nick")
+  registerCommand("ChannelOperator", "invite", "Invites nick to the channel.", "nick")
+  registerCommand("ChannelOperator", "topic", "Sets the topic, if given. Otherwise, sends an empty TOPIC command to the server. Depending on server configuration, this may clear the channel topic.", "[topic]")
 end
 
 def permission?(message, requireOps = true)

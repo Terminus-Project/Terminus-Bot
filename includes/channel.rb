@@ -20,14 +20,15 @@
 
 class Channel
 
-  attr_reader :name, :users, :bans, :key, :banExempt, :inviteExempt, :limit, :modes, :topic
+  attr_reader :name, :users, :bans, :key, :banExempt, :inviteExempt, :limit, :modes, :topic, :bot
   attr_writer :topic, :modes
 
   # Create a new Chanel object for the named channel. All relevant data structures get initialized here.
   # @param [String] name The name of the channel to be represented by this object
   # @example
   # chan = Channel.new("#terminus-bot")
-  def initialize(name)
+  def initialize(bot, name)
+    @bot = bot
     $log.debug('channel') { "New channel: #{name}" }
     @name = name
     @users = Hash.new
@@ -58,7 +59,7 @@ class Channel
   # @param [String] oldNick The nick from which the user is changing.
   # @param [String] newNick The nick to which the user is changing.
   # @example Changing a nick in one of the core channel objects.
-  #   $bot.channels["#terminus-bot"].nickChange("Kabaka", "Dragon")
+  #   @bot.channels["#terminus-bot"].nickChange("Kabaka", "Dragon")
   def nickChange(oldNick, newNick)
     return false unless @users.key? oldNick
     $log.debug('channel') { "Nick change #{oldNick} -> #{newNick} in #{@name}" }
@@ -181,7 +182,7 @@ class Channel
           end
           modeArr.delete_at 1
         else
-          $log.warn('channel') { "Unknown channel mode #{c}." } unless $bot.network.channelModes.include? c
+          $log.warn('channel') { "Unknown channel mode #{c}." } unless @bot.network.channelModes.include? c
 
           if plus
             @modes << c unless @modes.include? c

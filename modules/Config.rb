@@ -19,9 +19,9 @@
 #
 
 def initialize
-  $bot.modHelp.registerModule("Config", "Commands for modifying bot configuration.")
+  registerModule("Config", "Commands for modifying bot configuration.")
 
-  $bot.modHelp.registerCommand("Config", "config", "Show or set options. Separate options with dots (config ModuleConfig.SomeModule.SomeOption). Specify a value if you want to change or set an option.", "option value")
+  registerCommand("Config", "config", "Show or set options. Separate options with dots (config ModuleConfig.SomeModule.SomeOption). Specify a value if you want to change or set an option.", "option value")
 end
 
 def cmd_config(message)

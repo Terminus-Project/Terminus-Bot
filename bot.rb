@@ -1,5 +1,4 @@
 #!/usr/bin/ruby
-
 #
 #    Terminus-Bot: An IRC bot to solve all of the problems with IRC bots.
 #    Copyright (C) 2010  Terminus-Bot Development Team
@@ -17,7 +16,9 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
+#
 
+require 'optparse'
 require 'socket'
 require 'logger'
 require 'thread'
@@ -25,121 +26,230 @@ require 'timeout'
 require 'strscan'
 require 'fileutils'
 
+$options = {}
+OptionParser.new do |opts|
+  opts.banner = "Usage: #{$0} [options]"
+
+  opts.separator ""
+  opts.separator "Specific $options:"
+
+  $options[:debug] = false
+  opts.on("-d", "--debug", "Write lots information to the log.") do |v|
+    $options[:debug] = true
+  end
+
+  $options[:fork] = true
+  opts.on("-f", "--foreground", "Do not fork into the background.") do |v|
+    $options[:fork] = false
+  end
+
+end.parse!
+
+# Might as well get this out of the way early.
+Dir.mkdir 'logs' unless File.directory? 'logs'
+$log = Logger.new('logs/system.log', 'weekly');
+
+$log.info('reload') { "Terminus-Bot is now starting#{" in debug mode" if $options[:debug]}." }
+
+print <<EOF
+ 
+ _______                  _                        ____        _
+|__   __|                (_)                      |  _ \\      | |
+   | | ___ _ __ _ __ ___  _ _ __  _   _ ___ ______| |_) | ___ | |_
+   | |/ _ \\ '__| '_ ` _ \\| | '_ \\| | | / __|______|  _ < / _ \\| __|
+   | |  __/ |  | | | | | | | | | | |_| \\__ \\      | |_) | (_) | |_
+   |_|\\___|_|  |_| |_| |_|_|_| |_|\\__,_|___/      |____/ \\___/ \\__|
+
+Terminus-Bot: An IRC bot to solve all of the problems with IRC bots.
+Copyright (C) 2010  Terminus-Bot Development Team
+
+This program is free software: you can redistribute it and/or modify it
+under the terms of the GNU Affero General Public License as published
+by the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Affero General Public
+License for more details.
+
+You should have received a copy of the GNU Affero General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+EOF
+
+
+# Load all files in the given directory under the working directory.
+# @param [String] dir The base directory from which files will be recursively required.
+# @example
+# enumerateIncludes("includes")
+def enumerateIncludes(dir)
+  $log.debug('preload') { "Requiring files in #{dir}." }
+
+  begin
+    Dir["#{File.dirname(__FILE__)}/#{dir}/**/*.rb"].each { |f| require(f) }
+  rescue => e
+    $log.fatal('preload') { "Failed loading files in #{dir}: #{e}" }
+    exit -1
+  end
+end
+
+
+enumerateIncludes "includes"
+
+$log.debug('preload') { "Done requiring files." }
+
+if File.zero? "configuration"
+
+  puts "The configuration file is empty. Since there should be a back-up, I will try to recover and use it."
+
+  FileUtils.cp "configuration.bak", "configuration"
+
+  if File.zero? "configuration"
+    puts "It looks like I wasn't able to recover your configuration file. I copied the back-up, but it appears empty as well."
+    puts "Please check recent logs (found in the logs directory). They might contain hints about what went wrong in the first place."
+    puts "Please contact the Terminus-Bot development team at <http://terminus-bot.net/> for help."
+    exit
+  else
+    puts "Recovery successful!"
+    puts "Any changes to configuration or module data since the last run has probably been lost."
+  end
+end
+
+
+
+if File.exists? ".lock" and not File.zero? ".lock"
+  pid = Integer(IO.read(".lock").chomp)
+
+  begin
+    Process.getpgid( pid )
+    puts "This Terminus-Bot appears to be running as #{pid}. You may only run one at a time."
+    puts "If (and only if) you know this is an error, delete the .lock file and try again."
+    exit
+  rescue Errno::ESRCH
+    #puts "It looks like Terminus-Bot did not exit gracefully last time it was run. Checking for problems..."
+    #puts "Done recovering from errors."
+  end
+end
+
+#FileUtils.touch ".lock"
+#
+$log.debug('preload') { "Done passing lock file test." }
+
 class TerminusBot
 
-  attr_reader :configClass, :modules, :network, :modConfig, :config, :channels, :modHelp, :admins
-  attr_writer :admins
+  attr_accessor :config, :configClass, :modConfig, :modHelp, :scheduler, :network, :connection, :admins, :modHelp, :modConfig, :channels
 
-  # Create a new instance of Terminus-Bot. This will initialize
-  # a few data structures, though most of the real work happens
-  # when run() is called.
-  # @param [Config] configClass The Config class object that contains the bot's settings.
-  def initialize(configClass)
+  def initialize
+    @log = $log
 
-    @config = configClass.config
-    @configClass = configClass
+    $log.debug('initialize') { 'Loading configuration.' }
+    @configClass = Config.new
+    @config = @configClass.config
     @channels = Hash.new
     @admins = Hash.new
-
-  end
-
-  # Send a raw string directly to the IRC server. This bypasses
-  # throttling, so it should not be called directly.
-  # @param [String] msg The data to send to the IRC server.
-  # @example Join a channel
-  # raw("JOIN #terminus-bot")
-  # @example Kick someone with the kick reason "spammer"
-  # raw("KICK haxor :spammer")
-  def raw(msg)
-    $socket.puts(msg)
-  end
-
-  # Start the bot! Initialize the thread pool, load modules, and connect.
-  def run
-    $log.debug("pool") { "Thread pool init started." }
-    @incomingQueue = Queue.new
-    
-    @threads = Array.new(5) {
-      Thread.new {
-        $log.debug("pool") { "Thread started." }
-        while true
-          request = @incomingQueue.pop
-
-          begin
-            Timeout::timeout(45){ messageReceived(request) }
-          rescue Timeout::Error => e
-            $log.warn("pool") { "Request timed out: #{request}" }
-          rescue => e
-            $log.warn("pool") { "Request failed: #{e}" }
-          end
-        end
-      }
-    }
-
-    $scheduler = Scheduler.new(configClass)
-    $scheduler.start
-    @configClass = configClass
-
-    $log.debug('initialize') { 'Loading modules.' }
-
-    @modConfig = ModuleConfiguration.new
+    @modConfig = ModuleConfiguration.new(self)
     @modHelp = ModuleHelp.new
 
-    @modules = Array.new()
+    $log.debug('initialize') { 'Creating scheduler.' }
+    @scheduler = Scheduler.new(@configuration)
+  end
+
+  def loadModules
+    modules = Array.new()
     Dir.foreach("modules") { |f|
+      # TODO: Clean this up!
       unless f =~ /^\.+$/
         line = 0
         begin
           modName = f.match(/([^\.]+)/)[1]
-          mod = IO.read("./modules/#{f}")
-          mod = "class Mod_#{modName} \n #{mod} \n end \n Mod_#{modName}.new"
-          @modules << eval(mod, nil, f, line)
+          mod = IO.read("#{File.dirname(__FILE__)}/modules/#{f}")
+          mod = "class Mod_#{modName} < Module \n #{mod} \n end \n Mod_#{modName}.new"
+          modules << eval(mod, nil, f, line)
         rescue => e
           $log.error('initialize') { "I was unable to load the module #{f}: #{e}" }
-          puts e.backtrace
+          $log.debug('initialize') { "#{e.backtrace}" } if $options[:debug]
         end
       end
     }
 
-    $scheduler.add("Configuration Auto-Save", Proc.new { @configClass.saveConfig }, 300, true)
+    return modules
+  end
 
+  def run
+    $log.debug('run') { 'Loading modules.' }
+    @modules = self.loadModules
+
+    @scheduler.add("Configuration Auto-Save", Proc.new { @configClass.saveConfig }, 300, true)
+
+    # TODO: Multiple network support!
     @network = Network.new
-    $socket = TCPSocket.open(@config["Address"], @config["Port"])
-    raw "NICK " + @config["Nick"]
-    raw "USER #{@config["UserName"]} 0 * #{@config["RealName"]}"
 
-    $scheduler.add("Keep-Alive Pinger", Proc.new { sendRaw("PING #{Time.now.to_i}") }, 360, true)
+    @connection = IRC::Connection.new(self, @config["Address"], @config["Port"])
+    @connection.readThread.join
+    $log.debug('run') { "Connection #{@connection} closed." }
 
-    # Some servers don't send PING and end up disconnecting us!
-    # So let's talk to them, just in case. 4 minutes seems good.
-    until $socket.eof? do
-      msg = $socket.gets.chomp
+    $log.debug('run') { "Connections closed. Preparing to exit." }
 
-      # Go ahead and handle server PING first!
-      # We don't want to get a ping timeout because
-      # the queue is full.
-      if msg =~ /^PING (:.*)$/
-        raw "PONG #{$1}"
-        next
-      end
-
-      # Throw it in the pool!
-      @incomingQueue << msg
-
-    end   
-
-    $log.info('exit') { "Socket closed, starting exit procedure." }
-
-    fireHooks("bot_exiting")
     @configClass.saveConfig
-    
-    $log.info('exit') { "Removing lock file .lock" }
-    File.delete ".lock"
 
-    $log.info('exit') { "Exit procedures complete. Exiting!" }
-    $log.close
+    $log.info('run') { "Exiting." }
 
-    exit
+    #@connection.readThread()
+  end
+
+  # Send a message to a channel or user.
+  # @param [String] destination The user or channel to which the message will be sent
+  # @param [String] message The message to send.
+  # @example Say "hi!" to channel #terminus-bot
+  #   sendPrivmsg("#terminus-bot", "Hi!")
+  # @example Greet a user in private.
+  #   sendPrivmsg("Kabaka", "Hello, Kabaka!")
+  def sendPrivmsg(destination, message)
+    @connection.sendRaw("PRIVMSG #{destination} :#{message}")
+  end
+
+  # Send a notice to a channel or user (or whatever else the server permits).
+  # @param [String] destination The user or channel to which the message will be sent
+  # @param [String] message The message to send.
+  # @example Say "hi!" to channel #terminus-bot
+  #   sendNotice("#terminus-bot", "Hi!")
+  # @example Greet a user in private.
+  #   sendNotice("Kabaka", "Hello, Kabaka!")
+  def sendNotice(destination, message)
+    @connection.sendRaw("NOTICE #{destination} :#{message}")
+  end
+
+  # Send a mode change to the server with optional parameters.
+  # @param [String] target The target for the mode change. This will be a channel or user (if a user, it will probably need to be the bot).
+  # @param [String] mode The mode to send, such as +v if the target is a channel.
+  # @param [String] parameters Optional parameters for the mode change. This is for things like voice targets if your mode is +v and target is a channel.
+  def sendMode(target, mode, parameters = "")
+    @connection.sendRaw("MODE #{target} #{mode}#{" #{parameters}" unless parameters.empty?}")
+  end
+
+  # Send a CTCP request. This is the same as a PRIVMSG, but wrapped in
+  # the CTCP markers (character code 1).
+  # @param [String] destination The user or channel to which this should be sent. CTCPs should generally be sent to a user!
+  # @param [String] message The contents of the CTCP request, such as VERSION.
+  def sendCTCP(destination, message)
+    @connection.sendRaw("PRIVMSG #{destination} :#{1.chr}#{message}#{1.chr}")
+  end
+
+  # Attempt to kick the specified nick from a channel with an optional reason.
+  # @param [String] channel The channel from whcih the user will be kicked
+  # @param [String] nick The nick of the user being kicked.
+  # @param [String] reason The reason for the kick.
+  def sendKick(channel, nick, reason = "")
+    @connection.sendRaw("KICK #{channel} #{nick} :#{reason}")
+  end
+
+  def sendRaw(str)
+    @connection.sendRaw(str)
+  end
+
+  def reply(message, str, nickPrefix = true)
+    @connection.reply(message, str, nickPrefix)
   end
 
   # This is for the thread pool workers to call when they get a message.
@@ -339,7 +449,7 @@ class TerminusBot
       #else
       #  $log.debug('parser') { "Unknown message type: #{msg}" }
     end
-    processIRCMessage(IRCMessage.new(msg, type))
+    processIRCMessage(IRCMessage.new(self, msg, type))
   end
 
   
@@ -347,16 +457,18 @@ class TerminusBot
   # Set modes, join channels, and do whatever else we need.
   def finishedConnecting
     unless @alreadyFinished
+      $log.debug("parser") { "Done connecting. Running post-connect operations." }
 
       # Tell the server we're a bot.
       # TODO: Make sure the server supports this mode.
-      sendMode(@config["Nick"], "+B")
+      self.sendMode(@config["Nick"], "+B")
 
       # TODO: Feed this through something in outgoing.rb to split up
       #       joins that exceed the server maximum found in @network.
 
       sleep 2 # Pause for 1 second for nickserv auth / vhosts
-      sendRaw "JOIN #{@config["Channels"].join(",")}"
+      $log.debug("parser") { "JOIN #{@config["Channels"].join(",")}" }
+      self.sendRaw "JOIN #{@config["Channels"].join(",")}"
 
       @alreadyFinished = true
 
@@ -369,7 +481,7 @@ class TerminusBot
   # @example
   # quit("Gee, look at the time! Gotta go!")
   def quit(quitMessage = @config["QuitMessage"])
-    raw 'QUIT :' + quitMessage
+    @connection.raw 'QUIT :' + quitMessage
   end
 
   # Once we're done parsing the message, we send it here.
@@ -409,7 +521,7 @@ class TerminusBot
     # We'll fire module hooks and run core stuff in the same go.
     case msg.type
       when END_OF_MOTD
-	fireHooks("bot_endofmotd", msg)
+      	fireHooks("bot_endofmotd", msg)
       when PRIVMSG
         fireHooks("bot_privmsg", msg)
       when CTCP_REQUEST
@@ -424,9 +536,9 @@ class TerminusBot
         # ( "H" / "G" > ["*"] [ ( "@" / "+" ) ]
         # :<hopcount> <real name>"
         $log.debug('process') { "Who Reply: #{msg.raw}" }
-        @channels[msg.rawArr[3]] = Channel.new(msg.rawArr[3]) if @channels[msg.rawArr[3]] == nil
+        @channels[msg.rawArr[3]] = Channel.new(self, msg.rawArr[3]) if @channels[msg.rawArr[3]] == nil
         
-        whoUser = IRCUser.new("#{msg.rawArr[7]}!#{msg.rawArr[4]}@#{msg.rawArr[5]}")
+        whoUser = IRCUser.new(self, "#{msg.rawArr[7]}!#{msg.rawArr[4]}@#{msg.rawArr[5]}")
         whoModes = Array.new
 
         msg.rawArr[8].each_char { |c|
@@ -446,12 +558,12 @@ class TerminusBot
 
         if @config["Nick"] == msg.speaker.nick
           $log.info('process') { "Bot is changing nick to #{newNick}" }
-          @config["Nick"] = newNick
+          @configuration["Nick"] = newNick
         end
 
         fireHooks("bot_nickChange", msg)
       when JOIN_CHANNEL
-        @channels[msg.message] = Channel.new(msg.message) if @channels[msg.message] == nil
+        @channels[msg.message] = Channel.new(self, msg.message) if @channels[msg.message] == nil
 
         @channels[msg.message].join(msg.speaker)
         if msg.speaker.nick == @config["Nick"]
@@ -502,138 +614,32 @@ class TerminusBot
       @modules.each do |m|
          begin
            if m.respond_to?(cmd)
-             msg == nil ? m.send(cmd) : m.send(cmd,msg)
+             msg == nil ? m.send(cmd) : m.send(cmd, msg)
            end
          rescue => e
            $log.warn("fireHooks") { "Module failed to complete #{cmd}: #{e}" }
+           $log.debug("fireHooks") { "#{e.backtrace}" } if $options[:debug]
+
            unless msg == nil
              reply(msg, "There was a problem executing your command with one of my modules. Sorry!")
            end
          end
       end
   end
-end
-
-# Load all files in the given directory.
-# @param [String] dir The base directory from which files will be recursively loades.
-# @example
-# enumerateIncludes("./includes/")
-def enumerateIncludes(dir)
-  $log.debug('init-enum') { "Enumerating files in #{dir}" }
-  Dir.foreach(dir) { |f|
-    unless f =~ /\A\.\.?\Z/
-      f = dir + '/' + f
-      if File.directory? f
-        enumerateIncludes(f)
-      elsif File.exists? f
-        load f
-      end
-    end
-  }
 
 end
 
-print <<EOF
- 
- _______                  _                        ____        _
-|__   __|                (_)                      |  _ \\      | |
-   | | ___ _ __ _ __ ___  _ _ __  _   _ ___ ______| |_) | ___ | |_
-   | |/ _ \\ '__| '_ ` _ \\| | '_ \\| | | / __|______|  _ < / _ \\| __|
-   | |  __/ |  | | | | | | | | | | |_| \\__ \\      | |_) | (_) | |_
-   |_|\\___|_|  |_| |_| |_|_|_| |_|\\__,_|___/      |____/ \\___/ \\__|
+$log.debug('preload') { "Initializing main bot class." }
 
-Terminus-Bot: An IRC bot to solve all of the problems with IRC bots.
-Copyright (C) 2010  Terminus-Bot Development Team
-
-This program is free software: you can redistribute it and/or modify it under the terms of the GNU Affero General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
-
-This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Affero General Public License for more details.
-
-You should have received a copy of the GNU Affero General Public License along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
-EOF
-
-if File.zero? "configuration"
-
-  puts "The configuration file is empty. Since there is a back-up, I will recover and use it."
-
-  FileUtils.cp "configuration.bak", "configuration"
-
-  if File.zero? "configuration"
-    puts "It looks like I wasn't able to recover your configuration file. I copied the back-up, but it appears empty as well."
-    puts "Please check recent logs (found in the logs directory). They might contain hints about what went wrong in the first place."
-    puts "Please contact the Terminus-Bot development team at <http://terminus-bot.net/> for help."
-    exit
-  else
-    puts "Recovery successful!"
-    puts "Any changes to configuration or module data since the last run has been lost."
+if $options[:fork]
+  pid = fork do
+    $bot = TerminusBot.new
+    $bot.run
   end
-end
 
-
-
-if File.exists? ".lock" and not File.zero? ".lock"
-  pid = Integer(IO.read(".lock").chomp)
-
-  begin
-    Process.getpgid( pid )
-    puts "This Terminus-Bot appears to be running as #{pid}. You may only run one at a time."
-    puts "If (and only if) you know this is an error, delete the .lock file and try again."
-    exit
-  rescue Errno::ESRCH
-    #puts "It looks like Terminus-Bot did not exit gracefully last time it was run. Checking for problems..."
-    #puts "Done recovering from errors."
-  end
-end
-
-FileUtils.touch ".lock"
-
-Dir.mkdir 'logs' unless File.directory? 'logs'
-
-$log = Logger.new('logs/system.log', 'weekly');
-
-if ARGV.include? "--debug"
-  $log.level = Logger::DEBUG
+  Process.detach pid
 else
-  $log.level = Logger::INFO
-end
-
-$log.info('init') { 'Terminus-Bot is now starting.' }
-
-puts "Loading configuration..."
-
-$log.debug('init') { 'Loading configuration.' }
-load "config.rb"
-
-configClass = Config.new
-
-puts "Configuration loaded. Running in background..."
-
-pid = fork do
-
-  $log.debug('init') { 'Loading core bot files.' }
-  enumerateIncludes("./includes/")
-
-  # We have the classes we need to build our config. Go!
-  configClass.readConfig
-
-  $log.debug('init') { 'Firing off the bot.' }
-  #puts "Done. Establishing IRC connection..."
-  $bot = TerminusBot.new(configClass)
-
-  $log.info('init') { 'Bot started! Now running.' }
-
-  trap("INT"){ $bot.quit("Interrupted by host system. Exiting!") }
-  trap("TERM"){ $bot.quit("Terminated by host system. Exiting!") }
-  trap("KILL"){ exit } # Kill (signal 9) is pretty hardcore. Just exit!
-
-  trap("HUP", "IGNORE") # We don't need to die on HUP.
-
+  $bot = TerminusBot.new
   $bot.run
 end
-
-File.open(".lock", "w").puts(pid)
-
-Process.detach pid
-
 
