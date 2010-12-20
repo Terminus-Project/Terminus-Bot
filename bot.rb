@@ -631,6 +631,12 @@ end
 
 $log.debug('preload') { "Initializing main bot class." }
 
+trap("INT"){ $bot.quit("Interrupted by host system. Exiting!") }
+trap("TERM"){ $bot.quit("Terminated by host system. Exiting!") }
+trap("KILL"){ exit } # Kill (signal 9) is pretty hardcore. Just exit!
+
+trap("HUP", "IGNORE") # We don't need to die on HUP.
+
 if $options[:fork]
   pid = fork do
     $bot = TerminusBot.new

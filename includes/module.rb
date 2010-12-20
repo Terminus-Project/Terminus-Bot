@@ -69,11 +69,16 @@ class Module
   end
 
   def adminLevel(message)
-    return message.bot.admins[message.speaker.partialMask]["AccessLevel"] rescue 0
+    return message.bot.admins[message.speaker.partialMask]["accessLevel"] rescue 0
   end
 
   def checkAdmin(message, minLevel)
     level = adminLevel(message)
+
+    if level == nil
+      $log.warn('module') { "While looking for admin info for #{message.speaker.nick}, no admin level was found." }
+      return false
+    end
 
     if level <= minLevel
       $log.info('module') { "Nick #{message.speaker.nick} tried to use #{message.msgArr[0]} with insufficient access level (required: #{minLevel}; level: #{level})." }

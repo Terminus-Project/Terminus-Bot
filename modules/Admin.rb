@@ -44,11 +44,16 @@ def cmd_login(message)
     else
       username = message.msgArr[1]
 
-      stored = $bot.config["Users"][username]["Password"].split(":")
+      unless $bot.config["Users"].has_key? username
+        message.reply("Failure!")
+        return true
+      end
+
+      stored = $bot.config["Users"][username]["password"].split(":")
 
       password = Digest::MD5.hexdigest("#{message.msgArr[2]}#{stored[1]}")
 
-      passwordOK = $bot.config["Users"][username]["Password"] == "#{password}:#{stored[1]}"
+      passwordOK = $bot.config["Users"][username]["password"] == "#{password}:#{stored[1]}"
 
       $log.info("admin") { "Login attempt from #{message.speaker.nick} with user name #{username} and password #{password}" }
 
@@ -63,12 +68,13 @@ def cmd_login(message)
 end
 
 def cmd_eval(message)
+  return unless checkAdmin(message, 9)
   begin
     result = eval(message.args)
   rescue => e
     result = "There was an error processing your request: #{e}"
   end
-  message.reply(result, true) if checkAdmin(message, 9)
+  message.reply(result, true)
 end
 
 def cmd_schedule(message)
