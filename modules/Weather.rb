@@ -32,7 +32,7 @@ end
 
 
 def getDefault(message)
-  user = message.speaker.partialMask
+  user = message.speaker.maskedPartialMask
 
   config = get(user)
 
@@ -51,7 +51,7 @@ def getDefault(message)
 end
 
 def cmd_weather_default(message)
-  user = message.speaker.partialMask
+  user = message.speaker.maskedPartialMask
 
   if message.args.empty?
     delete(user)
