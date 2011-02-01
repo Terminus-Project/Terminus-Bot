@@ -70,7 +70,7 @@ def cmd_cookie(message)
   sending = 1
 
   if message.args.empty?
-    reply(message, "You currently have #{BOLD}#{sender}#{NORMAL} cookies.")
+    reply(message, "You currently have #{BOLD}#{sender}#{NORMAL} cookie#{sender > 1 ? "s" : ""}.")
     return false
   end
 
@@ -95,7 +95,7 @@ def cmd_cookie(message)
       reply(message, "You don't have any cookies.")
       return true
     elsif sender < sending
-      reply(message, "You only have #{BOLD}#{sender}#{NORMAL} cookies.")
+      reply(message, "You only have #{BOLD}#{sender}#{NORMAL} cookie#{sender > 1 ? "s" : ""}.")
       return true
     end
 
