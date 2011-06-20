@@ -32,6 +32,11 @@ def initialize
 end
 
 def cmd_ud(message)
+  if message.args.length == 0
+    reply(message, "Please specify a word. See #{BOLD}HELP ud#{NORMAL} for more info.")
+    return true
+  end
+
   $log.debug('urbandict') { "Getting definition for #{message.args}" }
 
   word = URI.encode(message.args)
@@ -41,12 +46,15 @@ def cmd_ud(message)
   definitions = Array.new
   count = 0
 
-  while page.skip_until(/<div class='definition'>/i) != nil and count < get("maxDefinitions", 3)
+  while page.skip_until(/<div class="definition">/i) != nil and count < get("maxDefinitions", 3)
     count += 1
 
     definition = page.scan_until(/<\/div>/i)
 
-    definition = definition[0..definition.length - 7].strip.gsub(/\n/, " ").gsub(/\s+/, " ").gsub(/<.*>/, " ") rescue "I wasn't able to parse this definition."
+    definition = definition[0..definition.length - 7].strip.gsub(/\n/, " ").gsub(/\s+/, " ").gsub(/<[^>]*>/, " ") rescue "I wasn't able to parse this definition."
+
+    definition = "#{definition[0..400-message.args.length-8]}..." if definition.length > 400-message.args.length-5
+
     definitions << "#{BOLD}[#{message.args}]#{NORMAL} #{definition}"
   end
   

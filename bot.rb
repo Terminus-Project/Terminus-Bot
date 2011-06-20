@@ -185,7 +185,14 @@ class TerminusBot
     # TODO: Multiple network support!
     @network = Network.new
 
-    @connection = IRC::Connection.new(self, @config["Address"], @config["Port"])
+    @connection = IRC::Connection.new(self, @config["Address"], @config["Port"], @config["BindAddress"])
+
+    @scheduler.add("Timeout Check", Proc.new {
+        if @connection.last_ping + 400 < Time.now.to_i
+          @connection.disconnect
+        end
+      }, 400, true)
+
     @connection.readThread.join
     $log.debug('run') { "Connection #{@connection} closed." }
 
@@ -636,6 +643,7 @@ trap("TERM"){ $bot.quit("Terminated by host system. Exiting!") }
 trap("KILL"){ exit } # Kill (signal 9) is pretty hardcore. Just exit!
 
 trap("HUP", "IGNORE") # We don't need to die on HUP.
+                      # TODO: Rehash?
 
 if $options[:fork]
   pid = fork do

@@ -22,7 +22,7 @@ module IRC
 
   class Connection
 
-    attr_reader :socket, :readThread
+    attr_reader :socket, :readThread, :last_ping
 
     def initialize(bot, host, port, bind = nil)
       $log.debug('connection') { "Creating a new IRC connection to #{host}:#{port}#{" via #{bind}" if bind}." }
@@ -47,6 +47,11 @@ module IRC
       @readThread = self.startReadThread
     end
 
+    def disconnect()
+      @sendThread.kill
+      @readThread.kill
+    end
+
     def raw(str)
       @socket.puts str if @socket
     end
@@ -65,6 +70,8 @@ module IRC
           # the queue is full.
           if msg =~ /^PING (:.*)$/
             raw "PONG #{$1}"
+            @last_ping = Time.now.to_i # For tracking PINGs to figure out if
+                                       # we're still connected.
             next
           end
 

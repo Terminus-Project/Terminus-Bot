@@ -25,7 +25,7 @@ def initialize
 end
 
 def cmd_config(message)
-  return if message.speaker.adminLevel < 5
+  return unless checkAdmin(message, 5)
 
   if message.msgArr.length < 2
     reply(message, $bot.config.keys.join(", "))

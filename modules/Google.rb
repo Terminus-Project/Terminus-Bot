@@ -149,5 +149,8 @@ def getResult(query, type)
     end
     num += 1
   }
+
+  results = "No results." if num == 0
+
   return results
 end

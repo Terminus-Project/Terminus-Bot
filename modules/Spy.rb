@@ -42,7 +42,7 @@ def spy(message)
 end
 
 def cmd_spy(message)
-  return if message.speaker.adminLevel < 5
+  return unless checkAdmin(message, 5)
 
   if message.msgArr.length != 3
     reply(message, "Usage: spy target destination")
@@ -65,7 +65,7 @@ def cmd_spy(message)
 end
 
 def cmd_unspy(message)
-  return if message.speaker.adminLevel < 5
+  return unless checkAdmin(message, 5)
 
   if message.msgArr.length != 2
     reply(message, "Usage: unspy target")

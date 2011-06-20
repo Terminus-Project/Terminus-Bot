@@ -27,6 +27,7 @@ def initialize
 
   registerCommand("Weather", "weather-default", "Set or delete your default weather location. If delete is specified, any default will be removed. if location is specified, your user@host will be associated with that location.", "[delete] [location]")
   registerCommand("Weather", "weather", "View current conditions for the specified location. If none is specified, your default location is used. If no default is set and a location is specified, save the new location as your default.", "[location]")
+  registerCommand("Weather", "temp", "View current temperature for the specified location. If none is specified, your default location is used. If no default is set and a location is specified, save the new location as your default.", "[location]")
   registerCommand("Weather", "forecast", "View a short-term forecase for the specified location. If none is specified, your default location is used. If no default is set and a location is specified, save the new location as your default.", "[location]")
 end
 
@@ -111,6 +112,35 @@ def cmd_weather(message)
   reply(message, reply)
 end
 
+def cmd_temp(message)
+  location = getDefault(message)
+
+  if location == nil
+    reply(message, "You do not have a default location, so you must provide one.")
+    return
+  end
+
+  url = "http://api.wunderground.com/auto/wui/geo/WXCurrentObXML/index.xml?query=#{URI.escape(location)}"
+
+  body = Net::HTTP.get URI.parse(url)
+  root = (REXML::Document.new(body)).root
+
+  weather = root.elements["//weather"].text rescue nil
+
+  if weather == nil
+    reply(message, "That does not appear to be a valid location. If it is, try being more specific, or specify the location in another way.")
+    return
+  end
+
+  credit = root.elements["//credit"].text
+  stationLocation = root.elements["//observation_location/full"].text
+  temperature = root.elements["//temperature_string"].text
+
+  reply = "[#{BOLD}#{credit}#{NORMAL} for #{BOLD}#{stationLocation}#{NORMAL}] "
+  reply += "Temperature: #{COLOR}07#{temperature}#{NORMAL}"
+
+  reply(message, reply)
+end
 
 def cmd_forecast(message)
   location = getDefault(message)

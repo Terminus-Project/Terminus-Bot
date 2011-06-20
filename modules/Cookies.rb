@@ -27,7 +27,7 @@ def initialize
 end
 
 def cmd_bake(message)
-  return true if message.speaker.adminLevel < 3
+  return unless checkAdmin(message, 3)
 
   current = getCookies(message.speaker.maskedPartialMask)
 
@@ -35,11 +35,11 @@ def cmd_bake(message)
 
   setCookies(message.speaker.maskedPartialMask, current)
 
-  reply(message, "You now have #{BOLD}#{current}#{NORMAL} cookies.")
+  reply(message, "You baked a dozen cookies! You now have #{BOLD}#{current}#{NORMAL}.")
 end
 
 def cmd_eat(message)
-  return true if message.speaker.adminLevel < 3
+  return unless checkAdmin(message, 3)
 
   if message.msgArr.length != 2
     reply(message, "Usage: eat #{UNDERLINE}nick#{NORMAL}")

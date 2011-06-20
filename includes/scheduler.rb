@@ -30,6 +30,8 @@ class Scheduler
     @schedule = Array.new
 
     $log.debug('scheduler') { "Class initialized." }
+
+    self.start()
   end
 
   # Add a new task to this scheduler
