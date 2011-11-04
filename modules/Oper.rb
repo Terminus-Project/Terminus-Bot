@@ -29,7 +29,7 @@ def initialize()
 end
 
 def cmd_oper(message)
-  return if message.speaker.adminLevel < 7
+  return unless checkAdmin(message, 7)
 
   reply(message, "I will attempt to log in as an IRC operator.")
   sendRaw("OPER #{get("username")} #{get("password")}")

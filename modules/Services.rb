@@ -30,6 +30,8 @@ end
 def cmd_services(message)
   return unless checkAdmin(message, 8)
   
+  return if message.msgArr.length == 1
+
   case message.msgArr[1].downcase
 
     when "nickserv"

@@ -21,6 +21,7 @@
 require "net/http"
 require "uri"
 require "strscan"
+require "htmlentities"
 
 def initialize
   registerModule("UrbanDict", "Look up words on UrbanDictionary.com.")
@@ -54,6 +55,8 @@ def cmd_ud(message)
     definition = definition[0..definition.length - 7].strip.gsub(/\n/, " ").gsub(/\s+/, " ").gsub(/<[^>]*>/, " ") rescue "I wasn't able to parse this definition."
 
     definition = "#{definition[0..400-message.args.length-8]}..." if definition.length > 400-message.args.length-5
+
+    definition = HTMLEntities.new.decode(definition)
 
     definitions << "#{BOLD}[#{message.args}]#{NORMAL} #{definition}"
   end

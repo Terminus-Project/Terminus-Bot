@@ -80,26 +80,25 @@ def cmd_cookie(message)
   end
 
   if message.msgArr[2] != nil
-
     begin
       sending = Integer(message.msgArr[2])
     rescue
       reply(message, "Usage: cookie #{UNDERLINE}nick#{NORMAL} #{UNDERLINE}number#{NORMAL}")
       return true
     end
-
-    if sending < 1
-      reply(message, "You must give at least one cookie.")
-      return true
-    elsif sender < 1
-      reply(message, "You don't have any cookies.")
-      return true
-    elsif sender < sending
-      reply(message, "You only have #{BOLD}#{sender}#{NORMAL} cookie#{sender > 1 ? "s" : ""}.")
-      return true
-    end
-
   end
+
+  if sending < 1
+    reply(message, "You must give at least one cookie.")
+    return true
+  elsif sender < 1
+    reply(message, "You don't have any cookies.")
+    return true
+  elsif sender < sending
+    reply(message, "You only have #{BOLD}#{sender}#{NORMAL} cookie#{sender > 1 ? "s" : ""}.")
+    return true
+  end
+
 
   receiver = getCookies($bot.channels[message.destination].users[message.msgArr[1]].maskedPartialMask)
   sender = sender - sending
