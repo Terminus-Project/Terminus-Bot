@@ -16,10 +16,11 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-class Config
+class TerminusConfig
 
   attr_accessor :config
 
+  require 'psych'
   require 'yaml'
   require 'fileutils'
   require 'digest/md5'
@@ -114,7 +115,7 @@ class Config
     $log.debug('config') { "Reading #{@configFile}" }
 
     f = File.open(@configFile, 'r')
-    @config = YAML::load(f)
+    @config = YAML.load(f)
     f.close
 
     @config = "" unless @config

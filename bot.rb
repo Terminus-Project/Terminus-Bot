@@ -144,7 +144,7 @@ class TerminusBot
     @log = $log
 
     $log.debug('initialize') { 'Loading configuration.' }
-    @configClass = Config.new
+    @configClass = TerminusConfig.new
     @config = @configClass.config
     @channels = Hash.new
     @admins = Hash.new
