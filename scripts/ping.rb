@@ -1,4 +1,3 @@
-#!/usr/bin/ruby
 
 #
 # Terminus-Bot: An IRC bot to solve all of the problems with IRC bots.
@@ -19,20 +18,12 @@
 #
 
 
-require 'socket'
-require 'thread'
-require 'logger'
+def initialize
+  register_script("ping", "Simple ping/pong.")
 
-require './util.rb'
+  register_command("ping", :pong,  0,  0, "Send a pong.")
+end
 
-Dir.chdir(File.dirname(__FILE__))
-
-#$log = Logger.new('var/terminus-bot.log', 'weekly');
-$log = Logger.new(STDOUT);
-
-puts "Starting..."
-
-require_files "includes"
-
-Terminus_Bot::Bot.new
-
+def pong(msg, params)
+  msg.raw("PRIVMSG #{msg.destination} :Pong!")
+end

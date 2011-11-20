@@ -1,4 +1,3 @@
-#!/usr/bin/ruby
 
 #
 # Terminus-Bot: An IRC bot to solve all of the problems with IRC bots.
@@ -17,22 +16,40 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
+#
 
 
-require 'socket'
-require 'thread'
-require 'logger'
+require "net/http"
+require "uri"
+require "strscan"
 
-require './util.rb'
+def initialize
+  register_script("title", "Fetches titles for URLs spoken in channels.")
 
-Dir.chdir(File.dirname(__FILE__))
+  register_event("PRIVMSG", :on_message)
+end
 
-#$log = Logger.new('var/terminus-bot.log', 'weekly');
-$log = Logger.new(STDOUT);
+def on_message(msg)
+  return unless get_config("enabled", "false") == "true"
 
-puts "Starting..."
+  msg.text.scan(/http:\/\/[^\s]+/) { |match|
+    get_title(msg, match)
+  }
+end
 
-require_files "includes"
+def get_title(msg, url)
+  begin
+    $log.debug('title.get_title') { "Getting title for #{url}" }
 
-Terminus_Bot::Bot.new
+    page = StringScanner.new(Net::HTTP.get URI.parse(url))
 
+    page.skip_until(/<title>/i)
+    title = page.scan_until(/<\/title>/i)
+    title = title[0..title.length - 9].strip.gsub(/[\n\s]+/, " ")
+
+    msg.reply(title, false)
+  rescue => e
+    $log.debug('title.get_title') { "Error getting title for #{url}: #{e}" }
+    return
+  end
+end

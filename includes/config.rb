@@ -1,139 +1,88 @@
+
 #
-#    Terminus-Bot: An IRC bot to solve all of the problems with IRC bots.
-#    Copyright (C) 2010  Terminus-Bot Development Team
+# Terminus-Bot: An IRC bot to solve all of the problems with IRC bots.
+# Copyright (C) 2010 Terminus-Bot Development Team
 #
-#    This program is free software: you can redistribute it and/or modify
-#    it under the terms of the GNU Affero General Public License as published by
-#    the Free Software Foundation, either version 3 of the License, or
-#    (at your option) any later version.
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
 #
-#    This program is distributed in the hope that it will be useful,
-#    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#    GNU Affero General Public License for more details.
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU Affero General Public License for more details.
 #
-#    You should have received a copy of the GNU Affero General Public License
-#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+# You should have received a copy of the GNU Affero General Public License
+# along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 
-class TerminusConfig
 
-  attr_accessor :config
+module Terminus_Bot
+  class Configuration
 
-  require 'psych'
-  require 'yaml'
-  require 'fileutils'
-  require 'digest/md5'
+    attr :config
 
-  def initialize(configFile = "configuration")
-    @configFile = configFile
+    FILE_NAME = "terminus-bot.conf"
 
-    $log.debug('initialize') { 'Checking for existing configuration file.' }
-    if File.zero? configFile or not File.exists? configFile
-      $log.debug('initialize') { 'No configuration file found. Prompting user for basic options.' }
-      # The configuration file doesn't exist! Let's ask the user
-      # for some things so we can generate one.
-        
-      puts "\nIt looks like this is your first time using Terminus-Bot!"
-      puts "To start, we'll need to ask some simple questions.\n"
-
-      puts "What is the host name or IP address of the network to which the bot should connect?"
-      serverAddress = gets.chomp
-
-      puts "What is the port to which the bot should connect? (6667 is probably fine.)"
-      serverPort = gets.chomp
-      serverPort = 6667 if serverPort.empty?
-
-      puts "What nick name should the bot use?"
-      botNick = gets.chomp
-
-      puts "What channels should the bot join on connect? Separate these by comma!"
-      channels = gets.chomp
-
-      puts "What is the ident name (nick!ident@host) the bot should try to use?"
-      ident = gets.chomp
-
-      puts "What is the \"real name\" the bot should use?"
-      realname = gets.chomp
-
-      puts "Commands are prefixed with one or more characters, such as '!' or 'Terminus-Bot:'. What command prefix do you want to use?"
-      cmdPrefix = gets.chomp
-
-      puts "That is all we need to get the bot connected and running! But, we still need a few more things."
-
-      puts "Specify a user name to use for authentication with the bot. This does not have to be your nick name."
-      adminUser = gets.chomp
-
-      puts "And lastly, what password do you want to use when you log in?"
-      adminPassword = gets.chomp
-
-      puts "\n\nThat's it! To log in to the bot on IRC, just send the bot the following in a query: LOGIN #{adminUser} #{adminPassword}"
-      puts "For more information, please visit the Terminus-Bot web site.\n\n"
-      puts "Applying new configuration..."
-
-      salt = (0...5).map{65.+(rand(25)).chr}.join
-
-      adminPassword = "#{Digest::MD5.hexdigest("#{adminPassword}#{salt}")}:#{salt}"
-
-      adminUserObj["Username"] = adminUser
-      adminUserObj["Password"] = adminPassword
-      adminUserObj["AccessLevel"] = 10
-
-
-      @config = Hash.new()
-
-      @config["Nick"] = botNick
-      @config["Address"] = serverAddress
-      @config["Port"] = serverPort.to_i
-      @config["Channels"] = channels.split(', ?')
-      @config["UserName"] = ident
-      @config["RealName"] = realname
-      @config["URL"] = "http://github.com/kabaka/Terminus-Bot"
-      @config["Version"] = "Terminus-Bot 0.3-alpha"
-      @config["QuitMessage"] = "Terminus-Bot: Terminating"
-      @config["Prefix"] = ";"
-      @config["Throttle"] = 0.1
-      @config["Users"] = Hash.new
-      @config["Users"][adminUser] = adminUserObj
-
-      puts "Saving configuration to disk..."
-
-      saveConfig
-
-      puts "Done! Continuing with bot start."
-
+    def initialize
+      read_config
     end
 
-    self.readConfig
 
-    $log.debug('initialize') { 'Done loading configuration.' }
-  end
+    def read_config
+      unless File.exists? FILE_NAME
+        throw "No Config File"
+      end
 
-  def readConfig()
-    FileUtils.copy @configFile, "#{@configFile}.bak"
+      $log.info("Configuration.read_config") { "Loading the configuration file." }
 
-    $log.debug('config') { "Reading #{@configFile}" }
+      @config = Hash.new
 
-    f = File.open(@configFile, 'r')
-    @config = YAML.load(f)
-    f.close
+      fi = File.open(FILE_NAME, "r")
 
-    @config = "" unless @config
-  end
+      section = ""
 
-  def saveConfig()
-    FileUtils.touch @configFile unless File.exists? @configFile
+      while line = fi.gets
+        line.strip!
 
-    unless File.writable? @configFile
-      $log.fatal('config') { "#{@configFile} is not writable!" }
-      exit
+        if line[0] == "#" or line.empty?
+          next
+        end
+
+        if line =~ /\[(.+)\]/
+          section = $1.strip
+
+          unless @config.has_key? section
+            @config[section] = Hash.new
+            $log.debug("Configuration.read_config") { "New config section: #{section}" }
+          end
+
+        elsif line =~ /\A(.+)=(.+)\Z/
+          
+          if section.empty?
+            throw "Congifuration before section declaration."
+          end
+
+          @config[section][$1.strip] = $2.strip
+
+        end
+
+      end
+
+      $log.debug("Configuration.read_config") { "Done loading the configuration file." }
+
+      fi.close
     end
 
-    $log.debug('config') { "Saving #{@configFile}" }
-
-    f = File.open(@configFile, 'w')
-    YAML::dump(@config, f)
-    f.close
+    def method_missing(name, *args, &block)
+      if @config.respond_to? name
+        @config.send(name, *args, &block)
+      else
+        $log.error("Configuration.method_missing") { "Attempted to call nonexistent method #{name}" }
+        throw NoMethodError.new("Attempted to call a nonexistent method", name, args)
+      end
+    end
   end
-
 end
+

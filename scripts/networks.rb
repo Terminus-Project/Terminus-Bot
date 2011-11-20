@@ -1,4 +1,3 @@
-#!/usr/bin/ruby
 
 #
 # Terminus-Bot: An IRC bot to solve all of the problems with IRC bots.
@@ -19,20 +18,18 @@
 #
 
 
-require 'socket'
-require 'thread'
-require 'logger'
+def initialize()
+  register_script("networks", "Show information about the networks to which the bot is connected.")
 
-require './util.rb'
+  register_command("networks", :cmd_networks, 0,  0, "Show a list of networks to which the bot is connected.")
+end
 
-Dir.chdir(File.dirname(__FILE__))
+def cmd_networks(msg, params)
+  buf = Array.new
 
-#$log = Logger.new('var/terminus-bot.log', 'weekly');
-$log = Logger.new(STDOUT);
+  $bot.connections.each_value do |connection|
+    buf << connection.to_s
+  end
 
-puts "Starting..."
-
-require_files "includes"
-
-Terminus_Bot::Bot.new
-
+  msg.reply(buf.join(", "))
+end

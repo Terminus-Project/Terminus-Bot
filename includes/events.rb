@@ -1,4 +1,3 @@
-#!/usr/bin/ruby
 
 #
 # Terminus-Bot: An IRC bot to solve all of the problems with IRC bots.
@@ -18,21 +17,45 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 
+module Terminus_Bot
+  class Event
 
-require 'socket'
-require 'thread'
-require 'logger'
+    def initialize(name, func, owner)
+      @name = name
+      @func = func
+      @owner = owner
+    end
 
-require './util.rb'
+    def run(args)
+      @owner.send(@func, args)
+    end
 
-Dir.chdir(File.dirname(__FILE__))
+  end
 
-#$log = Logger.new('var/terminus-bot.log', 'weekly');
-$log = Logger.new(STDOUT);
+  class Events
 
-puts "Starting..."
+    def initialize
+      @events = Hash.new
+    end
 
-require_files "includes"
+    def create(owner, name, func)
+      unless @events.has_key? name
+        @events[name] = Array.new
+      end
 
-Terminus_Bot::Bot.new
+      $log.debug("events.create") { "Created event #{name}" }
+      @events[name] << Event.new(name, func, owner)
+    end
 
+    def run(name, *args)
+      return unless @events.has_key? name
+
+      $log.debug("events.run") { name }
+
+      @events[name].each do |event|
+        event.run(args[0])
+      end
+    end
+
+  end
+end

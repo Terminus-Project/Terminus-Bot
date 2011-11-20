@@ -1,5 +1,3 @@
-#!/usr/bin/ruby
-
 #
 # Terminus-Bot: An IRC bot to solve all of the problems with IRC bots.
 # Copyright (C) 2010 Terminus-Bot Development Team
@@ -19,20 +17,51 @@
 #
 
 
-require 'socket'
-require 'thread'
-require 'logger'
+module Terminus_Bot
+  class Database
 
-require './util.rb'
+    require 'psych'
 
-Dir.chdir(File.dirname(__FILE__))
+    FILENAME = "data.db"
 
-#$log = Logger.new('var/terminus-bot.log', 'weekly');
-$log = Logger.new(STDOUT);
+    def initialize
+      @data = Hash.new
 
-puts "Starting..."
+      if File.exists? FILENAME
+        read_database
+      else
+        write_database
+      end
 
-require_files "includes"
+      at_exit { write_database }
+    end
 
-Terminus_Bot::Bot.new
+    def read_database
+      @data = Psych.load(IO.read(FILENAME))
+    end
 
+    def write_database
+      File.open(FILENAME, "w") { |f| f.write(@data.to_yaml)}
+    end
+
+    def [](key)
+      return @data[key]
+    end
+
+    def []=(key, val)
+      @data[key] = val
+    end
+
+    def delete(key)
+      @data.delete(key)
+    end
+
+    def to_s
+      return @data.to_s
+    end
+
+    def has_key?(key)
+      @data.has_key? key
+    end
+  end
+end

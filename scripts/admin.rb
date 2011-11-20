@@ -1,4 +1,3 @@
-#!/usr/bin/ruby
 
 #
 # Terminus-Bot: An IRC bot to solve all of the problems with IRC bots.
@@ -19,20 +18,24 @@
 #
 
 
-require 'socket'
-require 'thread'
-require 'logger'
+def initialize()
+  register_script("admin", "Bot administration script.")
 
-require './util.rb'
+  register_command("eval",  :cmd_eval,   1, 10, "Run raw Ruby code.")
+  register_command("quit",  :cmd_quit,   1, 10, "Kill the bot.")
+  register_command("rehash",:cmd_rehash, 0, 8,  "Reload the configuration file.")
+end
 
-Dir.chdir(File.dirname(__FILE__))
+def cmd_eval(msg, params)
+  msg.raw("PRIVMSG #{msg.destination} :" + eval(params.join(" ")))
+end
 
-#$log = Logger.new('var/terminus-bot.log', 'weekly');
-$log = Logger.new(STDOUT);
+def cmd_quit(msg, params)
+  $bot.quit(params)
+end
 
-puts "Starting..."
 
-require_files "includes"
-
-Terminus_Bot::Bot.new
-
+def cmd_rehash(msg, params)
+  $bot.config.read_config
+  msg.reply("Done reloading configuration.")
+end

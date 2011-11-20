@@ -1,5 +1,3 @@
+*.conf
+*.db
 *.log
-*.log.*
-configuration
-configuration.bak
-.lock

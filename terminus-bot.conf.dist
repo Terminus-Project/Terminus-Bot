@@ -1,0 +1,79 @@
+# syntax:
+#   [plugin_name]
+#   setting_name = value
+#
+# Lines beginning with # are comments.
+#
+# Comments cannot be started later in the line
+# (you may not do "setting = value #comment").
+#
+# Boolean settings must be true or false (exactly).
+
+
+# core _must_ be here for the bot to work
+
+[core]
+
+
+# If these are omitted, defaults provide:
+# Terminus-Bot!Terminus@* http://terminus-bot.net
+
+nick        = Terminus-Bot
+user        = Terminus
+realname    = http://terminus-bot.net/
+
+
+# command prefix
+
+prefix      = ;
+
+
+# Separate with spaces. Syntax is:
+#   name:hostname:port:password
+
+servers      = sinsira:irc.sinsira.net:6667
+
+# Bind to this address when making connections.
+#bind        = 
+
+
+# seconds to wait before reconencting if connection closes
+# unexpectedly
+
+reconwait   = 15
+
+# Delay between sending messages.
+# This should always be > 0 to avoid being killed
+# for flooding.
+# REQUIRED
+
+throttle    = 0.1
+
+
+[ctcp]
+
+
+# include all CTCP replies you want here
+
+version     = Terminus-Bot v0.5-alpha
+url         = http://terminus-bot.net/
+
+
+[urbandict]
+
+
+# max definitions to include in reply
+# default: 1
+
+definitions = 1
+
+
+[title]
+
+
+# set to true to enable automatic title fetching
+# default: false
+
+enabled     = true
+
+

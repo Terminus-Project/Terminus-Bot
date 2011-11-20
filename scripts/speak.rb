@@ -1,4 +1,3 @@
-#!/usr/bin/ruby
 
 #
 # Terminus-Bot: An IRC bot to solve all of the problems with IRC bots.
@@ -19,20 +18,17 @@
 #
 
 
-require 'socket'
-require 'thread'
-require 'logger'
+def initialize
+  register_script("speak", "Provides SAY and ACT commands for making the bot speak in channel.")
 
-require './util.rb'
+  register_command("say", :say,  1,  1, "Speak the given text.")
+  register_command("act", :act,  1,  1, "Act the given text (CTCP ACTION).")
+end
 
-Dir.chdir(File.dirname(__FILE__))
+def say(msg, params)
+  msg.reply(params[0], false)
+end
 
-#$log = Logger.new('var/terminus-bot.log', 'weekly');
-$log = Logger.new(STDOUT);
-
-puts "Starting..."
-
-require_files "includes"
-
-Terminus_Bot::Bot.new
-
+def act(msg, params)
+  msg.reply("\01ACTION #{params[0]}\01", false)
+end

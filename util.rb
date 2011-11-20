@@ -1,4 +1,3 @@
-#!/usr/bin/ruby
 
 #
 # Terminus-Bot: An IRC bot to solve all of the problems with IRC bots.
@@ -19,20 +18,19 @@
 #
 
 
-require 'socket'
-require 'thread'
-require 'logger'
 
-require './util.rb'
+# Load all files in the given directory under the working directory.
+# @param [String] dir The base directory from which files will be recursively required.
+# @example
+# require_files("includes")
+def require_files(dir)
+  #$log.debug('preload') { "Requiring files in #{dir}." }
 
-Dir.chdir(File.dirname(__FILE__))
-
-#$log = Logger.new('var/terminus-bot.log', 'weekly');
-$log = Logger.new(STDOUT);
-
-puts "Starting..."
-
-require_files "includes"
-
-Terminus_Bot::Bot.new
+  begin
+    Dir["#{File.dirname(__FILE__)}/#{dir}/**/*.rb"].each { |f| require(f) }
+  rescue => e
+    #$log.fatal('preload') { "Failed loading files in #{dir}: #{e}" }
+    exit -1
+  end
+end
 

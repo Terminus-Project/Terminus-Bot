@@ -1,4 +1,3 @@
-#!/usr/bin/ruby
 
 #
 # Terminus-Bot: An IRC bot to solve all of the problems with IRC bots.
@@ -19,20 +18,28 @@
 #
 
 
-require 'socket'
-require 'thread'
-require 'logger'
+def initialize
+  register_script("Choose", "Let the bot decide for you.")
 
-require './util.rb'
+  register_event("PRIVMSG", :on_privmsg)
+end
 
-Dir.chdir(File.dirname(__FILE__))
+def on_privmsg(msg)
+  return unless msg.text.start_with? $bot.config['core']["prefix"] and msg.text.end_with? "?"
+  
+  choices = msg.text.split(" or ")
 
-#$log = Logger.new('var/terminus-bot.log', 'weekly');
-$log = Logger.new(STDOUT);
+  if choices.length == 1
+    answer = rand(2) == 1 ? "Yes" : "No"
+  else
+    # chop off the prefix and space
+    choices[0] = choices[0][$bot.config['core']['prefix'].length+1..choices[0].length-1]
 
-puts "Starting..."
+    #chop off the question mark
+    choices[choices.length-1] = choices.last[0..choices.last.length-2]
 
-require_files "includes"
+    answer = choices[rand(choices.length)]
+  end
 
-Terminus_Bot::Bot.new
-
+  msg.reply(answer)
+end
