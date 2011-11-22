@@ -18,8 +18,6 @@
 #
 #
 
-require 'date'
-
 def initialize
   register_script("seen", "Tracks when a user is last seen speaking.")
 
