@@ -20,7 +20,8 @@
 module IRC
   class Connection
 
-    attr_reader :name, :socket, :channels, :host, :port, :read_thread, :users
+    attr_reader :name, :socket, :channels, :host, :port, :read_thread, :users,
+      :client_host, :nick, :user, :realname
 
     # Create a new connection, then kick things off.
     def initialize(name, host, port = 6667, bind = nil, password = nil,
@@ -35,6 +36,8 @@ module IRC
       $bot.events.create(self, "MODE",  :on_mode)
       $bot.events.create(self, "324",   :on_324)
 
+      $bot.events.create(self, "396",   :on_396) # hidden host
+
       $bot.events.create(self, "TOPIC", :on_topic)
       $bot.events.create(self, "332",   :on_332) # topic on join
 
@@ -48,6 +51,8 @@ module IRC
       @nick = nick
       @user = user
       @realname = realname
+
+      @client_host = bind
 
       # We queue up messages here
       @send_queue = Queue.new
@@ -124,7 +129,7 @@ module IRC
                 IRC::Message.new(self, inbuf)
 
               rescue => e
-                $log.error("Bot.send_thread") { "Uncaught rror in message handler thread: #{e}" }
+                $log.error("Bot.send_thread") { "Uncaught error in message handler thread: #{e}" }
 
               end
 
@@ -188,6 +193,13 @@ module IRC
     # returns.
     def disconnect(quit_message = "Terminus-Bot: Terminating")
       raw "QUIT :" + quit_message
+    end
+
+    # hidden host
+    def on_396(msg)
+      return if msg.connection != self
+
+      @client_host = msg.raw_arr[3]
     end
 
     # WHO reply handler.
@@ -355,18 +367,47 @@ module IRC
         str = "I tried to send you an empty message. Oops!"
       end
 
-      # TODO: Truncate at 512 bytes instead. Hold additional content for
-      #       later sending or something. Just don't try to send it all in
-      #       multiple messages without the user asking for it!
-      if str.length > 400
-        str = str[0..400] + "..."
-      end
-
+      # TODO: Hold additional content for later sending or something.
+      #       Just don't try to send it all in multiple messages without
+      #       the user asking for it!
       if @destination.start_with? "#"
-        @connection.raw("PRIVMSG #{@destination} :#{prefix ? @nick + ": " : ""}#{str}")
+        str = "PRIVMSG #{@destination} :#{prefix ? @nick + ": " : ""}#{truncate(str, @destination)}"
+
+        @connection.raw(str)
       else
-        @connection.raw("NOTICE #{@nick} :#{str}")
+        str = "NOTICE #{@nick} :#{truncate(str, @nick, true)}"
+
+        if str.length > 512
+          str = str[0..512]
+        end
+
+        @connection.raw(str)
       end
+    end
+
+    # Attempt to truncate messages in such a way that the maximum
+    # amount of space possible is used. This assumes the server will
+    # send a full 512 bytes to a client.
+    # TODO: This works perfectly, but servers don't seem to send 512 bytes
+    #       per message! Figure out how to make this work well without just
+    #       picking an arbitrary, shorter length.
+    def truncate(message, destination, notice = false)
+        prefix_length = @connection.nick.length +
+                        @connection.user.length +
+                        @connection.client_host.length +
+                        destination.length +
+                        13
+        prefix_length += 1 unless notice
+
+        oversize = (prefix_length + message.length) - 512
+
+        $log.debug("Message.truncate") { "Oversize length: #{oversize} (Prefix: #{prefix_length}, Message: #{message.length})" }
+
+        if oversize > 0
+          return message[0..511-prefix_length]
+        end
+
+        return message
     end
 
     # This has to be separate from our method_missing cheat below because
