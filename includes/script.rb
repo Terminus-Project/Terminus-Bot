@@ -20,11 +20,14 @@
 module Terminus_Bot
   class Scripts
 
+    # Load all the scripts in the scripts directory.
     def initialize
       $log.info("scripts.initilize") { "Loading scripts." }
 
       @scripts = Hash.new
 
+      # TODO: We probably need some error handling here, though it's
+      # probably a good idea to take fatal errors when loading bad scripts.
       Dir.glob("scripts/*.rb").each do |file|
 
         $log.debug("scripts.initilize") { "Loading #{file}" }
@@ -33,6 +36,8 @@ module Terminus_Bot
       end
     end
 
+    # Load the given script by file name. The relative path should be included.
+    # Scripts are expected to be in the scripts dir.
     def load_file(filename)
       name = filename.match("scripts/(.+).rb")[1]
 
@@ -47,6 +52,8 @@ module Terminus_Bot
       @scripts[name] = eval(script, nil, filename, 0)
     end
 
+    # Unload and then load a script. The name given is the script's short name
+    # (script/short_name.rb).
     def reload(name)
       unless @scripts.has_key? name
         throw "Cannot reload: No such script #{name}"
@@ -65,6 +72,8 @@ module Terminus_Bot
       load_file(filename)
     end
 
+    # Unload a script. The name given is the script's short name
+    # (scripts/short_name.rb).
     def unload(name)
       unless @scripts.has_key? name
         throw "Cannot unload: No such script #{name}"
@@ -78,6 +87,8 @@ module Terminus_Bot
 
   class Script
 
+    # Cheat mode for passing functions to $bot.
+    # There's probably a better way to do this.
     def method_missing(name, *args, &block)
       if $bot.respond_to? name
         $bot.send(name, *args, &block)
@@ -86,6 +97,9 @@ module Terminus_Bot
         throw NoMethodError.new("#{my_name} attempted to call a nonexistent method #{name}", name, args)
       end
     end
+
+    # Pass along some register commands with self or our class name attached
+    # as needed. This just makes code in the scripts a little shorter.
 
     def register_event(*args)
       $bot.events.create(self, *args)
@@ -100,6 +114,8 @@ module Terminus_Bot
     end
 
 
+    # Shortcuts for unregister stuff. Makes teardown easier in die methods.
+
     def unregister_commands
       $bot.unregister_commands(self)
     end
@@ -113,6 +129,8 @@ module Terminus_Bot
     end
 
 
+    # Dunno if these should be functions or variables. Feel free to change.
+
     def my_name 
       self.class.name.split("::").last
     end
@@ -122,6 +140,11 @@ module Terminus_Bot
     end
 
 
+    # Get config data for this script, if it exists. The section name
+    # in the config is the script's short name. Configuration in this
+    # version of Terminus-Bot is read-only, unlike the YAML-based config
+    # in the previous version. If you want to store data, you want to use
+    # the database. See functions below for that!
     def get_config(key, default)
       if $bot.config.has_key? my_short_name
         if $bot.config[my_short_name].has_key? key
@@ -132,12 +155,17 @@ module Terminus_Bot
       return default
     end
 
+    # Check if the database has a Hash table for this plugin. If not,
+    # create an empty one.
     def init_data
       unless $bot.database.has_key? my_name
         $bot.database[my_name] = Hash.new
       end
     end
 
+    # Get the value stored for the given key in the database for this
+    # script. The optional default value is what is returned if not value
+    # exists for the given key.
     def get_data(key, default = nil)
       init_data
 
@@ -148,6 +176,7 @@ module Terminus_Bot
       end
     end
 
+    # Store the given value in the database if one isn't already set.
     def default_data(key, value)
       init_data
 
@@ -156,12 +185,14 @@ module Terminus_Bot
       end
     end
 
+    # Store a value in the database under the given key.
     def store_data(key, value)
       init_data
 
       $bot.database[my_name][key] = value
     end
 
+    # Delete data under the given key, if it exists.
     def delete_data(key)
       init_data
 

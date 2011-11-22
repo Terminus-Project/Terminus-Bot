@@ -20,23 +20,33 @@
 module IRC
   User = Struct.new(:connection, :nick, :user, :host, :level)
 
+  # TODO: Extend Hash?
   class Users
+
+    # Create our users object. These are per-connection, so we're passed
+    # our parent.
     def initialize(connection)
       @connection = connection
       @users = Hash.new
 
+      # Register events relevant to us.
+      # TODO: Handle QUIT here too! Also PART, probably (check if user
+      #       is no longer present in any tracked channels).
       $bot.events.create(self, "JOIN",    :add_origin)
-      $bot.events.create(self, "352",     :add_352)
+      $bot.events.create(self, "352",     :add_352) # WHO reply
       $bot.events.create(self, "PRIVMSG", :add_origin)
       $bot.events.create(self, "NICK",    :change_nick)
     end
 
+    # WHO reply
     def add_352(msg)
       return if msg.connection != @connection
         
       add_user(msg.raw_arr[7], msg.raw_arr[4], msg.raw_arr[5])
     end
 
+    # Add the user in the origin (first word) position of a raw message
+    # to our list. Users are here in PRIVMSG and others.
     def add_origin(msg)
       return if msg.connection != @connection
 
@@ -45,6 +55,7 @@ module IRC
       add_user($1, $2, $3)
     end
 
+    # Actually add a nick!user@host to our list.
     def add_user(nick, user, host)
       return if @users.has_key? nick
 
@@ -53,12 +64,15 @@ module IRC
       @users[nick] = User.new(@connection, nick, user, host, 0)
     end
 
+    # Someone changed nicks. Make the necessary updates.
     def change_nick(msg)
       return if msg.connection != @connection
       return unless @users.has_key? msg.nick
 
       $log.debug("Users.add_user") { "Renaming user #{msg.nick} on #{@connection.name}" }
 
+      # Apparently structs don't let you change values. So just make a
+      # new user.
       @users[msg.text] = User.new(@connection, msg.text,
                                   @users[msg.nick].user,
                                   @users[msg.nick].host,
@@ -67,12 +81,15 @@ module IRC
       delete_user(msg.nick)
     end
 
+    # Remove a user by nick.
     def delete_user(nick)
       $log.debug("Users.add_user") { "Removing user #{nick} on #{@connection.name}" }
 
       @users.delete(nick)
     end
 
+    # Get the level of the user speaking in msg.
+    # Used when checking permissions.
     def get_level(msg)
       unless @users.has_key? msg.nick
         add_origin(msg)
@@ -81,6 +98,7 @@ module IRC
       return @users[msg.nick].level
     end
 
+    # Access @users.
     def [](nick)
       @users[nick]
     end

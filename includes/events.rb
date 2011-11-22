@@ -18,28 +18,19 @@
 #
 
 module Terminus_Bot
-  class Event
 
-    attr_reader :name, :func, :owner
-
-    def initialize(name, func, owner)
-      @name = name
-      @func = func
-      @owner = owner
-    end
-
-    def run(args)
-      @owner.send(@func, args)
-    end
-
-  end
+  Event = Struct.new(:name, :func, :owner)
 
   class Events
 
+    # Create a hash table for event storage.
     def initialize
       @events = Hash.new
     end
 
+    # Create a new event. The key in the hash table is the event name
+    # which is used to run the event. The value is an array which will store
+    # the multiple events that run are run when the event name is called.
     def create(owner, name, func)
       unless @events.has_key? name
         @events[name] = Array.new
@@ -49,16 +40,20 @@ module Terminus_Bot
       @events[name] << Event.new(name, func, owner)
     end
 
+    # Run all the events with the given name.
+    # TODO: Find out why I used *args and change it if it doesn't need to be
+    #       that way.
     def run(name, *args)
       return unless @events.has_key? name
 
       $log.debug("events.run") { name }
 
       @events[name].each do |event|
-        event.run(args[0])
+        event.owner.send(event.func, args[0])
       end
     end
 
+    # Delete all the events owned by the given class.
     def delete_events_for(owner)
       @events.each do |n, a|
         a.delete_if {|e| e.owner == owner}
