@@ -109,7 +109,7 @@ module Terminus_Bot
       $bot.database[my_name][key] = value
     end
 
-    def delete_date(key)
+    def delete_data(key)
       init_data
 
       if $bot.database[my_name].has_key? key
