@@ -63,8 +63,10 @@ def cmd_define(msg, params)
       # Parts of Speech
 
       break if i == 3 or i > Integer(definitions)
- 
-      result = "\02#{pos.attributes["pos"]}\02: " if pos.has_attributes? and pos.attributes["pos"] != nil
+      
+      result = ""
+
+      result << "\02#{pos.attributes["pos"]}\02: " if pos.has_attributes? and pos.attributes["pos"] != nil
   
       pos.elements.each { |p|
         p.elements.each { |d|
@@ -77,7 +79,7 @@ def cmd_define(msg, params)
         result.gsub!(/<\/(b|i)>/, "\02")
         result.gsub!(/<.>/, '')
 
-        results << result
+        results << result unless result.empty?
         i += 1
       end
 
