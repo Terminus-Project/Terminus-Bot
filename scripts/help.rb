@@ -33,6 +33,13 @@ def cmd_help(msg, params)
   if command == nil
     msg.reply("There is no help available for that command.")
   else
+    level = msg.connection.users.get_level(msg)
+
+    if command.level > level
+      msg.reply("You are not authorized to use that command, so you may not view its help.")
+      return
+    end
+
     msg.reply(command.help)
   end
 end
@@ -40,8 +47,10 @@ end
 def cmd_commands(msg, params)
   buf = Array.new
 
+  level = msg.connection.users.get_level(msg)
+
   $bot.commands.each do |command|
-    buf << command.cmd
+    buf << command.cmd unless command.level > level
   end
 
   msg.reply(buf.join(", "))
