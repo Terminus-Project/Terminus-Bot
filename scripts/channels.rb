@@ -26,6 +26,8 @@ def initialize
 
   register_event("376", :join_channels)
 
+  # TODO: Handle 405?
+
   @channels = get_data("channels", Hash.new)
 end
 
@@ -36,12 +38,20 @@ def die
 end
 
 def join_channels(msg)
-  # TODO: Join many channels at once.
+  buf = Array.new
 
   if @channels.has_key? msg.connection.name
     @channels[msg.connection.name].each do |channel|
-      msg.raw("JOIN #{channel}")
+      buf << channel
+
+      # TODO: determine a sane maximum for this
+      if buf.length == 4
+        msg.raw("JOIN #{buf.join(",")}")
+        buf.clear
+      end
     end
+
+    msg.raw("JOIN #{buf.join(",")}") unless buf.empty?
   else
     @channels[msg.connection.name] = Array.new
   end
