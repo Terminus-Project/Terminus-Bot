@@ -25,10 +25,15 @@ require "strscan"
 require "htmlentities"
 
 def initialize
-  register_script("urbandict", "Look up words on UrbanDictionary.com.")
+  register_script("Look up words on UrbanDictionary.com.")
   register_command("ud", :lookup,   1,  0, "Fetch definition of word from UrbanDictionary.com.")
 
   @baseURL = "http://www.urbandictionary.com/define.php?term="
+end
+
+def die
+  unregister_script
+  unregister_commands
 end
 
 def lookup(msg, params)

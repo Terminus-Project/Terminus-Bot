@@ -27,7 +27,7 @@ require 'htmlentities'
 URL='http://api-pub.dictionary.com/v001?vid=t9ebbvoze52a4cdf38oj1gmjltw2ul6nulz6gn5vt8'
 
 def initialize
-  register_script("dictionary", "Dictionary.com look-ups.")
+  register_script("Dictionary.com look-ups.")
 
   register_command("define", :cmd_define,   1,  0, "Look up some of the possible definitions of the given word.")
 #  registerCommand("Dictionary", "spell", "Suggest correct or alternate spellings of the given word.", "word")
@@ -37,6 +37,11 @@ def initialize
 #  registerCommand("Dictionary", "wotd", "Fetch the Word of the Day on Dictionary.com", "")
 #  registerCommand("Dictionary", "synonyms", "Find synonyms for the given word.", "word [part of speech]")
 #  registerCommand("Dictionary", "random", "Fetch a random word from Dictionary.com's extensive database.", "")
+end
+
+def die
+  unregister_script
+  unregister_commands
 end
 
 def cmd_define(msg, params)

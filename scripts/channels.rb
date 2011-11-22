@@ -19,7 +19,7 @@
 
 
 def initialize
-  register_script("channels", "Manage the list of channels the bot occupies.")
+  register_script("Manage the list of channels the bot occupies.")
 
   register_command("join", :cmd_join, 1,  5, "Join a channel.")
   register_command("part", :cmd_part, 1,  5, "Part a channel.")
@@ -27,6 +27,12 @@ def initialize
   register_event("376", :join_channels)
 
   @channels = get_data("channels", Hash.new)
+end
+
+def die
+  unregister_script
+  unregister_commands
+  unregister_events
 end
 
 def join_channels(msg)

@@ -26,9 +26,14 @@ require "json"
 WIKI_API_URL = "http://en.wikipedia.org/w/api.php?action=query&format=json"
 
 def initialize
-  register_script("wikipedia", "Perform Wikipedia look-ups.")
+  register_script("Perform Wikipedia look-ups.")
 
   register_command("wiki", :cmd_wiki, 1, 0, "Provide a link to the given Wikipedia page, corrected for redirects.")
+end
+
+def die
+  unregister_script
+  unregister_commands
 end
 
 def cmd_wiki(msg, params)

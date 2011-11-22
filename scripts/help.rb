@@ -19,12 +19,17 @@
 
 
 def initialize()
-  register_script("help", "Provide on-protocol help for bot scripts and commands.")
+  register_script("Provide on-protocol help for bot scripts and commands.")
 
   register_command("commands", :cmd_commands, 0,  0, "Show a list of commands.")
   register_command("help", :cmd_help,         1,  0, "Show help for the given command.")
   register_command("scripts", :cmd_scripts,   0,  0, "Show a list of loaded scripts.")
   register_command("script", :cmd_script,     1,  0, "Show a description of the given script.")
+end
+
+def die
+  unregister_script
+  unregister_commands
 end
 
 def cmd_help(msg, params)

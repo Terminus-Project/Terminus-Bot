@@ -20,6 +20,8 @@
 module Terminus_Bot
   class Event
 
+    attr_reader :name, :func, :owner
+
     def initialize(name, func, owner)
       @name = name
       @func = func
@@ -57,5 +59,10 @@ module Terminus_Bot
       end
     end
 
+    def delete_events_for(owner)
+      @events.each do |n, a|
+        a.delete_if {|e| e.owner == owner}
+      end
+    end
   end
 end

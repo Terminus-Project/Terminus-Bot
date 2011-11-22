@@ -23,21 +23,56 @@ module Terminus_Bot
     def initialize
       $log.info("scripts.initilize") { "Loading scripts." }
 
-      @scripts = Array.new
+      @scripts = Hash.new
 
       Dir.glob("scripts/*.rb").each do |file|
 
         $log.debug("scripts.initilize") { "Loading #{file}" }
+        load_file(file)
 
-        name = file.match("scripts/(.+).rb")[1]
-
-        $log.debug("scripts.initilize") { "Script name: #{name}" }
-
-        script = IO.read(file)
-        script = "class Script_#{name} < Script \n #{script} \n end \n Script_#{name}.new"
-
-        @scripts << eval(script, nil, file, 0)
       end
+    end
+
+    def load_file(filename)
+      name = filename.match("scripts/(.+).rb")[1]
+
+      $log.debug("scripts.load") { "Script file name: #{filename}" }
+
+      script = "class Script_#{name} < Script \n #{IO.read(filename)} \n end \n Script_#{name}.new"
+      
+      if @scripts.has_key? name
+        throw "Attempted to load script that is already loaded."
+      end
+
+      @scripts[name] = eval(script, nil, filename, 0)
+    end
+
+    def reload(name)
+      unless @scripts.has_key? name
+        throw "Cannot reload: No such script #{name}"
+      end
+
+      filename = "scripts/#{name}.rb"
+
+      unless File.exists? filename
+        throw "Script file for #{name} does not exist (#{filename})."
+      end
+
+      @scripts[name].die if @scripts[name].respond_to? "die"
+
+      @scripts.delete(name)
+
+      load_file(filename)
+    end
+
+    def unload(name)
+      unless @scripts.has_key? name
+        throw "Cannot unload: No such script #{name}"
+      end
+
+      @scripts[name].die if @scripts[name].respond_to? "die"
+
+      @scripts.delete(name)
     end
   end
 
@@ -59,6 +94,24 @@ module Terminus_Bot
     def register_command(*args)
       $bot.register_command(self, *args)
     end
+
+    def register_script(*args)
+      $bot.register_script(my_short_name, *args)
+    end
+
+
+    def unregister_commands
+      $bot.unregister_commands(self)
+    end
+
+    def unregister_events
+      $bot.unregister_events(self)
+    end
+
+    def unregister_script
+      $bot.unregister_script(my_short_name)
+    end
+
 
     def my_name 
       self.class.name.split("::").last
@@ -115,6 +168,10 @@ module Terminus_Bot
       if $bot.database[my_name].has_key? key
         $bot.database[my_name].delete(key)
       end
+    end
+
+    def to_str
+      my_short_name
     end
   end
 end

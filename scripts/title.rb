@@ -24,9 +24,14 @@ require "uri"
 require "strscan"
 
 def initialize
-  register_script("title", "Fetches titles for URLs spoken in channels.")
+  register_script("Fetches titles for URLs spoken in channels.")
 
   register_event("PRIVMSG", :on_message)
+end
+
+def die
+  unregister_script
+  unregister_events
 end
 
 def on_message(msg)

@@ -19,11 +19,17 @@
 #
 
 def initialize
-  register_script("seen", "Tracks when a user is last seen speaking.")
+  register_script("Tracks when a user is last seen speaking.")
 
   register_command("seen", :cmd_seen, 1, 0, "Check when the given user was last seen \02speaking\02 on IRC.")
 
   register_event("PRIVMSG", :on_message)
+end
+
+def die
+  unregister_script
+  unregister_commands
+  unregister_events
 end
 
 def on_message(msg)

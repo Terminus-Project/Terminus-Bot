@@ -19,7 +19,7 @@
 
 
 def initialize()
-  register_script("pong", "Reply to server pings.")
+  register_script("Reply to server pings.")
 
   register_event("PING", :pong)
 end

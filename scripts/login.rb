@@ -21,9 +21,14 @@
 require 'digest'
 
 def initialize()
-  register_script("login", "Provides account log-in functionality.")
+  register_script("Provides account log-in functionality.")
 
   register_command("identify", :cmd_identify, 2, 0, "Log in to the bot.")
+end
+
+def die
+  unregister_script
+  unregister_commands
 end
 
 def cmd_identify(msg, params)

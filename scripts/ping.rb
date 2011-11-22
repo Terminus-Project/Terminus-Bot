@@ -19,11 +19,16 @@
 
 
 def initialize
-  register_script("ping", "Simple ping/pong.")
+  register_script("Simple ping/pong.")
 
   register_command("ping", :pong,  0,  0, "Send a pong.")
 end
 
+def die
+  unregister_script
+  unregister_commands
+end
+
 def pong(msg, params)
-  msg.raw("PRIVMSG #{msg.destination} :Pong!")
+  msg.reply("Pong!")
 end

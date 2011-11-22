@@ -23,7 +23,7 @@ require "net/http"
 require "json"
 
 def initialize
-  register_script("google", "Search the Internet with Google.")
+  register_script("Search the Internet with Google.")
 
   register_command("g",       :cmd_g,       1, 0, "Search for web pages using Google.")
   register_command("gimage",  :cmd_gimage,  1, 0, "Search for images using Google.")
@@ -33,10 +33,16 @@ def initialize
   register_command("gblog",   :cmd_gblog,   1, 0, "Search blogs using Google.")
   register_command("gnews",   :cmd_gnews,   1, 0, "Search news using Google.")
 
+  # TODO: Move these to the config file!
   default_data("useragent", "sinsira.net")
   default_data("result_limit", 3)
 
   @baseURL = "http://ajax.googleapis.com/ajax/services/search/"
+end
+
+def die
+  unregister_script
+  unregister_command
 end
 
 #curl -e http://www.my-ajax-site.com \

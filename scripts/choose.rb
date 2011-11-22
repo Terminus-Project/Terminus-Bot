@@ -19,9 +19,14 @@
 
 
 def initialize
-  register_script("Choose", "Let the bot decide for you.")
+  register_script("Let the bot decide for you.")
 
   register_event("PRIVMSG", :on_privmsg)
+end
+
+def die
+  unregister_script
+  unregister_events
 end
 
 def on_privmsg(msg)

@@ -18,24 +18,46 @@
 #
 
 
-def initialize()
-  register_script("admin", "Bot administration script.")
+def initialize
+  register_script("Bot administration script.")
 
-  register_command("eval",  :cmd_eval,   1, 10, "Run raw Ruby code.")
-  register_command("quit",  :cmd_quit,   1, 10, "Kill the bot.")
-  register_command("rehash",:cmd_rehash, 0, 8,  "Reload the configuration file.")
+  register_command("eval",  :cmd_eval,    1, 10,  "Run raw Ruby code.")
+  register_command("quit",  :cmd_quit,    1, 10,  "Kill the bot.")
+  register_command("rehash",:cmd_rehash,  0,  8,  "Reload the configuration file.")
+  register_command("reload",:cmd_reload,  1,  9,  "Reload the named script.")
+  register_command("unload",:cmd_unload,  1,  9,  "Unload the named script.")
+  register_command("load",  :cmd_load,    1,  9,  "Load the named script.")
+end
+
+def die
+  unregister_script
+  unregister_commands
 end
 
 def cmd_eval(msg, params)
-  msg.raw("PRIVMSG #{msg.destination} :" + eval(params.join(" ")))
+  msg.reply(eval(params[0]))
 end
 
 def cmd_quit(msg, params)
   $bot.quit(params[0])
 end
 
-
 def cmd_rehash(msg, params)
   $bot.config.read_config
   msg.reply("Done reloading configuration.")
+end
+
+def cmd_reload(msg, params)
+  $bot.scripts.reload(params[0])
+  msg.reply("Reloaded script \02#{params[0]}\02")
+end
+
+def cmd_unload(msg, params)
+  $bot.scripts.unload(params[0])
+  msg.reply("Unloaded script \02#{params[0]}\02")
+end
+
+def cmd_load(msg, params)
+  $bot.scripts.load_file("scripts/#{params[0]}.rb")
+  msg.reply("Loaded script \02#{params[0]}\02")
 end

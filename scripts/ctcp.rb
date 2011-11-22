@@ -19,9 +19,14 @@
 
 
 def initialize
-  register_script("CTCP", "Reply to some CTCP requests.")
+  register_script("Reply to some CTCP requests.")
 
   register_event("PRIVMSG", :on_privmsg)
+end
+
+def die
+  unregister_script
+  unregister_events
 end
 
 def on_privmsg(msg)

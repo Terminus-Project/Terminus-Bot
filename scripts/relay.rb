@@ -18,7 +18,7 @@
 #
 
 def initialize
-  register_script("relay", "Relay chat between two or more channels on one or more networks.")
+  register_script("Relay chat between two or more channels on one or more networks.")
 
   register_event("PRIVMSG", :on_privmsg)
   register_event("JOIN",    :on_join)
@@ -30,6 +30,12 @@ def initialize
   register_command("relays", :cmd_relays, 0,  7, "List active channel relays.")
 
   @relays = get_data("relays", Array.new)
+end
+
+def die
+  unregister_script
+  unregister_commands
+  unregister_events
 end
 
 def cmd_relay(msg, params)

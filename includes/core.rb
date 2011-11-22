@@ -23,7 +23,7 @@ module Terminus_Bot
 
   class Bot
 
-    attr_reader :config, :connections, :events, :database, :commands, :script_info
+    attr_reader :config, :connections, :events, :database, :commands, :script_info, :scripts
 
     VERSION = "Terminus-Bot v0.5"
 
@@ -138,6 +138,25 @@ module Terminus_Bot
       @script_info << Script_Info.new(*args)
     end
 
+    def unregister_script(name)
+      $log.debug("Bot.unregister_script") { "Unregistering script #{name}" }
+      @script_info.delete_if {|s| s.name == name}
+    end
+
+    def unregister_command(cmd)
+      $log.debug("Bot.unregister_command") { "Unregistering command #{cmd}" }
+      @commands.delete_if {|c| c.cmd == cmd}
+    end
+
+    def unregister_commands(owner)
+      $log.debug("Bot.unregister_commands") { "Unregistering all commands for #{owner.class.name}" }
+      @commands.delete_if {|c| c.owner == owner}
+    end
+
+    def unregister_events(owner)
+      $log.debug("Bot.unregister_events") { "Unregistering all events for #{owner.class.name}" }
+      @events.delete_events_for(owner)
+    end
 
   end
 
