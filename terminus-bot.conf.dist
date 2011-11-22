@@ -77,3 +77,14 @@ definitions = 1
 enabled     = true
 
 
+[google]
+
+# user agent sent with queries
+# see Google's API docs for recommendations
+
+useragent   = sinsira.net
+
+# limit the number of results shown for one query
+# default: 3 (recommended)
+
+resultlimit = 3
