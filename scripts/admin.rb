@@ -31,7 +31,7 @@ def cmd_eval(msg, params)
 end
 
 def cmd_quit(msg, params)
-  $bot.quit(params)
+  $bot.quit(params[0])
 end
 
 
