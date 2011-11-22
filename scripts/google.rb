@@ -33,10 +33,6 @@ def initialize
   register_command("gblog",   :cmd_gblog,   1, 0, "Search blogs using Google.")
   register_command("gnews",   :cmd_gnews,   1, 0, "Search news using Google.")
 
-  # TODO: Move these to the config file!
-  default_data("useragent", "sinsira.net")
-  default_data("result_limit", 3)
-
   @baseURL = "http://ajax.googleapis.com/ajax/services/search/"
 end
 
@@ -94,7 +90,7 @@ def getResult(query, type)
   uri = URI.parse(url)
   http = Net::HTTP.new(uri.host, uri.port)
   request = Net::HTTP::Get.new(uri.request_uri)
-  request.initialize_http_header({"User-Agent" => get_data("useragent")})
+  request.initialize_http_header({"User-Agent" => get_config("useragent", "sinsira.net")})
   response = http.request(request)
 
   if response.code != "200"
@@ -104,7 +100,7 @@ def getResult(query, type)
   response = JSON.parse(response.body)
   results = Array.new
   num = 0
-  limit = get_data("result_limit")
+  limit = Integer(get_config("resultlimit", 3))
 
   response["responseData"]["results"].each { |result|
     break if num >= limit
