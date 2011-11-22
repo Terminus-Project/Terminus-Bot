@@ -83,7 +83,7 @@ module Terminus_Bot
           level = msg.connection.users.get_level(msg)
 
           if command.level > level
-            msg.reply("PRIVMSG #{msg.destination} :Level \02#{command.level}\02 authorization required. (Current level: #{level})")
+            msg.reply("Level \02#{command.level}\02 authorization required. (Current level: #{level})")
             return
           end
 
@@ -91,7 +91,7 @@ module Terminus_Bot
           params_raw = $2.strip.split(" ")
 
           if params_raw.length < command.argc
-            msg.reply("PRIVMSG #{msg.destination} :This command requires at least \02#{command.argc}\02 parameters.")
+            msg.reply("This command requires at least \02#{command.argc}\02 parameters.")
             return
           end
 
