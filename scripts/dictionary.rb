@@ -49,8 +49,8 @@ def cmd_define(msg, params)
   definitions = root.elements["//dictionary"].attributes["totalresults"] rescue 0
 
   if definitions == "0"
-      reply(msg, "No results")
-      return true
+      msg.reply("No results")
+      return
   end
 
   results = Array.new
