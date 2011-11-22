@@ -127,10 +127,14 @@ module Terminus_Bot
     end
 
     def register_command(*args)
+      $log.debug("Bot.register_command") { "Registering command." }
+
       @commands << Command.new(*args)
     end
 
     def register_script(*args)
+      $log.debug("Bot.register_script") { "Registering script." }
+
       @script_info << Script_Info.new(*args)
     end
 

@@ -97,7 +97,11 @@ module IRC
             $log.debug("Bot.read_thread") { "Received: #{inbuf}" }
 
             Thread.new do
-              IRC::Message.new(self, inbuf)
+              begin
+                IRC::Message.new(self, inbuf)
+              rescue => e
+                $log.error("Bot.send_thread") { "Uncaught rror in message handler thread: #{e}" }
+              end
             end
 
           end
