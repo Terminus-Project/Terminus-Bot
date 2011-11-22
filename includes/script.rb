@@ -26,8 +26,10 @@ module Terminus_Bot
 
       @scripts = Hash.new
 
-      # TODO: We probably need some error handling here, though it's
-      # probably a good idea to take fatal errors when loading bad scripts.
+      unless Dir.exists? "scripts"
+        throw "Scripts directory does not exist."
+      end
+
       Dir.glob("scripts/*.rb").each do |file|
 
         $log.debug("scripts.initilize") { "Loading #{file}" }
