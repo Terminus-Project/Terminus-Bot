@@ -25,7 +25,7 @@ def initialize
 end
 
 def on_privmsg(msg)
-  return unless msg.text.start_with? $bot.config['core']["prefix"] + " " and msg.text.end_with? "?"
+  return unless msg.text.start_with?($bot.config['core']["prefix"] + " ") and msg.text.end_with? "?"
   
   choices = msg.text.split(" or ")
 
