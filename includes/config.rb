@@ -19,25 +19,29 @@
 
 
 module Terminus_Bot
-  class Configuration
+  class Configuration < Hash
 
     attr :config
 
     FILE_NAME = "terminus-bot.conf"
 
+    # Create a new configuration object.
+    # Read the configuration file now.
     def initialize
       read_config
     end
 
 
+    # Read the config file named by FILE_NAME.
+    # Configuration is stored in @config, a hash table. Keys are
+    # section names ([name] in the file). The values are more hash tables.
+    # The key/value pair for those hash tables is the setting name and value.
     def read_config
       unless File.exists? FILE_NAME
         throw "No Config File"
       end
 
       $log.info("Configuration.read_config") { "Loading the configuration file." }
-
-      @config = Hash.new
 
       fi = File.open(FILE_NAME, "r")
 
@@ -46,25 +50,28 @@ module Terminus_Bot
       while line = fi.gets
         line.strip!
 
+        # Skip comments and empty lines.
         if line[0] == "#" or line.empty?
           next
         end
 
+        # Section header!
         if line =~ /\[(.+)\]/
           section = $1.strip
 
-          unless @config.has_key? section
-            @config[section] = Hash.new
+          unless self.has_key? section
+            self[section] = Hash.new
             $log.debug("Configuration.read_config") { "New config section: #{section}" }
           end
 
+        # A setting! Read it in.
         elsif line =~ /\A(.+)=(.+)\Z/
           
           if section.empty?
             throw "Congifuration before section declaration."
           end
 
-          @config[section][$1.strip] = $2.strip
+          self[section][$1.strip] = $2.strip
 
         end
 
@@ -73,15 +80,6 @@ module Terminus_Bot
       $log.debug("Configuration.read_config") { "Done loading the configuration file." }
 
       fi.close
-    end
-
-    def method_missing(name, *args, &block)
-      if @config.respond_to? name
-        @config.send(name, *args, &block)
-      else
-        $log.error("Configuration.method_missing") { "Attempted to call nonexistent method #{name}" }
-        throw NoMethodError.new("Attempted to call a nonexistent method", name, args)
-      end
     end
   end
 end

@@ -32,7 +32,10 @@ $log = Logger.new(STDOUT);
 
 puts "Starting..."
 
+# Load all the includes.
 require_files "includes"
 
+# Launch!
+# TODO: Fork?
 Terminus_Bot::Bot.new
 
