@@ -36,6 +36,25 @@ module IRC
       $bot.events.create(self, "352",     :add_352) # WHO reply
       $bot.events.create(self, "PRIVMSG", :add_origin)
       $bot.events.create(self, "NICK",    :change_nick)
+      $bot.events.create(self, "QUIT",    :quit)
+      $bot.events.create(self, "PART",    :part)
+    end
+
+    # User has quit the network. Forget about them.
+    def quit(msg)
+      delete_user(msg.nick)
+    end
+
+    # Check if the parting user no longer has any common channels with us.
+    # If they don't, forget about them.
+    def part(msg)
+      msg.connection.channels.each_value do |chan|
+        unless chan.get_user(msg.nick) == nil
+          return
+        end
+      end
+
+      delete_user(msg.nick)
     end
 
     # WHO reply
