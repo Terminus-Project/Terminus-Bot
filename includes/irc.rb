@@ -109,42 +109,45 @@ module IRC
       return Thread.new do
         while true
 
-          # TODO: Add some error handling for correctly dealing with
-          # ungracefully-closed connections.
+          begin
 
-          until @socket.eof?
-            inbuf = @socket.gets.chomp
+            until @socket.eof?
+              inbuf = @socket.gets.chomp
 
-            $log.debug("Bot.read_thread") { "Received: #{inbuf}" }
+              $log.debug("IRC.read_thread") { "Received: #{inbuf}" }
 
-            # This is so bad.
-            # TODO: Don't spawn a new thread for every single message.
-            #       One option: the old Terminus-Bot used a thread pool
-            #       (5 workers, typically) and let those take messages from
-            #       a queue. That seemed to work well for large loads.
-            Thread.new do
+              # This is so bad.
+              # TODO: Don't spawn a new thread for every single message.
+              #       One option: the old Terminus-Bot used a thread pool
+              #       (5 workers, typically) and let those take messages from
+              #       a queue. That seemed to work well for large loads.
+              Thread.new do
 
-              begin
-                # The Message object will fire the actual events.
-                IRC::Message.new(self, inbuf)
+                begin
+                  # The Message object will fire the actual events.
+                  IRC::Message.new(self, inbuf)
 
-              rescue => e
-                $log.error("Bot.send_thread") { "Uncaught error in message handler thread: #{e}" }
+                rescue => e
+                  $log.error("IRC.read_thread") { "Uncaught error in message handler thread: #{e}" }
+
+                end
 
               end
 
             end
 
+          rescue => e
+            $log.error("IRC.read_thread") { "Got error on socket fpr #{@name}: #{e}" }
           end
 
-          $log.warn("Bot.send_thread") { "Disconnected. Waiting to reconnect..." }
+          $log.warn("IRC.read_thread") { "Disconnected. Waiting to reconnect..." }
 
           sleep Float($bot.config['core']['reconwait'])
 
           start_connection(@host, @port, @bind, @password, @nick, @user, @realname)
         end
 
-        $log.error("Bot.read_thread") { "Thread ended!" }
+        $log.error("IRC.read_thread") { "Thread ended!" }
       end
     end
 
@@ -167,17 +170,17 @@ module IRC
           # TODO: Hold messages for later delivery if our socket is dead.
           @socket.puts(msg)
 
-          $log.debug("Bot.send_thread") { "Sent: #{msg}" }
-          $log.debug("Bot.send_thread") { "Queue size: #{@send_queue.length}" }
+          $log.debug("IRC.send_thread") { "Sent: #{msg}" }
+          $log.debug("IRC.send_thread") { "Queue size: #{@send_queue.length}" }
 
-          $log.debug("Bot.send_thread") { "Sleeping for #{$bot.config['core']['throttle']} seconds" }
+          $log.debug("IRC.send_thread") { "Sleeping for #{$bot.config['core']['throttle']} seconds" }
 
           # If we just blast through our queue at full speed, we won't even
           # make it past joining channels before being killed for flooding!
           sleep Float($bot.config['core']['throttle'])
         end
 
-        $log.error("Bot.send_thread") { "Thread ended!" }
+        $log.error("IRC.send_thread") { "Thread ended!" }
       end
     end
 
