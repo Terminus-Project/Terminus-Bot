@@ -189,6 +189,7 @@ def on_quit(msg)
 
   end
 
+  return if matches == nil
   return if matches.empty?
 
   matches.each do |relay|
