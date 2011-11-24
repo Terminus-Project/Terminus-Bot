@@ -20,8 +20,8 @@
 module IRC
   class Connection
 
-    attr_reader :name, :socket, :channels, :host, :port, :read_thread, :users,
-      :client_host, :nick, :user, :realname
+    attr_reader :name, :socket, :channels, :host, :port, :read_thread, :send_thread,
+    :users, :client_host, :nick, :user, :realname
 
     # Create a new connection, then kick things off.
     def initialize(name, host, port = 6667, bind = nil, password = nil,
