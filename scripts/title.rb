@@ -52,7 +52,7 @@ def get_title(msg, url)
     title = page.scan_until(/<\/title>/i)
     title = title[0..title.length - 9].strip.gsub(/[\n\s]+/, " ")
 
-    msg.reply(title, false)
+    msg.reply("Title: " + title, false)
   rescue => e
     $log.debug('title.get_title') { "Error getting title for #{url}: #{e}" }
     return
