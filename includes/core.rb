@@ -76,16 +76,42 @@ module Terminus_Bot
       # The only event we care about in the core.
       @events.create(self, "PRIVMSG", :run_commands)
 
-      # Iterate through the configured networks and connect to each
-      # of them, populating the @connections hash table.
-      config['core']['servers'].split(" ").each do |server_config|
+      # Since we made it this far, go ahead and be ready for signals.
+      trap("INT")  { quit("Interrupted by host system. Exiting!") }
+      trap("TERM") { quit("Terminated by host system. Exiting!") }
+      trap("KILL") { exit }
+      
+      trap("HUP", $bot.config.read_config ) # Rehash on HUP!
+      
+      # Try to exit cleanly if we have to.
+      at_exit { quit }
+
+      # Begin connecting
+      start_connections
+
+      # TODO: Do something different. This is kind of dumb.
+      @connections.values.last.read_thread.join
+    end
+
+    # Iterate through configured connections and connect to servers we should
+    # connect to. Also disconnect from servers that aren't configured (for
+    # rehashing).
+    def start_connections
+
+      # Keep a list of configured servers for later.
+      servers = Array.new
+
+      @config['core']['servers'].split(" ").each do |server_config|
         server_config = server_config.split(":")
 
-        $log.debug("Bot.initialize") { "Working on server config for #{server_config[0]}" }
+        $log.debug("Bot.start_connections") { "Working on server config for #{server_config[0]}" }
 
         if @connections.has_key? server_config[0]
-          throw "Duplicate server name."
+          $log.info("Bot.start_connections") { "Skipping existing connection #{server_config[0]}" }
+          next
         end
+
+        servers << server_config[0]
 
         # Actually start the connection. Once connected, this will kick off
         # threads for listening and sending data. If it fails, the bot will
@@ -100,18 +126,14 @@ module Terminus_Bot
                                                              config["core"]["realname"])
       end
 
-      # Since we made it this far, go ahead and be ready for signals.
-      trap("INT")  { quit("Interrupted by host system. Exiting!") }
-      trap("TERM") { quit("Terminated by host system. Exiting!") }
-      trap("KILL") { exit }
-      
-      trap("HUP", $bot.config.read_config ) # Rehash on HUP!
-      
-      # Try to exit cleanly if we have to.
-      at_exit { quit }
+      # Iterate through servers and remove @connections that should't be there
+      # anymore (useful for rehashing away connections).
+      @connections.each do |name, connection|
+        next if servers.include? name
 
-      # TODO: Do something different. This is kind of dumb.
-      @connections.values.last.read_thread.join
+        connection.disconnect
+        @connections.delete(name)
+      end
     end
 
     # Fired on PRIVMSGs.

@@ -46,6 +46,8 @@ end
 def cmd_rehash(msg, params)
   $bot.config.read_config
   msg.reply("Done reloading configuration.")
+
+  $bot.start_connections
 end
 
 def cmd_includes(msg, params)
