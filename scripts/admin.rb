@@ -28,6 +28,7 @@ def initialize
   register_command("reload",  :cmd_reload,   1,  9,  "Reload the named script.")
   register_command("unload",  :cmd_unload,   1,  9,  "Unload the named script.")
   register_command("load",    :cmd_load,     1,  9,  "Load the named script.")
+  register_command("raw",     :cmd_raw,      1,  9,  "Send raw text over the IRC connection.")
 end
 
 def die
@@ -68,4 +69,8 @@ end
 def cmd_load(msg, params)
   $bot.scripts.load_file("scripts/#{params[0]}.rb")
   msg.reply("Loaded script \02#{params[0]}\02")
+end
+
+def cmd_raw(msg, params)
+  msg.reply(msg.raw(params[0]))
 end
