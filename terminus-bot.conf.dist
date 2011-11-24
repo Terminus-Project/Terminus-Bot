@@ -111,3 +111,8 @@ useragent   = sinsira.net
 # default: 3 (recommended)
 
 resultlimit = 3
+
+
+[pandora]
+
+#botid       = 
