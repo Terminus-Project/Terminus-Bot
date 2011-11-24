@@ -22,6 +22,7 @@
 require "net/http"
 require "uri"
 require "strscan"
+require "htmlentities"
 
 def initialize
   register_script("Fetches titles for URLs spoken in channels.")
@@ -51,6 +52,8 @@ def get_title(msg, url)
     page.skip_until(/<title>/i)
     title = page.scan_until(/<\/title>/i)
     title = title[0..title.length - 9].strip.gsub(/[\n\s]+/, " ")
+
+    title = HTMLEntities.new.decode(title)
 
     msg.reply("Title: " + title, false)
   rescue => e
