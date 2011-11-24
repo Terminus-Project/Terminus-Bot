@@ -30,7 +30,7 @@ $log = Logger.new(STDOUT);
 
 puts "Starting..."
 
-def require_files(dir)
+def load_files(dir)
   begin
      Dir["#{File.dirname(__FILE__)}/#{dir}/**/*.rb"].each { |f| load(f) }
   rescue => e
@@ -40,7 +40,7 @@ def require_files(dir)
 end
 
 # Load all the includes.
-require_files "includes"
+load_files "includes"
 
 # Launch!
 # TODO: Fork?
