@@ -32,7 +32,7 @@ puts "Starting..."
 
 def require_files(dir)
   begin
-     Dir["#{File.dirname(__FILE__)}/#{dir}/**/*.rb"].each { |f| require(f) }
+     Dir["#{File.dirname(__FILE__)}/#{dir}/**/*.rb"].each { |f| load(f) }
   rescue => e
     $log.fatal('preload') { "Failed loading files in #{dir}: #{e}" }
     exit -1

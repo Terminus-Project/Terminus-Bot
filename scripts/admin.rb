@@ -21,12 +21,13 @@
 def initialize
   register_script("Bot administration script.")
 
-  register_command("eval",  :cmd_eval,    1, 10,  "Run raw Ruby code.")
-  register_command("quit",  :cmd_quit,    1, 10,  "Kill the bot.")
-  register_command("rehash",:cmd_rehash,  0,  8,  "Reload the configuration file.")
-  register_command("reload",:cmd_reload,  1,  9,  "Reload the named script.")
-  register_command("unload",:cmd_unload,  1,  9,  "Unload the named script.")
-  register_command("load",  :cmd_load,    1,  9,  "Load the named script.")
+  register_command("eval",    :cmd_eval,     1, 10,  "Run raw Ruby code.")
+  register_command("quit",    :cmd_quit,     1, 10,  "Kill the bot.")
+  register_command("rehash",  :cmd_rehash,   0,  8,  "Reload the configuration file.")
+  register_command("includes",:cmd_includes, 0,  9,  "Reload core files with stopping the bot. Warning: may produce undefined behavior.")
+  register_command("reload",  :cmd_reload,   1,  9,  "Reload the named script.")
+  register_command("unload",  :cmd_unload,   1,  9,  "Unload the named script.")
+  register_command("load",    :cmd_load,     1,  9,  "Load the named script.")
 end
 
 def die
@@ -45,6 +46,11 @@ end
 def cmd_rehash(msg, params)
   $bot.config.read_config
   msg.reply("Done reloading configuration.")
+end
+
+def cmd_includes(msg, params)
+  require_files("includes")
+  msg.reply("Core files reloaded.")
 end
 
 def cmd_reload(msg, params)
