@@ -1,3 +1,4 @@
 *.conf
 *.db
 *.log
+var/
