@@ -147,7 +147,7 @@ module Terminus_Bot
     # version of Terminus-Bot is read-only, unlike the YAML-based config
     # in the previous version. If you want to store data, you want to use
     # the database. See functions below for that!
-    def get_config(key, default)
+    def get_config(key, default = nil)
       if $bot.config.has_key? my_short_name
         if $bot.config[my_short_name].has_key? key
           return $bot.config[my_short_name][key]
