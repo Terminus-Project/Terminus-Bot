@@ -225,7 +225,7 @@ module IRC
         @channels[msg.text] = Channel.new(msg.text)
       end
 
-      if msg.nick == @nick
+      if msg.me?
         msg.raw('MODE ' + msg.text)
         msg.raw('WHO ' + msg.text)
       end

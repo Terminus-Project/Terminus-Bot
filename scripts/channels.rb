@@ -64,7 +64,7 @@ def on_join(msg)
   return unless get_config("antiforce", false)
 
   # Are we the ones joining?
-  return unless msg.nick == msg.connection.nick
+  return unless msg.me?
 
   # Are we configured to be in this channel?
   return if @channels[msg.connection.name].include? msg.text
