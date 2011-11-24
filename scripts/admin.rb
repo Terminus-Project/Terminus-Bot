@@ -49,7 +49,7 @@ def cmd_rehash(msg, params)
 end
 
 def cmd_includes(msg, params)
-  require_files("includes")
+  load_files("includes")
   msg.reply("Core files reloaded.")
 end
 
