@@ -96,14 +96,16 @@ module Terminus_Bot
     # Fired on PRIVMSGs.
     # Iterate through @commands and run everything that needs to be run.
     def run_commands(msg)
-      return unless msg.text =~ /\A#{@config['core']['prefix']}([^ ]+)(.*)\Z/
+      return unless msg.text =~ /\A#{msg.private? ?
+        '(' + @config['core']['prefix'] + ')?' :
+        '(' + @config['core']['prefix'] + ')'}([^ ]+)(.*)\Z/
 
-      $log.debug("Bot.run_commands") { "Running command #{$1} from #{msg.origin}" }
+      $log.debug("Bot.run_commands") { "Running command #{$2} from #{msg.origin}" }
 
       @commands.each do |command|
         $log.debug("Bot.run_commands") { "Checking #{command.cmd}" }
 
-        if command.cmd == $1
+        if command.cmd == $2
 
           level = msg.connection.users.get_level(msg)
 
@@ -113,7 +115,7 @@ module Terminus_Bot
           end
 
           params = Array.new
-          params_raw = $2.strip.split(" ")
+          params_raw = $3.strip.split(" ")
 
           if params_raw.length < command.argc
             msg.reply("This command requires at least \02#{command.argc}\02 parameters.")
@@ -128,13 +130,13 @@ module Terminus_Bot
             end
           end
 
-          $log.debug("Bot.run_commands") { "Match for command #{$1} in #{command.owner}" }
+          $log.debug("Bot.run_commands") { "Match for command #{$2} in #{command.owner}" }
 
           begin
             command.owner.send(command.func, msg, params)
             return
           rescue => e
-            $log.error("Bot.run_commands") { "Problem running command #{$1} in #{command.owner}: #{e}" }
+            $log.error("Bot.run_commands") { "Problem running command #{$2} in #{command.owner}: #{e}" }
             msg.reply("There was a problem running your command: #{e}")
           end
 

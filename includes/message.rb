@@ -139,6 +139,13 @@ module IRC
         return message
     end
 
+    # Return true if this message doesn't appear to have been sent in a
+    # channel.
+    def private?
+      # TODO: Use CHANTYPES from 003.
+      return (not @destination.start_with? "#" and not @destination.start_with? "&")
+    end
+
     # This has to be separate from our method_missing cheat below because
     # raw is apparently an existing function. Oops! Better than overriding
     # send, though.
