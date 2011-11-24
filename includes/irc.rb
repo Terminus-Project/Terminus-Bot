@@ -225,9 +225,7 @@ module IRC
         @channels[msg.text] = Channel.new(msg.text)
       end
 
-      msg.origin =~ /(.+)!(.+)@(.+)/
-
-      if $1 == $bot.config['core']['nick']
+      if msg.nick == @nick
         msg.raw('MODE ' + msg.text)
         msg.raw('WHO ' + msg.text)
       end

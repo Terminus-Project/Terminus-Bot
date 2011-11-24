@@ -24,7 +24,9 @@ def initialize
   register_command("join", :cmd_join, 1,  5, "Join a channel.")
   register_command("part", :cmd_part, 1,  5, "Part a channel.")
 
-  register_event("376", :join_channels)
+  register_event("376",   :join_channels)
+  register_event("JOIN",  :on_join)
+  register_event("PING",  :leave_channels)
 
   # TODO: Handle 405?
 
@@ -57,18 +59,40 @@ def join_channels(msg)
   end
 end
 
-def cmd_join(msg, params)
-  msg.raw("JOIN #{params[0]}")
+def on_join(msg)
+  # Are we enabled?
+  return unless get_config("antiforce", false)
 
+  # Are we the ones joining?
+  return unless msg.nick == msg.connection.nick
+
+  # Are we configured to be in this channel?
+  return if @channels[msg.connection.name].include? msg.text
+ 
+  $log.debug("channels.on_join") { "Parting channel #{msg.text} since we are not configured to be in it." }
+
+  # It doesn't look like we should be here. Part!
+  msg.raw("PART #{msg.text} :I am not configured to be in this channel.") 
+end
+
+def leave_channels(msg)
+  msg.channels.each_key do |chan|
+    next if @channels[msg.connection.name].include? chan
+    
+    msg.raw("PART #{chan} :I am not configured to be in this channel.") 
+  end
+end
+
+def cmd_join(msg, params)
   @channels[msg.connection.name] << params[0]
+  msg.raw("JOIN #{params[0]}")
 
   store_data("channels", @channels)
 end
 
 def cmd_part(msg, params)
-  msg.raw("PART #{params[0]} :Leaving channel at request of #{msg.nick}")
-
   @channels[msg.connection.name].delete(params[0])
+  msg.raw("PART #{params[0]} :Leaving channel at request of #{msg.nick}")
 
   store_data("channels", @channels)
 end

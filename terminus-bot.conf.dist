@@ -59,6 +59,15 @@ version     = Terminus-Bot v0.5-alpha
 url         = http://terminus-bot.net/
 
 
+[channels]
+
+# Leave channels we join if the channels script isn't configured
+# to include it.
+# default: false
+
+antiforce   = false
+
+
 [urbandict]
 
 
