@@ -23,14 +23,21 @@ require 'socket'
 require 'thread'
 require 'logger'
 
-require './util.rb'
-
 Dir.chdir(File.dirname(__FILE__))
 
 #$log = Logger.new('var/terminus-bot.log', 'weekly');
 $log = Logger.new(STDOUT);
 
 puts "Starting..."
+
+def require_files(dir)
+  begin
+    Dir["#{dir}/**/*.rb"].each { |f| require(f) }
+  rescue => e
+    $log.fatal('preload') { "Failed loading files in #{dir}: #{e}" }
+    exit -1
+  end
+end
 
 # Load all the includes.
 require_files "includes"
