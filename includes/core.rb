@@ -106,12 +106,12 @@ module Terminus_Bot
 
         $log.debug("Bot.start_connections") { "Working on server config for #{server_config[0]}" }
 
+        servers << server_config[0]
+
         if @connections.has_key? server_config[0]
           $log.info("Bot.start_connections") { "Skipping existing connection #{server_config[0]}" }
           next
         end
-
-        servers << server_config[0]
 
         # Actually start the connection. Once connected, this will kick off
         # threads for listening and sending data. If it fails, the bot will
