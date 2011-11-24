@@ -25,10 +25,36 @@ require 'logger'
 
 Dir.chdir(File.dirname(__FILE__))
 
-#$log = Logger.new('var/terminus-bot.log', 'weekly');
-$log = Logger.new(STDOUT);
+VERSION = "Terminus-Bot v0.5"
+PID_FILE = "var/terminus-bot.pid"
 
-puts "Starting..."
+puts VERSION
+puts "<http://terminus-bot.net/>"
+puts "Released under AGPL3."
+
+if File.exists? PID_FILE
+  begin
+    pid = File.read(PID_FILE).to_i
+
+    puts "Found PID file with: #{pid}"
+
+    if Process.kill(0, pid)
+      puts "Already running as #{pid}"
+      exit
+    end
+  rescue
+    # We're good to go. I think.
+  end
+
+  puts "PID file appears to be stale. Deleting."
+  File.delete(PID_FILE)
+end
+
+
+puts "Loading core files..."
+
+$log = Logger.new(STDOUT)
+$log.level = Logger::FATAL
 
 def load_files(dir)
   begin
@@ -43,6 +69,15 @@ end
 load_files "includes"
 
 # Launch!
-# TODO: Fork?
-Terminus_Bot::Bot.new
+pid = fork do
+  Terminus_Bot::Bot.new
+end
+
+puts "Terminus-Bot started as #{pid}"
+
+File.open(PID_FILE, "w") {|f| f.puts pid}
+
+puts "PID written to #{PID_FILE}"
+
+Process.detach pid
 

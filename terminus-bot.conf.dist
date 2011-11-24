@@ -50,6 +50,20 @@ reconwait   = 15
 throttle    = 0.1
 
 
+# Logging level. Must be one of:
+# DEBUG, INFO, WARN, ERROR, FATAL
+# default: INFO
+loglevel    = INFO
+
+# Max log file size before rotation.
+# default: 1024000
+logsize     = 1024000
+
+# Number of log files to keep.
+# default: 5
+logcount    = 5
+
+
 [ctcp]
 
 

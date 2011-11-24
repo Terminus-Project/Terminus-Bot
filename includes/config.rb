@@ -41,7 +41,7 @@ module Terminus_Bot
         throw "No Config File"
       end
 
-      $log.info("Configuration.read_config") { "Loading the configuration file." }
+      $log.info("Configuration.read_config") { "Loading the configuration file." } 
 
       fi = File.open(FILE_NAME, "r")
 
@@ -61,7 +61,7 @@ module Terminus_Bot
 
           unless self.has_key? section
             self[section] = Hash.new
-            $log.debug("Configuration.read_config") { "New config section: #{section}" }
+            $log.debug("Configuration.read_config") { "New config section: #{section}" } 
           end
 
         # A setting! Read it in.
@@ -77,7 +77,7 @@ module Terminus_Bot
 
       end
 
-      $log.debug("Configuration.read_config") { "Done loading the configuration file." }
+      $log.debug("Configuration.read_config") { "Done loading the configuration file." } 
 
       fi.close
     end

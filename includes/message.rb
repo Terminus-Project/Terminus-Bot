@@ -139,6 +139,10 @@ module IRC
         return message
     end
 
+    def send_notice(target, str)
+      raw("NOTICE #{target} :#{str}")
+    end
+
     # Return true if this message's origin appears to be the bot.
     def me?
       return @connection.nick == @nick

@@ -25,8 +25,6 @@ module Terminus_Bot
 
     attr_reader :config, :connections, :events, :database, :commands, :script_info, :scripts
 
-    VERSION = "Terminus-Bot v0.5"
-
     Command = Struct.new(:owner, :cmd, :func, :argc, :level, :help)
     Script_Info = Struct.new(:name, :description)
 
@@ -35,6 +33,8 @@ module Terminus_Bot
 
       # Dirty? A bit. TODO: Get rid of this. Maybe.
       $bot = self
+
+      $-v = nil
 
       @connections = Hash.new       # IRC objects. Keys are configured names.
 
@@ -51,7 +51,28 @@ module Terminus_Bot
 
       @scripts = Scripts.new        # For those things in the scripts dir.
 
-      
+      logsize = @config['core']['logsize'].to_i rescue 1024000 
+      logcount = @config['core']['logcount'].to_i rescue 5
+      loglevel = @config['core']['loglevel'].upcase rescue "INFO"
+
+      $log.close
+      $log = Logger.new('var/terminus-bot.log', logcount, logsize);
+
+      case loglevel
+      when "FATAL"
+        $log.level = Logger::FATAL
+      when "ERROR"
+        $log.level = Logger::ERROR
+      when "WARN"
+        $log.level = Logger::WARN
+      when "INFO"
+        $log.level = Logger::INFO
+      when "DEBUG"
+        $log.level = Logger::DEBUG
+      else
+        $log.level = Logger::INFO
+      end
+
       # The only event we care about in the core.
       @events.create(self, "PRIVMSG", :run_commands)
 
@@ -150,6 +171,9 @@ module Terminus_Bot
       @connections.each_value do |connection|
         connection.disconnect(str)
       end
+
+      $log.debug("Bot.quit") { "Removing PID file #{PID_FILE}" }
+      File.delete(PID_FILE) if File.exists? PID_FILE
 
       exit
     end

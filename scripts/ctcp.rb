@@ -35,7 +35,7 @@ def on_privmsg(msg)
     case $1
 
       when "VERSION"
-        msg.send_notice(msg.nick, "\01VERSION #{Terminus_Bot::Bot::VERSION}\01")
+        msg.send_notice(msg.nick, "\01VERSION #{VERSION}\01")
       
       when "URL"
         msg.send_notice(msg.nick, "\01URL http://terminus-bot.com/\01")
