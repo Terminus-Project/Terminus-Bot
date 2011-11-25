@@ -19,7 +19,6 @@
 #
 
 
-require 'socket'
 require 'thread'
 require 'logger'
 

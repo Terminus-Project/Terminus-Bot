@@ -20,6 +20,8 @@
 module IRC
   class Connection
 
+    require 'socket'
+
     attr_reader :name, :socket, :channels, :host, :port, :read_thread, :send_thread,
     :users, :client_host, :nick, :user, :realname
 
