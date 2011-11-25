@@ -116,3 +116,10 @@ resultlimit = 3
 [pandora]
 
 #botid       = 
+
+
+[tell]
+
+# max number of tells that can be pending for one nick
+# default: 5
+max        = 5
