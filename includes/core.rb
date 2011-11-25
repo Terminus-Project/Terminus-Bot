@@ -159,20 +159,11 @@ module Terminus_Bot
             return
           end
 
-          params = Array.new
-          params_raw = $3.strip.split(" ")
+          params = $3.strip.split(" ", command.argc)
 
-          if params_raw.length < command.argc
+          if params.length < command.argc
             msg.reply("This command requires at least \02#{command.argc}\02 parameters.")
             return
-          end
-
-          (0..command.argc - 1).each do |i|
-            if i == command.argc - 1
-              params << params_raw[i..params_raw.length-1].join(" ")
-            else
-              params << params_raw[i]
-            end
           end
 
           $log.debug("Bot.run_commands") { "Match for command #{$2} in #{command.owner}" }
