@@ -49,12 +49,7 @@ module IRC
 
         # Grab the text portion, as in
         # :origin PRIVMSG #dest :THIS TEXT
-        if str =~ /\A:[^:]+:(.+)\Z/
-          @text = $1
-        else
-          @text = ""
-        end
-
+        @text = (str =~ /\A:[^:]+:(.+)\Z/ ? $1 : "")
       else
         # Server PINGs. Not much else.
 
@@ -62,11 +57,7 @@ module IRC
         @origin = ""
         @destination = ""
 
-        if str =~ /.+:(.+)\Z/
-          @text = $1
-        else
-          @text = ""
-        end
+        @text = (str =~ /.+:(.+)\Z/ ? $1 : "")
       end
 
       $bot.events.run(:raw, self)  # Not currently used.
@@ -99,19 +90,15 @@ module IRC
       # TODO: Hold additional content for later sending or something.
       #       Just don't try to send it all in multiple messages without
       #       the user asking for it!
-      if @destination.start_with? "#"
+      unless self.private?
         str = "PRIVMSG #{@destination} :#{prefix ? @nick + ": " : ""}#{truncate(str, @destination)}"
-
-        @connection.raw(str)
       else
         str = "NOTICE #{@nick} :#{truncate(str, @nick, true)}"
-
-        if str.length > 512
-          str = str[0..512]
-        end
-
-        @connection.raw(str)
       end
+
+      str = str[0..512]
+
+      @connection.raw(str)
     end
 
     # Attempt to truncate messages in such a way that the maximum
