@@ -50,13 +50,14 @@ module IRC
       #       but hasn't been ported yet.
       modes.each_char do |mode|
 
-        if mode == "+"
+        case mode
+        when "+"
           plus = true
 
-        elsif mode == "-"
+        when "-"
           plus = false
 
-        elsif mode == " "
+        when " "
           return
 
         else
