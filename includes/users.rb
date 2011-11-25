@@ -28,8 +28,6 @@ module IRC
       @connection = connection
 
       # Register events relevant to us.
-      # TODO: Handle QUIT here too! Also PART, probably (check if user
-      #       is no longer present in any tracked channels).
       $bot.events.create(self, "JOIN",    :add_origin)
       $bot.events.create(self, "352",     :add_352) # WHO reply
       $bot.events.create(self, "PRIVMSG", :add_origin)
