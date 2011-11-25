@@ -87,14 +87,10 @@ module IRC
       # Actually connect.
       @socket = TCPSocket.open(host, port, bind)
 
-      $log.debug("Connection.start_connection") { "Connection to #{host}:#{port} established. Sending registration." }
-
       raw "PASS " + password unless password == nil
 
       raw "NICK " + nick
       raw "USER #{user} 0 0 :" + realname
-
-      $log.debug("Connection.start_connection") { "Registration sent to #{host}:#{port}." }
     end
 
     # Read from our socket. This fires off the message parser,
@@ -137,7 +133,7 @@ module IRC
             end
 
           rescue => e
-            $log.error("IRC.read_thread") { "Got error on socket fpr #{@name}: #{e}" }
+            $log.error("IRC.read_thread") { "Got error on socket for #{@name}: #{e}" }
           end
 
           $log.warn("IRC.read_thread") { "Disconnected. Waiting to reconnect..." }
@@ -146,8 +142,6 @@ module IRC
 
           start_connection(@host, @port, @bind, @password, @nick, @user, @realname)
         end
-
-        $log.error("IRC.read_thread") { "Thread ended!" }
       end
     end
 
@@ -171,22 +165,17 @@ module IRC
           @socket.puts(msg)
 
           $log.debug("IRC.send_thread") { "Sent: #{msg}" }
-          $log.debug("IRC.send_thread") { "Queue size: #{@send_queue.length}" }
-
-          $log.debug("IRC.send_thread") { "Sleeping for #{$bot.config['core']['throttle']} seconds" }
 
           # If we just blast through our queue at full speed, we won't even
           # make it past joining channels before being killed for flooding!
           sleep Float($bot.config['core']['throttle'])
         end
-
-        $log.error("IRC.send_thread") { "Thread ended!" }
       end
     end
 
     # Add an unedited string to the outgoing queue for later sending.
     def raw(str)
-      $log.debug("Bot.send") { "Queued #{str}" }
+      $log.debug("IRC.send") { "Queued #{str}" }
       @send_queue.push(str)
       return str
     end
