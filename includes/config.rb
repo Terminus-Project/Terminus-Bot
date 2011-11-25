@@ -51,9 +51,7 @@ module Terminus_Bot
         line.strip!
 
         # Skip comments and empty lines.
-        if line[0] == "#" or line.empty?
-          next
-        end
+        next if line[0] == "#" or line.empty?
 
         # Section header!
         if line =~ /\[(.+)\]/
