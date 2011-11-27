@@ -38,8 +38,16 @@ end
 def on_message(msg)
   return unless get_config("enabled", "false") == "true"
 
+  i = 0
+  max = get_config("max", 3).to_i
+
   msg.text.scan(/http:\/\/[^\s]+/) { |match|
+    return if i >= max
+
+    $log.debug("title.on_message") { "#{i}/#{max}: #{match}" }
     get_title(msg, match)
+
+    i += 1
   }
 end
 

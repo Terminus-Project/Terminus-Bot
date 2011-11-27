@@ -96,8 +96,11 @@ definitions = 1
 
 # set to true to enable automatic title fetching
 # default: false
+#enabled     = true
 
-enabled     = true
+# max number of URLs to match per message
+# default: 3
+#max         = 3
 
 
 [google]
