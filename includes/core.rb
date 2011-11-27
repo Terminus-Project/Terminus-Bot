@@ -198,6 +198,7 @@ module Terminus_Bot
       $log.debug("Bot.register_command") { "Registering command." }
 
       @commands << Command.new(*args)
+      @commands.sort_by! {|c| c.cmd}
     end
 
     # Register a script. See the Script_Info struct for args.
@@ -205,6 +206,7 @@ module Terminus_Bot
       $log.debug("Bot.register_script") { "Registering script." }
 
       @script_info << Script_Info.new(*args)
+      @script_info.sort_by! {|s| s.name}
     end
 
     # Remove a script from @scripts (by name).
