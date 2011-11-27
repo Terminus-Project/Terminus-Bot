@@ -48,26 +48,29 @@ def cmd_define(msg, params)
   url = "#{URL}&type=define&q=#{URI.escape(params[0])}"
 
   body = Net::HTTP.get URI.parse(url)
+
   coder = HTMLEntities.new
 
   root = (REXML::Document.new(body)).root
-  definitions = root.elements["//dictionary"].attributes["totalresults"] rescue 0
+  definitions = root.elements["//dictionary"].attributes["totalresults"].to_i rescue 0
 
   if definitions == "0"
       msg.reply("No results")
       return
   end
 
+  max = get_config("max", 3)
   results = Array.new
   i = 0
 
   root.elements.each { |entry|
   # Entries
+
   
     entry.elements.each { |pos|
       # Parts of Speech
 
-      break if i == 3 or i > Integer(definitions)
+      break if results.length == max or results.length > definitions
       
       result = ""
 
@@ -92,7 +95,11 @@ def cmd_define(msg, params)
   
   }
 
-  msg.reply(results)
+  if results.length == 0
+    msg.reply("No results")
+  else
+    msg.reply(results)
+  end
 end
 
 def cmd_spell(msg)

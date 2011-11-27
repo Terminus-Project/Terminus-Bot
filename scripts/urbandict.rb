@@ -45,8 +45,9 @@ def lookup(msg, params)
   page = StringScanner.new(Net::HTTP.get URI.parse(url))
   defs = Array.new
   count = 0
+  max = get_config("max", 1).to_i
 
-  while page.skip_until(/<div class="definition">/i) != nil and count < Integer(get_config("definitions", 1))
+  while page.skip_until(/<div class="definition">/i) != nil and count < max
     count += 1
 
     d = page.scan_until(/<\/div>/i)
