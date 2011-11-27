@@ -42,7 +42,7 @@ end
 def on_privmsg(msg)
   return if msg.private?
 
-  if msg.text =~ /s\/(.+)\/(.*)\/(.*)/
+  if msg.text =~ /\As\/(.+)\/(.*)\/(.*)\Z/
     return unless @messages.has_key? msg.connection.name
     return unless @messages[msg.connection.name].has_key? msg.destination
     flags = $3
@@ -70,7 +70,11 @@ def on_privmsg(msg)
     @messages[msg.connection.name][msg.destination] = Array.new
   end
 
-  @messages[msg.connection.name][msg.destination] << [msg.nick, msg.text]
+  if msg.text =~ /\01ACTION (.+)\01/
+    @messages[msg.connection.name][msg.destination] << [msg.nick, $1]
+  else
+    @messages[msg.connection.name][msg.destination] << [msg.nick, msg.text]
+  end
 
   if @messages[msg.connection.name][msg.destination].length > 10
     @messages[msg.connection.name][msg.destination].shift
