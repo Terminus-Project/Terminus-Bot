@@ -55,6 +55,7 @@ module IRC
       @realname = realname
 
       @closing = false
+      @reconnecting = false
 
       @client_host = (bind == nil ? "" : bind)
 
@@ -142,7 +143,8 @@ module IRC
 
           $log.warn("IRC.read_thread") { "Disconnected. Waiting to reconnect..." }
 
-          sleep Float($bot.config['core']['reconwait'])
+          sleep Float($bot.config['core']['reconwait']) unless @reconnecting
+          @reconnecting = false
 
           start_connection(@host, @port, @bind, @password, @nick, @user, @realname)
         end
@@ -191,6 +193,11 @@ module IRC
     # returns.
     def disconnect(quit_message = "Terminus-Bot: Terminating")
       raw "QUIT :" + quit_message
+    end
+
+    def reconnect
+      @reconnecting = true
+      raw "QUIT :Reconnecting"
     end
 
     # Clean up the connection and kill our threads.
