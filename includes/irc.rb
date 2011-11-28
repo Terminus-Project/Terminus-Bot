@@ -54,6 +54,8 @@ module IRC
       @user = user
       @realname = realname
 
+      @closing = false
+
       @client_host = (bind == nil ? "" : bind)
 
       # We queue up messages here
@@ -177,6 +179,8 @@ module IRC
 
     # Add an unedited string to the outgoing queue for later sending.
     def raw(str)
+      return if @closing
+
       $log.debug("IRC.send") { "Queued #{str}" }
       @send_queue.push(str)
       return str
@@ -191,7 +195,9 @@ module IRC
 
     # Clean up the connection and kill our threads.
     def close
-      while @send_queue.length > 0
+      @closing = true
+
+      while @send_queue.length > 0 and not @socket.closed?
         sleep 1
       end
 
