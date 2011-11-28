@@ -52,6 +52,7 @@ module IRC
       @bind = bind
       @nick = nick
       @user = user
+      @password = password
       @realname = realname
 
       @closing = false
@@ -65,7 +66,7 @@ module IRC
       @send_thread = send_thread
 
       # Connect!
-      start_connection(host, port, bind, password, nick, user, realname)
+      start_connection
 
       # Start a thread to read from the socket.
       @read_thread = read_thread
@@ -75,7 +76,7 @@ module IRC
     end
 
     # Connect to IRC.
-    def start_connection(host, port, bind, password, nick, user, realname)
+    def start_connection
 
       # Do all this here since this data is only relevant to the
       # current connection.
@@ -83,19 +84,19 @@ module IRC
       # TODO: We may want to keep some of this (such as logged in
       # users) between sessions.
 
-      $log.debug("Connection.start_connection") { "Starting connection: #{host}:#{port}" }
+      $log.debug("Connection.start_connection") { "Starting connection: #{@host}:#{@port}" }
 
       @send_queue.clear # Clear this, just in case we're reconnecting.
       @users = Users.new(self)
       @channels = Hash.new
 
       # Actually connect.
-      @socket = TCPSocket.open(host, port, bind)
+      @socket = TCPSocket.open(@host, @port, @bind)
 
-      raw "PASS " + password unless password == nil
+      raw "PASS " + @password unless @password == nil
 
-      raw "NICK " + nick
-      raw "USER #{user} 0 0 :" + realname
+      raw "NICK " + @nick
+      raw "USER #{@user} 0 0 :" + @realname
     end
 
     # Read from our socket. This fires off the message parser,
@@ -146,7 +147,7 @@ module IRC
           sleep Float($bot.config['core']['reconwait']) unless @reconnecting
           @reconnecting = false
 
-          start_connection(@host, @port, @bind, @password, @nick, @user, @realname)
+          start_connection
         end
       end
     end
