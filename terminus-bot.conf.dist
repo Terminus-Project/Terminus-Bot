@@ -139,3 +139,12 @@ resultlimit = 3
 # max number of tells that can be pending for one nick
 # default: 5
 max        = 5
+
+
+[oper]
+
+# all oper config goes here, each network separately
+# network = username:password
+# network must exactly match the name specified in the
+
+
