@@ -28,6 +28,12 @@ realname    = http://terminus-bot.net/
 prefix      = ;
 
 
+# channels in which we should never speak
+# format: server:#foo server:#bar server2:#baz
+
+silent      = 
+
+
 # Separate with spaces. Syntax is:
 #   name:hostname:port:password
 

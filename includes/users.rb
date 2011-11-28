@@ -38,6 +38,8 @@ module IRC
 
     # User has quit the network. Forget about them.
     def quit(msg)
+      return unless msg.connection == @connection
+
       delete_user(msg.nick)
     end
 

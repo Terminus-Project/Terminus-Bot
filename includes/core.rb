@@ -140,6 +140,8 @@ module Terminus_Bot
     # Fired on PRIVMSGs.
     # Iterate through @commands and run everything that needs to be run.
     def run_commands(msg)
+      return if msg.silent?
+
       return unless msg.text =~ /\A#{msg.private? ?
         '(' + @config['core']['prefix'] + ')?' :
         '(' + @config['core']['prefix'] + ')'}([^ ]+)(.*)\Z/

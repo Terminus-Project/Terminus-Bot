@@ -72,6 +72,8 @@ module IRC
 
     # Reply to a message. If an array is given, send each reply separately.
     def reply(str, prefix = true)
+      return if silent?
+
       if str.kind_of? Array
         str.each do |this_str|
           send_reply(this_str, prefix)
@@ -101,6 +103,29 @@ module IRC
       str = str[0..512]
 
       @connection.raw(str)
+    end
+
+    def silent?
+      return false if self.private?
+      silenced = $bot.config['core']['silent']
+
+      return false if silenced == nil
+
+      silenced = silenced.split(" ")
+      
+      return false if silenced.length == 0
+
+      silenced.each do |s|
+        s = s.split(":")
+
+        next if s.length != 2
+
+        if s[0] == @connection.name and s[1] == @destination
+          return true
+        end
+      end
+
+      return false
     end
 
     # Attempt to truncate messages in such a way that the maximum
