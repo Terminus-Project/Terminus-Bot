@@ -36,7 +36,7 @@ module IRC
 
         @origin = arr[0][1..arr[0].length-1]
         @type = arr[1]
-        @destination = arr[2] # Not always the destination. Oh well.
+        @destination = arr[2].gsub(/\A:?/, "") # Not always the destination. Oh well.
 
         # This won't always succeed. Kind of derfy, but easier than
         # trying to handle every single message type case-by-case
