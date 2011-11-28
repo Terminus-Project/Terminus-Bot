@@ -54,7 +54,7 @@ module IRC
       @user = user
       @realname = realname
 
-      @client_host = bind
+      @client_host = (bind == nil ? "" : bind)
 
       # We queue up messages here
       @send_queue = Queue.new
@@ -189,6 +189,16 @@ module IRC
       raw "QUIT :" + quit_message
     end
 
+    # Clean up the connection and kill our threads.
+    def close
+      while @send_queue.length > 0
+        sleep 1
+      end
+
+      @read_thread.kill
+      @send_thread.kill
+    end
+
     # hidden host
     def on_396(msg)
       return if msg.connection != self
@@ -212,16 +222,16 @@ module IRC
     def on_join(msg)
       return if msg.connection != self
 
-      unless @channels.has_key? msg.text
-        @channels[msg.text] = Channel.new(msg.text)
+      unless @channels.has_key? msg.destination
+        @channels[msg.destination] = Channel.new(msg.destination)
       end
 
       if msg.me?
-        msg.raw('MODE ' + msg.text)
-        msg.raw('WHO ' + msg.text)
+        msg.raw('MODE ' + msg.destination)
+        msg.raw('WHO ' + msg.destination)
       end
 
-      @channels[msg.text].join(ChannelUser.new($1, $2, $3))
+      @channels[msg.destination].join(ChannelUser.new(msg.nick, msg.user, msg.host))
     end
 
     def on_part(msg)

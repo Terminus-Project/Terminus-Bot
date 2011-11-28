@@ -19,7 +19,8 @@
 
 module IRC
   class Message
-    attr_reader :origin, :destination, :type, :text, :raw, :raw_arr, :nick, :connection
+    attr_reader :origin, :destination, :type, :text, :raw, :raw_arr,
+      :nick, :user, :host, :connection
 
     # Parse the str as an IRC message and fire appropriate events.
     def initialize(connection, str)
@@ -38,13 +39,14 @@ module IRC
         @type = arr[1]
         @destination = arr[2].gsub(/\A:?/, "") # Not always the destination. Oh well.
 
-        # This won't always succeed. Kind of derfy, but easier than
-        # trying to handle every single message type case-by-case
-        # (see old Terminus-Bot bot.rb).
-        begin
-          @nick = @origin.split("!")[0]
-        rescue
+        if @origin =~ /\A([^ ]+)!([^ ]+)@([^ ]+)/
+          @nick = $1
+          @user = $2
+          @host = $3
+        else
           @nick = ""
+          @user = ""
+          @host = ""
         end
 
         # Grab the text portion, as in

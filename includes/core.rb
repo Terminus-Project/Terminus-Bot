@@ -132,8 +132,7 @@ module Terminus_Bot
         next if servers.include? name
 
         connection.disconnect
-        connection.read_thread.kill
-        connection.send_thread.kill
+        connection.close
         @connections.delete(name)
       end
     end

@@ -67,12 +67,12 @@ def on_join(msg)
   return unless msg.me?
 
   # Are we configured to be in this channel?
-  return if @channels[msg.connection.name].include? msg.text
+  return if @channels[msg.connection.name].include? msg.destination
  
-  $log.debug("channels.on_join") { "Parting channel #{msg.text} since we are not configured to be in it." }
+  $log.debug("channels.on_join") { "Parting channel #{msg.destination} since we are not configured to be in it." }
 
   # It doesn't look like we should be here. Part!
-  msg.raw("PART #{msg.text} :I am not configured to be in this channel.") 
+  msg.raw("PART #{msg.destination} :I am not configured to be in this channel.") 
 end
 
 def leave_channels(msg)
