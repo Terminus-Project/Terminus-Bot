@@ -100,8 +100,6 @@ module IRC
         str = "NOTICE #{@nick} :#{truncate(str, @nick, true)}"
       end
 
-      str = str[0..512]
-
       @connection.raw(str)
     end
 
@@ -130,23 +128,18 @@ module IRC
 
     # Attempt to truncate messages in such a way that the maximum
     # amount of space possible is used. This assumes the server will
-    # send a full 512 bytes to a client.
-    # TODO: This works perfectly, but servers don't seem to send 512 bytes
-    #       per message! Figure out how to make this work well without just
-    #       picking an arbitrary, shorter length.
+    # send a full 512 bytes to a client with exactly 1459 format.
     def truncate(message, destination, notice = false)
       prefix_length = @connection.nick.length +
                       @connection.user.length +
                       @connection.client_host.length +
                       destination.length +
                       15
+
+      # PRIVMSG is 1 char longer than NOTICE
       prefix_length += 1 unless notice
 
-      oversize = (prefix_length + message.length) - 512
-
-      $log.debug("Message.truncate") { "Oversize length: #{oversize} (Prefix: #{prefix_length}, Message: #{message.length})" }
-
-      if oversize > 0
+      if (prefix_length + message.length) - 512 > 0
         return message[0..511-prefix_length]
       end
 
