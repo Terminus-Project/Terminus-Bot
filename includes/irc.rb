@@ -130,8 +130,8 @@ module IRC
                   IRC::Message.new(self, inbuf)
 
                 rescue => e
-                  $log.error("IRC.read_thread") { "Uncaught error in message handler thread: #{e}" }
-
+                  $log.error("IRC.read_thread") { "#{@name}: Uncaught error in message handler thread: #{e}" }
+                  $log.error("IRC.read_thread") { "#{@name}:  Uncaught error in message handler thread: #{e.backtrace}" }
                 end
 
               end
