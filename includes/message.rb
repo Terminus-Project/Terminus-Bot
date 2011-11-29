@@ -135,22 +135,22 @@ module IRC
     #       per message! Figure out how to make this work well without just
     #       picking an arbitrary, shorter length.
     def truncate(message, destination, notice = false)
-        prefix_length = @connection.nick.length +
-                        @connection.user.length +
-                        @connection.client_host.length +
-                        destination.length +
-                        13
-        prefix_length += 1 unless notice
+      prefix_length = @connection.nick.length +
+                      @connection.user.length +
+                      @connection.client_host.length +
+                      destination.length +
+                      15
+      prefix_length += 1 unless notice
 
-        oversize = (prefix_length + message.length) - 512
+      oversize = (prefix_length + message.length) - 512
 
-        $log.debug("Message.truncate") { "Oversize length: #{oversize} (Prefix: #{prefix_length}, Message: #{message.length})" }
+      $log.debug("Message.truncate") { "Oversize length: #{oversize} (Prefix: #{prefix_length}, Message: #{message.length})" }
 
-        if oversize > 0
-          return message[0..511-prefix_length]
-        end
+      if oversize > 0
+        return message[0..511-prefix_length]
+      end
 
-        return message
+      return message
     end
 
     def send_notice(target, str)
