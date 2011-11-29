@@ -56,7 +56,7 @@ def cmd_oper(msg, params)
   msg.reply("Sent OPER login information.")
 end
 
-def on_376(msg, params)
+def on_376(msg)
   oper = get_config(msg.connection.name)
 
   return if oper == nil
