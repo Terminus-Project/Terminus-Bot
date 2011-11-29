@@ -33,20 +33,23 @@ def die
 end
 
 def cmd_help(msg, params)
-  command = $bot.commands.select {|c| c.cmd.downcase == params[0].downcase }[0]
+  name = params[0].downcase
 
-  if command == nil
+  unless $bot.commands.has_key? name
     msg.reply("There is no help available for that command.")
-  else
-    level = msg.connection.users.get_level(msg)
-
-    if command.level > level
-      msg.reply("You are not authorized to use that command, so you may not view its help.")
-      return
-    end
-
-    msg.reply(command.help)
+    return
   end
+
+  command = $bot.commands[name]
+
+  level = msg.connection.users.get_level(msg)
+
+  if command.level > level
+    msg.reply("You are not authorized to use that command, so you may not view its help.")
+    return
+  end
+
+  msg.reply(command.help)
 end
 
 def cmd_commands(msg, params)
@@ -54,7 +57,7 @@ def cmd_commands(msg, params)
 
   level = msg.connection.users.get_level(msg)
 
-  $bot.commands.each do |command|
+  $bot.commands.sort_by {|n, c| n}.each do |command|
     buf << command.cmd unless command.level > level
   end
 
