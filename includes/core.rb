@@ -42,7 +42,7 @@ module Terminus_Bot
 
       @database = Database.new      # Scripts can store data here.
 
-      @commands = Array.new         # An array of Commands (see the above Struct).
+      @commands = Hash.new          # An hash table of Commands (see the above Struct).
                                     # These are fired like events.
       
       @script_info = Array.new      # Name and description for scripts (see above Struct).
@@ -148,38 +148,33 @@ module Terminus_Bot
 
       $log.debug("Bot.run_commands") { "Running command #{$2} from #{msg.origin}" }
 
-      @commands.each do |command|
-        $log.debug("Bot.run_commands") { "Checking #{command.cmd}" }
+      return unless @commands.has_key? $2
 
-        if command.cmd == $2
+      command = @commands[$2]
 
-          level = msg.connection.users.get_level(msg)
+      level = msg.connection.users.get_level(msg)
 
-          if command.level > level
-            msg.reply("Level \02#{command.level}\02 authorization required. (Current level: #{level})")
-            return
-          end
-
-          params = $3.strip.split(" ", command.argc)
-
-          if params.length < command.argc
-            msg.reply("This command requires at least \02#{command.argc}\02 parameters.")
-            return
-          end
-
-          $log.debug("Bot.run_commands") { "Match for command #{$2} in #{command.owner}" }
-
-          begin
-            command.owner.send(command.func, msg, params)
-            return
-          rescue => e
-            $log.error("Bot.run_commands") { "Problem running command #{$2} in #{command.owner}: #{e}" }
-            msg.reply("There was a problem running your command: #{e}")
-          end
-
-        end
-
+      if command.level > level
+        msg.reply("Level \02#{command.level}\02 authorization required. (Current level: #{level})")
+        return
       end
+
+      params = $3.strip.split(" ", command.argc)
+
+      if params.length < command.argc
+        msg.reply("This command requires at least \02#{command.argc}\02 parameters.")
+        return
+      end
+
+      $log.debug("Bot.run_commands") { "Match for command #{$2} in #{command.owner}" }
+
+      begin
+        command.owner.send(command.func, msg, params)
+      rescue => e
+        $log.error("Bot.run_commands") { "Problem running command #{$2} in #{command.owner}: #{e}" }
+        msg.reply("There was a problem running your command: #{e}")
+      end
+
     end
 
     # Send QUITs and do any other work that needs to be done before exiting.
@@ -195,11 +190,14 @@ module Terminus_Bot
     end
 
     # Register a command. See the Commands struct for the args.
-    def register_command(*args)
+    def register_command(owner, cmd, func, argc, level, help)
       $log.debug("Bot.register_command") { "Registering command." }
 
-      @commands << Command.new(*args)
-      @commands.sort_by! {|c| c.cmd}
+      if @commands.has_key? cmd
+        throw "Duplicate command registration: #{cmd}"
+      end
+
+      @commands[cmd] = Command.new(owner, cmd, func, argc, level, help)
     end
 
     # Register a script. See the Script_Info struct for args.
@@ -220,13 +218,13 @@ module Terminus_Bot
     # and removes all matching commands by name.
     def unregister_command(cmd)
       $log.debug("Bot.unregister_command") { "Unregistering command #{cmd}" }
-      @commands.delete_if {|c| c.cmd == cmd}
+      @commands.delete(cmd)
     end
 
     # Unregister all commands owned by the given class.
     def unregister_commands(owner)
       $log.debug("Bot.unregister_commands") { "Unregistering all commands for #{owner.class.name}" }
-      @commands.delete_if {|c| c.owner == owner}
+      @commands.delete_if {|n, c| c.owner == owner}
     end
 
     # Unregister all events owned by the given class.
