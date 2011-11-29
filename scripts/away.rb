@@ -70,6 +70,9 @@ def on_away(msg)
   return unless @pending.has_key? msg.raw_arr[3]
   
   dat = @pending[msg.raw_arr[3]]
+  @pending.delete(msg.raw_arr[3]) # Delete it immediately so we never end up
+                                  # with duplicate reports (that can happen
+                                  # due to an unrelated bug).
 
   msg.raw("PRIVMSG #{dat[1]} :\02#{msg.raw_arr[3]} is away:\02 #{msg.text}")
 end
