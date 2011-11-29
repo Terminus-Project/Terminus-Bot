@@ -178,6 +178,13 @@ module Terminus_Bot
       end
     end
 
+    # Get all of the data for this script.
+    def get_all_data
+      init_data
+
+      return $bot.database[my_name]
+    end
+
     # Store the given value in the database if one isn't already set.
     def default_data(key, value)
       init_data
