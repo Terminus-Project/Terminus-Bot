@@ -57,7 +57,7 @@ def cmd_commands(msg, params)
 
   level = msg.connection.users.get_level(msg)
 
-  $bot.commands.sort_by {|n, c| n}.each do |command|
+  $bot.commands.sort_by {|n, c| n}.each do |name, command|
     buf << command.cmd unless command.level > level
   end
 
