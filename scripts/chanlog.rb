@@ -131,7 +131,7 @@ def on_kick(msg)
 end
 
 def on_part(msg)
-  log_msg(msg.connection.name, msg.destination, "PART", msg.nick)
+  log_msg(msg.connection.name, msg.destination, "PART", msg.nick, msg.text)
 
   # We parted, apparently. Stop logging.
   if msg.me?
