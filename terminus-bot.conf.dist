@@ -114,6 +114,12 @@ definitions = 1
 max         = 1
 
 
+# dictionary.com api key
+# acquire at: http://developer.dictionary.com/
+# REQUIRED for this script
+#apikey      = 
+
+
 [title]
 
 

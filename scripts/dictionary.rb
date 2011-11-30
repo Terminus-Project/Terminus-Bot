@@ -23,8 +23,7 @@ require 'net/http'
 require 'rexml/document'
 require 'htmlentities'
 
-# TODO: Move vid to config
-URL='http://api-pub.dictionary.com/v001?vid=t9ebbvoze52a4cdf38oj1gmjltw2ul6nulz6gn5vt8'
+URL='http://api-pub.dictionary.com/v001?'
 
 def initialize
   register_script("Dictionary.com look-ups.")
@@ -45,7 +44,15 @@ def die
 end
 
 def cmd_define(msg, params)
+  api_key = get_config("apikey", nil)
+
+  if api_key == nil
+    msg.reply("A dictionary.com API key must be set in the bot's configuration for this command to work.")
+    return
+  end
+
   url = "#{URL}&type=define&q=#{URI.escape(params[0])}"
+  url << "&vid=" << URI.escape(api_key)
 
   body = Net::HTTP.get URI.parse(url)
 
