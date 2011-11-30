@@ -123,7 +123,7 @@ module IRC
             until @socket.eof?
               inbuf = @socket.gets.chomp
 
-              $log.debug("IRC.read_thread") { "Received: #{inbuf}" }
+              $log.debug("IRC.read_thread") { "#{@name}: Received: #{inbuf}" }
 
               # This is so bad.
               # TODO: Don't spawn a new thread for every single message.
@@ -134,11 +134,11 @@ module IRC
 
                 begin
                   # The Message object will fire the actual events.
-                  IRC::Message.new(self, inbuf)
+                  IRC::Message.new(self, inbuf.clone)
 
                 rescue => e
                   $log.error("IRC.read_thread") { "#{@name}: Uncaught error in message handler thread: #{e}" }
-                  $log.error("IRC.read_thread") { "#{@name}:  Uncaught error in message handler thread: #{e.backtrace}" }
+                  $log.error("IRC.read_thread") { "#{@name}: Backtrace: #{e.backtrace}" }
                 end
 
               end
