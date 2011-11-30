@@ -38,7 +38,7 @@ module Terminus_Bot
 
         unless noload == nil
           # I realize we are pulling the name out twice. Deal with it.
-          next if noload.include? filename.match("scripts/(.+).rb")[1]
+          next if noload.include? file.match("scripts/(.+).rb")[1]
         end
 
         $log.debug("scripts.initilize") { "Loading #{file}" }
