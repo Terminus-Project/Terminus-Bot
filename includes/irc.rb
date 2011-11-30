@@ -46,6 +46,8 @@ module IRC
       $bot.events.create(self, "352",   :on_352) # who reply
       $bot.events.create(self, "NAMES", :on_names)
 
+      $bot.events.create(self, "NICK",  :on_nick)
+
       @name = name
       @host = host
       @port = port
@@ -297,6 +299,12 @@ module IRC
       return unless @channels.has_key? msg.raw_arr[3]
 
       @channels[msg.raw_arr[3]].topic(msg.text)
+    end
+
+    def on_nick(msg)
+      return unless msg.me?
+  
+      @nick = msg.text
     end
 
     def to_s
