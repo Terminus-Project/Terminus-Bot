@@ -29,8 +29,6 @@ def initialize
   register_event("PING",  :leave_channels)
 
   # TODO: Handle 405?
-
-  @channels = get_data("channels", Hash.new)
 end
 
 def die
@@ -41,22 +39,24 @@ end
 
 def join_channels(msg)
   buf = Array.new
+  channels = get_data(msg.connection.name, Array.new)
 
-  if @channels.has_key? msg.connection.name
-    @channels[msg.connection.name].each do |channel|
-      buf << channel
+  channels.uniq!
 
-      # TODO: determine a sane maximum for this
-      if buf.length == 4
-        msg.raw("JOIN #{buf.join(",")}")
-        buf.clear
-      end
+  channels.each do |channel|
+    buf << channel
+
+    # TODO: determine a sane maximum for this
+    if buf.length == 4
+      msg.raw("JOIN #{buf.join(",")}")
+      buf.clear
     end
-
-    msg.raw("JOIN #{buf.join(",")}") unless buf.empty?
-  else
-    @channels[msg.connection.name] = Array.new
   end
+
+  msg.raw("JOIN #{buf.join(",")}") unless buf.empty?
+
+  # Just in case uniq! got rid of dupes
+  store_data(msg.connection.name, channels)
 end
 
 def on_join(msg)
@@ -76,23 +76,45 @@ def on_join(msg)
 end
 
 def leave_channels(msg)
+  channels = get_data(msg.connection.name, Array.new)
+
   msg.channels.each_key do |chan|
-    next if @channels[msg.connection.name].include? chan
+    next if channels.include? chan
     
     msg.raw("PART #{chan} :I am not configured to be in this channel.") 
   end
 end
 
 def cmd_join(msg, params)
-  @channels[msg.connection.name] << params[0]
-  store_data("channels", @channels)
+  name = params[0].downcase
 
-  msg.raw("JOIN #{params[0]}")
+  unless name.start_with? "#" or name.start_with? "&"
+    msg.reply("That does not look like a channel name.")
+    return
+  end
+
+  channels = get_data(msg.connection.name, Array.new)
+
+  channels << name unless channels.has_key? name
+  store_data(msg.connection.name, channels)
+
+  msg.raw("JOIN #{name}")
+  msg.reply("I have joined #{name}")
 end
 
 def cmd_part(msg, params)
-  @channels[msg.connection.name].delete(params[0])
-  store_data("channels", @channels)
+  name = params[0].downcase
+  channels = get_data(msg.connection.name, Array.new)
 
-  msg.raw("PART #{params[0]} :Leaving channel at request of #{msg.nick}")
+  unless channels.has_key? name
+    msg.reply("I am not configured to join that channel, but I'll dispatch a PART for it just in case.")
+    msg.raw("PART #{name} :Leaving channel at request of #{msg.nick}")
+    return
+  end
+
+  channels.delete(name)
+  store_data(msg.connection.name, channels)
+
+  msg.raw("PART #{name} :Leaving channel at request of #{msg.nick}")
+  msg.reply("I have left #{name}")
 end
