@@ -85,14 +85,14 @@ end
 
 def cmd_join(msg, params)
   @channels[msg.connection.name] << params[0]
-  msg.raw("JOIN #{params[0]}")
-
   store_data("channels", @channels)
+
+  msg.raw("JOIN #{params[0]}")
 end
 
 def cmd_part(msg, params)
   @channels[msg.connection.name].delete(params[0])
-  msg.raw("PART #{params[0]} :Leaving channel at request of #{msg.nick}")
-
   store_data("channels", @channels)
+
+  msg.raw("PART #{params[0]} :Leaving channel at request of #{msg.nick}")
 end
