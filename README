@@ -8,12 +8,20 @@
 
 For assistance:
   irc.sinsira.net #terminus-bot
-
+  http://terminus-bot.net/
 
 About the bot:
 
-Terminus-Bot was started by Kabaka as a project to learn Ruby.
+Terminus-Bot is an IRC bot written in Ruby licensed under AGPLv3. Its purpose is to completely avoid the problems of other bots.
+
+The authors of the project are long-time IRC bot users and know how things can go badly or be confusing. Hopefully, we can address all of the problems we have encountered, as well as all of those everyone else tells us about.
 
 How to use the bot:
  - Coming soon!
- - Changes are being made to the bot too often to justify end-user documentation.
+
+Requirements:
+  Ruby 1.9.3
+  gems (for some scripts):
+    htmlentities
+    json
+
