@@ -44,6 +44,8 @@ def on_privmsg(msg)
   chan = msg.connection.channels[msg.destination]
 
   msg.text.split(" ").each do |word|
+    word.sub!(/[,:.;]+\Z/, "")
+
     if chan.get_user(word)
       check_away(msg, word)
     end
