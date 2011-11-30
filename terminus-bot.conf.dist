@@ -70,6 +70,11 @@ logsize     = 1024000
 logcount    = 5
 
 
+# scripts that won't be loaded on start
+# separated with spaces
+noload      = 
+
+
 [ctcp]
 
 

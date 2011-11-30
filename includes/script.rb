@@ -30,7 +30,16 @@ module Terminus_Bot
         throw "Scripts directory does not exist."
       end
 
+      noload = $bot.config['core']['noload']
+
+      noload = noload.split unless noload == nil
+
       Dir.glob("scripts/*.rb").each do |file|
+
+        unless noload == nil
+          # I realize we are pulling the name out twice. Deal with it.
+          next if noload.include? filename.match("scripts/(.+).rb")[1]
+        end
 
         $log.debug("scripts.initilize") { "Loading #{file}" }
         load_file(file)
