@@ -37,6 +37,7 @@ end
 def die
   unregister_script
   unregister_events
+  unregister_commands
 end
 
 def pandora(msg, params)
@@ -88,7 +89,7 @@ def get_reply(botid, str, msg)
 
     $log.debug('pandora.get_reply') { response.body }
 
-    response = response.body.scan(/that>(.+)<\/that/)[0]
+    response = response.body.gsub(/\n/, "").scan(/that>(.+)<\/that/)[0]
 
     if response.kind_of? Array
       response = response.join(" ")
