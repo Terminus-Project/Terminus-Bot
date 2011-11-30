@@ -23,7 +23,7 @@ module IRC
     require 'socket'
 
     attr_reader :name, :socket, :channels, :host, :port, :read_thread, :send_thread,
-    :users, :client_host, :nick, :user, :realname
+     :users, :client_host, :nick, :user, :realname
 
     # Create a new connection, then kick things off.
     def initialize(name, host, port = 6667, bind = nil, password = nil,
@@ -47,6 +47,9 @@ module IRC
       $bot.events.create(self, "NAMES", :on_names)
 
       $bot.events.create(self, "NICK",  :on_nick)
+      $bot.events.create(self, "433",   :on_nick_in_use)
+
+      $bot.events.create(self, "001",   :on_registered)
 
       @name = name
       @host = host
@@ -59,6 +62,7 @@ module IRC
 
       @closing = false
       @reconnecting = false
+      @registered = false
 
       @client_host = (bind == nil ? "" : bind)
 
@@ -91,6 +95,7 @@ module IRC
       @send_queue.clear # Clear this, just in case we're reconnecting.
       @users = Users.new(self)
       @channels = Hash.new
+      @registered = false
 
       # Actually connect.
       @socket = TCPSocket.open(@host, @port, @bind)
@@ -301,10 +306,40 @@ module IRC
       @channels[msg.raw_arr[3]].topic(msg.text)
     end
 
+    def on_registered(msg)
+      return if msg.connection != self
+
+      @registered = true
+    end
+
     def on_nick(msg)
-      return unless msg.me?
-  
+      return unless msg.me? and msg.connection == self
+
       @nick = msg.text
+    end
+
+    # We tried to switch to a nick that's in use.
+    def on_nick_in_use(msg)
+
+
+      # If we're done connecting, then this is happening because
+      # someone tried to have the bot change nicks to something taken.
+      # No sense in spinning around on it — just keep our current nick.
+      return if @registered or msg.connection != self
+
+      if @nick == $bot.config['core']['nick']
+
+        if $bot.config['core'].has_key? 'altnick'
+          raw "NICK #{$bot.config['core']['altnick']}"
+        else
+          raw "NICK TerminusBot"
+        end
+
+        return
+      end
+
+      @nick << "_"
+      raw "NICK #{@nick}"
     end
 
     def to_s

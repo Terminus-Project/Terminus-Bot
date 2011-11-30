@@ -23,6 +23,11 @@ user        = Terminus
 realname    = http://terminus-bot.net/
 
 
+# if our nick is taken, use this one
+# default: TerminusBot
+altnick     = TerminusBot
+
+
 # command prefix
 
 prefix      = ;
