@@ -48,7 +48,12 @@ module Terminus_Bot
       $log.debug("events.run") { name }
 
       self[name].each do |event|
-        event.owner.send(event.func, args[0])
+        begin
+          event.owner.send(event.func, args[0])
+        rescue => e
+          $log.error("events.run") { "Error running event #{name}: #{e}" }
+          $log.debug("events.run") { "Backtrace for #{name}: #{e.backtrace}" }
+        end
       end
     end
 
