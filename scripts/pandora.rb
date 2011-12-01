@@ -97,7 +97,7 @@ def get_reply(botid, str, msg)
 
     response = HTMLEntities.new.decode(response)
 
-    return response.gsub(/<[^>]+>/, "")
+    return response.gsub(/<[^>]+>/, "").gsub(/\s+/, " ")
   rescue => e
     $log.debug('pandora.get_reply') { "Error getting reply: #{e}" }
     return "Error getting reply from Pandora: #{e}"
