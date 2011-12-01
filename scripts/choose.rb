@@ -35,16 +35,15 @@ def on_privmsg(msg)
   choices = msg.text.split(" or ")
 
   if choices.length == 1
-    answer = rand(2) == 1 ? "Yes" : "No"
-  else
-    # chop off the prefix and space
-    choices[0] = choices[0][$bot.config['core']['prefix'].length+1..choices[0].length-1]
-
-    #chop off the question mark
-    choices[choices.length-1] = choices.last[0..choices.last.length-2]
-
-    answer = choices[rand(choices.length)]
+    msg.reply([true,false].sample ? "Yes" : "No")
+    return
   end
 
-  msg.reply(answer)
+  # chop off the prefix and space
+  choices[0] = choices[0][$bot.config['core']['prefix'].length+1..choices[0].length-1]
+
+  #chop off the question mark
+  choices[choices.length-1] = choices.last[0..choices.last.length-2]
+
+  msg.reply(choices.sample)
 end
