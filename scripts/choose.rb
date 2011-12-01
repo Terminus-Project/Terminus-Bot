@@ -35,7 +35,7 @@ def on_privmsg(msg)
   choices = msg.text.split(" or ")
 
   if choices.length == 1
-    msg.reply([true,false].sample ? "Yes" : "No")
+    msg.reply(["Yes", "No"].sample)
     return
   end
 

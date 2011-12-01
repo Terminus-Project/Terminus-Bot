@@ -86,5 +86,5 @@ def cmd_eightball(msg, params)
 end
 
 def cmd_coin(msg, params)
-  msg.reply([true, false].sample ? "Heads" : "Tails")
+  msg.reply(["Heads", "Tails"].sample)
 end
