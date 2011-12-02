@@ -108,7 +108,7 @@ def cmd_part(msg, params)
   name = params[0].downcase
   channels = get_data(msg.connection.name, Array.new)
 
-  unless channels.has_key? name
+  unless channels.include? name
     msg.reply("I am not configured to join that channel, but I'll dispatch a PART for it just in case.")
     msg.raw("PART #{name} :Leaving channel at request of #{msg.nick}")
     return
