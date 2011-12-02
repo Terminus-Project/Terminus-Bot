@@ -139,7 +139,7 @@ module IRC
                   $bot.events.run(:raw, msg)  # Not currently used.
                                                # Leave in for scripts or remove?
       
-                  $bot.events.run(@type, msg) # The most important line in this file!
+                  $bot.events.run(msg.type, msg) # The most important line in this file!
                                                # Also the reason we can't use symbols for
                                                # most event names. :-(
                 rescue => e
