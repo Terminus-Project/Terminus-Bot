@@ -176,7 +176,13 @@ end
 def on_privmsg(msg)
   return if msg.private?
 
-  parse_line(msg.text)
+  if msg.text =~ /\01ACTION (.+)\01/
+    parse_line($1)
+  elsif msg.text.include? "\01"
+    return
+  else
+    parse_line(msg.text)
+  end
 
   return if msg.silent?
 
