@@ -86,13 +86,8 @@ def cmd_markov(msg, params)
     msg.reply("Markov interaction disabled for this channel.")
 
   when "FREQUENCY"
-    if msg.private?
-      msg.reply("This command may only be used in channels.")
-      return
-    end
-
     unless arr.length == 1
-      msg.reply("Please provide only one parameter for the FREQUENCY action.")
+      msg.reply("Frequency: #{get_data(:freq, 0)}")
       return
     end
 
