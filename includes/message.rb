@@ -103,6 +103,7 @@ module IRC
       @connection.raw(str)
     end
 
+    # Return true if this channel is listed in the silent setting.
     def silent?
       return false if self.private?
       silenced = $bot.config['core']['silent']
