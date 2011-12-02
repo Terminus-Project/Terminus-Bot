@@ -184,7 +184,7 @@ def on_privmsg(msg)
 
   return unless rand(100) <= get_data(:freq, 0)
 
-  chain = create_chain(msg.text.split.sample)
+  chain = create_chain(msg.text.split.sample.downcase)
 
   return if chain.empty?
 
