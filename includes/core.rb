@@ -21,6 +21,8 @@
 
 module Terminus_Bot
 
+  DATA_DIR = "var/terminus-bot/"
+
   class Bot
 
     attr_reader :config, :connections, :events, :database, :commands, :script_info, :scripts
@@ -85,6 +87,9 @@ module Terminus_Bot
       
       # Try to exit cleanly if we have to.
       at_exit { quit }
+
+      Dir.mkdir("var") unless Dir.exists? "var"
+      Dir.mkdir(DATA_DIR) unless Dir.exists? DATA_DIR
 
       # Begin connecting
       start_connections

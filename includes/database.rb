@@ -22,7 +22,7 @@ module Terminus_Bot
 
     require 'psych'
 
-    FILENAME = "data.db"
+    FILENAME = DATA_DIR + "data.db"
 
     # Read the database if it exists. Otherwise, write an empty database.
     def initialize
@@ -47,6 +47,9 @@ module Terminus_Bot
 
     # Write @data converted to YAML to FILENAME.
     def write_database
+      Dir.mkdir("var") unless Dir.exists? "var"
+      Dir.mkdir("var/terminus-bot") unless Dir.exists? "var/terminus-bot"
+
       File.open(FILENAME, "w") { |f| f.write(@data.to_yaml)}
     end
 

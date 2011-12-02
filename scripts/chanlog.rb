@@ -17,6 +17,7 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 
+CHANLOG_DIR = Terminus_Bot::DATA_DIR + "chanlog/"
 
 def initialize
   register_script("Logs channel activity to disk.")
@@ -35,8 +36,9 @@ def initialize
   register_event("MODE",    :on_mode)
 
 
-  unless Dir.exists? "var/chanlog/"
-    Dir.mkdir("var/chanlog/")
+
+  unless Dir.exists? CHANLOG_DIR
+    Dir.mkdir(CHANLOG_DIR)
   end
 
   @loggers = Hash.new
@@ -78,7 +80,7 @@ def new_logger(network, channel)
   end
 
   unless @loggers[network].has_key? channel
-    @loggers[network][channel] = Logger.new("var/chanlog/#{network}.#{channel}.log", File::APPEND)
+    @loggers[network][channel] = Logger.new(CHANLOG_DIR + "#{network}.#{channel}.log", File::APPEND)
   else
     # We already have a logger for this channel.
     return
