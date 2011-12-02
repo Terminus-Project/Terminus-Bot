@@ -125,7 +125,19 @@ def cmd_markov(msg, params)
 
   when "INFO"
 
-    msg.reply("Items in data set: #{@nodes.length}")
+    links = 0
+    bytes = 0
+
+    @nodes.each do |word, node|
+       links += node.links.length
+
+       bytes += word.bytesize
+    end
+
+    bytes /= 1024.0
+
+    msg.reply(sprintf "Items in data set: \02%d\02 (%4.4f KiB text). Word associations: \02%d\02.",
+              @nodes.length, bytes, links)
 
   when "WRITE"
 
@@ -391,7 +403,7 @@ def write_database
     fi << word << "\t"
 
     node.links.each do |n, l|
-      fi << l.target.word << " "
+      fi << l.target.word << "\t"
       fi << l.score.to_s << "\t"
     end
 
@@ -416,11 +428,12 @@ def read_database
     links = @nodes[word].links
 
     arr.each do |link|
-      link_arr = link.split(" ")
+      linked = arr.shift
+      score  = arr.shift
 
-      @nodes[link_arr[0]] = Node.new(link_arr[0], Hash.new) unless @nodes.has_key? link_arr[0]
+      @nodes[linked] = Node.new(linked, Hash.new) unless @nodes.has_key? linked
 
-      links[link_arr[0]] = Link.new(@nodes[word], @nodes[link_arr[0]], link_arr[1].to_i)
+      links[linked] = Link.new(@nodes[word], @nodes[linked], score.to_i)
     end
 
   end
