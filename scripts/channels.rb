@@ -81,7 +81,7 @@ def leave_channels(msg)
   channels = get_data(msg.connection.name, Array.new)
 
   msg.channels.each_key do |chan|
-    next if channels.include? chan
+    next if channels.include? chan.downcase
     
     msg.raw("PART #{chan} :I am not configured to be in this channel.") 
   end
