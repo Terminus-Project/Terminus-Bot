@@ -40,6 +40,7 @@ def initialize
   register_event("PRIVMSG", :on_privmsg)
 
   register_command("markov", :cmd_markov, 1, 10, "Manage the Markov script. Parameters: ON|OFF|FREQUENCY percentage|CLEAR|LOAD filename|INFO|GENERATE [word]")
+  register_command("chain",  :cmd_chain,  0,  0, "Generate a random Markov chain.")
 
   @nodes = Hash.new
 
@@ -54,6 +55,9 @@ def die
   unregister_commands
 end
 
+def cmd_chain(msg, params)
+  msg.reply(random_chain, false)
+end
 
 def cmd_markov(msg, params)
   arr = params[0].split

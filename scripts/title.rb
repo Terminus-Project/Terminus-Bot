@@ -36,6 +36,7 @@ def die
 end
 
 def on_message(msg)
+  return if msg.silent?
   return unless get_config("enabled", "false") == "true"
 
   i = 0
