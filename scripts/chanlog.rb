@@ -23,6 +23,7 @@ def initialize
   register_script("Logs channel activity to disk.")
 
   register_event("PRIVMSG", :on_privmsg)
+  register_event(:raw_out,  :on_raw_out)
 
   register_event("NOTICE",  :on_notice)
   register_event("TOPIC",   :on_topic)
@@ -104,6 +105,12 @@ end
 
 
 # Event callbacks
+
+def on_raw_out(msg)
+  return unless msg.type == "PRIVMSG"
+
+  on_privmsg(msg)
+end
 
 def on_privmsg(msg)
   return if msg.private?
