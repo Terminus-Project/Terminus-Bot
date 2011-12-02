@@ -182,11 +182,7 @@ def on_privmsg(msg)
 
   return unless get_data(msg.connection.name + "." + msg.destination, false)
 
-  $log.debug("markov.on_privmsg") { "We're on in #{msg.destination}. Run?" } 
-
   return unless rand(100) <= get_data(:freq, 0)
-
-  $log.debug("markov.on_privmsg") { "Running in #{msg.destination}!" } 
 
   chain = create_chain(msg.text.split.sample)
 
