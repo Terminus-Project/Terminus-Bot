@@ -69,7 +69,7 @@ def on_join(msg)
   channels = get_data(msg.connection.name, Array.new)
 
   # Are we configured to be in this channel?
-  return if channels.include? msg.destination
+  return if channels.include? msg.destination.downcase
  
   $log.debug("channels.on_join") { "Parting channel #{msg.destination} since we are not configured to be in it." }
 
