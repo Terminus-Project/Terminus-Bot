@@ -199,7 +199,7 @@ module IRC
 
       $log.debug("IRC.send") { "Queued #{str}" }
 
-      $bot.events.run(:raw_out, str)
+      $bot.events.run(:raw_out, IRC::Message.new(self, str, true))
 
       @send_queue.push(str)
       return str

@@ -23,7 +23,7 @@ module IRC
       :nick, :user, :host, :connection
 
     # Parse the str as an IRC message and fire appropriate events.
-    def initialize(connection, str)
+    def initialize(connection, str, outgoing = false)
 
       @connection = connection
 
@@ -32,34 +32,46 @@ module IRC
       @raw_arr = arr
       @raw = str
 
-      if str[0] == ":"
-        # This will be almost all messages.
-
-        @origin = arr[0][1..arr[0].length-1]
-        @type = arr[1]
-        @destination = arr[2].gsub(/\A:?/, "") # Not always the destination. Oh well.
-
-        if @origin =~ /\A([^ ]+)!([^ ]+)@([^ ]+)/
-          @nick = $1
-          @user = $2
-          @host = $3
-        else
-          @nick = ""
-          @user = ""
-          @host = ""
-        end
-
-        # Grab the text portion, as in
-        # :origin PRIVMSG #dest :THIS TEXT
-        @text = (str =~ /\A:[^:]+:(.+)\Z/ ? $1 : "")
-      else
-        # Server PINGs. Not much else.
+      if outgoing
+        @nick = connection.nick
+        @user = connection.user
+        @host = connection.client_host
+        @origin = "#{@nick}!#{@user}@#{@host}"
 
         @type = arr[0]
-        @origin = ""
-        @destination = ""
+        @destination = arr[1]
+        
+        @text = (str =~ /\A[^:]+:(.+)\Z/ ? $1 : "")
+      else
+        if str[0] == ":"
+          # This will be almost all messages.
 
-        @text = (str =~ /.+:(.+)\Z/ ? $1 : "")
+          @origin = arr[0][1..arr[0].length-1]
+          @type = arr[1]
+          @destination = arr[2].gsub(/\A:?/, "") # Not always the destination. Oh well.
+
+          if @origin =~ /\A([^ ]+)!([^ ]+)@([^ ]+)/
+            @nick = $1
+            @user = $2
+            @host = $3
+          else
+            @nick = ""
+            @user = ""
+            @host = ""
+          end
+
+          # Grab the text portion, as in
+          # :origin PRIVMSG #dest :THIS TEXT
+          @text = (str =~ /\A:[^:]+:(.+)\Z/ ? $1 : "")
+        else
+          # Server PINGs. Not much else.
+
+          @type = arr[0]
+          @origin = ""
+          @destination = ""
+
+          @text = (str =~ /.+:(.+)\Z/ ? $1 : "")
+        end
       end
 
     end
