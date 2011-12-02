@@ -97,7 +97,7 @@ def cmd_join(msg, params)
 
   channels = get_data(msg.connection.name, Array.new)
 
-  channels << name unless channels.has_key? name
+  channels << name unless channels.include? name
   store_data(msg.connection.name, channels)
 
   msg.raw("JOIN #{name}")
