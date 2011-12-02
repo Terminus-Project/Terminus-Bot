@@ -180,7 +180,7 @@ end
 def on_privmsg(msg)
   return if msg.private?
 
-  msg.text.gsub(/(\x0F|\x1D|\02|\03([0-9]{1,2}(,[0-9]{1,2})?)?/, "")
+  msg.text.gsub(/(\x0F|\x1D|\02|\03([0-9]{1,2}(,[0-9]{1,2})?)?)/, "")
 
   if msg.text =~ /\01ACTION (.+)\01/
     parse_line($1)
