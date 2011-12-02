@@ -134,8 +134,14 @@ module IRC
 
                 begin
                   # The Message object will fire the actual events.
-                  IRC::Message.new(self, inbuf.clone)
+                  msg = IRC::Message.new(self, inbuf.clone)
 
+                  $bot.events.run(:raw, msg)  # Not currently used.
+                                               # Leave in for scripts or remove?
+      
+                  $bot.events.run(@type, msg) # The most important line in this file!
+                                               # Also the reason we can't use symbols for
+                                               # most event names. :-(
                 rescue => e
                   $log.error("IRC.read_thread") { "#{@name}: Uncaught error in message handler thread: #{e}" }
                   $log.error("IRC.read_thread") { "#{@name}: Backtrace: #{e.backtrace}" }

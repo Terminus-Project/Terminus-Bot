@@ -62,12 +62,6 @@ module IRC
         @text = (str =~ /.+:(.+)\Z/ ? $1 : "")
       end
 
-      $bot.events.run(:raw, self)  # Not currently used.
-                                   # Leave in for scripts or remove?
-      
-      $bot.events.run(@type, self) # The most important line in this file!
-                                   # Also the reason we can't use symbols for
-                                   # most event names. :-(
     end
 
     # Reply to a message. If an array is given, send each reply separately.
