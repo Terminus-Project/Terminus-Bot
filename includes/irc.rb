@@ -269,6 +269,11 @@ module IRC
 
       return unless @channels.has_key? msg.destination
 
+      if msg.me?
+        @channels.delete(msg.destination)
+        return
+      end
+
       @channels[msg.destination].part(msg.nick)
     end
 
