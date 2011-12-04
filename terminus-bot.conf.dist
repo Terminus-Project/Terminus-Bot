@@ -164,3 +164,20 @@ max        = 5
 # network must exactly match the name specified in the
 
 
+[battle]
+
+# starting health
+# default: 100
+#start_health = 100
+
+# minimum damage an attack can do (if it hits)
+# default: 5
+#min_dmg     = 5
+
+# maximum damage an attack can do (if it hits)
+# default: 25
+#max_dmg     = 25
+
+# chance out of 100 that an attack will miss
+# default: 10
+#miss        = 10
