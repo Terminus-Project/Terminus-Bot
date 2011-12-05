@@ -181,3 +181,11 @@ max        = 5
 # chance out of 100 that an attack will miss
 # default: 10
 #miss        = 10
+
+
+[rss]
+
+# interval (in seconds) to check for new feed items
+# this is approximate, since checks are triggered by server pings
+# default: 1800
+#interval    = 1800
