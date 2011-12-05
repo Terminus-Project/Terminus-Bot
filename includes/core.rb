@@ -188,6 +188,8 @@ module Terminus_Bot
         connection.disconnect(str)
       end
 
+      @scripts.die
+
       $log.debug("Bot.quit") { "Removing PID file #{PID_FILE}" }
       File.delete(PID_FILE) if File.exists? PID_FILE
 
