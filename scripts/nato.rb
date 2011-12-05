@@ -30,8 +30,8 @@ def die
 end
 
 def cmd_nato(msg, params)
-  nato = ["Alpha", "Bravo", "Charlie", "Delta", "Echo", "Foxtrot", "Golf",
-    "Hotel", "India", "Juliet", "Kilo", "Lime", "Mike", "November", "Oscar",
+  nato = ["Alfa", "Bravo", "Charlie", "Delta", "Echo", "Foxtrot", "Golf",
+    "Hotel", "India", "Juliet", "Kilo", "Lima", "Mike", "November", "Oscar",
     "Papa", "Quebec", "Romeo", "Sierra", "Tango", "Uniform", "Victor",
     "Whiskey", "Xray", "Yankee", "Zulu"]
   
