@@ -20,6 +20,7 @@
 module Terminus_Bot
   class Database
 
+    gem 'psych'
     require 'psych'
 
     FILENAME = DATA_DIR + "data.db"

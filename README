@@ -20,8 +20,10 @@ How to use the bot:
  - Coming soon!
 
 Requirements:
+  Linux
   Ruby 1.9.3
   gems (for some scripts):
     htmlentities
     json
+    psych 1.2.2
 
