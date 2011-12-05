@@ -45,6 +45,8 @@ module Terminus_Bot
         load_file(file)
 
       end
+
+      at_exit { @scripts.each_value {|s| s.die} }
     end
 
     # Load the given script by file name. The relative path should be included.
