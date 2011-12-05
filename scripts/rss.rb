@@ -29,13 +29,13 @@ def initialize
 
   register_event("PING", :check_feeds)
 
-  @ent = HTMLEntities.new
-  @next_check = Time.now.to_i + get_config("interval", 1800).to_i
+  @@last_check = 0
 end
 
 def die
   unregister_script
   unregister_commands
+  unregister_events
 end
 
 def cmd_rss(msg, params)
@@ -116,12 +116,13 @@ end
 def check_feeds(msg, force = false)
   now = Time.now.to_i
 
-  return if @next_check == nil or ((@next_check > now) and force == false)
+  $log.debug("rss.check_feeds") { "Last check: #{@@last_check}" }
 
-  @next_check = now + get_config("interval", 1800).to_i
+  return if @@last_check == nil or ((@@last_check + get_config("interval", 1800).to_i > now) and force == false)
 
-  $log.debug("rss.check_feeds") { "Checking feeds..." }
+  @@last_check = now
 
+  $log.debug("rss.check_feeds") { "Check now: #{now} (#{@@last_check})" }
 
   get_all_data.each do |key, val|
 
@@ -172,5 +173,5 @@ def get_feed(uri)
 end
 
 def sanitize(str)
-  return @ent.decode(str.gsub(/[\n\s]+/, " ").gsub(/<\/?[^>]+>/, ""))
+  return HTMLEntities.new.decode(str.gsub(/[\n\s]+/, " ").gsub(/<\/?[^>]+>/, ""))
 end
