@@ -36,7 +36,8 @@ def die
 end
 
 def on_message(msg)
-  return if msg.silent?
+  return if msg.silent? or msg.private?
+
   return unless get_config("enabled", "false") == "true"
 
   i = 0
@@ -60,11 +61,14 @@ def get_title(msg, url)
 
     page.skip_until(/<title>/i)
     title = page.scan_until(/<\/title>/i)
-    title = title[0..title.length - 9].strip.gsub(/[\n\s]+/, " ")
 
+    len = title.length - 9
+    return if len <= 0
+
+    title = title[0..len].strip.gsub(/[\n\s]+/, " ")
     title = HTMLEntities.new.decode(title)
 
-    msg.reply("Title: " + title, false)
+    msg.reply("\02Title:\02 " + title, false)
   rescue => e
     $log.debug('title.get_title') { "Error getting title for #{url}: #{e}" }
     return
