@@ -137,7 +137,7 @@ def check_feeds(msg, force = false)
 
       feed_title = sanitize(atom ? rss.title.to_s : rss.channel.title.to_s)
 
-      items = rss.items[0..2].reverse
+      items = rss.items[0..get_config("max", 3).to_i].reverse
 
       items.each do |item|
 

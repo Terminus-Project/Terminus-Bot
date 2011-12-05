@@ -189,3 +189,8 @@ max        = 5
 # this is approximate, since checks are triggered by server pings
 # default: 1800
 #interval    = 1800
+
+# max number of items to show when getting new feed items
+# only this many *latest* items will be show
+# default: 3
+#max         = 3
