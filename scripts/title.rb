@@ -57,7 +57,11 @@ def get_title(msg, url)
   begin
     $log.debug('title.get_title') { "Getting title for #{url}" }
 
-    page = StringScanner.new(Net::HTTP.get URI.parse(url))
+    response = get_page(url)
+
+    return if response == nil
+
+    page = StringScanner.new(response.body)
 
     page.skip_until(/<title>/i)
     title = page.scan_until(/<\/title>/i)
@@ -73,4 +77,29 @@ def get_title(msg, url)
     $log.debug('title.get_title') { "Error getting title for #{url}: #{e}" }
     return
   end
+end
+
+def get_page(url, limit = get_config("redirects", 10))
+  return nil if limit == 0
+
+  response = Net::HTTP.get_response(URI(url))
+
+  case response
+
+  when Net::HTTPSuccess
+    return response
+
+  when Net::HTTPRedirection
+    location = response['location']
+
+    $log.debug("title.get_page") { "Redirection: #{url} -> #{location} (#{limit})" }
+
+    return get_page(location, limit - 1)
+
+  else
+    return response.value
+
+  end
+
+
 end

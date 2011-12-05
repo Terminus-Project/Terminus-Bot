@@ -131,6 +131,10 @@ max         = 1
 # default: 3
 #max         = 3
 
+# max redirections to follow
+# default: 10
+#redirects   = 10
+
 
 [google]
 
