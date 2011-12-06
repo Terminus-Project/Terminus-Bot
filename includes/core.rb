@@ -177,6 +177,7 @@ module Terminus_Bot
         command.owner.send(command.func, msg, params)
       rescue => e
         $log.error("Bot.run_commands") { "Problem running command #{$2} in #{command.owner}: #{e}" }
+        $log.debug("Bot.run_commands") { "Problem running command #{$2} in #{command.owner}: #{e.backtrace}" }
         msg.reply("There was a problem running your command: #{e}")
       end
 
