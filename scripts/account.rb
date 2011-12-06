@@ -23,10 +23,11 @@ require 'digest'
 def initialize()
   register_script("Provides account log-in and management functionality.")
 
-  register_command("identify",  :cmd_identify,  2, 0, "Log in to the bot. Parameters: username password")
-  register_command("register",  :cmd_register,  2, 0, "Register a new account on the bot. Parameters: username password")
-  register_command("password",  :cmd_password,  1, 1, "Change your bot account password. Parameters: password")
-  register_command("fpassword", :cmd_fpassword, 2, 8, "Change another user's bot account password. Parameters: username password")
+  register_command("identify",  :cmd_identify,  2, 0,  "Log in to the bot. Parameters: username password")
+  register_command("register",  :cmd_register,  2, 0,  "Register a new account on the bot. Parameters: username password")
+  register_command("password",  :cmd_password,  1, 1,  "Change your bot account password. Parameters: password")
+  register_command("fpassword", :cmd_fpassword, 2, 8,  "Change another user's bot account password. Parameters: username password")
+  register_command("level",     :cmd_level,     2, 10, "Change a user's account level. Parameters: username level")
 end
 
 def verify_password(stored, password)
@@ -126,4 +127,37 @@ def cmd_fpassword(msg, params)
 
   msg.reply("The account password has been changed")
   $log.info("account.cmd_fpassword") { "#{msg.origin} changed account password for #{params[0]}" }
+end
+
+def cmd_level(msg, params)
+  stored = get_data(params[0], nil)
+  
+  if stored == nil
+    msg.reply("No such account.")
+    return
+  end
+
+  level = params[1].to_i
+
+  if level < 1 or level > 10
+    msg.reply("Level must be a whole number from 1 to 10.")
+    return
+  end
+
+  stored[:level] = level
+
+  store_data(params[0], stored)
+
+  # if they are logged in, update the live data too
+
+  $bot.connections.each do |name, conn|
+    conn.users.each do |nick, user|
+      if user.account == params[0]
+        user.level = level
+      end
+    end
+  end
+
+  msg.reply("Aurthorization level for \02#{params[0]}\02 changed to \02#{level}\02.")
+  $log.info("account.cmd_level") { "#{msg.origin} changed authorization level for #{params[0]} to #{level}" }
 end
