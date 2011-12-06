@@ -83,9 +83,9 @@ module Terminus_Bot
 
       @scripts[name].die if @scripts[name].respond_to? "die"
 
-      @scripts.unregister_script
-      @scripts.unregister_commands
-      @scripts.unregister_events
+      @scripts[name].unregister_script
+      @scripts[name].unregister_commands
+      @scripts[name].unregister_events
 
       @scripts.delete(name)
 
