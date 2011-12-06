@@ -18,7 +18,7 @@
 #
 
 module IRC
-  User = Struct.new(:connection, :nick, :user, :host, :level)
+  User = Struct.new(:connection, :nick, :user, :host, :level, :account)
 
   class Users < Hash
 
@@ -93,7 +93,8 @@ module IRC
       self[msg.text] = User.new(@connection, msg.text,
                                  self[msg.nick].user,
                                  self[msg.nick].host,
-                                 self[msg.nick].level)
+                                 self[msg.nick].level,
+                                 self[msg.nick].account)
 
       delete_user(msg.nick)
     end
