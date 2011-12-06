@@ -1,4 +1,4 @@
-#!/usr/bin/ruby
+#!/usr/bin/env ruby
 
 #
 # Terminus-Bot: An IRC bot to solve all of the problems with IRC bots.
