@@ -8,193 +8,284 @@
 # (you may not do "setting = value #comment").
 #
 # Boolean settings must be true or false (exactly).
+#
+# If a default is listed, that is the value that is used if the setting is not
+# present (commented out or deleted).
+#
+# All settings outside the [core] section are optional unless otherwise
+# specified. Script authors are encouraged to make all config values have
+# sane defaults so that nothing _really_ needs to be added here.
 
 
-# core _must_ be here for the bot to work
-
+# Core bot configuration. If this section and the require settings inside aren't
+# here, the bot may somehow erase your hard drive and kick your dog. Read and
+# pay attention!
 [core]
 
 
-# If these are omitted, defaults provide:
-# Terminus-Bot!Terminus@* http://terminus-bot.net
+# OPTIONAL, RECOMMENDED
+# The bot's IRC nick. If the nick is taken, the bot will attempt to use the
+# altnick setting below, and then try adding underscores at the end of the
+# nick.
+# default: Terminus-Bot
+nick = Terminus-Bot
 
-nick        = Terminus-Bot
-user        = Terminus
-realname    = http://terminus-bot.net/
+
+# OPTIONAL
+# The bot's user name (ident). This is what appears between the ! and @
+# (nick!user@host).
+# default: Terminus
+user = Terminus
 
 
-# if our nick is taken, use this one
+# OPTIONAL
+# The bot's "real name" or "gecos." This can be arbitrary text, and appears in
+# various places, such as WHOIS results.
+# default: http://terminus-bot.net/
+realname = http://terminus-bot.net/
+
+
+# OPTIONAL, RECOMMENDED
+# The bot's alternative IRC nick. This is used if the main nick (above) is taken
+# when the bot is connecting. If this one fails, underscores will be added. If
+# that somehow fails enough times to max out nick length, the bot will probably
+# hang right now.
 # default: TerminusBot
-altnick     = TerminusBot
+altnick = TerminusBot
 
 
-# command prefix
-
-prefix      = ;
-
-
-# channels in which we should never speak
-# format: server:#foo server:#bar server2:#baz
-
-silent      = 
-
-
-# Separate with spaces. Syntax is:
-#   name:hostname:port:password
-
-servers      = sinsira:irc.sinsira.net:6667
-
-# Bind to this address when making connections.
-#bind        = 
-
-
-# seconds to wait before reconencting if connection closes
-# unexpectedly
-
-reconwait   = 15
-
-# Delay between sending messages.
-# This should always be > 0 to avoid being killed
-# for flooding.
 # REQUIRED
+# When running commands in IRC channels, messages must begin with this prefix.
+# For example, if the prefix is ! then the PING command could be run with: !ping
+# This can be longer than one character.
+prefix = ;
 
-throttle    = 0.1
+
+# OPTIONAL
+# Channels in which the bot should never speak. This is useful if you want the
+# bot to log chat for a channel but not actually contribute or do anything. Note
+# that it is possible to write scripts which ignore this setting!
+# format: server:#foo server:#bar server2:#baz
+#silent =
 
 
-# Logging level. Must be one of:
-# DEBUG, INFO, WARN, ERROR, FATAL
+# REQUIRED
+# Servers to which the bot should connect. These are in the follow format,
+# separated by spaces. The past parameter is optional.
+# With password:
+#   name:hostname:port:password
+# Without password:
+#   name:hostname:port
+servers = sinsira:irc.sisnira.net:6667
+
+
+# OPTIONAL
+# If your bot is running on a machine with multiple IP addresses, you should use
+# this setting to force the bot to bind to a certain connection. If you are
+# running the bot on a shell account or some other shared hosting platform, your
+# provider will likely *require* you set this value correctly. It may also be
+# used to take advantage of vanity host names, if you know how.
+#bind = 
+
+
+# OPTIONAL
+# The number of seconds to wait before attempting to reconnect to a server
+# after a connection is unexpectedly lost. This may need to be as long as
+# 60 or 120 seconds, as the bot may get stuck in an infinite reconnect loop
+# if the server is throttling it for reconnecting too fast.
+# default: 15
+reconwait = 15
+
+
+# OPTIONAL, RECOMMENDED
+# The number of seconds to wait between each outgoing message. This includes
+# all message types, not just messages to users. Unless the bot is opered and
+# is immune to flood protection, this should be something greater than zero!
+# In many cases, a value of 1 or 2 may be necessary. The default is very low
+# since smaller values will generally be better for a bot that feels responsive.
+# default: 0.25
+throttle = 0.25
+
+
+# OPTIONAL
+# The verbosity to use for logs. Unless you are a developer, INFO will probably
+# be sufficient for your needs. DEBUG is incredibly verbose.
+# Valid choices: DEBUG, INFO, WARN, ERROR, FATAL
 # default: INFO
-loglevel    = INFO
+loglevel = INFO
 
-# Max log file size before rotation.
+
+# OPTIONAL
+# Once a log reaches this size (in bytes) it will be rotated.
 # default: 1024000
-logsize     = 1024000
+logsize = 1024000
 
+
+# OPTIONAL
 # Number of log files to keep.
 # default: 5
-logcount    = 5
+logcount = 5
 
 
-# scripts that won't be loaded on start
-# separated with spaces
-noload      = markov
+# OPTIONAL
+# Scripts in this list will not be loaded during start, but can still be loaded
+# manually. Script names should be the same as the file name without an
+# extension.
+noload = 
 
 
+# CTCP reply script.
 [ctcp]
 
 
-# include all CTCP replies you want here
+# Include all CTCP replies you want here. These are static strings.
+version = Terminus-Bot v0.5-alpha
+url = http://terminus-bot.net/
 
-version     = Terminus-Bot v0.5-alpha
-url         = http://terminus-bot.net/
 
-
+# Channel occupation management script.
 [channels]
 
-# Leave channels we join if the channels script isn't configured
-# to include it.
+
+# Leave channels we join if the channels script isn't configured to include it.
+# This is useful for dealing with undesired forcejoin/sajoin attempts. In most
+# cases, channels are parted immediately. If that isn't possible, we'll try to
+# leave them each time we get a server ping.
 # default: false
+antiforce = false
 
-antiforce   = false
 
-
+# Urban Dictionary (urbandictionary.com) look-up script.
 [urbandict]
 
 
-# max definitions to include in reply
+# Max definitions to include when replying to a look-up request. Each reply is
+# sent in a separate message, so setting this any higher than 1 will make the
+# bot seem very spammy!
 # default: 1
+max = 1
 
-definitions = 1
 
-
+# Dictionary (dictionary.com) look-up script.
 [dictionary]
 
-# max definitions to include in reply
+
+# Max definitions to include when replying to a look-up request. Each reply is
+# sent in a separate message, so setting this any higher than 1 will make the
+# bot seem very spammy!
 # default: 1
-max         = 1
+max = 1
 
 
-# dictionary.com api key
+# REQUIRED
+# dictionary.com API key. Without this, the bot cannot perform any look-ups!
 # acquire at: http://developer.dictionary.com/
-# REQUIRED for this script
-#apikey      = 
+#apikey = 
 
 
+# Link title fetching script.
 [title]
 
 
-# set to true to enable automatic title fetching
-# default: false
-#enabled     = true
-
-# max number of URLs to match per message
+# Maximum number of URLs to match per message. If a user posts a message with
+# many URLs, we will look up the titles for this many of them (from the first
+# one found to the last) and post the titles, each in a separate message.
 # default: 3
-#max         = 3
+max = 3
 
-# max redirections to follow
+
+# Maximum number of redirections to follow. This should be 10 or less. Setting
+# it too high may cause the bot to hang. It should probably be at least 3.
 # default: 10
-#redirects   = 10
+#redirects = 10
 
 
+# Google search script.
 [google]
 
-# user agent sent with queries
-# see Google's API docs for recommendations
 
-useragent   = sinsira.net
-
-# limit the number of results shown for one query
-# default: 3 (recommended)
-
-resultlimit = 3
+# REQUIRED
+# User agent to send with API requests. See Google's API docs for information
+# on why this should be set.
+#useragent =
 
 
+# Max results to include when replying to a search request. Each reply is
+# sent in a separate message, so setting this any higher than 1 will make the
+# bot seem very spammy!
+# default: 1
+resultlimit = 1
+
+
+# Pandora (pandorabots.com) chatterbot interaction script.
 [pandora]
 
-#botid       = 
+
+# REQUIRED
+# The botid value to use when communicating with pandorabots.com. This is like
+# an API key. For information on how to find this, please see the documentation
+# on pandorabots.com. Yes, a pandorabots.com account and bot is required!
+#botid =
 
 
+# Tell (mail/memo) script.
 [tell]
 
-# max number of tells that can be pending for one nick
-# default: 5
-max        = 5
+
+# The maximum number of tells that can be left for a nick. This should probably
+# be less than 5. Every tell is posted in a separate message, so letting users
+# leave too many messages could result in a channel flood when tells are sent!
+# default: 3
+max = 3
 
 
+# Oper script for opering the bot.
 [oper]
 
-# all oper config goes here, each network separately
-# network = username:password
-# network must exactly match the name specified in the
+
+# Operator configuration is set with one setting per network. The format is:
+#   network = username:password
+# The network name must *exaclty* match the name used in the servers config in
+# the core section!
+
+#network = username:password
 
 
+# Role-play battle assistance script.
 [battle]
 
-# starting health
+
+# Starting player health.
 # default: 100
 #start_health = 100
 
-# minimum damage an attack can do (if it hits)
+
+# The minimum damage an account can cause, if it hits.
 # default: 5
-#min_dmg     = 5
+#min_dmg = 5
 
-# maximum damage an attack can do (if it hits)
+
+# The maximum damage an account can cause, if it hits.
 # default: 25
-#max_dmg     = 25
+#max_dmg = 25
 
-# chance out of 100 that an attack will miss
+# The chance (out of 100) that an attack will miss.
 # default: 10
-#miss        = 10
+#miss = 10
 
 
+# RSS/ATOM feed reader script.
 [rss]
 
-# interval (in seconds) to check for new feed items
-# this is approximate, since checks are triggered by server pings
-# default: 1800
-#interval    = 1800
 
-# max number of items to show when getting new feed items
-# only this many *latest* items will be show
+# Interval (in seconds) to check for new feed items. This is approximate, since
+# checks are triggered by server pings.
+# default: 1800
+#interval = 1800
+
+# Maximum number of feed items to show when new items are found. If more than
+# this many items are new, the older items will not be shown. Each item is
+# posted in its own message, so setting this very high could cause the bot to be
+# spammy.
 # default: 3
-#max         = 3
+#max = 3
