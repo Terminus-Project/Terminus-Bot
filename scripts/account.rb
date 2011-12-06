@@ -29,9 +29,7 @@ def initialize()
   register_command("fpassword", :cmd_fpassword, 2, 8, "Change another user's bot account password. Parameters: username password")
 end
 
-def verify_password(user, password)
-  stored = get_data(user, nil)
-
+def verify_password(stored, password)
   return false if stored == nil
 
   stored_arr = stored[:password].split(":")
@@ -54,13 +52,15 @@ def cmd_identify(msg, params)
     return
   end
 
-  unless verify_password(params[0])
+  stored = get_data(params[0], nil)
+
+  unless verify_password(stored, params[1])
     msg.reply("Incorrect log-in information.")
     return
   end
 
   msg.connection.users[msg.nick].account = params[0]
-  msg.connection.users[msg.nick].level = stored["level"]
+  msg.connection.users[msg.nick].level = stored[:level]
 
   msg.reply("Logged in with level #{stored[:level]} authorization.")
   $log.info("account.cmd_identify") { "#{msg.origin} identified as #{params[0]} (#{stored[:level]})" }
@@ -82,7 +82,7 @@ def cmd_register(msg, params)
     return
   end
 
-  store_data(params[0], [:password => encrypt_password(params[1]), :level => 1])
+  store_data(params[0], Hash[:password => encrypt_password(params[1]), :level => 1])
 
   msg.reply("You have now registered an account with the user name #{params[0]}. You now have level 1 authorization.")
   $log.info("account.cmd_register") { "#{msg.origin} registered bot account #{params[0]}" }
