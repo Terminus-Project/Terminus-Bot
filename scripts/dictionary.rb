@@ -63,7 +63,7 @@ def cmd_define(msg, params)
 
   max = get_config("max", 3)
   results = Array.new
-  i = 0
+  i = 1
 
   root.elements.each { |entry|
   # Entries
