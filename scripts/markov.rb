@@ -49,10 +49,6 @@ end
 
 def die
   write_database
-
-  unregister_script
-  unregister_events
-  unregister_commands
 end
 
 def cmd_chain(msg, params)

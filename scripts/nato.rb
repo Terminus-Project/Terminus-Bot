@@ -24,11 +24,6 @@ def initialize
   register_command("nato", :cmd_nato,  1,  0, "Convert text to the NATO phonetic alphabet.")
 end
 
-def die
-  unregister_script
-  unregister_commands
-end
-
 def cmd_nato(msg, params)
   nato = ["Alpha", "Bravo", "Charlie", "Delta", "Echo", "Foxtrot", "Golf",
     "Hotel", "India", "Juliet", "Kilo", "Lima", "Mike", "November", "Oscar",

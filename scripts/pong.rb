@@ -18,7 +18,7 @@
 #
 
 
-def initialize()
+def initialize
   register_script("Reply to server pings.")
 
   register_event("PING", :pong)

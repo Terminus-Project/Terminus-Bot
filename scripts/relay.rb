@@ -32,12 +32,6 @@ def initialize
   @relays = get_data("relays", Array.new)
 end
 
-def die
-  unregister_script
-  unregister_commands
-  unregister_events
-end
-
 def cmd_relay(msg, params)
   source_network = params[1]
   source_channel = params[2]

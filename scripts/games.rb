@@ -26,11 +26,6 @@ def initialize
   register_command("coin",        :cmd_coin,       0,  0, "Flip a coin.")
 end
 
-def die
-  unregister_script
-  unregister_commands
-end
-
 def cmd_dice(msg, params)
 
   arr = params[0].split("d")

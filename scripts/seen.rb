@@ -26,12 +26,6 @@ def initialize
   register_event("PRIVMSG", :on_message)
 end
 
-def die
-  unregister_script
-  unregister_commands
-  unregister_events
-end
-
 def on_message(msg)
   return unless msg.destination.start_with? "#" or msg.destination.start_with? "&"
 

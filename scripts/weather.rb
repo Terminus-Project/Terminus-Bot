@@ -30,11 +30,6 @@ def initialize
   register_command("forecast",  :forecast, 1,  0, "View a short-term forecase for the specified location.")
 end
 
-def die
-  unregister_script
-  unregister_commands
-end
-
 def weather(msg, params)
   url = "http://api.wunderground.com/auto/wui/geo/WXCurrentObXML/index.xml?query=#{URI.escape(params.join)}"
 

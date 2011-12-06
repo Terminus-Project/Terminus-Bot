@@ -26,12 +26,6 @@ def initialize
   register_event("376",   :on_376)
 end
 
-def die
-  unregister_script
-  unregister_commands
-  unregister_events
-end
-
 def cmd_oper(msg, params)
   oper = get_config(params[0])
 

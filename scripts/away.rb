@@ -30,12 +30,6 @@ def initialize
   @pending = Hash.new
 end
 
-def die
-  unregister_script
-  unregister_commands
-  unregister_events
-end
-
 # Chop up an incoming message and see if it contains a nick that is
 # in the channel. If it does, check for away status.
 def on_privmsg(msg)

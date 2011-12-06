@@ -36,11 +36,6 @@ def initialize
   @baseURL = "http://ajax.googleapis.com/ajax/services/search/"
 end
 
-def die
-  unregister_script
-  unregister_command
-end
-
 #curl -e http://www.my-ajax-site.com \
 #        'http://ajax.googleapis.com/ajax/services/language/translate?v=1.0&q=hello%20world&langpair=en%7Cit'
 #

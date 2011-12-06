@@ -27,11 +27,6 @@ def initialize
   @messages = Hash.new
 end
 
-def die
-  unregister_script
-  unregister_events
-end
-
 def on_part(msg)
   return unless msg.me?
   return unless @messages.has_key? msg.connection.name

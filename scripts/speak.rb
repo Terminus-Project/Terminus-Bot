@@ -25,11 +25,6 @@ def initialize
   register_command("act", :act,  1,  1, "Act the given text (CTCP ACTION).")
 end
 
-def die
-  unregister_script
-  unregister_commands
-end
-
 def say(msg, params)
   msg.reply(params[0], false)
 end

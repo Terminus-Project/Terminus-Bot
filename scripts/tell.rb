@@ -25,12 +25,6 @@ def initialize
   register_command("tell",  :cmd_tell,  2,  0, "Have me tell the give user something the next time they speak. Parameters: nick message")
 end
 
-def die
-  unregister_script
-  unregister_commands
-  unregister_events
-end
-
 def on_privmsg(msg)
   tells = get_data(msg.connection.name, Hash.new)
 

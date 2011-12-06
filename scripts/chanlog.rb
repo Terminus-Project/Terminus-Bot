@@ -62,9 +62,6 @@ def die
       l.close
     end
   end
-
-  unregister_script
-  unregister_events
 end
 
 

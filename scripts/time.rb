@@ -25,11 +25,6 @@ def initialize
   register_command("time", :cmd_time,  0,  0, "Get the current time.")
 end
 
-def die
-  unregister_script
-  unregister_commands
-end
-
 def cmd_time(msg, params)
   msg.reply(Time.now.strftime("%Y-%m-%d %H:%M:%S %Z"))
 end

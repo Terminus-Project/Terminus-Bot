@@ -30,11 +30,6 @@ def initialize
   register_event("PRIVMSG", :on_message)
 end
 
-def die
-  unregister_script
-  unregister_events
-end
-
 def on_message(msg)
   return if msg.silent? or msg.private?
 

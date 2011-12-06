@@ -31,12 +31,6 @@ def initialize
   # TODO: Handle 405?
 end
 
-def die
-  unregister_script
-  unregister_commands
-  unregister_events
-end
-
 def join_channels(msg)
   buf = Array.new
   channels = get_data(msg.connection.name, Array.new)

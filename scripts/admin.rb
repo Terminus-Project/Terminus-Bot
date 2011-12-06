@@ -38,11 +38,6 @@ def initialize
 
 end
 
-def die
-  unregister_script
-  unregister_commands
-end
-
 def cmd_eval(msg, params)
   msg.reply(eval(params[0]))
 end

@@ -31,11 +31,6 @@ def initialize
   register_command("wiki", :cmd_wiki, 1, 0, "Provide a link to the given Wikipedia page, corrected for redirects.")
 end
 
-def die
-  unregister_script
-  unregister_commands
-end
-
 def cmd_wiki(msg, params)
   
   $log.debug('wikipedia.cmd_wiki') { "Getting Wikipedia page for #{params[0]}" }

@@ -24,11 +24,6 @@ def initialize
   register_command("source", :cmd_source, 0, 0, "Share info about the bot and its source code.")
 end
 
-def die
-  unregister_script
-  unregister_commands
-end
-
 def cmd_source(msg, params)
   msg.reply("I am Terminus-Bot, a multithreaded Ruby IRC bot (version: #{VERSION}). You can find my source code and other information about me at: https://github.com/kabaka/Terminus-Bot")
 end

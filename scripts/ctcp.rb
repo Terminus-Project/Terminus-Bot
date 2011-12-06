@@ -24,11 +24,6 @@ def initialize
   register_event("PRIVMSG", :on_privmsg)
 end
 
-def die
-  unregister_script
-  unregister_events
-end
-
 def on_privmsg(msg)
   if msg.text =~ /\01([^\s]+) ?(.*)\01/
 

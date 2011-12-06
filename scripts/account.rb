@@ -29,12 +29,6 @@ def initialize()
   register_command("fpassword", :cmd_fpassword, 2, 8, "Change another user's bot account password. Parameters: username password")
 end
 
-def die
-  unregister_script
-  unregister_commands
-end
-
-
 def verify_password(user, password)
   stored = get_data(user, nil)
 

@@ -26,11 +26,6 @@ def initialize
   register_command("factoid",  :cmd_factoid,   1,  0, "Retrieve a factoid.")
 end
 
-def die
-  unregister_script
-  unregister_commands
-end
-
 def cmd_remember(msg, params)
   unless params[0].downcase =~ /\A(.+) (is|=) (.+)\Z/
     msg.reply("Factoid must be given in the form: ___ is|= ___")

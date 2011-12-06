@@ -30,13 +30,6 @@ def initialize
   @active = Hash.new
 end
 
-def die
-  unregister_script
-  unregister_events
-  unregister_commands
-end
-
-
 def cmd_battle(msg, params)
   if msg.private?
     msg.reply("You may only battle in channels.")

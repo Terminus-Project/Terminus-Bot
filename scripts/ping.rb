@@ -28,12 +28,6 @@ def initialize
   @pending = Hash.new
 end
 
-def die
-  unregister_script
-  unregister_commands
-  unregister_events
-end
-
 def on_notice(msg)
   unless @pending.has_key? msg.connection.name
     return

@@ -34,12 +34,6 @@ def initialize
   register_event("PRIVMSG", :on_message)
 end
 
-def die
-  unregister_script
-  unregister_events
-  unregister_commands
-end
-
 def pandora(msg, params)
   if msg.private?
     msg.reply("You may only use this command in channels.")

@@ -32,12 +32,6 @@ def initialize
   @@last_check = 0
 end
 
-def die
-  unregister_script
-  unregister_commands
-  unregister_events
-end
-
 def cmd_rss(msg, params)
 
   if msg.private?

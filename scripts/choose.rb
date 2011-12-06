@@ -24,11 +24,6 @@ def initialize
   register_event("PRIVMSG", :on_privmsg)
 end
 
-def die
-  unregister_script
-  unregister_events
-end
-
 def on_privmsg(msg)
   return unless msg.text.start_with?($bot.config['core']["prefix"] + " ") and msg.text.end_with? "?"
   

@@ -24,11 +24,6 @@ def initialize
   register_event(:raw, :on_raw)
 end
 
-def die
-  unregister_script
-  unregister_events
-end
-
 def on_raw(msg)
   $log.debug("lograw.on_raw") { sprintf "O: %s  D: %s  TXT: %s  TYP: %s  NUH: %s!%s@%s  C: %s",
     msg.origin, msg.destination, msg.text, msg.type, msg.nick, msg.user, msg.host,

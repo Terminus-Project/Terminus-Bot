@@ -31,11 +31,6 @@ def initialize
   @baseURL = "http://www.urbandictionary.com/define.php?term="
 end
 
-def die
-  unregister_script
-  unregister_commands
-end
-
 def lookup(msg, params)
   $log.debug('urbandict.lookup') { "Getting definition for #{params[0]}" }
 

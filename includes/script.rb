@@ -83,6 +83,10 @@ module Terminus_Bot
 
       @scripts[name].die if @scripts[name].respond_to? "die"
 
+      @scripts.unregister_script
+      @scripts.unregister_commands
+      @scripts.unregister_events
+
       @scripts.delete(name)
 
       load_file(filename)

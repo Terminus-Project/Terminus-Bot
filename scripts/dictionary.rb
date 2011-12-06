@@ -38,11 +38,6 @@ def initialize
 #  registerCommand("Dictionary", "random", "Fetch a random word from Dictionary.com's extensive database.", "")
 end
 
-def die
-  unregister_script
-  unregister_commands
-end
-
 def cmd_define(msg, params)
   api_key = get_config("apikey", nil)
 

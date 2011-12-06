@@ -27,11 +27,6 @@ def initialize()
   register_command("script", :cmd_script,     1,  0, "Show a description of the given script.")
 end
 
-def die
-  unregister_script
-  unregister_commands
-end
-
 def cmd_help(msg, params)
   name = params[0].downcase
 

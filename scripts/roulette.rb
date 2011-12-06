@@ -24,11 +24,6 @@ def initialize
   register_command("roulette", :cmd_roulette,  0,  0, "Pull the trigger. You have a 5/6 chance of surviving.")
 end
 
-def die
-  unregister_script
-  unregister_commands
-end
-
 def cmd_roulette(msg, params)
 
   if rand(6) == 0
