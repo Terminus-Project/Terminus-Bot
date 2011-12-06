@@ -33,8 +33,6 @@ end
 def on_message(msg)
   return if msg.silent? or msg.private?
 
-  return unless get_config("enabled", "false") == "true"
-
   i = 0
   max = get_config("max", 3).to_i
 
