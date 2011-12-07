@@ -183,14 +183,12 @@ end
 def on_privmsg(msg)
   return if msg.private?
 
-  msg.text.gsub(/(\x0F|\x1D|\02|\03([0-9]{1,2}(,[0-9]{1,2})?)?)/, "")
-
   if msg.text =~ /\01ACTION (.+)\01/
-    parse_line($1)
+    parse_line(msg.strip($1))
   elsif msg.text.include? "\01"
     return
   else
-    parse_line(msg.text)
+    parse_line(msg.stripped)
   end
 
   return if msg.silent?
@@ -199,7 +197,7 @@ def on_privmsg(msg)
 
   return unless rand(100) <= get_data(:freq, 0)
 
-  chain = create_chain(msg.text.split.sample.downcase)
+  chain = create_chain(msg.stripped.split.sample.downcase)
 
   return if chain.empty?
 
