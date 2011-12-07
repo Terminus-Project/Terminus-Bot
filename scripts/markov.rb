@@ -39,7 +39,7 @@ def initialize
 
   register_event("PRIVMSG", :on_privmsg)
 
-  register_command("markov", :cmd_markov, 1, 10, "Manage the Markov script. Parameters: ON|OFF|FREQUENCY percentage|CLEAR|LOAD filename|INFO|GENERATE [word]")
+  register_command("markov", :cmd_markov, 1, 10, "Manage the Markov script. Parameters: ON|OFF|FREQUENCY percentage|CLEAR|LOAD filename|INFO")
   register_command("chain",  :cmd_chain,  0,  0, "Generate a random Markov chain.")
 
   @nodes = Hash.new
@@ -52,6 +52,12 @@ def die
 end
 
 def cmd_chain(msg, params)
+
+  if @nodes.length == 0
+    msg.reply("My Markov database is empty, so I can't generate any chains.")
+    return
+  end
+
   if params.length == 1
 
     if params[0].count(" ") > 1
@@ -165,30 +171,9 @@ def cmd_markov(msg, params)
       $log.debug("markov.write_database") { e.backtrace }
     end
 
-  when "GENERATE"
-
-    if @nodes.length == 0
-      msg.reply("There is no data from which to create a message.")
-      return
-    end
-
-    chain = ""
-
-    if arr.length >= 1
-      chain = create_chain(arr.shift.downcase, false)
-    else
-      chain = random_chain
-    end
-
-    if chain.empty?
-      msg.reply("I was unable to generate a chain.")
-    else
-      msg.reply(chain)
-    end
-
   else
 
-    msg.reply("Unknown action. Parameters: ON|OFF|FREQUENCY percentage|CLEAR|LOAD filename|INFO|GENERATE [word [word]]")
+    msg.reply("Unknown action. Parameters: ON|OFF|FREQUENCY percentage|CLEAR|LOAD filename|INFO")
 
   end
 
