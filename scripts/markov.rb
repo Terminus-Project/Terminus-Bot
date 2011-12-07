@@ -203,7 +203,13 @@ def on_privmsg(msg)
 
   return if chain.empty?
 
-  msg.reply(chain, false)
+  if chain =~ /\w+s\s/
+    chain[0] = chain[0].downcase
+
+    msg.reply("\01ACTION #{chain}\01", false)
+  else
+    msg.reply(chain, false)
+  end
 end
 
 
