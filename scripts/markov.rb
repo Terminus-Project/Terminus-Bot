@@ -171,7 +171,7 @@ def cmd_markov(msg, params)
 
   else
 
-    msg.reply("Unknown action. Parameters: ON|OFF|FREQUENCY percentage|CLEAR|LOAD filename|INFO|GENERATE [word]")
+    msg.reply("Unknown action. Parameters: ON|OFF|FREQUENCY percentage|CLEAR|LOAD filename|INFO|GENERATE [word word]")
 
   end
 
@@ -199,7 +199,7 @@ def on_privmsg(msg)
 
   return unless rand(100) <= get_data(:freq, 0)
 
-  chain = create_chain(msg.text.split.sample.downcase)
+  chain = create_chain(msg.text.scan(/[\w']+[[:punct:]]? [\w']+[[:punct:]]?/).sample.downcase)
 
   return if chain.empty?
 
@@ -243,10 +243,7 @@ end
 def parse_line(str)
   last_word = ""
 
-  str.split.each do |word|
-    # We only want words that are alphanumeric. The rest likely won't make
-    # for convincing text.
-    next unless word =~ /\A[\w']+[[:punct:]]?\Z/
+  str.scan(/[\w']+[[:punct:]]? [\w']+[[:punct:]]?/).each do |word|
     word.downcase!
 
     # Skip empty words and links. This could use some improvement.
