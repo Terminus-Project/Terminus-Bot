@@ -177,10 +177,14 @@ module IRC
       @connection.raw(*args)
     end
 
+    def strip(str)
+      return str.gsub(/(\x0F|\x1D|\02|\03([0-9]{1,2}(,[0-9]{1,2})?)?)/, "")
+    end
+
     def stripped
       return @stripped unless @stripped.empty?
 
-      @stripped = text.gsub(/(\x0F|\x1D|\02|\03([0-9]{1,2}(,[0-9]{1,2})?)?)/, "")
+      @stripped = strip(@text)
 
       return @stripped
     end
