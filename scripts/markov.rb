@@ -52,7 +52,24 @@ def die
 end
 
 def cmd_chain(msg, params)
-  msg.reply(random_chain, false)
+  if params.length == 1
+
+    if params[0].count(" ") > 1
+      msg.reply("Chain seeds can contain two or less words.")
+      return
+    end
+
+    chain = create_chain(params.shift.downcase, false)
+
+    if chain.empty?
+      msg.reply("I was not able to create a chain with that seed.")
+    else
+      msg.reply(chain, false)
+    end
+
+  else
+    msg.reply(random_chain, false)
+  end
 end
 
 def cmd_markov(msg, params)
@@ -158,7 +175,7 @@ def cmd_markov(msg, params)
     chain = ""
 
     if arr.length >= 1
-      chain = create_chain(arr.shift.downcase)
+      chain = create_chain(arr.shift.downcase, false)
     else
       chain = random_chain
     end
@@ -275,7 +292,7 @@ def get_word(word)
 end
 
 
-def create_chain(word = @nodes.keys.sample)
+def create_chain(word = @nodes.keys.sample, random = true)
   buf = Array.new
   first = word.clone
 
@@ -294,11 +311,15 @@ def create_chain(word = @nodes.keys.sample)
 
   end
 
+  $log.debug("markov.create_chain") { "Creating chain with seed: #{first}" }
+
   buf << word
   done = false
 
   25.times do
     word = get_word(word)
+
+    tries = 0
 
     while word == nil
       if buf.length == 0
@@ -306,6 +327,12 @@ def create_chain(word = @nodes.keys.sample)
         # We've popped off all our words! Looks like we can't build a chain
         # this word.
         return ""
+
+      elsif buf.length == 1 and not random and tries < MAX_TRIES
+
+        # We were asked for a chain starting with this word, so keep trying.
+        word = get_word(first)
+        tries += 1
 
       else
 
