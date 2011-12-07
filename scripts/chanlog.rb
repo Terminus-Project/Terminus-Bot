@@ -78,7 +78,7 @@ def new_logger(network, channel)
   end
 
   unless @loggers[network].has_key? channel
-    @loggers[network][channel] = Logger.new(CHANLOG_DIR + "#{network}.#{channel}.log", File::APPEND)
+    @loggers[network][channel] = Logger.new(CHANLOG_DIR + "#{network}.#{channel}.log")
   else
     # We already have a logger for this channel.
     return
@@ -113,9 +113,9 @@ def on_privmsg(msg)
   return if msg.private?
 
   if msg.text =~ /\01ACTION (.+)\01/
-    log_msg(msg.connection.name, msg.destination, "ACTION", msg.nick, $1)
+    log_msg(msg.connection.name, msg.destination, "ACTION", msg.nick, msg.strip($1))
   elsif not msg.text =~ /\01.+\01/
-    log_msg(msg.connection.name, msg.destination, "PRIVMSG", msg.nick, msg.text)
+    log_msg(msg.connection.name, msg.destination, "PRIVMSG", msg.nick, msg.stripped)
   end
 end
 
@@ -123,12 +123,12 @@ def on_notice(msg)
   return if msg.private?
 
   unless msg.text =~ /\01.+\01/
-    log_msg(msg.connection.name, msg.destination, "NOTICE", msg.nick, msg.text)
+    log_msg(msg.connection.name, msg.destination, "NOTICE", msg.nick, msg.stripped)
   end
 end
 
 def on_kick(msg)
-  log_msg(msg.connection.name, msg.destination, "KICK", msg.nick, msg.raw_arr[3] + "(#{msg.text})")
+  log_msg(msg.connection.name, msg.destination, "KICK", msg.nick, msg.raw_arr[3] + "(#{msg.stripped})")
 
   # If we're the ones kicked, close the logger.
   if msg.raw_arr[3] == msg.connection.nick
@@ -137,7 +137,7 @@ def on_kick(msg)
 end
 
 def on_part(msg)
-  log_msg(msg.connection.name, msg.destination, "PART", msg.nick, msg.text)
+  log_msg(msg.connection.name, msg.destination, "PART", msg.nick, msg.stripped)
 
   # We parted, apparently. Stop logging.
   if msg.me?
@@ -157,13 +157,13 @@ end
 def on_quit(msg)
   msg.connection.channels.each_value do |chan|
     if chan.get_user(msg.nick)
-      log_msg(msg.connection.name, chan.name, "QUIT", msg.nick, msg.text)
+      log_msg(msg.connection.name, chan.name, "QUIT", msg.nick, msg.stripped)
     end
   end
 end
 
 def on_topic(msg)
-  log_msg(msg.connection.name, msg.destination, "TOPIC", msg.nick, msg.text)
+  log_msg(msg.connection.name, msg.destination, "TOPIC", msg.nick, msg.stripped)
 end
 
 def on_nick(msg)
