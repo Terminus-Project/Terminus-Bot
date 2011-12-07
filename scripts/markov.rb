@@ -171,7 +171,7 @@ def cmd_markov(msg, params)
 
   else
 
-    msg.reply("Unknown action. Parameters: ON|OFF|FREQUENCY percentage|CLEAR|LOAD filename|INFO|GENERATE [word word]")
+    msg.reply("Unknown action. Parameters: ON|OFF|FREQUENCY percentage|CLEAR|LOAD filename|INFO|GENERATE [word [word]]")
 
   end
 
@@ -199,7 +199,7 @@ def on_privmsg(msg)
 
   return unless rand(100) <= get_data(:freq, 0)
 
-  chain = create_chain(msg.text.scan(/[\w']+[[:punct:]]? [\w']+[[:punct:]]?/).sample.downcase)
+  chain = create_chain(msg.text.split.sample.downcase)
 
   return if chain.empty?
 
@@ -274,7 +274,24 @@ end
 def create_chain(word = @nodes.keys.sample)
   buf = Array.new
   first = word.clone
+
+  # If we were just given one word, let's find something that follows it.
+  unless word.include? " "
+
+    @nodes.keys.each do |key|
+      if key.start_with? "#{word} "
+
+        word = key.clone
+        first= key.clone
+        break
+
+      end
+    end
+
+  end
+
   buf << word
+  done = false
 
   25.times do
     word = get_word(word)
@@ -295,9 +312,16 @@ def create_chain(word = @nodes.keys.sample)
       end
     end
 
-    buf << word
+    word.split.each do |w|
+      buf << w
 
-    break if word =~ /[?!.]\Z/
+      if w =~ /[?!.]\Z/
+        done = true
+        break
+      end
+    end
+
+    break if done
   end
   
   return "" if buf.empty?
