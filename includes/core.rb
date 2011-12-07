@@ -164,7 +164,11 @@ module Terminus_Bot
         return
       end
 
-      params = $3.strip.split(" ", command.argc)
+      if command.argc == 0
+        params = $3.strip.split(" ", 1)
+      else
+        params = $3.strip.split(" ", command.argc)
+      end
 
       if params.length < command.argc
         msg.reply("This command requires at least \02#{command.argc}\02 parameters.")
