@@ -57,7 +57,7 @@ module Terminus_Bot
     def load_file(filename)
       name = filename.match("scripts/(.+).rb")[1]
 
-      $log.debug("scripts.load") { "Script file name: #{filename}" }
+      $log.debug("scripts.load_file") { "Script file name: #{filename}" }
 
       script = "class Script_#{name} < Script \n #{IO.read(filename)} \n end \n Script_#{name}.new"
       
@@ -65,7 +65,19 @@ module Terminus_Bot
         throw "Attempted to load script that is already loaded."
       end
 
-      @scripts[name] = eval(script, nil, filename, 0)
+      begin
+        @scripts[name] = eval(script, nil, filename, 0)
+      rescue => e
+        $log.error("scripts.load_file") { "Problem loading script #{name}. Clearing data and aborting..." }
+
+        @scripts[name].unregister_script
+        @scripts[name].unregister_commands
+        @scripts[name].unregister_events
+
+        @scripts.delete(name)
+
+        throw "Problem loading script #{name}: #{e}"
+      end
     end
 
     # Unload and then load a script. The name given is the script's short name
