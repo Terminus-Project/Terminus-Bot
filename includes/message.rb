@@ -26,6 +26,7 @@ module IRC
     def initialize(connection, str, outgoing = false)
 
       @connection = connection
+      @stripped = ""
 
       arr = str.split
       
@@ -174,6 +175,14 @@ module IRC
     # send, though.
     def raw(*args)
       @connection.raw(*args)
+    end
+
+    def stripped
+      return @stripped unless @stripped.empty?
+
+      @stripped = text.gsub(/(\x0F|\x1D|\02|\03([0-9]{1,2}(,[0-9]{1,2})?)?)/, "")
+
+      return @stripped
     end
 
     # Cheat mode for sending things to the owning connection. Useful for
