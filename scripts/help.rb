@@ -21,13 +21,16 @@
 def initialize()
   register_script("Provide on-protocol help for bot scripts and commands.")
 
-  register_command("commands", :cmd_commands, 0,  0, "Show a list of commands.")
-  register_command("help", :cmd_help,         1,  0, "Show help for the given command.")
-  register_command("scripts", :cmd_scripts,   0,  0, "Show a list of loaded scripts.")
-  register_command("script", :cmd_script,     1,  0, "Show a description of the given script.")
+  register_command("help", :cmd_help,         0,  0, "Show help for the given command, or a list of all commands. Parameters: [command]")
+  register_command("script", :cmd_script,     0,  0, "Show a description of the given script, or a list of all scripts. Parameters: [script]")
 end
 
 def cmd_help(msg, params)
+  if params.length == 0
+    list_commands(msg)
+    return
+  end
+
   name = params[0].downcase
 
   unless $bot.commands.has_key? name
@@ -47,7 +50,7 @@ def cmd_help(msg, params)
   msg.reply(command.help)
 end
 
-def cmd_commands(msg, params)
+def list_commands(msg, params)
   buf = Array.new
 
   level = msg.connection.users.get_level(msg)
@@ -61,6 +64,11 @@ end
 
 
 def cmd_script(msg, params)
+  if params.length == 0
+    list_scripts(msg)
+    return
+  end
+
   script = $bot.script_info.select {|s| s.name.downcase == params[0].downcase }[0]
 
   if script == nil
@@ -70,7 +78,7 @@ def cmd_script(msg, params)
   end
 end
 
-def cmd_scripts(msg, params)
+def list_scripts(msg)
   buf = Array.new
 
   $bot.script_info.each do |script|
