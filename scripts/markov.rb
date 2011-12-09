@@ -284,15 +284,20 @@ def create_chain(word = @nodes.keys.sample, random = true)
   # If we were just given one word, let's find something that follows it.
   unless word.include? " "
 
-    @nodes.keys.each do |key|
-      if key.start_with? "#{word} "
+    potentials = Array.new
 
-        word = key.clone
-        first= key.clone
-        break
+    @nodes.keys.each do |key|
+      if key.start_with? "#{word} " or key.end_with? " #{word}"
+
+        potentials << key.clone
 
       end
     end
+
+    $log.debug("markov.create_chain") { potentials.to_s }
+
+    first = potentials.sample
+    word = potentials.sample
 
   end
 
