@@ -22,9 +22,13 @@
 def initialize
   register_script("Get the time and date from the bot.")
 
-  register_command("time", :cmd_time,  0,  0, "Get the current time.")
+  register_command("time", :cmd_time,  0,  0, "Get the current time with optional time format. Parameters: [format]")
 end
 
 def cmd_time(msg, params)
-  msg.reply(Time.now.strftime("%Y-%m-%d %H:%M:%S %Z"))
+  if params.length == 0
+    msg.reply(Time.now.strftime("%Y-%m-%d %H:%M:%S %Z"))
+  else
+    msg.reply(Time.now.strftime(params[0]))
+  end
 end
