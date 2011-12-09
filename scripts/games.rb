@@ -38,9 +38,6 @@ def cmd_dice(msg, params)
   count = arr[0].to_i
   sides = arr[1].to_i
 
-  rolls = Array.new
-  sum = 0
-
   if count > 100
     msg.reply("You may only roll up to 100 dice.")
     return
@@ -56,14 +53,8 @@ def cmd_dice(msg, params)
     return
   end
 
-  (1..count).each do |i|
-    break if i > 100
-    
-    rolls << rand(sides) + 1
-    sum += rolls[i-1]
-  end
-
-  msg.reply(rolls.join(", ") + " \02Sum: #{sum}\02")
+  rolls = (1..count).map {rand(sides) + 1}
+  msg.reply(rolls.join(", ") + " \02Sum: #{rolls.inject(:+)}\02")
 end
 
 def cmd_eightball(msg, params)
