@@ -54,7 +54,7 @@ def get_title(msg, url)
 
     return if response == nil
 
-    page = StringScanner.new(response.body)
+    page = StringScanner.new(response[0].body)
 
     page.skip_until(/<title>/i)
     title = page.scan_until(/<\/title>/i)
@@ -65,29 +65,31 @@ def get_title(msg, url)
     title = title[0..len].strip.gsub(/[\n\s]+/, " ")
     title = HTMLEntities.new.decode(title)
 
-    msg.reply("\02Title:\02 " + title, false)
+    msg.reply("\02Title on #{response[1]}#{" (redirected)" if response[2]}:\02 " + title, false)
   rescue => e
     $log.debug('title.get_title') { "Error getting title for #{url}: #{e}" }
     return
   end
 end
 
-def get_page(url, limit = get_config("redirects", 10))
+def get_page(url, limit = get_config("redirects", 10), redirected = false)
   return nil if limit == 0
 
-  response = Net::HTTP.get_response(URI(url))
+  uri = URI(url)
+
+  response = Net::HTTP.get_response(uri)
 
   case response
 
   when Net::HTTPSuccess
-    return response
+    return [response, uri.hostname, redirected]
 
   when Net::HTTPRedirection
     location = response['location']
 
     $log.debug("title.get_page") { "Redirection: #{url} -> #{location} (#{limit})" }
 
-    return get_page(location, limit - 1)
+    return get_page(location, limit - 1, true)
 
   else
     return response.value
