@@ -36,12 +36,12 @@ def cmd_roulette(msg, params)
 
       # Only send the ACTION in channels since it is considered a
       # CTCP reply in NOTICEs.
-      msg.reply("\01ACTION chambers another round.\01", false)
+      msg.reply("\01ACTION chambers another round and spins the cylinder.\01", false)
     end
 
   else
 
-    msg.reply("\01ACTION spins the cylinder after failing to fire a round.\01", false)
+    msg.reply("\01ACTION spins the cylinder after #{msg.nick} pulled the trigger on an empty chamber.\01", false)
 
   end
 end
