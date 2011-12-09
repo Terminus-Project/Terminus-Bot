@@ -50,7 +50,7 @@ def cmd_help(msg, params)
   msg.reply(command.help)
 end
 
-def list_commands(msg, params)
+def list_commands(msg)
   buf = Array.new
 
   level = msg.connection.users.get_level(msg)
