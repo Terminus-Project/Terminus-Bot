@@ -41,7 +41,7 @@ def cmd_roulette(msg, params)
 
   else
 
-    msg.reply("Click.")
+    msg.reply("\01ACTION spins the cylinder after failing to fire a round.\01", false)
 
   end
 end
