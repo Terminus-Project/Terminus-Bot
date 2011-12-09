@@ -41,9 +41,11 @@ def on_privmsg(msg)
     return unless @messages.has_key? msg.connection.name
     return unless @messages[msg.connection.name].has_key? msg.destination
     flags = $3
-
-    search = Regexp.new($1, Regexp::EXTENDED)
     replace = $2
+
+    search = Regexp.new($1.gsub(/\s/, '\s'), Regexp::EXTENDED)
+
+    $log.debug("regex.on_privmsg") { search.to_s }
 
     @messages[msg.connection.name][msg.destination].reverse.each do |message|
       if search.match(message[1])
