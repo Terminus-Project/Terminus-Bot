@@ -296,8 +296,8 @@ def create_chain(word = @nodes.keys.sample, random = true)
 
     $log.debug("markov.create_chain") { potentials.to_s }
 
-    first = potentials.sample
-    word = potentials.sample
+    first = potentials.sample.sub(/[!?.]\Z/, "")
+    word = first
 
   end
 
