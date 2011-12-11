@@ -289,17 +289,17 @@ def create_chain(word = @nodes.keys.sample, random = true)
     @nodes.keys.each do |key|
       if key.start_with? "#{word} " or key.end_with? " #{word}"
 
-        potentials << key.clone
+        potentials << key
 
       end
     end
 
     $log.debug("markov.create_chain") { potentials.to_s }
 
-    first = potentials.sample
+    first = potentials.sample.clone
     return "" if first == nil
 
-    first.sub!(/[!?.]/, '')
+    first = first.sub(/[!?.]/, '')
     word = first
 
   end
