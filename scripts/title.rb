@@ -36,7 +36,7 @@ def on_message(msg)
   i = 0
   max = get_config("max", 3).to_i
 
-  msg.text.scan(/http:\/\/[^\s]+/) { |match|
+  msg.text.scan(/https?:\/\/[^\s]+/) { |match|
     return if i >= max
 
     $log.debug("title.on_message") { "#{i}/#{max}: #{match}" }
@@ -77,7 +77,12 @@ def get_page(url, limit = get_config("redirects", 10), redirected = false)
 
   uri = URI(url)
 
-  response = Net::HTTP.get_response(uri)
+  response = Net::HTTP.start(uri.host, uri.port,
+    :use_ssl => uri.scheme == "https",
+    :verify_mode => OpenSSL::SSL::VERIFY_NONE) do |http|
+
+    http.request Net::HTTP::Get.new(uri.request_uri)
+  end
 
   case response
 
