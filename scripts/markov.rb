@@ -249,7 +249,7 @@ end
 def parse_line(str)
   last_word = ""
 
-  str.scan(/[\w']+[[:punct:]]? [\w']+[[:punct:]]?/).each do |word|
+  str.scan(/[\w'-]+[[:punct:]]? [\w'-]+[[:punct:]]?/).each do |word|
     word.downcase!
 
     # Skip empty words and links. This could use some improvement.
