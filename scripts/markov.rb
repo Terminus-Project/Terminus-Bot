@@ -296,6 +296,8 @@ def create_chain(word = @nodes.keys.sample, random = true)
 
     $log.debug("markov.create_chain") { potentials.to_s }
 
+    return "" if potentials.empty?
+
     first = potentials.sample.clone
     return "" if first == nil
 
