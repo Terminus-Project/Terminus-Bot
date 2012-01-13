@@ -56,8 +56,10 @@ def get_title(msg, url)
 
     page = StringScanner.new(response[0].body)
 
-    page.skip_until(/<title>/i)
-    title = page.scan_until(/<\/title>/i)
+    page.skip_until(/<title[^>]*>/ix)
+    title = page.scan_until(/<\/title[^>]*>/ix)
+
+    return if title == nil
 
     len = title.length - 9
     return if len <= 0
