@@ -37,7 +37,24 @@ end
 def on_privmsg(msg)
   return if msg.private? or msg.silent?
 
-  if msg.text =~ /\As\/(.+)\/(.*)\/(.*)\Z/
+  if msg.text =~ /\Ag\/(.+)\/\Z/
+    return unless @messages.has_key? msg.connection.name
+    return unless @messages[msg.connection.name].has_key? msg.destination
+
+    search = Regexp.new($1.gsub(/\s/, '\s'), Regexp::EXTENDED)
+
+    $log.debug("regex.on_privmsg") { "Grep: " + search.to_s }
+
+    @messages[msg.connection.name][msg.destination].reverse.each do |message|
+      if search.match(message[1])
+
+        msg.reply("<#{message[0]}> #{message[1]}", false)
+        return
+      end
+    end
+
+    return
+  elsif msg.text =~ /\As\/(.+)\/(.*)\/(.*)\Z/
     return unless @messages.has_key? msg.connection.name
     return unless @messages[msg.connection.name].has_key? msg.destination
     flags = $3
@@ -45,7 +62,7 @@ def on_privmsg(msg)
 
     search = Regexp.new($1.gsub(/\s/, '\s'), Regexp::EXTENDED)
 
-    $log.debug("regex.on_privmsg") { search.to_s }
+    $log.debug("regex.on_privmsg") { "Substitute: " + search.to_s }
 
     @messages[msg.connection.name][msg.destination].reverse.each do |message|
       if search.match(message[1])
@@ -73,7 +90,7 @@ def on_privmsg(msg)
     @messages[msg.connection.name][msg.destination] << [msg.nick, msg.text]
   end
 
-  if @messages[msg.connection.name][msg.destination].length > 10
+  if @messages[msg.connection.name][msg.destination].length > 500
     @messages[msg.connection.name][msg.destination].shift
   end
 end
