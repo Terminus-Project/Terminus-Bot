@@ -88,7 +88,7 @@ def get_definition(msg, word, root, definitions)
       end
 
       unless result == nil
-        buf = result.join("; ").gsub(/<\/?(b|i)>/, "\02").gsub(/<.>/, '').gsub(/\s+/, " ")
+        buf = result.join("; ").gsub(/<\/?(b|i)>/, "\02").gsub(/<[^>]+>/, '').gsub(/\s+/, " ")
 
         results << head + ":\02 " + buf unless buf.empty?
       end
