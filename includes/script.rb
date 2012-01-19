@@ -70,11 +70,15 @@ module Terminus_Bot
       rescue => e
         $log.error("scripts.load_file") { "Problem loading script #{name}. Clearing data and aborting..." }
 
-        @scripts[name].unregister_script
-        @scripts[name].unregister_commands
-        @scripts[name].unregister_events
+        if @scripts.has_key? name
 
-        @scripts.delete(name)
+          @scripts[name].unregister_script
+          @scripts[name].unregister_commands
+          @scripts[name].unregister_events
+
+          @scripts.delete(name)
+
+        end
 
         throw "Problem loading script #{name}: #{e}"
       end
