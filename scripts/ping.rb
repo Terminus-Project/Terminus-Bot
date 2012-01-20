@@ -37,7 +37,7 @@ def on_notice(msg)
     return
   end
 
-  if msg.text == "\01PING\01"
+  if msg.text.start_with? "\01PING"
     time = Time.now.to_f - @pending[msg.connection.name][msg.nick]
     @pending[msg.connection.name].delete(msg.nick)
 

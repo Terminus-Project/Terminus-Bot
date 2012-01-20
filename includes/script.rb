@@ -80,7 +80,7 @@ module Terminus_Bot
 
         end
 
-        throw "Problem loading script #{name}: #{e}"
+        throw "Problem loading script #{name}: #{e}: #{e.backtrace}"
       end
     end
 

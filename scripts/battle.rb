@@ -105,6 +105,12 @@ end
 
 def attack_player(msg, target, weapon)
   current = get_health(msg, target)
+  my_health = get_health(msg, msg.nick)
+
+  if my_health == 0
+    msg.reply("You cannot attack when dead.")
+    return
+  end
 
   if current == 0
     msg.reply("#{target} is already dead.", false)
