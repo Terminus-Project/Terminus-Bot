@@ -89,7 +89,7 @@ def get_reply(botid, str, msg)
       response = response.join(" ")
     end
 
-    response = HTMLEntities.new.decode(response)
+    response = HTMLEntities.new.decode(response.force_encoding('UTF-8'))
 
     return response.gsub(/<[^>]+>/, "").gsub(/\s+/, " ")
   rescue => e
