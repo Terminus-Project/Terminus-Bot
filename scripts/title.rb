@@ -54,7 +54,7 @@ def get_title(msg, url)
 
     return if response == nil
 
-    page = StringScanner.new(response[0].body.force_encoding('ASCII-8BIT'))
+    page = StringScanner.new(response[0].body.force_encoding('UTF-8'))
 
     page.skip_until(/<title[^>]*>/ix)
     title = page.scan_until(/<\/title[^>]*>/ix)
