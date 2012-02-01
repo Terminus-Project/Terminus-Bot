@@ -24,7 +24,7 @@ def initialize
   register_command("join", :cmd_join, 1,  5, "Join a channel.")
   register_command("part", :cmd_part, 1,  5, "Part a channel.")
 
-  register_event("376",   :join_channels)
+  register_event("001",   :join_channels)
   register_event("JOIN",  :on_join)
   register_event("PING",  :leave_channels)
 
