@@ -56,7 +56,7 @@ def cmd_dice(msg, params)
   rolls = Hash.new(0)
   rolls_a = Array.new
 
-  (count).times { rolls[rand(sides)+1] += 1 }
+  count.times { rolls[rand(sides)+1] += 1 }
   rolls.each_pair { |r, c| rolls_a << "#{r}#{(c > 1 ? "x#{c}" : "")}" }
 
   msg.reply(rolls_a.sort.join(", ") + " \02Sum: #{rolls.values.inject(:+)}\02")
