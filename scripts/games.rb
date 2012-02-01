@@ -53,8 +53,13 @@ def cmd_dice(msg, params)
     return
   end
 
-  rolls = (1..count).map {rand(sides) + 1}
-  msg.reply(rolls.join(", ") + " \02Sum: #{rolls.inject(:+)}\02")
+  rolls = Hash.new(0)
+  rolls_a = Array.new
+
+  (count).times { rolls[rand(sides)+1] += 1 }
+  rolls.each_pair { |r, c| rolls_a << "#{r}#{(c > 1 ? "x#{c}" : "")}" }
+
+  msg.reply(rolls_a.sort.join(", ") + " \02Sum: #{rolls.values.inject(:+)}\02")
 end
 
 def cmd_eightball(msg, params)
