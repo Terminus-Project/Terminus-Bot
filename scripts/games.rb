@@ -48,7 +48,7 @@ def cmd_dice(msg, params)
     return
   end
 
-  if count < 0 or sides < 0
+  if count <= 0 or sides <= 0
     msg.reply("The number of dice and their sides must be positive numbers larger than 0.")
     return
   end
