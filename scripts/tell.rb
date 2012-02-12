@@ -43,7 +43,7 @@ def cmd_tell(msg, params)
   tells = get_data(msg.connection.name, Hash.new)
   
   if tells.has_key? params[0]
-    if tells[params[0]].length > get_config("max", 5)
+    if tells[params[0]].length > get_config("max", 5).to_i
       msg.reply("No more tells can be left for that nick.")
       return
     end
