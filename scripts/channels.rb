@@ -21,12 +21,14 @@
 def initialize
   register_script("Manage the list of channels the bot occupies.")
 
+  register_command("joinchans", :cmd_joinchans, 0,  10, "Force the join channels event.")
   register_command("join", :cmd_join, 1,  5, "Join a channel.")
   register_command("part", :cmd_part, 1,  5, "Part a channel.")
 
   register_event("001",   :join_channels)
   register_event("JOIN",  :on_join)
   register_event("PING",  :leave_channels)
+  register_event("PING",  :join_channels)
 
   # TODO: Handle 405?
 end
@@ -79,6 +81,11 @@ def leave_channels(msg)
     
     msg.raw("PART #{chan} :I am not configured to be in this channel.") 
   end
+end
+
+def cmd_joinchans(msg, params)
+  join_channels(msg)
+  msg.reply("Done")
 end
 
 def cmd_join(msg, params)
