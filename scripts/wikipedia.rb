@@ -50,7 +50,7 @@ def cmd_wiki(msg, params)
   reply["query"]["pages"].each do |id, data|
 
     link_title = data["title"].gsub(/\s/, "_")
-    lines << "#{data["title"]}: http://en.wikipedia.org/wiki/#{URI.escape(link_title)}"
+    lines << "#{data["title"]}: https://en.wikipedia.org/wiki/#{URI.escape(link_title)}"
 
   end
 
