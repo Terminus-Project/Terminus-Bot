@@ -127,6 +127,14 @@ class IRC_Connection < EventMachine::Connection
 
   end
 
+  # Called when we lose our connection.
+  def unbind
+    return if @disconnecting
+
+    port, ip = Socket.unpack_sockaddr_in(get_peername)
+    self.superclass.instance_method(:reconnect).bind(self).call(ip, port)
+  end
+
   # Add an unedited string to the outgoing queue for later sending.
   def raw(str)
     $log.debug("IRC.send") { "Queued #{str}" }
@@ -141,11 +149,14 @@ class IRC_Connection < EventMachine::Connection
   # is up to other things; this just adds the QUIT to the queue and
   # returns.
   def disconnect(quit_message = "Terminus-Bot: Terminating")
+    @disconnecting = true
+
     raw "QUIT :" + quit_message
   end
 
   # Empty the queue and then reconnect.
   def reconnect
+    @disconnecting = true
     raw "QUIT :Reconnecting"
 
     @send_queue.length.times do
