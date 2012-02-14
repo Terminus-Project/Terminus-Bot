@@ -91,6 +91,11 @@ class Bot
     Dir.mkdir(DATA_DIR) unless Dir.exists? DATA_DIR
 
     EM.run do
+      EM.error_handler { |e|
+        $log.error("EM.error_handler") { e.to_s }
+        $log.error("EM.error_handler") { e.backtrace }
+      }
+
       # Begin connecting
       start_connections
     end
@@ -119,11 +124,13 @@ class Bot
       if config["core"]["bind"] != nil
         EM.bind_connect(config["core"]["bind"], rand(64511)+1024,
                         server_config[1], server_config[2], IRC_Connection,
-                        server_config[0], server_config[3], config['core']['bind'],
+                        server_config[0], server_config[1], 
+                        server_config[2], server_config[3], config['core']['bind'],
                         config['core']['nick'], config['core']['user'], config['core']['realname'])
       else
         EM.connect(server_config[1], server_config[2], IRC_Connection,
-                   server_config[0], server_config[3], config['core']['bind'],
+                   server_config[0], server_config[1], 
+                   server_config[2], server_config[3], config['core']['bind'],
                    config['core']['nick'], config['core']['user'], config['core']['realname'])
       end
 

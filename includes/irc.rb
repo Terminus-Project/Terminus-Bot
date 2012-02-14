@@ -22,11 +22,11 @@ class IRC_Connection < EventMachine::Connection
   require 'socket'
   require 'timeout'
 
-  attr_reader :name, :channels, :bind, :read_thread, :send_thread,
+  attr_reader :name, :channels, :host, :port, :bind, :read_thread, :send_thread,
    :users, :client_host, :nick, :user, :realname
 
   # Create a new connection, then kick things off.
-  def initialize(name, password = nil, bind = nil, nick = "Terminus-Bot",
+  def initialize(name, host, port, password = nil, bind = nil, nick = "Terminus-Bot",
                  user = "Terminus", realname = "http://terminus-bot.net/")
 
     # Register ALL the events!
@@ -53,6 +53,8 @@ class IRC_Connection < EventMachine::Connection
     @name = name
     @nick = nick
     @user = user
+    @host = host
+    @port = port
     @bind = bind
     @password = password
     @realname = realname
@@ -131,8 +133,7 @@ class IRC_Connection < EventMachine::Connection
   def unbind
     return if @disconnecting
 
-    port, ip = Socket.unpack_sockaddr_in(get_peername)
-    self.superclass.instance_method(:reconnect).bind(self).call(ip, port)
+    reconnect
   end
 
   # Add an unedited string to the outgoing queue for later sending.
@@ -163,12 +164,9 @@ class IRC_Connection < EventMachine::Connection
       send_data @send_queue.pop
     end
 
-    # TODO: Maybe we should still use instance variables for this info.
-    port, ip = Socket.unpack_sockaddr_in(get_peername)
-
-    $log.debug("IRC.reconnect") { "#{ip}:#{port}" }
     EM.add_timer(5) {
-      super(ip, port)
+      @disconnecting = false
+      super(@host, @port)
       register
     }
   end
