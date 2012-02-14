@@ -32,7 +32,7 @@ Node = Struct.new(:word, :links)
 Link = Struct.new(:parent, :target, :score)
 
 
-MARKOV_FILE = Terminus_Bot::DATA_DIR + "markov.db"
+MARKOV_FILE = DATA_DIR + "markov.db"
 
 def initialize
   register_script("Markov chain implementation that generates somewhat readable text.")

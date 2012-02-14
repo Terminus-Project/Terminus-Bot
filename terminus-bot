@@ -21,6 +21,7 @@
 
 require 'thread'
 require 'logger'
+require 'eventmachine'
 
 Dir.chdir(File.dirname(__FILE__))
 
@@ -69,7 +70,7 @@ load_files "includes"
 
 # Launch!
 pid = fork do
-  Terminus_Bot::Bot.new
+  Bot.new
 end
 
 puts "Terminus-Bot started as #{pid}"

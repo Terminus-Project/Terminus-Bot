@@ -18,67 +18,64 @@
 #
 
 
-module Terminus_Bot
-  class Configuration < Hash
+class Configuration < Hash
 
-    attr :config
+  attr :config
 
-    FILE_NAME = "terminus-bot.conf"
+  FILE_NAME = "terminus-bot.conf"
 
-    # Create a new configuration object.
-    # Read the configuration file now.
-    def initialize
-      read_config
+  # Create a new configuration object.
+  # Read the configuration file now.
+  def initialize
+    read_config
+  end
+
+
+  # Read the config file named by FILE_NAME.
+  # Configuration is stored in @config, a hash table. Keys are
+  # section names ([name] in the file). The values are more hash tables.
+  # The key/value pair for those hash tables is the setting name and value.
+  def read_config
+    unless File.exists? FILE_NAME
+      throw "No Config File"
     end
 
+    $log.info("Configuration.read_config") { "Loading the configuration file." } 
 
-    # Read the config file named by FILE_NAME.
-    # Configuration is stored in @config, a hash table. Keys are
-    # section names ([name] in the file). The values are more hash tables.
-    # The key/value pair for those hash tables is the setting name and value.
-    def read_config
-      unless File.exists? FILE_NAME
-        throw "No Config File"
-      end
+    fi = File.open(FILE_NAME, "r")
 
-      $log.info("Configuration.read_config") { "Loading the configuration file." } 
+    section = ""
 
-      fi = File.open(FILE_NAME, "r")
+    while line = fi.gets
+      line.strip!
 
-      section = ""
+      # Skip comments and empty lines.
+      next if line[0] == "#" or line.empty?
 
-      while line = fi.gets
-        line.strip!
+      # Section header!
+      if line =~ /\[(.+)\]/
+        section = $1.strip
 
-        # Skip comments and empty lines.
-        next if line[0] == "#" or line.empty?
-
-        # Section header!
-        if line =~ /\[(.+)\]/
-          section = $1.strip
-
-          unless self.has_key? section
-            self[section] = Hash.new
-            $log.debug("Configuration.read_config") { "New config section: #{section}" } 
-          end
-
-        # A setting! Read it in.
-        elsif line =~ /\A(.+)=(.+)\Z/
-          
-          if section.empty?
-            throw "Congifuration before section declaration."
-          end
-
-          self[section][$1.strip] = $2.strip
-
+        unless self.has_key? section
+          self[section] = Hash.new
+          $log.debug("Configuration.read_config") { "New config section: #{section}" } 
         end
 
+      # A setting! Read it in.
+      elsif line =~ /\A(.+)=(.+)\Z/
+        
+        if section.empty?
+          throw "Congifuration before section declaration."
+        end
+
+        self[section][$1.strip] = $2.strip
+
       end
 
-      $log.debug("Configuration.read_config") { "Done loading the configuration file." } 
-
-      fi.close
     end
+
+    $log.debug("Configuration.read_config") { "Done loading the configuration file." } 
+
+    fi.close
   end
 end
-

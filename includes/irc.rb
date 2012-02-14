@@ -17,348 +17,288 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 
-module IRC
-  class Connection
+class IRC_Connection < EventMachine::Connection
 
-    require 'socket'
+  require 'socket'
+  require 'timeout'
 
-    attr_reader :name, :socket, :channels, :host, :port, :read_thread, :send_thread,
-     :users, :client_host, :nick, :user, :realname
+  attr_reader :name, :channels, :bind, :read_thread, :send_thread,
+   :users, :client_host, :nick, :user, :realname
 
-    # Create a new connection, then kick things off.
-    def initialize(name, host, port = 6667, bind = nil, password = nil,
-                   nick = "Terminus-Bot", user = "Terminus",
-                   realname = "http://terminus-bot.net/")
+  # Create a new connection, then kick things off.
+  def initialize(name, password = nil, bind = nil, nick = "Terminus-Bot",
+                 user = "Terminus", realname = "http://terminus-bot.net/")
 
-      # Register ALL the events!
+    # Register ALL the events!
 
-      $bot.events.create(self, "JOIN",  :on_join)
-      $bot.events.create(self, "PART",  :on_part)
-      $bot.events.create(self, "KICK",  :on_kick)
-      $bot.events.create(self, "MODE",  :on_mode)
-      $bot.events.create(self, "324",   :on_324)
+    $bot.events.create(self, "JOIN",  :on_join)
+    $bot.events.create(self, "PART",  :on_part)
+    $bot.events.create(self, "KICK",  :on_kick)
+    $bot.events.create(self, "MODE",  :on_mode)
+    $bot.events.create(self, "324",   :on_324)
 
-      $bot.events.create(self, "396",   :on_396) # hidden host
+    $bot.events.create(self, "396",   :on_396) # hidden host
 
-      $bot.events.create(self, "TOPIC", :on_topic)
-      $bot.events.create(self, "332",   :on_332) # topic on join
+    $bot.events.create(self, "TOPIC", :on_topic)
+    $bot.events.create(self, "332",   :on_332) # topic on join
 
-      $bot.events.create(self, "352",   :on_352) # who reply
-      $bot.events.create(self, "NAMES", :on_names)
+    $bot.events.create(self, "352",   :on_352) # who reply
+    $bot.events.create(self, "NAMES", :on_names)
 
-      $bot.events.create(self, "NICK",  :on_nick)
-      $bot.events.create(self, "433",   :on_nick_in_use)
+    $bot.events.create(self, "NICK",  :on_nick)
+    $bot.events.create(self, "433",   :on_nick_in_use)
 
-      $bot.events.create(self, "001",   :on_registered)
+    $bot.events.create(self, "001",   :on_registered)
 
-      @name = name
-      @host = host
-      @port = port
-      @bind = bind
-      @nick = nick
-      @user = user
-      @password = password
-      @realname = realname
+    @name = name
+    @nick = nick
+    @user = user
+    @bind = bind
+    @password = password
+    @realname = realname
 
-      @closing = false
-      @reconnecting = false
-      @registered = false
+    @registered = false
 
-      @client_host = (bind == nil ? "" : bind)
+    # We queue up messages here
+    @send_queue = Queue.new
 
-      # We queue up messages here
-      @send_queue = Queue.new
-      # then send them with this thread.
-      @send_thread = send_thread
+    EM.add_periodic_timer($bot.config['core']['throttle']) {
+      unless @send_queue.empty?
+        msg = @send_queue.pop
 
-      # Connect!
-      start_connection
+        throw "Message Too Large" if msg.length > 512
 
-      # Start a thread to read from the socket.
-      @read_thread = read_thread
+        send_data msg
+      end
+    }
 
-      # Return self so Bot can add us to @connections.
-      return self
+    $bot.connections[name] = self
+  end
+
+  # Called after the socket is opened.
+  def post_init
+    $log.debug("Connection.start_connection") { "Starting connection: #{@host}:#{@port}" }
+
+    @users = Users.new(self)
+    @channels = Hash.new
+    @registered = false
+
+    @client_host = (bind == nil ? "" : bind)
+
+    register
+  end
+
+  def register
+    raw "PASS " + @password unless @password == nil
+
+    raw "NICK " + @nick
+    raw "USER #{@user} 0 0 :" + @realname
+  end
+
+  def send_data(data)
+    super(data + "\r\n")
+
+    $log.debug("IRC.send_data") { "Sent: #{data}" }
+  end
+
+  def receive_data(data)
+    (@buf ||= BufferedTokenizer.new).extract(data).each do |line|
+      received_line line.chomp
     end
+  end
 
-    # Connect to IRC.
-    def start_connection
+  def received_line(line)
+    msg = Message.new(self, line.clone)
 
-      # Do all this here since this data is only relevant to the
-      # current connection.
-      #
-      # TODO: We may want to keep some of this (such as logged in
-      # users) between sessions.
+    begin
 
-      $log.debug("Connection.start_connection") { "Starting connection: #{@host}:#{@port}" }
+      Timeout::timeout($bot.config['core']['timeout'].to_f) do
+        $bot.events.run(:raw, msg)
 
-      @send_queue.clear # Clear this, just in case we're reconnecting.
-      @users = Users.new(self)
-      @channels = Hash.new
-      @registered = false
-
-      # Actually connect.
-      @socket = TCPSocket.open(@host, @port, @bind)
-
-      raw "PASS " + @password unless @password == nil
-
-      raw "NICK " + @nick
-      raw "USER #{@user} 0 0 :" + @realname
-    end
-
-    # Read from our socket. This fires off the message parser,
-    # which then fires events.
-    def read_thread
-      if @read_thread != nil
-        if @read_thread.alive?
-          @read_thread.kill
-        end
+        $bot.events.run(msg.type, msg)  # The most important line in this file!
+                                        # Also the reason we can't use symbols for
+                                        # most event names. :-(
       end
 
-      return Thread.new do
-        while true
-
-          begin
-
-            until @socket.eof?
-              inbuf = @socket.gets.chomp
-
-              $log.debug("IRC.read_thread") { "#{@name}: Received: #{inbuf}" }
-
-              # This is so bad.
-              # TODO: Don't spawn a new thread for every single message.
-              #       One option: the old Terminus-Bot used a thread pool
-              #       (5 workers, typically) and let those take messages from
-              #       a queue. That seemed to work well for large loads.
-              Thread.new do
-
-                begin
-                  # The Message object will fire the actual events.
-                  msg = IRC::Message.new(self, inbuf.clone)
-
-                  $bot.events.run(:raw, msg)  # Not currently used.
-                                               # Leave in for scripts or remove?
-      
-                  $bot.events.run(msg.type, msg) # The most important line in this file!
-                                               # Also the reason we can't use symbols for
-                                               # most event names. :-(
-                rescue => e
-                  $log.error("IRC.read_thread") { "#{@name}: Uncaught error in message handler thread: #{e}" }
-                  $log.error("IRC.read_thread") { "#{@name}: Backtrace: #{e.backtrace}" }
-                end
-
-              end
-
-            end
-
-          rescue => e
-            $log.error("IRC.read_thread") { "Got error on socket for #{@name}: #{e}" }
-          end
-
-          $log.warn("IRC.read_thread") { "Disconnected. Waiting to reconnect..." }
-
-          sleep Float($bot.config['core']['reconwait']) unless @reconnecting
-          @reconnecting = false
-
-          start_connection
-        end
-      end
+    rescue => e
+      $log.error("IRC.read_thread") { "#{@name}: Uncaught error in message handler thread: #{e}" }
+      $log.error("IRC.read_thread") { "#{@name}: Backtrace: #{e.backtrace}" }
     end
 
-    # Periodically pops messages from our outgoing queue and sends them on our socket.
-    def send_thread
-      if @send_thread != nil
-        if @send_thread.alive?
-          @send_thread.kill
-        end
-      end
+  end
 
-      return Thread.new do
-        while true
-          msg = @send_queue.pop
+  # Add an unedited string to the outgoing queue for later sending.
+  def raw(str)
+    $log.debug("IRC.send") { "Queued #{str}" }
 
-          # This should probably never get called, since our reply function
-          # truncates messages.
-          throw "Message Too Large" if msg.length > 512
+    $bot.events.run(:raw_out, Message.new(self, str, true))
 
-          # TODO: Hold messages for later delivery if our socket is dead.
-          @socket.puts(msg)
+    @send_queue.push(str)
+    return str
+  end
 
-          $log.debug("IRC.send_thread") { "Sent: #{msg}" }
+  # Send a QUIT with optional messsage. Handling the closing socket
+  # is up to other things; this just adds the QUIT to the queue and
+  # returns.
+  def disconnect(quit_message = "Terminus-Bot: Terminating")
+    raw "QUIT :" + quit_message
+  end
 
-          # If we just blast through our queue at full speed, we won't even
-          # make it past joining channels before being killed for flooding!
-          sleep Float($bot.config['core']['throttle'])
-        end
-      end
+  # Empty the queue and then reconnect.
+  def reconnect
+    raw "QUIT :Reconnecting"
+
+    @send_queue.length.times do
+      send_data @send_queue.pop
     end
 
-    # Add an unedited string to the outgoing queue for later sending.
-    def raw(str)
-      return if @closing
+    # TODO: Maybe we should still use instance variables for this info.
+    port, ip = Socket.unpack_sockaddr_in(get_peername)
 
-      $log.debug("IRC.send") { "Queued #{str}" }
+    $log.debug("IRC.reconnect") { "#{ip}:#{port}" }
+    EM.add_timer(5) {
+      super(ip, port)
+      register
+    }
+  end
 
-      $bot.events.run(:raw_out, IRC::Message.new(self, str, true))
-
-      @send_queue.push(str)
-      return str
+  # Clean up the connection and kill our threads.
+  def close
+    @send_queue.length.times do
+      send_data @send_queue.pop
     end
 
-    # Send a QUIT with optional messsage. Handling the closing socket
-    # is up to other things; this just adds the QUIT to the queue and
-    # returns.
-    def disconnect(quit_message = "Terminus-Bot: Terminating")
-      raw "QUIT :" + quit_message
+    close_connection_after_writing
+  end
+
+  # hidden host
+  def on_396(msg)
+    return if msg.connection != self
+
+    @client_host = msg.raw_arr[3]
+  end
+
+  # WHO reply handler.
+  def on_352(msg)
+    return if msg.connection != self
+
+    unless @channels.has_key? msg.raw_arr[3]
+      @channels[msg.raw_arr[3]] = Channel.new(msg.raw_arr[3])
     end
 
-    def reconnect
-      @reconnecting = true
-      raw "QUIT :Reconnecting"
+    @channels[msg.raw_arr[3]].join(ChannelUser.new(msg.raw_arr[7],
+                                                   msg.raw_arr[4],
+                                                   msg.raw_arr[5]))
+  end
+
+  def on_join(msg)
+    return if msg.connection != self
+
+    unless @channels.has_key? msg.destination
+      @channels[msg.destination] = Channel.new(msg.destination)
     end
 
-    # Clean up the connection and kill our threads.
-    def close
-      @closing = true
-
-      while @send_queue.length > 0 and not @socket.closed?
-        sleep 1
-      end
-
-      @read_thread.kill
-      @send_thread.kill
+    if msg.me?
+      msg.raw('MODE ' + msg.destination)
+      msg.raw('WHO ' + msg.destination)
     end
 
-    # hidden host
-    def on_396(msg)
-      return if msg.connection != self
+    @channels[msg.destination].join(ChannelUser.new(msg.nick, msg.user, msg.host))
+  end
 
-      @client_host = msg.raw_arr[3]
+  def on_part(msg)
+    return if msg.connection != self
+
+    return unless @channels.has_key? msg.destination
+
+    if msg.me?
+      @channels.delete(msg.destination)
+      return
     end
 
-    # WHO reply handler.
-    def on_352(msg)
-      return if msg.connection != self
+    @channels[msg.destination].part(msg.nick)
+  end
 
-      unless @channels.has_key? msg.raw_arr[3]
-        @channels[msg.raw_arr[3]] = Channel.new(msg.raw_arr[3])
-      end
+  def on_kick(msg)
+    return if msg.connection != self
 
-      @channels[msg.raw_arr[3]].join(ChannelUser.new(msg.raw_arr[7],
-                                                     msg.raw_arr[4],
-                                                     msg.raw_arr[5]))
-    end
+    return unless @channels.has_key? msg.destination
 
-    def on_join(msg)
-      return if msg.connection != self
+    @channels[msg.destination].part(msg.raw_arr[3])
+  end
 
-      unless @channels.has_key? msg.destination
-        @channels[msg.destination] = Channel.new(msg.destination)
-      end
+  def on_mode(msg)
+    return if msg.connection != self
 
-      if msg.me?
-        msg.raw('MODE ' + msg.destination)
-        msg.raw('WHO ' + msg.destination)
-      end
+    return unless @channels.has_key? msg.destination
 
-      @channels[msg.destination].join(ChannelUser.new(msg.nick, msg.user, msg.host))
-    end
+    @channels[msg.destination].mode_change(msg.raw_arr[3])
+  end
 
-    def on_part(msg)
-      return if msg.connection != self
+  # modes sent on join
+  def on_324(msg)
+    return if msg.connection != self
 
-      return unless @channels.has_key? msg.destination
+    return unless @channels.has_key? msg.raw_arr[3]
 
-      if msg.me?
-        @channels.delete(msg.destination)
-        return
-      end
+    @channels[msg.raw_arr[3]].mode_change(msg.raw_arr[4])
+  end
 
-      @channels[msg.destination].part(msg.nick)
-    end
+  
+  def on_topic(msg)
+    return if msg.connection != self
 
-    def on_kick(msg)
-      return if msg.connection != self
+    return unless @channels.has_key? msg.destination
 
-      return unless @channels.has_key? msg.destination
+    @channels[msg.destination].topic(msg.text)
+  end
+  
+  # topic sent on join
+  def on_332(msg)
+    return if msg.connection != self
 
-      @channels[msg.destination].part(msg.raw_arr[3])
-    end
+    return unless @channels.has_key? msg.raw_arr[3]
 
-    def on_mode(msg)
-      return if msg.connection != self
+    @channels[msg.raw_arr[3]].topic(msg.text)
+  end
 
-      return unless @channels.has_key? msg.destination
+  def on_registered(msg)
+    return if msg.connection != self
 
-      @channels[msg.destination].mode_change(msg.raw_arr[3])
-    end
+    @registered = true
+  end
 
-    # modes sent on join
-    def on_324(msg)
-      return if msg.connection != self
+  def on_nick(msg)
+    return unless msg.me? and msg.connection == self
 
-      return unless @channels.has_key? msg.raw_arr[3]
+    @nick = msg.text
+  end
 
-      @channels[msg.raw_arr[3]].mode_change(msg.raw_arr[4])
-    end
-
-    
-    def on_topic(msg)
-      return if msg.connection != self
-
-      return unless @channels.has_key? msg.destination
-
-      @channels[msg.destination].topic(msg.text)
-    end
-    
-    # topic sent on join
-    def on_332(msg)
-      return if msg.connection != self
-
-      return unless @channels.has_key? msg.raw_arr[3]
-
-      @channels[msg.raw_arr[3]].topic(msg.text)
-    end
-
-    def on_registered(msg)
-      return if msg.connection != self
-
-      @registered = true
-    end
-
-    def on_nick(msg)
-      return unless msg.me? and msg.connection == self
-
-      @nick = msg.text
-    end
-
-    # We tried to switch to a nick that's in use.
-    def on_nick_in_use(msg)
+  # We tried to switch to a nick that's in use.
+  def on_nick_in_use(msg)
 
 
-      # If we're done connecting, then this is happening because
-      # someone tried to have the bot change nicks to something taken.
-      # No sense in spinning around on it — just keep our current nick.
-      return if @registered or msg.connection != self
+    # If we're done connecting, then this is happening because
+    # someone tried to have the bot change nicks to something taken.
+    # No sense in spinning around on it — just keep our current nick.
+    return if @registered or msg.connection != self
 
-      if @nick == $bot.config['core']['nick']
+    if @nick == $bot.config['core']['nick']
 
-        if $bot.config['core'].has_key? 'altnick'
-          raw "NICK #{$bot.config['core']['altnick']}"
-        else
-          raw "NICK TerminusBot"
-        end
-
-        return
+      if $bot.config['core'].has_key? 'altnick'
+        raw "NICK #{$bot.config['core']['altnick']}"
+      else
+        raw "NICK TerminusBot"
       end
 
-      @nick << "_"
-      raw "NICK #{@nick}"
+      return
     end
 
-    def to_s
-      return "#{@name} (#{@channels.length} channels)"
-    end
+    @nick << "_"
+    raw "NICK #{@nick}"
+  end
 
+  def to_s
+    return "#{@name} (#{@channels.length} channels)"
   end
 end

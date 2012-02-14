@@ -17,7 +17,7 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 
-CHANLOG_DIR = Terminus_Bot::DATA_DIR + "chanlog/"
+CHANLOG_DIR = DATA_DIR + "chanlog/"
 
 def initialize
   register_script("Logs channel activity to disk.")

@@ -19,232 +19,229 @@
 #
 
 
-module Terminus_Bot
+DATA_DIR = "var/terminus-bot/"
 
-  DATA_DIR = "var/terminus-bot/"
+class Bot
 
-  class Bot
+  attr :connections
+  attr_reader :config, :events, :database, :commands, :script_info, :scripts
 
-    attr_reader :config, :connections, :events, :database, :commands, :script_info, :scripts
+  Command = Struct.new(:owner, :cmd, :func, :argc, :level, :help)
+  Script_Info = Struct.new(:name, :description)
 
-    Command = Struct.new(:owner, :cmd, :func, :argc, :level, :help)
-    Script_Info = Struct.new(:name, :description)
+  # This starts the whole thing.
+  def initialize
 
-    # This starts the whole thing.
-    def initialize
+    # Dirty? A bit. TODO: Get rid of this. Maybe.
+    $bot = self
 
-      # Dirty? A bit. TODO: Get rid of this. Maybe.
-      $bot = self
+    $-v = nil
 
-      $-v = nil
+    @connections = Hash.new       # IRC objects. Keys are configured names.
 
-      @connections = Hash.new       # IRC objects. Keys are configured names.
+    @config = Configuration.new   # Configuration. Extends Hash.
 
-      @config = Configuration.new   # Configuration. Extends Hash.
+    @database = Database.new      # Scripts can store data here.
 
-      @database = Database.new      # Scripts can store data here.
+    @commands = Hash.new          # An hash table of Commands (see the above Struct).
+                                  # These are fired like events.
+    
+    @script_info = Array.new      # Name and description for scripts (see above Struct).
 
-      @commands = Hash.new          # An hash table of Commands (see the above Struct).
-                                    # These are fired like events.
-      
-      @script_info = Array.new      # Name and description for scripts (see above Struct).
+    @events = Events.new          # We're event-driven. See includes/event.rb
 
-      @events = Events.new          # We're event-driven. See includes/event.rb
+    @scripts = Scripts.new        # For those things in the scripts dir.
 
-      @scripts = Scripts.new        # For those things in the scripts dir.
+    logsize = @config['core']['logsize'].to_i rescue 1024000 
+    logcount = @config['core']['logcount'].to_i rescue 5
+    loglevel = @config['core']['loglevel'].upcase rescue "INFO"
 
-      logsize = @config['core']['logsize'].to_i rescue 1024000 
-      logcount = @config['core']['logcount'].to_i rescue 5
-      loglevel = @config['core']['loglevel'].upcase rescue "INFO"
+    $log.close
+    $log = Logger.new('var/terminus-bot.log', logcount, logsize);
 
-      $log.close
-      $log = Logger.new('var/terminus-bot.log', logcount, logsize);
+    case loglevel
+    when "FATAL"
+      $log.level = Logger::FATAL
+    when "ERROR"
+      $log.level = Logger::ERROR
+    when "WARN"
+      $log.level = Logger::WARN
+    when "INFO"
+      $log.level = Logger::INFO
+    when "DEBUG"
+      $log.level = Logger::DEBUG
+    else
+      $log.level = Logger::INFO
+    end
 
-      case loglevel
-      when "FATAL"
-        $log.level = Logger::FATAL
-      when "ERROR"
-        $log.level = Logger::ERROR
-      when "WARN"
-        $log.level = Logger::WARN
-      when "INFO"
-        $log.level = Logger::INFO
-      when "DEBUG"
-        $log.level = Logger::DEBUG
-      else
-        $log.level = Logger::INFO
-      end
+    # The only event we care about in the core.
+    @events.create(self, "PRIVMSG", :run_commands)
 
-      # The only event we care about in the core.
-      @events.create(self, "PRIVMSG", :run_commands)
+    # Since we made it this far, go ahead and be ready for signals.
+    trap("INT")  { quit("Interrupted by host system. Exiting!") }
+    trap("TERM") { quit("Terminated by host system. Exiting!") }
+    trap("KILL") { exit }
+    
+    trap("HUP", $bot.config.read_config ) # Rehash on HUP!
+    
+    # Try to exit cleanly if we have to.
+    at_exit { quit }
 
-      # Since we made it this far, go ahead and be ready for signals.
-      trap("INT")  { quit("Interrupted by host system. Exiting!") }
-      trap("TERM") { quit("Terminated by host system. Exiting!") }
-      trap("KILL") { exit }
-      
-      trap("HUP", $bot.config.read_config ) # Rehash on HUP!
-      
-      # Try to exit cleanly if we have to.
-      at_exit { quit }
+    Dir.mkdir("var") unless Dir.exists? "var"
+    Dir.mkdir(DATA_DIR) unless Dir.exists? DATA_DIR
 
-      Dir.mkdir("var") unless Dir.exists? "var"
-      Dir.mkdir(DATA_DIR) unless Dir.exists? DATA_DIR
-
+    EM.run do
       # Begin connecting
       start_connections
-
-      # TODO: Do something different. This is kind of dumb.
-      @connections.values.last.read_thread.join
     end
+  end
 
-    # Iterate through configured connections and connect to servers we should
-    # connect to. Also disconnect from servers that aren't configured (for
-    # rehashing).
-    def start_connections
+  # Iterate through configured connections and connect to servers we should
+  # connect to. Also disconnect from servers that aren't configured (for
+  # rehashing).
+  def start_connections
 
-      # Keep a list of configured servers for later.
-      servers = Array.new
+    # Keep a list of configured servers for later.
+    servers = Array.new
 
-      @config['core']['servers'].split(" ").each do |server_config|
-        server_config = server_config.split(":")
+    @config['core']['servers'].split(" ").each do |server_config|
+      server_config = server_config.split(":")
 
-        $log.debug("Bot.start_connections") { "Working on server config for #{server_config[0]}" }
+      $log.debug("Bot.start_connections") { "Working on server config for #{server_config[0]}" }
 
-        servers << server_config[0]
+      servers << server_config[0]
 
-        if @connections.has_key? server_config[0]
-          $log.info("Bot.start_connections") { "Skipping existing connection #{server_config[0]}" }
-          next
-        end
-
-        # Actually start the connection. Once connected, this will kick off
-        # threads for listening and sending data. If it fails, the bot will
-        # probably take a fatal error.
-        @connections[server_config[0]] = IRC::Connection.new(server_config[0],
-                                                             server_config[1],
-                                                             server_config[2],
-                                                             config["core"]["bind"],
-                                                             server_config[3],
-                                                             config["core"]["nick"],
-                                                             config["core"]["user"],
-                                                             config["core"]["realname"])
+      if @connections.has_key? server_config[0]
+        $log.info("Bot.start_connections") { "Skipping existing connection #{server_config[0]}" }
+        next
       end
 
-      # Iterate through servers and remove @connections that should't be there
-      # anymore (useful for rehashing away connections).
-      @connections.each do |name, connection|
-        next if servers.include? name
-
-        connection.disconnect
-        connection.close
-        @connections.delete(name)
-      end
-    end
-
-    # Fired on PRIVMSGs.
-    # Iterate through @commands and run everything that needs to be run.
-    def run_commands(msg)
-      return if msg.silent?
-
-      return unless msg.text =~ /\A#{msg.private? ?
-        '(' + @config['core']['prefix'] + ')?' :
-        '(' + @config['core']['prefix'] + ')'}([^ ]+)(.*)\Z/
-
-      $log.debug("Bot.run_commands") { "Running command #{$2} from #{msg.origin}" }
-
-      return unless @commands.has_key? $2
-
-      command = @commands[$2]
-
-      level = msg.connection.users.get_level(msg)
-
-      if command.level > level
-        msg.reply("Level \02#{command.level}\02 authorization required. (Current level: #{level})")
-        return
-      end
-
-      if command.argc == 0
-        params = $3.strip.split(" ", 1)
+      if config["core"]["bind"] != nil
+        EM.bind_connect(config["core"]["bind"], rand(64511)+1024,
+                        server_config[1], server_config[2], IRC_Connection,
+                        server_config[0], server_config[3], config['core']['bind'],
+                        config['core']['nick'], config['core']['user'], config['core']['realname'])
       else
-        params = $3.strip.split(" ", command.argc)
-      end
-
-      if params.length < command.argc
-        msg.reply("This command requires at least \02#{command.argc}\02 parameters.")
-        return
-      end
-
-      $log.debug("Bot.run_commands") { "Match for command #{$2} in #{command.owner}" }
-
-      begin
-        command.owner.send(command.func, msg, params)
-      rescue => e
-        $log.error("Bot.run_commands") { "Problem running command #{$2} in #{command.owner}: #{e}" }
-        $log.debug("Bot.run_commands") { "Problem running command #{$2} in #{command.owner}: #{e.backtrace}" }
-        msg.reply("There was a problem running your command: #{e}")
+        EM.connect(server_config[1], server_config[2], IRC_Connection,
+                   server_config[0], server_config[3], config['core']['bind'],
+                   config['core']['nick'], config['core']['user'], config['core']['realname'])
       end
 
     end
 
-    # Send QUITs and do any other work that needs to be done before exiting.
-    def quit(str = "Terminus-Bot: Terminating")
-      @connections.each_value do |connection|
-        connection.disconnect(str)
-      end
+    # Iterate through servers and remove @connections that should't be there
+    # anymore (useful for rehashing away connections).
+    @connections.each do |name, connection|
+      next if servers.include? name
 
-      @scripts.die
+      connection.disconnect
+      connection.close
+      @connections.delete(name)
+    end
+  end
 
-      $log.debug("Bot.quit") { "Removing PID file #{PID_FILE}" }
-      File.delete(PID_FILE) if File.exists? PID_FILE
+  # Fired on PRIVMSGs.
+  # Iterate through @commands and run everything that needs to be run.
+  def run_commands(msg)
+    return if msg.silent?
 
-      exit
+    return unless msg.text =~ /\A#{msg.private? ?
+      '(' + @config['core']['prefix'] + ')?' :
+      '(' + @config['core']['prefix'] + ')'}([^ ]+)(.*)\Z/
+
+    $log.debug("Bot.run_commands") { "Running command #{$2} from #{msg.origin}" }
+
+    return unless @commands.has_key? $2
+
+    command = @commands[$2]
+
+    level = msg.connection.users.get_level(msg)
+
+    if command.level > level
+      msg.reply("Level \02#{command.level}\02 authorization required. (Current level: #{level})")
+      return
     end
 
-    # Register a command. See the Commands struct for the args.
-    def register_command(owner, cmd, func, argc, level, help)
-      $log.debug("Bot.register_command") { "Registering command." }
-
-      if @commands.has_key? cmd
-        throw "Duplicate command registration: #{cmd}"
-      end
-
-      @commands[cmd] = Command.new(owner, cmd, func, argc, level, help)
+    if command.argc == 0
+      params = $3.strip.split(" ", 1)
+    else
+      params = $3.strip.split(" ", command.argc)
     end
 
-    # Register a script. See the Script_Info struct for args.
-    def register_script(*args)
-      $log.debug("Bot.register_script") { "Registering script." }
-
-      @script_info << Script_Info.new(*args)
-      @script_info.sort_by! {|s| s.name}
+    if params.length < command.argc
+      msg.reply("This command requires at least \02#{command.argc}\02 parameters.")
+      return
     end
 
-    # Remove a script from @scripts (by name).
-    def unregister_script(name)
-      $log.debug("Bot.unregister_script") { "Unregistering script #{name}" }
-      @script_info.delete_if {|s| s.name == name}
-    end
+    $log.debug("Bot.run_commands") { "Match for command #{$2} in #{command.owner}" }
 
-    # Unregister a specific command. This doesn't check for ownership
-    # and removes all matching commands by name.
-    def unregister_command(cmd)
-      $log.debug("Bot.unregister_command") { "Unregistering command #{cmd}" }
-      @commands.delete(cmd)
-    end
-
-    # Unregister all commands owned by the given class.
-    def unregister_commands(owner)
-      $log.debug("Bot.unregister_commands") { "Unregistering all commands for #{owner.class.name}" }
-      @commands.delete_if {|n, c| c.owner == owner}
-    end
-
-    # Unregister all events owned by the given class.
-    def unregister_events(owner)
-      $log.debug("Bot.unregister_events") { "Unregistering all events for #{owner.class.name}" }
-      @events.delete_events_for(owner)
+    begin
+      command.owner.send(command.func, msg, params)
+    rescue => e
+      $log.error("Bot.run_commands") { "Problem running command #{$2} in #{command.owner}: #{e}" }
+      $log.debug("Bot.run_commands") { "Problem running command #{$2} in #{command.owner}: #{e.backtrace}" }
+      msg.reply("There was a problem running your command: #{e}")
     end
 
   end
 
+  # Send QUITs and do any other work that needs to be done before exiting.
+  def quit(str = "Terminus-Bot: Terminating")
+    @connections.each_value do |connection|
+      connection.disconnect(str)
+    end
+
+    @scripts.die
+
+    $log.debug("Bot.quit") { "Removing PID file #{PID_FILE}" }
+    File.delete(PID_FILE) if File.exists? PID_FILE
+
+    exit
+  end
+
+  # Register a command. See the Commands struct for the args.
+  def register_command(owner, cmd, func, argc, level, help)
+    $log.debug("Bot.register_command") { "Registering command." }
+
+    if @commands.has_key? cmd
+      throw "Duplicate command registration: #{cmd}"
+    end
+
+    @commands[cmd] = Command.new(owner, cmd, func, argc, level, help)
+  end
+
+  # Register a script. See the Script_Info struct for args.
+  def register_script(*args)
+    $log.debug("Bot.register_script") { "Registering script." }
+
+    @script_info << Script_Info.new(*args)
+    @script_info.sort_by! {|s| s.name}
+  end
+
+  # Remove a script from @scripts (by name).
+  def unregister_script(name)
+    $log.debug("Bot.unregister_script") { "Unregistering script #{name}" }
+    @script_info.delete_if {|s| s.name == name}
+  end
+
+  # Unregister a specific command. This doesn't check for ownership
+  # and removes all matching commands by name.
+  def unregister_command(cmd)
+    $log.debug("Bot.unregister_command") { "Unregistering command #{cmd}" }
+    @commands.delete(cmd)
+  end
+
+  # Unregister all commands owned by the given class.
+  def unregister_commands(owner)
+    $log.debug("Bot.unregister_commands") { "Unregistering all commands for #{owner.class.name}" }
+    @commands.delete_if {|n, c| c.owner == owner}
+  end
+
+  # Unregister all events owned by the given class.
+  def unregister_events(owner)
+    $log.debug("Bot.unregister_events") { "Unregistering all events for #{owner.class.name}" }
+    @events.delete_events_for(owner)
+  end
+
 end
+

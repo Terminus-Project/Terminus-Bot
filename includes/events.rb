@@ -17,51 +17,48 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 
-module Terminus_Bot
+Event = Struct.new(:name, :func, :owner)
 
-  Event = Struct.new(:name, :func, :owner)
+class Events < Hash
 
-  class Events < Hash
+  # Create a hash table for event storage.
+  def initialize
+  end
 
-    # Create a hash table for event storage.
-    def initialize
+  # Create a new event. The key in the hash table is the event name
+  # which is used to run the event. The value is an array which will store
+  # the multiple events that run are run when the event name is called.
+  def create(owner, name, func)
+    unless self.has_key? name
+      self[name] = Array.new
     end
 
-    # Create a new event. The key in the hash table is the event name
-    # which is used to run the event. The value is an array which will store
-    # the multiple events that run are run when the event name is called.
-    def create(owner, name, func)
-      unless self.has_key? name
-        self[name] = Array.new
-      end
+    $log.debug("events.create") { "Created event #{name}" }
+    self[name] << Event.new(name, func, owner)
+  end
 
-      $log.debug("events.create") { "Created event #{name}" }
-      self[name] << Event.new(name, func, owner)
-    end
+  # Run all the events with the given name.
+  # TODO: Find out why I used *args and change it if it doesn't need to be
+  #       that way.
+  def run(name, *args)
+    return unless self.has_key? name
 
-    # Run all the events with the given name.
-    # TODO: Find out why I used *args and change it if it doesn't need to be
-    #       that way.
-    def run(name, *args)
-      return unless self.has_key? name
+    $log.debug("events.run") { name }
 
-      $log.debug("events.run") { name }
-
-      self[name].each do |event|
-        begin
-          event.owner.send(event.func, args[0])
-        rescue => e
-          $log.error("events.run") { "Error running event #{name}: #{e}" }
-          $log.debug("events.run") { "Backtrace for #{name}: #{e.backtrace}" }
-        end
+    self[name].each do |event|
+      begin
+        event.owner.send(event.func, args[0])
+      rescue => e
+        $log.error("events.run") { "Error running event #{name}: #{e}" }
+        $log.debug("events.run") { "Backtrace for #{name}: #{e.backtrace}" }
       end
     end
+  end
 
-    # Delete all the events owned by the given class.
-    def delete_events_for(owner)
-      self.each do |n, a|
-        a.delete_if {|e| e.owner == owner}
-      end
+  # Delete all the events owned by the given class.
+  def delete_events_for(owner)
+    self.each do |n, a|
+      a.delete_if {|e| e.owner == owner}
     end
   end
 end

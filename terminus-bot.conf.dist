@@ -134,6 +134,15 @@ logcount = 5
 noload = 
 
 
+# REQUIRED
+# When a message arrives, do not spend longer than this number of seconds
+# running events for it. Don't set this too low or the bot will behave in
+# very unpredictable ways. Don't set it too high or the bot may hang and
+# disconnect from servers if something goes wrong.
+# default: 5
+timeout = 5
+
+
 # CTCP reply script.
 [ctcp]
 
