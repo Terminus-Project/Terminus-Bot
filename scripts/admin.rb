@@ -75,8 +75,12 @@ def cmd_includes(msg, params)
 end
 
 def cmd_reload(msg, params)
-  $bot.scripts.reload(params[0])
-  msg.reply("Reloaded script \02#{params[0]}\02")
+  op = proc {
+    $bot.scripts.reload(params[0])
+    msg.reply("Reloaded script \02#{params[0]}\02")
+  }
+
+  EM.defer(op)
 end
 
 def cmd_unload(msg, params)
@@ -85,8 +89,12 @@ def cmd_unload(msg, params)
 end
 
 def cmd_load(msg, params)
-  $bot.scripts.load_file("scripts/#{params[0]}.rb")
-  msg.reply("Loaded script \02#{params[0]}\02")
+  op = proc {
+    $bot.scripts.load_file("scripts/#{params[0]}.rb")
+    msg.reply("Loaded script \02#{params[0]}\02")
+  }
+
+  EM.defer(op)
 end
 
 def cmd_raw(msg, params)

@@ -65,14 +65,16 @@ def cmd_chain(msg, params)
       return
     end
 
-    chain = create_chain(params.shift.downcase, false)
+    op = proc { create_chain(params.shift.downcase, false) }
+    cb = proc { |chain| 
+      if chain.empty?
+        msg.reply("I was not able to create a chain with that seed.")
+      else
+        msg.reply(chain, false)
+      end
+    }
 
-    if chain.empty?
-      msg.reply("I was not able to create a chain with that seed.")
-    else
-      msg.reply(chain, false)
-    end
-
+    EM.defer(op, cb)
   else
     msg.reply(random_chain, false)
   end
@@ -136,11 +138,12 @@ def cmd_markov(msg, params)
 
     msg.reply("Loading file(s). This may take a while.")
 
-    Thread.pass
+    op = proc {
+      read_files(msg, arr)
+      msg.reply("Files loaded!") 
+    }
 
-    read_files(msg, arr)
-
-    msg.reply("Files loaded!")
+    EM.defer(op)
 
   when "INFO"
 
@@ -160,17 +163,20 @@ def cmd_markov(msg, params)
 
   when "WRITE"
 
-    begin
-      write_database
+    op = proc {
+      begin
+        write_database
+      rescue => e
+        msg.reply("Failed to write database: #{e}")
+
+        $log.error("markov.write_database") { e }
+        $log.debug("markov.write_database") { e.backtrace }
+      end
 
       msg.reply("Database written.")
-    rescue => e
-      msg.reply("Failed to write database: #{e}")
+    }
 
-      $log.error("markov.write_database") { e }
-      $log.debug("markov.write_database") { e.backtrace }
-    end
-
+    EM.defer(op)
   else
 
     msg.reply("Unknown action. Parameters: ON|OFF|FREQUENCY percentage|CLEAR|LOAD filename|INFO")
