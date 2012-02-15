@@ -25,5 +25,5 @@ def initialize
 end
 
 def cmd_source(msg, params)
-  msg.reply("I am Terminus-Bot, a multithreaded Ruby IRC bot (version: #{VERSION}). You can find my source code and other information about me at: https://github.com/kabaka/Terminus-Bot")
+  msg.reply("I am Terminus-Bot, an EventMachine-powered Ruby IRC bot (version: #{VERSION}). You can find my source code and other information about me at: https://github.com/kabaka/Terminus-Bot")
 end
