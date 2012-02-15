@@ -167,5 +167,5 @@ def get_feed(uri)
 end
 
 def sanitize(str)
-  return HTMLEntities.new.decode(str.gsub(/[\n\s]+/, " ").gsub(/<\/?[^>]+>/, ""))
+  return HTMLEntities.new.decode(str.gsub(/[\s]+/, " ").gsub(/<\/?[^>]+>/, ""))
 end
