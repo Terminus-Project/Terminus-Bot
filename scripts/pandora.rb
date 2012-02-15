@@ -67,7 +67,11 @@ def on_message(msg)
     return
   end
 
-  msg.reply(get_reply(botid, msg.text[msg.connection.nick.length+2..msg.text.length], msg))
+  op = proc {
+    msg.reply(get_reply(botid, msg.text[msg.connection.nick.length+2..msg.text.length], msg))
+  }
+
+  EM.defer(op)
 end
 
 def get_reply(botid, str, msg)
