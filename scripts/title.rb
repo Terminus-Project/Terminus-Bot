@@ -64,7 +64,7 @@ def get_title(msg, url)
     len = title.length - 9
     return if len <= 0
 
-    title = title[0..len].strip.gsub(/[\n\s]+/, " ")
+    title = title[0..len].strip.gsub(/[[[:cntrl:]]\s]+/, " ")
     title = HTMLEntities.new.decode(title)
 
     msg.reply("\02Title on #{response[1]}#{" (redirected)" if response[2]}:\02 " + title, false)
