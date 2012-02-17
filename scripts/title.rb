@@ -23,6 +23,7 @@ require "net/http"
 require "uri"
 require "strscan"
 require "htmlentities"
+require 'rexml/document'
 
 def initialize
   register_script("Fetches titles for URLs spoken in channels.")
@@ -36,21 +37,79 @@ def on_message(msg)
   i = 0
   max = get_config("max", 3).to_i
 
-  msg.text.scan(/https?:\/\/[^\s]+/) { |match|
+  URI.extract(msg.text, ["http","https"]) { |match|
     return if i >= max
 
     $log.debug("title.on_message") { "#{i}/#{max}: #{match}" }
+
+    match = URI(match)
+
+    if match.host =~ /(www\.)?youtube\.com/ and not match.query == nil
+      next if get_youtube(msg, match)
+    elsif match.host =~ /(www\.)?youtu\.be/ and not match.path == nil
+      next if get_youtube(msg, match)
+    end
+    
     get_title(msg, match)
 
     i += 1
   }
 end
 
-def get_title(msg, url)
-  begin
-    $log.debug('title.get_title') { "Getting title for #{url}" }
+def get_youtube(msg, uri)
+  $log.debug('title.get_title') { "Getting YouTube info for #{uri}" }
 
-    response = get_page(url)
+  # TODO: This whole function is really awful and needs cleaning up.
+
+  link = ""
+  vid = ""
+
+  if uri.host == 'youtu.be'
+    vid = uri.path[1..uri.path.length-1].split("&")[0]
+  else
+    query = uri.query.split("&").select {|a| a.start_with? "v="}[0]
+
+    return false if query == nil
+
+    vid = query.split("=")[1]
+
+    link = " - http://youtu.be/#{vid}"
+  end
+
+  $log.debug('title.get_title') { "VID #{vid}" }
+
+  vid = URI.escape(vid)
+  api = URI("https://gdata.youtube.com/feeds/api/videos/#{vid}?v=2")
+
+  response = get_page(api)
+
+  return false if response == nil
+
+  root = REXML::Document.new(response[0].body.force_encoding('UTF-8')).root
+
+  return false unless root.get_elements("error").empty?
+
+  title    = root.get_elements("title").first.text.to_s
+  author   = root.get_elements("author/name").first.text.to_s
+  views    = root.get_elements("yt:statistics").first.attribute("viewCount").to_s
+
+  rating   = root.get_elements("yt:rating").first
+
+  likes    = rating.attribute("numLikes").to_s
+  dislikes = rating.attribute("numDislikes").to_s
+  
+  msg.reply("\02YouTube Video\02 #{title} \02Uploaded By:\02 #{author} \02Views:\02 #{views} \02Likes:\02 #{likes} \02Dislikes:\02 #{dislikes}#{link}")
+
+  return true
+end
+
+
+
+def get_title(msg, uri)
+  begin
+    $log.debug('title.get_title') { "Getting title for #{uri}" }
+
+    response = get_page(uri)
 
     return if response == nil
 
@@ -69,15 +128,13 @@ def get_title(msg, url)
 
     msg.reply("\02Title on #{response[1]}#{" (redirected)" if response[2]}:\02 " + title, false)
   rescue => e
-    $log.debug('title.get_title') { "Error getting title for #{url}: #{e}" }
+    $log.debug('title.get_title') { "Error getting title for #{uri}: #{e}" }
     return
   end
 end
 
-def get_page(url, limit = get_config("redirects", 10), redirected = false)
+def get_page(uri, limit = get_config("redirects", 10), redirected = false)
   return nil if limit == 0
-
-  uri = URI(url)
 
   response = Net::HTTP.start(uri.host, uri.port,
     :use_ssl => uri.scheme == "https",
@@ -92,14 +149,14 @@ def get_page(url, limit = get_config("redirects", 10), redirected = false)
     return [response, uri.hostname, redirected]
 
   when Net::HTTPRedirection
-    location = response['location']
+    location = URI(response['location'])
 
-    $log.debug("title.get_page") { "Redirection: #{url} -> #{location} (#{limit})" }
+    $log.debug("title.get_page") { "Redirection: #{uri} -> #{location} (#{limit})" }
 
     return get_page(location, limit - 1, true)
 
   else
-    return response.value
+    return nil
 
   end
 
