@@ -54,6 +54,10 @@ class Scripts
   # Load the given script by file name. The relative path should be included.
   # Scripts are expected to be in the scripts dir.
   def load_file(filename)
+    unless File.exists? filename
+      throw "File #{filename} does not exist."
+    end
+
     name = filename.match("scripts/(.+).rb")[1]
 
     $log.debug("scripts.load_file") { "Script file name: #{filename}" }
