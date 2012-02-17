@@ -95,8 +95,12 @@ def get_youtube(msg, uri)
 
   rating   = root.get_elements("yt:rating").first
 
-  likes    = rating.attribute("numLikes").to_s
-  dislikes = rating.attribute("numDislikes").to_s
+  likes, dislikes = 0, 0
+
+  unless rating == nil
+    likes    = rating.attribute("numLikes").to_s
+    dislikes = rating.attribute("numDislikes").to_s
+  end
   
   msg.reply("\02YouTube Video\02 #{title} \02Uploaded By:\02 #{author} \02Views:\02 #{views} \02Likes:\02 #{likes} \02Dislikes:\02 #{dislikes}#{link}")
 
