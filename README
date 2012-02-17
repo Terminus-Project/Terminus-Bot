@@ -26,4 +26,5 @@ Requirements:
     htmlentities
     json
     psych 1.2.2
+    rubydns
 
