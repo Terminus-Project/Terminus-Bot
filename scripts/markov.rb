@@ -300,7 +300,7 @@ def create_chain(word = @nodes.keys.sample, random = true)
       end
     end
 
-    $log.debug("markov.create_chain") { potentials.to_s }
+    #$log.debug("markov.create_chain") { potentials.to_s }
 
     return "" if potentials.empty?
 
