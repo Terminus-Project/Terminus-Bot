@@ -68,13 +68,17 @@ def on_message(msg)
   end
 
   op = proc {
-    msg.reply(get_reply(botid, msg.text[msg.connection.nick.length+2..msg.text.length], msg))
+    get_reply(botid, msg.text[msg.connection.nick.length+2..msg.text.length], msg)
   }
 
   EM.defer(op)
 end
 
 def get_reply(botid, str, msg)
+  str =  msg.text[msg.connection.nick.length+2..msg.text.length].chomp
+
+  return if str.empty?
+
   begin
     $log.debug('pandora.get_reply') { "Getting relpy with #{botid} for message: #{str}" }
 
@@ -89,15 +93,20 @@ def get_reply(botid, str, msg)
 
     response = response.body.gsub(/\n/, "").scan(/that>(.+)<\/that/)[0]
 
+    if response == nil
+      msg.reply("Pandora gave me an empty reply.")
+      return
+    end
+
     if response.kind_of? Array
       response = response.join(" ")
     end
 
     response = HTMLEntities.new.decode(response.force_encoding('UTF-8'))
 
-    return response.gsub(/<[^>]+>/, "").gsub(/\s+/, " ")
+    msg.reply(response.gsub(/<[^>]+>/, "").gsub(/\s+/, " "))
   rescue => e
     $log.debug('pandora.get_reply') { "Error getting reply: #{e}" }
-    return "Error getting reply from Pandora: #{e}"
+    msg.reply("Error getting reply from Pandora: #{e}")
   end
 end
