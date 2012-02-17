@@ -23,7 +23,7 @@ DATA_DIR = "var/terminus-bot/"
 
 class Bot
 
-  attr :connections
+  attr_accessor :connections, :lines_out, :lines_in, :bytes_out, :bytes_in
   attr_reader :config, :events, :database, :commands, :script_info, :scripts
 
   Command = Struct.new(:owner, :cmd, :func, :argc, :level, :help)
@@ -51,6 +51,11 @@ class Bot
     @events = Events.new          # We're event-driven. See includes/event.rb
 
     @scripts = Scripts.new        # For those things in the scripts dir.
+
+    @lines_out = 0                # Lines of text received by the bot.
+    @lines_in = 0                 # Lines of text sent by the bot.
+    @bytes_out = 0                # Bytes received by the bot.
+    @bytes_in = 0                 # Bytes sent by the bot.
 
     logsize = @config['core']['logsize'].to_i rescue 1024000 
     logcount = @config['core']['logcount'].to_i rescue 5

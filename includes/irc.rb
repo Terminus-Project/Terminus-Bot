@@ -100,11 +100,17 @@ class IRC_Connection < EventMachine::Connection
   def send_data(data)
     super(data + "\r\n")
 
+    $bot.lines_out += 1
+    $bot.bytes_out += data.length + 2
+
     $log.debug("IRC.send_data") { "Sent: #{data}" }
   end
 
   def receive_data(data)
     (@buf ||= BufferedTokenizer.new).extract(data).each do |line|
+      $bot.lines_in += 1
+      $bot.bytes_in += line.length
+
       received_line line.chomp
     end
   end
