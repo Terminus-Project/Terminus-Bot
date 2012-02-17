@@ -75,7 +75,7 @@ def cmd_mtr6(msg, params)
 end
 
 def do_mtr(msg, host, v6 = false)
-  EM.system("mtr -#{v6 ? "6" : "6"} -c 1 -r #{host}") do |o,s|
+  EM.system("mtr -#{v6 ? "6" : "4"} -c 1 -r #{host}") do |o,s|
     if s != 0
       msg.reply("There was a problem getting route info for that host (bad host name?).")
     else
@@ -102,14 +102,14 @@ def do_mtr(msg, host, v6 = false)
           up += 1
         end
 
-        time = arr[5].to_i
+        time = arr[5].to_f
 
         avg += time
 
         longest = time if time > longest
       end
 
-      msg.reply("\02Hops:\02 #{hops} \02Up:\02 #{up} \02Down:\02 #{hops-up} \02Average Reply Time (ms):\02 #{avg} \02Longest Reply Time (ms):\02 #{longest}")
+      msg.reply("\02Hops:\02 #{hops} \02Up:\02 #{up} \02Down:\02 #{hops-up} \02Average Reply Time (ms):\02 #{sprintf("%.1f", avg/hops)} \02Longest Reply Time (ms):\02 #{longest}")
     end
   end
 end
