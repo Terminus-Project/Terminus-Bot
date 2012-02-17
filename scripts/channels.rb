@@ -39,6 +39,7 @@ def join_channels(msg)
 
   channels.uniq!
 
+  # TODO: Don't join channels we are already in!
   channels.each do |channel|
     buf << channel
 
