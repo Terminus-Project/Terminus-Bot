@@ -298,3 +298,15 @@ max = 3
 # spammy.
 # default: 3
 #max = 3
+
+
+# Script to play IdleRPG
+[idlerpg]
+
+# IdleRPG configuration is per-network. The script must be supplied with
+# the name of the bot running the game, the channel the game is played
+# in, and the command to log in with.
+#
+# example for QuakeNet:
+#quakenet = irpg,#irpg,LOGIN user pass
+
