@@ -22,6 +22,9 @@ How to use the bot:
 Requirements:
   Linux
   Ruby 1.9.3
+  gems (mandatory)
+    eventmachine
+    psych (included psych has UTF-8 bugs)
   gems (for some scripts):
     htmlentities
     json
