@@ -29,7 +29,7 @@ def cmd_idlerpg(msg, params)
   idleinfo = get_config(msg.connection.name)
 
   if idleinfo == nil
-    msg.reply("I am not configured to play IdleRPG on this network", false)
+    msg.reply("I am not configured to play IdleRPG on this network.")
     return
   end
 
