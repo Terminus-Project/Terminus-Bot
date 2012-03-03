@@ -41,15 +41,12 @@ def on_notice(msg)
     time = Time.now.to_f - @pending[msg.connection.name][msg.nick]
     @pending[msg.connection.name].delete(msg.nick)
 
-    msg.reply("Your ping time: #{sprintf("%2.4f", time)} seconds")
+    msg.reply("Your ping time: #{sprintf("%2.4f", time)} seconds.")
   end
 end
 
 def cmd_ping(msg, params)
-  unless @pending.has_key? msg.connection.name
-    @pending[msg.connection.name] = Hash.new
-  end
-  
+  @pending[msg.connection.name] ||= Hash.new
 
   if @pending[msg.connection.name].has_key? msg.nick
     if Time.now.to_f - @pending[msg.connection.name][msg.nick] > 30

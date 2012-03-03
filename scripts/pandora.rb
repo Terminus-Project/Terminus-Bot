@@ -67,15 +67,13 @@ def on_message(msg)
     return
   end
 
-  op = proc {
+  EM.defer(proc { 
     get_reply(botid, msg.text[msg.connection.nick.length+2..msg.text.length], msg)
-  }
-
-  EM.defer(op)
+  })
 end
 
 def get_reply(botid, str, msg)
-  str =  msg.text[msg.connection.nick.length+2..msg.text.length].chomp
+  str = msg.text[msg.connection.nick.length+2..msg.text.length].chomp
 
   return if str.empty?
 

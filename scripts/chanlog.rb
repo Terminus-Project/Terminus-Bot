@@ -73,16 +73,14 @@ def log_msg(network, channel, type, speaker, str = "")
 end
 
 def new_logger(network, channel)
-  unless @loggers.has_key? network
-    @loggers[network] = Hash.new
-  end
+  @loggers[network] ||= Hash.new
 
-  unless @loggers[network].has_key? channel
-    @loggers[network][channel] = Logger.new(CHANLOG_DIR + "#{network}.#{channel}.log")
-  else
+  if @loggers[network].has_key? channel
     # We already have a logger for this channel.
     return
   end
+
+  @loggers[network][channel] = Logger.new(CHANLOG_DIR + "#{network}.#{channel}.log")
 
   @loggers[network][channel].formatter = proc do |severity, datetime, progname, msg|
     "#{datetime}\t#{progname}\t#{msg}\n"

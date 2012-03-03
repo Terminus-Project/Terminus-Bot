@@ -25,11 +25,5 @@ def initialize
 end
 
 def cmd_networks(msg, params)
-  buf = Array.new
-
-  $bot.connections.each_value do |connection|
-    buf << connection.to_s
-  end
-
-  msg.reply(buf.join(", "))
+  msg.reply($bot.connections.values.join(", "))
 end
