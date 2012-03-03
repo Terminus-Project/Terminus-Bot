@@ -39,7 +39,7 @@ def initialize
 end
 
 def cmd_eval(msg, params)
-  msg.reply(eval(params[0]))
+  msg.reply(eval(params[0]).to_s)
 end
 
 def cmd_quit(msg, params)
