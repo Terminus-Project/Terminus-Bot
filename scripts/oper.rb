@@ -23,7 +23,7 @@ def initialize
 
   register_command("oper", :cmd_oper, 1,  6, "Attempt to oper on the named network.")
 
-  register_event("376",   :on_376)
+  register_event("001",   :on_001)
 end
 
 def cmd_oper(msg, params)
@@ -50,7 +50,7 @@ def cmd_oper(msg, params)
   msg.reply("Sent OPER login information.")
 end
 
-def on_376(msg)
+def on_001(msg)
   oper = get_config(msg.connection.name)
 
   return if oper == nil
