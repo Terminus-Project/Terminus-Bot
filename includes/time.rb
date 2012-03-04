@@ -20,40 +20,41 @@
 class Time
 
   # convert seconds into [seconds, minutes, hours, days]
-  def secs_to_fractional(secs)
-    dur = secs.to_i
+  def to_duration_a
+    secs = (Time.now - self.to_i).to_i
     t = []
+
     [60, 60, 24].each do |n|
-      dur, q = dur.divmod(n)
+      secs, q = secs.divmod(n)
       t << q
     end
-    t << dur
+    t << secs
     return t
   end
 
-  def duration_in_words(dur)
-    t = secs_to_fractional(dur)
+  def to_duration_s
+    t = to_duration_a
 
     # glue the pieces together, omitting ones with zero
     # this loop also takes care of pluralization
     pieces = [[t[3], " day", "s"], [t[2], " hour", "s"], [t[1], " minute", "s"], [t[0], " second", "s"]]
+
     pieces.map! do |piece|
+
       unless piece[0] == 0
         s = piece[0] == 1? "" : piece[2]
         piece[0].to_s + piece[1] + s
       end
+
     end
+
     pieces.compact!
 
     # tack 'and' onto the last piece, unless there's only one piece
     pieces[-1] = "and " + pieces[-1] unless pieces.length <= 1
+ 
     # omit the comma if only two pieces
     return pieces.join(", ") unless pieces.length == 2
     return pieces.join(" ")
   end
-
-  def time_ago_in_words(dur)
-    return duration_in_words(dur) + " ago"
-  end
-
 end

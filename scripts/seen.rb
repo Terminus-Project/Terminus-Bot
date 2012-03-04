@@ -66,7 +66,7 @@ def cmd_seen(msg, params)
 
   seen_nick = seen_nicks[nick]
 
-  time = time_ago_in_words(Time.now - Time.at(seen_nick[0]))
+  time = Time.at(seen_nick[0]).to_duration_s
 
-  msg.reply("\02#{params[0]}\02 was last seen \02#{time}\02: <#{params[0]}> #{seen_nick[1]}")
+  msg.reply("\02#{params[0]}\02 was last seen \02#{time} ago\02: <#{params[0]}> #{seen_nick[1]}")
 end
