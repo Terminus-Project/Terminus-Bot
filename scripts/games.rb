@@ -28,22 +28,14 @@ end
 
 def cmd_dice(msg, params)
 
-  part = params[0].rpartition(/[+-]/)
-  if part[1] == ""
-    part[0] = part[2]
-    part[2] = "0"
-  end
-  arr = part[0].split("d")
-
-  if arr.length != 2
+  unless params[0] =~ /([0-9]+)d([0-9]+)([+-][0-9]+)?/
     msg.reply("Syntax: <count>d<sides>[+/-<modfier>]")
     return
   end
 
-  count = arr[0].to_i
-  sides = arr[1].to_i
-  mod = part[2].to_i
-  mod *= -1 if part[1] == "-"
+  count = $1.to_i
+  sides = $2.to_i
+  mod   = $3.to_i
 
   if count > 100
     msg.reply("You may only roll up to 100 dice.")
@@ -60,20 +52,18 @@ def cmd_dice(msg, params)
     return
   end
 
-  if mod < -100 or mod > 100
-    msg.reply("A modifier can only have an absolute value up to 100.")
-    return
-  end
-
-  rolls = Hash.new(0)
-  rolls_a = Array.new
+  rolls  = Hash.new(0)
+  output = Array.new
+  sum    = mod
 
   count.times { rolls[rand(sides)+1] += 1 }
-  rolls.each_pair { |r, c| rolls_a << "#{r}#{(c > 1 ? "x#{c}" : "")}" }
 
-  rollstats = rolls_a.sort.join(", ")
-  rollstats += " Modifier: #{mod}" if mod != 0
-  msg.reply(rollstats + " \02Sum: #{rolls.keys.inject(:+)+mod}\02")
+  rolls.each_pair { |r, c|
+    output << "#{r}#{(c > 1 ? "x#{c}" : "")}"
+    sum += r * c
+  }
+
+  msg.reply("#{output.sort.join(", ")} #{"Modifier: #{mod}" unless mod.zero?} \02Sum: #{sum}\02")
 end
 
 def cmd_eightball(msg, params)
