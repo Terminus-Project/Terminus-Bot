@@ -21,22 +21,29 @@
 def initialize
   register_script("Provides several game commands.")
 
-  register_command("dice",        :cmd_dice,       1,  0, "Roll dice. Parameters: <count>d<sides>")
+  register_command("dice",        :cmd_dice,       1,  0, "Roll dice. Parameters: <count>d<sides>[+/-<modifier>]")
   register_command("eightball",   :cmd_eightball,  0,  0, "Shake the 8-ball.")
   register_command("coin",        :cmd_coin,       0,  0, "Flip a coin.")
 end
 
 def cmd_dice(msg, params)
 
-  arr = params[0].split("d")
+  part = params[0].rpartition(/[+-]/)
+  if part[1] == ""
+    part[0] = part[2]
+    part[2] = "0"
+  end
+  arr = part[0].split("d")
 
   if arr.length != 2
-    msg.reply("Syntax: <count>d<size>")
+    msg.reply("Syntax: <count>d<sides>[+/-<modfier>]")
     return
   end
 
   count = arr[0].to_i
   sides = arr[1].to_i
+  mod = part[2].to_i
+  mod *= -1 if part[1] == "-"
 
   if count > 100
     msg.reply("You may only roll up to 100 dice.")
@@ -53,13 +60,20 @@ def cmd_dice(msg, params)
     return
   end
 
+  if mod < -100 or mod > 100
+    msg.reply("A modifier can only have an absolute value up to 100.")
+    return
+  end
+
   rolls = Hash.new(0)
   rolls_a = Array.new
 
   count.times { rolls[rand(sides)+1] += 1 }
   rolls.each_pair { |r, c| rolls_a << "#{r}#{(c > 1 ? "x#{c}" : "")}" }
 
-  msg.reply(rolls_a.sort.join(", ") + " \02Sum: #{rolls.keys.inject(:+)}\02")
+  rollstats = rolls_a.sort.join(", ")
+  rollstats += " Modifier: #{mod}" if mod != 0
+  msg.reply(rollstats + " \02Sum: #{rolls.keys.inject(:+)+mod}\02")
 end
 
 def cmd_eightball(msg, params)
