@@ -159,6 +159,8 @@ class IRC_Connection < EventMachine::Connection
     @disconnecting = true
 
     raw "QUIT :" + quit_message
+
+    close
   end
 
   # Empty the queue and then reconnect.
