@@ -18,7 +18,7 @@
 
 class String
 
-  def match(s)
+  def wildcard_match(s)
    
     # Since this is primarily going to be used for hostmask matches, we should
     # escape these so that character classes aren't used, as that might
