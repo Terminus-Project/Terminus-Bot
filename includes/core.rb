@@ -216,7 +216,16 @@ class Bot
     $log.debug("Bot.quit") { "Removing PID file #{PID_FILE}" }
     File.delete(PID_FILE) if File.exists? PID_FILE
 
-    EM.stop_event_loop
+    try_exit
+  end
+
+  # Keep running until we've cleanly closed all connections.
+  def try_exit
+    if EM.connection_count == 0
+      EM.stop_event_loop
+    else
+      EM.add_timer(1) { try_exit }
+    end
   end
 
   # Register a command. See the Commands struct for the args.
