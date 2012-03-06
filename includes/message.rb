@@ -125,9 +125,7 @@ class Message
 
       next if s.length != 2
 
-      if s[0] == @connection.name and s[1] == @destination
-        return true
-      end
+      return true if s[0] == @connection.name and s[1] == @destination
     end
 
     return false

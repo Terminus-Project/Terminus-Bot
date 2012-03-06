@@ -161,7 +161,7 @@ class Bot
   end
 
   # Fired on PRIVMSGs.
-  # Iterate through @commands and run everything that needs to be run.
+  # If we have a matching command in @commands, try to run it.
   def run_commands(msg)
     return if msg.silent?
 
@@ -206,6 +206,7 @@ class Bot
   end
 
   # Send QUITs and do any other work that needs to be done before exiting.
+  # TODO: This is broken and results in an unclean disconnection.
   def quit(str = "Terminus-Bot: Terminating")
     @connections.each_value do |connection|
       connection.disconnect(str)
@@ -232,9 +233,7 @@ class Bot
   def register_command(owner, cmd, func, argc, level, help)
     $log.debug("Bot.register_command") { "Registering command." }
 
-    if @commands.has_key? cmd
-      throw "Duplicate command registration: #{cmd}"
-    end
+    throw "Duplicate command registration: #{cmd}" if @commands.has_key? cmd
 
     @commands[cmd] = Command.new(owner, cmd, func, argc, level, help)
   end

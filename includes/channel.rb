@@ -27,10 +27,8 @@ class Channel
   # that's all we're going to store here.
   def initialize(name)
     @name = name
-    @topic = ""
-    @key = ""
-    @modes = Array.new
-    @users = Array.new
+
+    @topic, @key, @modes, @users = "", "", [], []
   end
 
   # Parse mode changes for the channel. The modes are extracted elsewhere
@@ -94,11 +92,6 @@ class Channel
   def get_user(nick)
     results = @users.select {|u| u.nick == nick}
 
-    if results.length == 0
-      return nil
-    else
-      return results[0]
-    end
-
+    return results.length == 0 ? nil : results[0]
   end
 end

@@ -36,9 +36,7 @@ class Configuration < Hash
   # section names ([name] in the file). The values are more hash tables.
   # The key/value pair for those hash tables is the setting name and value.
   def read_config
-    unless File.exists? FILE_NAME
-      throw "No Config File"
-    end
+    throw "No Config File" unless File.exists? FILE_NAME
 
     $log.info("Configuration.read_config") { "Loading the configuration file." } 
 

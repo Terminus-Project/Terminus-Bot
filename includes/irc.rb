@@ -90,6 +90,7 @@ class IRC_Connection < EventMachine::Connection
     register
   end
 
+  # TODO: Make room for SASL.
   def register
     raw "PASS " + @password unless @password == nil
 

@@ -90,15 +90,11 @@ class Scripts
   # Unload and then load a script. The name given is the script's short name
   # (script/short_name.rb).
   def reload(name)
-    unless @scripts.has_key? name
-      throw "Cannot reload: No such script #{name}"
-    end
+    throw "Cannot reload: No such script #{name}" unless @scripts.has_key? name
 
     filename = "scripts/#{name}.rb"
 
-    unless File.exists? filename
-      throw "Script file for #{name} does not exist (#{filename})."
-    end
+    throw "Script file for #{name} does not exist (#{filename})." unless File.exists? filename
 
     @scripts[name].die if @scripts[name].respond_to? "die"
 
@@ -114,9 +110,7 @@ class Scripts
   # Unload a script. The name given is the script's short name
   # (scripts/short_name.rb).
   def unload(name)
-    unless @scripts.has_key? name
-      throw "Cannot unload: No such script #{name}"
-    end
+    throw "Cannot unload: No such script #{name}" unless @scripts.has_key? name
 
     @scripts[name].die if @scripts[name].respond_to? "die"
 
@@ -197,9 +191,7 @@ class Script
   # Check if the database has a Hash table for this plugin. If not,
   # create an empty one.
   def init_data
-    unless $bot.database.has_key? my_name
-      $bot.database[my_name] = Hash.new
-    end
+    $bot.database[my_name] ||= Hash.new
   end
 
   # Get the value stored for the given key in the database for this
@@ -226,9 +218,7 @@ class Script
   def default_data(key, value)
     init_data
 
-    unless $bot.database[my_name].has_key? key
-      $bot.database[my_name][key] = value
-    end
+    $bot.database[my_name][key] ||= value
   end
 
   # Store a value in the database under the given key.

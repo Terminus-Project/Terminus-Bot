@@ -108,9 +108,7 @@ class Users < Hash
   # Get the level of the user speaking in msg.
   # Used when checking permissions.
   def get_level(msg)
-    unless has_key? msg.nick
-      add_origin(msg)
-    end
+    add_origin(msg) unless has_key? msg.nick
 
     return self[msg.nick].level
   end
