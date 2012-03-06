@@ -216,7 +216,7 @@ class Bot
     $log.debug("Bot.quit") { "Removing PID file #{PID_FILE}" }
     File.delete(PID_FILE) if File.exists? PID_FILE
 
-    exit
+    EM.stop_event_loop
   end
 
   # Register a command. See the Commands struct for the args.
