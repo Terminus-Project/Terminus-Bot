@@ -23,7 +23,7 @@ DATA_DIR = "var/terminus-bot/"
 
 class Bot
 
-  attr_accessor :connections, :lines_out, :lines_in, :bytes_out, :bytes_in
+  attr_accessor :connections, :lines_out, :lines_in, :bytes_out, :bytes_in, :ignores
   attr_reader :config, :events, :database, :commands, :script_info, :scripts
 
   Command = Struct.new(:owner, :cmd, :func, :argc, :level, :help)
@@ -51,6 +51,8 @@ class Bot
     @events = Events.new          # We're event-driven. See includes/event.rb
 
     @scripts = Scripts.new        # For those things in the scripts dir.
+
+    @ignores = Array.new          # Array of ignored hostmasks.
 
     @lines_out = 0                # Lines of text received by the bot.
     @lines_in = 0                 # Lines of text sent by the bot.
