@@ -22,7 +22,7 @@ def initialize
   register_script("Manipulate the bot's hostmask-based ignore list.")
 
   register_command("ignores",  :cmd_ignores,  0,  4, "List all active ignores.")
-  register_command("ignore",   :cmd_ignore,   1,  4, "Ignore the given nick or hostmask.")
+  register_command("ignore",   :cmd_ignore,   1,  4, "Ignore the given hostmask.")
   register_command("unignore", :cmd_unignore, 1,  4, "Remove the given ignore.")
 end
 
@@ -36,6 +36,7 @@ def cmd_ignores(msg, params)
 end
 
 def cmd_ignore(msg, params)
+  # TODO: If we're given a nick, add nick!*@* instead.
   $bot.ignores << params[0]
 
   msg.reply("Ignore added.")
