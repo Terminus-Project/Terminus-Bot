@@ -36,20 +36,31 @@ def cmd_ignores(msg, params)
 end
 
 def cmd_ignore(msg, params)
-  # TODO: If we're given a nick, add nick!*@* instead.
-  $bot.ignores << params[0]
+  mask = params[0]
 
-  msg.reply("Ignore added.")
+  mask << "!*@*"  unless mask =~ /[!@*]/
+ 
+  if $bot.ignores.include? params[0]
+    msg.reply("Already ignoring #{mask}")
+    return
+  end
+
+  $bot.ignores << mask
+
+  msg.reply("Ignore added: #{mask}")
 end
 
 def cmd_unignore(msg, params)
+  mask = params[0]
 
-  unless $bot.ignores.include? params[0]
+  mask << "!*@*"  unless mask =~ /[!@*]/
+
+  unless $bot.ignores.include? mask
     msg.reply("No such ignore.")
     return
   end
 
-  $bot.ignores.delete params[0]
+  $bot.ignores.delete mask
 
-  msg.reply("Ignore removed.")
+  msg.reply("Ignore removed: #{mask}")
 end
