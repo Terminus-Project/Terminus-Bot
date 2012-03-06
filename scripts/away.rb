@@ -37,8 +37,10 @@ def on_privmsg(msg)
 
   chan = msg.connection.channels[msg.destination]
 
+  # TODO: This is going to fail for nicks that end with punctuation. Do it a
+  # different way.
   msg.text.split(" ").each do |word|
-    word.sub!(/[,:.;]+\Z/, "")
+    word.sub!(/[[:punct:]]*\Z/, "")
 
     if chan.get_user(word)
       check_away(msg, word)
