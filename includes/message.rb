@@ -151,6 +151,10 @@ class Message
     return message
   end
 
+  def send_privmsg(target, str)
+    raw("PRIVMSG #{target} :#{str}")
+  end
+
   def send_notice(target, str)
     raw("NOTICE #{target} :#{str}")
   end
