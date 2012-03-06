@@ -21,10 +21,6 @@ Event = Struct.new(:name, :func, :owner)
 
 class Events < Hash
 
-  # Create a hash table for event storage.
-  def initialize
-  end
-
   # Create a new event. The key in the hash table is the event name
   # which is used to run the event. The value is an array which will store
   # the multiple events that run are run when the event name is called.
