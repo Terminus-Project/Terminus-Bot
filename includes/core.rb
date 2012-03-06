@@ -84,6 +84,12 @@ class Bot
     # The only event we care about in the core.
     @events.create(self, "PRIVMSG", :run_commands)
 
+    unless @database.has_key? :ignores
+      @database[:ignores] = @ignores
+    else
+      @ignores = @database[:ignores]
+    end
+
     # Since we made it this far, go ahead and be ready for signals.
     trap("INT")  { quit("Interrupted by host system. Exiting!") }
     trap("TERM") { quit("Terminated by host system. Exiting!") }
