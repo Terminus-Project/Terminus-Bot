@@ -48,13 +48,13 @@ def cmd_rss(msg, params)
 
       feeds = get_data([msg.connection.name, msg.destination], Array.new)
 
-      msg.raw("NOTICE #{msg.nick} :There are \02#{feeds.length}\02 feeds for #{msg.destination}")
+      msg.send_notice(msg.nick, "There are \02#{feeds.length}\02 feeds for #{msg.destination}")
 
       feeds.each do |feed|
-        msg.raw("NOTICE #{msg.nick} :#{feed[0]}")
+        msg.send_notice(msg.nick, feed[0])
       end
 
-      msg.raw("NOTICE #{msg.nick} :End of list.")
+      msg.send_notice(msg.nick, "End of list.")
 
     when "CLEAR"
 

@@ -47,6 +47,6 @@ def on_join(msg)
 
   return unless chan.downcase == msg.destination.downcase
 
-  msg.raw("PRIVMSG #{bot} :#{login}")
+  msg.send_privmsg(bot, login)
 end
 
