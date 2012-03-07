@@ -19,10 +19,6 @@
 
 class FlagTable
 
-  # this is just to allow probing with irb; it will be removed
-  attr_accessor :scripts, :table
-
-
   def initialize(default)
     # these are effectively the columns
     @scripts = { "" => 0 }
@@ -69,6 +65,11 @@ class FlagTable
     @table.each_key do |key|
       @table[key][idx] = nil
     end
+  end
+
+
+  def fetch(server, channel, script)
+    return @table[[server, channel]][@scripts[script]]
   end
 
 
