@@ -19,10 +19,10 @@
 
 
 def initialize
-  register_script("Show corrected text with s/regex/replacement/ is used.")
+  register_script("Show corrected text with s/regex/replacement/ is used and allow searching with g/regex/.")
 
   register_event("PRIVMSG", :on_privmsg)
-  register_event("PART", :on_part)
+  register_event("PART",    :on_part)
 
   @messages = Hash.new
 end
@@ -37,11 +37,15 @@ end
 def on_privmsg(msg)
   return if msg.private? or msg.silent?
 
-  if msg.text =~ /\Ag\/(.+)\/\Z/
+  if msg.text =~ /\Ag\/(.+)\/(.*)\Z/
     return unless @messages.has_key? msg.connection.name
     return unless @messages[msg.connection.name].has_key? msg.destination
 
-    search = Regexp.new($1.gsub(/\s/, '\s'), Regexp::EXTENDED)
+    search, flags, opts = $1, $2, Regexp::EXTENDED
+
+    opts |= Regexp::IGNORECASE if flags.include? "i"
+
+    search = Regexp.new($1.gsub(/\s/, '\s'), opts)
 
     $log.debug("regex.on_privmsg") { "Grep: " + search.to_s }
 
@@ -57,10 +61,11 @@ def on_privmsg(msg)
   elsif msg.text =~ /\As\/(.+)\/(.*)\/(.*)\Z/
     return unless @messages.has_key? msg.connection.name
     return unless @messages[msg.connection.name].has_key? msg.destination
-    flags = $3
-    replace = $2
+    replace, flags, opts = $2, $3, Regexp::EXTENDED
 
-    search = Regexp.new($1.gsub(/\s/, '\s'), Regexp::EXTENDED)
+    opts |= Regexp::IGNORECASE if flags.include? "i"
+
+    search = Regexp.new($1.gsub(/\s/, '\s'), opts)
 
     $log.debug("regex.on_privmsg") { "Substitute: " + search.to_s }
 
