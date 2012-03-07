@@ -25,7 +25,7 @@ class FlagTable
 
   def initialize(default)
     # these are effectively the columns
-    @scripts = [""]
+    @scripts = { "" => 0 }
 
     # and these are the rows
     @table = Hash.new
@@ -44,15 +44,12 @@ class FlagTable
 
   # adds a script column
   def add_script(name)
-
     # first: add the script to the column array
-    idx = @scripts.index(nil)
-    if idx
-      @scripts[idx] = name
-    else
-      idx = @scripts.length
-      @scripts << name
+    idx = 0
+    while @scripts.has_value?(idx)
+      idx += 1
     end
+    @scripts[name] = idx
 
     # second: add a column to every element of the hash
     @table.each_key do |key|
@@ -62,11 +59,11 @@ class FlagTable
 
   # deletes a script column
   def del_script(name)
-    idx = @scripts.index(name)
+    idx = @scripts[name]
     return unless idx
 
     # first: clear the script in the column array
-    @scripts[idx] = nil if idx
+    @scripts.delete(name)
 
     # second: clear every matching column in every row
     @table.each_key do |key|
@@ -77,14 +74,13 @@ class FlagTable
 
   # iterate over a server:channel and script mask
   def each_key(chanmask, scriptmask)
-    # I feel like there's a better way to do this...
-    scriptidx = @scripts.select { |name| name.wildcard_match(scriptmask) }
-    scriptidx.map! { |name| @scripts.index(name) }
+    # obtain only matching scripts
+    scriptidx = @scripts.select { |name, idx| name.wildcard_match(scriptmask) }
 
     # iterate over the table.
     @table.each_key do |row|
       if row.join(":").wildcard_match(chanmask)
-        scriptidx.each { |col| yield row, col }
+        scriptidx.each_value { |col| yield row, col }
       end
     end
   end
