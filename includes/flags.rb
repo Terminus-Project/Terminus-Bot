@@ -22,6 +22,7 @@ class FlagTable
   # this is just to allow probing with irb; it will be removed
   attr_accessor :scripts, :table
 
+
   def initialize(default)
     # these are effectively the columns
     @scripts = [""]
@@ -31,6 +32,7 @@ class FlagTable
     @table[["", ""]] = [default]
   end
 
+
   def add_server(server)
     @table[[server, ""]] = @table[["",""]].clone
   end
@@ -38,6 +40,7 @@ class FlagTable
   def add_channel(server, channel)
     @table[[server, channel]] = @table[[server, ""]].clone
   end
+
 
   # adds a script column
   def add_script(name)
@@ -53,7 +56,7 @@ class FlagTable
 
     # second: add a column to every element of the hash
     @table.each_key do |key|
-      @table[key][idx] = @table[key][0].clone
+      @table[key][idx] = @table[key][0]
     end
   end
 
@@ -71,22 +74,36 @@ class FlagTable
     end
   end
 
-  # iterate over a server:channel and script mask
-  def each_masked(chanmask, scriptmask)
 
+  # iterate over a server:channel and script mask
+  def each_key(chanmask, scriptmask)
     # I feel like there's a better way to do this...
-    scriptidx = @scripts.select { |name| File.fnmatch(scriptmask, name) }
+    scriptidx = @scripts.select { |name| name.wildcard_match(scriptmask) }
     scriptidx.map! { |name| @scripts.index(name) }
 
-    # iterate over the table. These innocent-looking five lines are
-    # really O(n^2)...
-    @table.each_pair do |key, value|
-      if File.fnmatch(chanmask, key.join(":"))
-        @scriptidx.each { |idx| yield value(idx) }
+    # iterate over the table.
+    @table.each_key do |row|
+      if row.join(":").wildcard_match(chanmask)
+        scriptidx.each { |col| yield row, col }
       end
     end
-
   end
+
+
+  # iterate values of each_masked mask
+  def each_value(chanmask, scriptmask)
+    self.each_key(chanmask, scriptmask) do |row, col|
+      yield @table[row][col]
+    end
+  end
+
+  # iterate over each_masked mask and assign the return value
+  def each_value!(chanmask, scriptmask)
+    self.each_key(chanmask, scriptmask) do |row, col|
+      @table[row][col] = yield @table[row][col]
+    end
+  end
+
 
 end
 
