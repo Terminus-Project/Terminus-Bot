@@ -59,10 +59,7 @@ end
 def get_youtube(msg, uri)
   $log.debug('title.get_title') { "Getting YouTube info for #{uri}" }
 
-  # TODO: This whole function is really awful and needs cleaning up.
-
-  link = ""
-  vid = ""
+  link, vid = "", ""
 
   if uri.host == 'youtu.be'
     vid = uri.path[1..uri.path.length-1].split("&")[0]
@@ -73,10 +70,8 @@ def get_youtube(msg, uri)
 
     vid = query.split("=")[1]
 
-    link = " - http://youtu.be/#{vid}"
+    link = " - https://youtu.be/#{vid}"
   end
-
-  $log.debug('title.get_title') { "VID #{vid}" }
 
   vid = URI.escape(vid)
   api = URI("https://gdata.youtube.com/feeds/api/videos/#{vid}?v=2")
