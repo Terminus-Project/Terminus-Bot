@@ -24,7 +24,6 @@ def initialize
 end
 
 def cmd_uptime(msg, params)
-  # TODO: Clean this up
   since = File.ctime(PID_FILE).to_duration_s
   msg.reply("I was started #{since} ago. \02In:\02 #{$bot.lines_in} lines (#{sprintf("%.4f", $bot.bytes_in / 1024.0)} KiB) \02Out:\02 #{$bot.lines_out} lines (#{sprintf("%.4f", $bot.bytes_out / 1024.0)} KiB)")
 end
