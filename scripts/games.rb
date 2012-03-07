@@ -28,7 +28,7 @@ end
 
 def cmd_dice(msg, params)
 
-  unless params[0] =~ /([0-9]+)d([0-9]+)([+-][0-9]+)?/
+  unless params[0] =~ /\A([0-9]+)d([0-9]+)([+-][0-9]+)?\Z/
     msg.reply("Syntax: <count>d<sides>[+/-<modfier>]")
     return
   end
