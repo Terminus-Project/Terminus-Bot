@@ -27,9 +27,7 @@ def initialize
 
   register_command("rss", :cmd_rss,  1,  3, "Manage the RSS/ATOM feeds for the current channel. Parameters: LIST|CHECK|CLEAR|ADD uri|DEL uri")
 
-  register_event("PING", :check_feeds)
-
-  @@last_check = 0
+  EM.add_periodic_timer(1800) { check_feeds }
 end
 
 def cmd_rss(msg, params)
@@ -98,7 +96,7 @@ def cmd_rss(msg, params)
 
       msg.reply("Checking feeds...")
 
-      check_feeds(msg, true)
+      check_feeds
 
     else
 
@@ -107,16 +105,8 @@ def cmd_rss(msg, params)
 
 end
 
-def check_feeds(msg, force = false)
-  now = Time.now.to_i
-
-  $log.debug("rss.check_feeds") { "Last check: #{@@last_check}" }
-
-  return if @@last_check == nil or ((@@last_check + get_config("interval", 1800).to_i > now) and force == false)
-
-  @@last_check = now
-
-  $log.debug("rss.check_feeds") { "Check now: #{now} (#{@@last_check})" }
+def check_feeds
+  $log.debug("rss.check_feeds") { "Beginning check." }
 
   get_all_data.each do |key, val|
 
@@ -157,7 +147,6 @@ def check_feeds(msg, force = false)
   end
 
   $log.debug("rss.check_feeds") { "Done checking feeds." }
-
 end
 
 def get_feed(uri)
