@@ -23,7 +23,7 @@ def initialize
   register_command("icmp",   :cmd_icmp,  1,  0, "Check if the given host is up and answering pings.")
   register_command("mtr",    :cmd_mtr,   1,  0, "Show data about the route to the given host.")
   register_command("icmp6",  :cmd_icmp6, 1,  0, "Check if the given IPv6 host is up and answering pings.")
-  register_command("mtr6",   :cmd_mtr,   1,  0, "Show data about the route to the given IPv6 host.")
+  register_command("mtr6",   :cmd_mtr6,  1,  0, "Show data about the route to the given IPv6 host.")
 end
 
 def cmd_icmp(msg, params)
@@ -48,9 +48,10 @@ end
 
 def do_ping(msg, host, v6 = false)
   EM.system("ping#{v6 ? "6" : ""} -q -c 5 #{host}") do |o,s|
-    if s != 0
-      msg.reply("There was a problem pinging that host (bad host name?).")
-    else
+
+    if s.exitstatus == 2
+      msg.reply("Invalid host name.")
+    elsif s.exitstatus == 0 or s.exitstatus == 1
       buf = Array.new
 
       o.each_line do |l|
@@ -58,7 +59,10 @@ def do_ping(msg, host, v6 = false)
       end
 
       msg.reply(buf.join(" :: "))
+    else
+      msg.reply("There was an unknown problem pinging that host.")
     end
+
   end
 end
 
@@ -86,8 +90,8 @@ end
 
 def do_mtr(msg, host, v6 = false)
   EM.system("mtr -#{v6 ? "6" : "4"} -c 1 -r #{host}") do |o,s|
-    if s != 0
-      msg.reply("There was a problem getting route info for that host (bad host name?).")
+    if s.exitstatus == 1
+      msg.reply("INvaliud host name.")
     else
       hops = 0
       up = 0
