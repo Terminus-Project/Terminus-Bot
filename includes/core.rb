@@ -133,14 +133,14 @@ class Bot
       if config["core"]["bind"] != nil
         EM.bind_connect(config["core"]["bind"], rand(64511)+1024,
                         server_config["address"], server_config["port"], IRC_Connection,
-                        server_name,
-                        server_config["address"], server_config["port"], server_config["password"],
+                        server_name, server_config["address"], server_config["port"], 
+                        server_config["ssl"], server_config["password"],
                         config['core']['bind'], config['core']['nick'],
                         config['core']['user'], config['core']['realname'])
       else
         EM.connect(server_config["address"], server_config["port"], IRC_Connection,
-                   server_name,
-                   server_config["address"], server_config["port"], server_config["password"],
+                   server_name, server_config["address"], server_config["port"], 
+                   server_config["ssl"], server_config["password"],
                    config['core']['bind'], config['core']['nick'],
                    config['core']['user'], config['core']['realname'])
       end

@@ -26,7 +26,7 @@ class IRC_Connection < EventMachine::Connection
    :users, :client_host, :nick, :user, :realname
 
   # Create a new connection, then kick things off.
-  def initialize(name, host, port, password = nil, bind = nil, nick = "Terminus-Bot",
+  def initialize(name, host, port, ssl = false, password = nil, bind = nil, nick = "Terminus-Bot",
                  user = "Terminus", realname = "http://terminus-bot.net/")
 
     # Register ALL the events!
@@ -56,6 +56,7 @@ class IRC_Connection < EventMachine::Connection
     @host = host
     @port = port
     @bind = bind
+    @ssl = ssl
     @password = password
     @realname = realname
 
@@ -86,6 +87,10 @@ class IRC_Connection < EventMachine::Connection
     @registered = false
 
     @client_host = (bind == nil ? "" : bind)
+
+    if @ssl
+      start_tls(:verify_peer => false)
+    end
 
     register
   end

@@ -149,7 +149,8 @@ servers = {
   # }
   #
   # Optional settings include:
-  #   password
+  #   password  (string)
+  #   ssl       (boolean)
   #
 
 }
