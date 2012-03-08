@@ -52,9 +52,9 @@ def on_privmsg(msg)
       if search.match(message[1])
 
         if message[2]
-          msg.reply("* #{message[0]} #{newmsg}", false)
+          msg.reply("* #{message[0]} #{message[1]}", false)
         else
-          msg.reply("<#{message[0]}> #{newmsg}", false)
+          msg.reply("<#{message[0]}> #{message[1]}", false)
         end
 
         return
