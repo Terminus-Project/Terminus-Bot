@@ -53,6 +53,7 @@ def cmd_reconnect(msg, params)
   end
 
   $bot.connections[params[0]].reconnect
+  msg.reply("Reconnecting.")
 end
 
 def cmd_rehash(msg, params)
