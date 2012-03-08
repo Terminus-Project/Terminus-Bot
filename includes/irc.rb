@@ -22,11 +22,11 @@ class IRC_Connection < EventMachine::Connection
   require 'socket'
   require 'timeout'
 
-  attr_reader :name, :channels, :host, :port, :bind, :read_thread, :send_thread,
+  attr_reader :name, :channels, ,:conf, :bind,
    :users, :client_host, :nick, :user, :realname
 
   # Create a new connection, then kick things off.
-  def initialize(name, host, port, ssl = false, password = nil, bind = nil, nick = "Terminus-Bot",
+  def initialize(name, conf, bind = nil, nick = "Terminus-Bot",
                  user = "Terminus", realname = "http://terminus-bot.net/")
 
     # Register ALL the events!
@@ -53,12 +53,11 @@ class IRC_Connection < EventMachine::Connection
     @name = name
     @nick = nick
     @user = user
-    @host = host
-    @port = port
-    @bind = bind
-    @ssl = ssl
-    @password = password
     @realname = realname
+
+    @bind = bind
+
+    @conf = conf
 
     @registered, @reconnecting = false, false
 
@@ -88,7 +87,8 @@ class IRC_Connection < EventMachine::Connection
 
     @client_host = (bind == nil ? "" : bind)
 
-    if @ssl
+    if @conf["ssl"]
+      # TODO: Support more options here via the config file.
       start_tls(:verify_peer => false)
     end
 
@@ -97,7 +97,7 @@ class IRC_Connection < EventMachine::Connection
 
   # TODO: Make room for SASL.
   def register
-    raw "PASS " + @password unless @password == nil
+    raw "PASS " + @conf["password"] if @conf.has_key? "password"
 
     raw "NICK " + @nick
     raw "USER #{@user} 0 0 :" + @realname
@@ -187,9 +187,12 @@ class IRC_Connection < EventMachine::Connection
       send_data @send_queue.pop
     end
 
+    # Grab server config again in case we rehashed.
+    @conf = $bot.config["servers"][@name]
+
     EM.add_timer(5) {
       @disconnecting = false
-      super(@host, @port)
+      super(@conf["host"], @conf["port"])
       register
     }
   end
