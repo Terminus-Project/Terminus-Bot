@@ -121,7 +121,7 @@ class IRC_Connection < EventMachine::Connection
 
     $bot.ignores.each do |ignore|
       if msg.origin.wildcard_match(ignore)
-        $log.error("IRC.receive_line") { "Ignoring message from #{msg.origin}" }
+        $log.debug("IRC.receive_line") { "Ignoring message from #{msg.origin}" }
         return
       end
     end
