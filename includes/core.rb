@@ -24,7 +24,7 @@ DATA_DIR = "var/terminus-bot/"
 class Bot
 
   attr_accessor :connections, :lines_out, :lines_in, :bytes_out, :bytes_in, :ignores
-  attr_reader :config, :events, :database, :commands, :script_info, :scripts
+  attr_reader :config, :events, :database, :commands, :script_info, :scripts, :flags
 
   Command = Struct.new(:owner, :cmd, :func, :argc, :level, :help)
   Script_Info = Struct.new(:name, :description)
@@ -42,6 +42,8 @@ class Bot
     @config = Configuration.new   # Configuration. Extends Hash.
 
     @database = Database.new      # Scripts can store data here.
+
+    @flags = FlagTable.new(true)  # Filtering events by source and destination
 
     @commands = Hash.new          # An hash table of Commands (see the above Struct).
                                   # These are fired like events.
@@ -190,13 +192,29 @@ class Bot
     $log.debug("Bot.run_commands") { "Match for command #{$2} in #{command.owner}" }
 
     begin
-      command.owner.send(command.func, msg, params)
+      command.owner.send(command.func, msg, params) if permit_message(command.owner, msg)
     rescue => e
       $log.error("Bot.run_commands") { "Problem running command #{$2} in #{command.owner}: #{e}" }
       $log.debug("Bot.run_commands") { "Problem running command #{$2} in #{command.owner}: #{e.backtrace}" }
       msg.reply("There was a problem running your command: #{e}")
     end
 
+  end
+
+  # Determine whether the given event should be sent or not, based on
+  # the event itself and on the contents of the message
+  def permit_message(owner, msg)
+    return true unless owner.is_a? Script
+
+    server = msg.connection.name
+    chan = msg.destination
+    name = owner.my_short_name
+
+    fetch = @flags.fetch(server, chan, name)
+    $log.debug("Bot.permit_message") { "#{fetch} on #{server}:#{chan} script #{name}" }
+    fetch = true if fetch == nil
+
+    return fetch
   end
 
   # Send QUITs and do any other work that needs to be done before exiting.
@@ -238,12 +256,16 @@ class Bot
 
     @script_info << Script_Info.new(*args)
     @script_info.sort_by! {|s| s.name}
+
+    # I feel like I shouldn't know the contents of args...
+    @flags.add_script(args[0])
   end
 
   # Remove a script from @scripts (by name).
   def unregister_script(name)
     $log.debug("Bot.unregister_script") { "Unregistering script #{name}" }
     @script_info.delete_if {|s| s.name == name}
+    @flags.del_script(name)
   end
 
   # Unregister a specific command. This doesn't check for ownership

@@ -34,16 +34,14 @@ class Events < Hash
   end
 
   # Run all the events with the given name.
-  # TODO: Find out why I used *args and change it if it doesn't need to be
-  #       that way.
-  def run(name, *args)
+  def run(name, msg)
     return unless self.has_key? name
 
     $log.debug("events.run") { name }
 
     self[name].each do |event|
       begin
-        event.owner.send(event.func, args[0])
+        event.owner.send(event.func, msg) if $bot.permit_message(event.owner, msg)
       rescue => e
         $log.error("events.run") { "Error running event #{name}: #{e}" }
         $log.debug("events.run") { "Backtrace for #{name}: #{e.backtrace}" }

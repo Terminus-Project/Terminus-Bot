@@ -74,7 +74,9 @@ class IRC_Connection < EventMachine::Connection
       end
     }
 
+    # TODO: Okay to probe $bot's inner structures?
     $bot.connections[name] = self
+    $bot.flags.add_server(name)
   end
 
   # Called after the socket is opened.
@@ -232,6 +234,7 @@ class IRC_Connection < EventMachine::Connection
 
     unless @channels.has_key? msg.destination
       @channels[msg.destination] = Channel.new(msg.destination)
+      $bot.flags.add_channel(@name, msg.destination)
     end
 
     if msg.me?
