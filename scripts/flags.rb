@@ -43,11 +43,11 @@ end
 
 def cmd_disable(msg, params)
   count = 0
-  warn = false
+  warnreject = false
 
   $bot.flags.each_pair!(params[0], params[1]) do |row, col, value|
     if $bot.flags.scripts[my_short_name] == col
-      warn = true
+      warnreject = true
       true
     else
       count += 1
@@ -56,7 +56,7 @@ def cmd_disable(msg, params)
   end
 
   reply = "Disabled \02#{count}\02 entries"
-  reply << " (Attempt to disable script '#{my_short_name}' rejected)" if warn
+  reply << " (Attempt to disable script '#{my_short_name}' rejected)" if warnreject
   msg.reply(reply)
 end
 
