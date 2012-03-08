@@ -80,7 +80,9 @@ class Configuration < Hash
         next
       end
 
-      throw "Duplicate configuration option #{key} on line #{line_number}" if current.has_key? key
+      if current.has_key? key
+        $log.warn("Configuration.read_config") { "Duplicate configuration option #{key} on line #{line_number}" }
+      end
 
       # Handle a few data types.
 
