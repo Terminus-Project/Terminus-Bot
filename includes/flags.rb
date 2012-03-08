@@ -19,6 +19,8 @@
 
 class FlagTable
 
+  attr_reader :table, :scripts
+
   def initialize(default)
     # these are effectively the columns
     @scripts = { "" => 0 }
@@ -91,20 +93,30 @@ class FlagTable
   end
 
 
-  # iterate values of each_masked mask
   def each_value(chanmask, scriptmask)
     self.each_key(chanmask, scriptmask) do |row, col|
       yield @table[row][col]
     end
   end
 
-  # iterate over each_masked mask and assign the return value
   def each_value!(chanmask, scriptmask)
     self.each_key(chanmask, scriptmask) do |row, col|
       @table[row][col] = yield @table[row][col]
     end
   end
 
+
+  def each_pair(chanmask, scriptmask)
+    self.each_key(chanmask, scriptmask) do |row, col|
+      yield row, col, @table[row][col]
+    end
+  end
+
+  def each_pair!(chanmask, scriptmask)
+    self.each_key(chanmask, scriptmask) do |row, col|
+      @table[row][col] = yield row, col, @table[row][col]
+    end
+  end
 
 end
 
