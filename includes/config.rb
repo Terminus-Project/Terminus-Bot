@@ -86,8 +86,11 @@ class Configuration < Hash
 
       # Handle a few data types.
 
-      if value =~ /\A[0-9]+\Z/
+      if value =~ /\A\d+\Z/
         value = value.to_i
+
+      elsif value =~ /\A\d+\.\d+\Z/
+        value = value.to_f
 
       elsif value.casecmp("true") == 0
         value = true
