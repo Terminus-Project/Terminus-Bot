@@ -178,6 +178,8 @@ class IRC_Connection < EventMachine::Connection
 
   # Empty the queue and then reconnect.
   def reconnect
+    return if @disconnecting
+
     @disconnecting = true
     raw "QUIT :Reconnecting"
 
