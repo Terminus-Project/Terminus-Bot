@@ -1,4 +1,3 @@
-
 #
 # Terminus-Bot: An IRC bot to solve all of the problems with IRC bots.
 # Copyright (C) 2012 Terminus-Bot Development Team
@@ -20,8 +19,6 @@
 
 class Configuration < Hash
 
-  attr :config
-
   FILE_NAME = "terminus-bot.conf"
 
   # Create a new configuration object.
@@ -32,44 +29,73 @@ class Configuration < Hash
 
 
   # Read the config file named by FILE_NAME.
-  # Configuration is stored in @config, a hash table. Keys are
-  # section names ([name] in the file). The values are more hash tables.
-  # The key/value pair for those hash tables is the setting name and value.
   def read_config
     throw "No Config File" unless File.exists? FILE_NAME
 
     $log.info("Configuration.read_config") { "Loading the configuration file." } 
 
-    fi = File.open(FILE_NAME, "r")
+    fi = File.open(FILE_NAME, 'r')
 
-    section = ""
+    root, parents, line_number = {}, [], 0
 
+    current = self
+
+    # Read in the whole file, skipping comments and stuff.
     while line = fi.gets
       line.strip!
-
+      line_number += 1
+        
       # Skip comments and empty lines.
       next if line[0] == "#" or line.empty?
 
-      # Section header!
-      if line =~ /\[(.+)\]/
-        section = $1.strip
+      if line == "}"
+        throw "Unexpected } on line #{line_number}" if parents.empty?
 
-        unless self.has_key? section
-          self[section] = Hash.new
-          $log.debug("Configuration.read_config") { "New config section: #{section}" } 
+        current = parents.pop
+
+        next
+      end
+
+      unless line.include? "="
+        warn "Cannot parse line #{line_number}: #{line}"
+        next
+      end
+
+      key, value = line.split("=", 2)
+
+      key.strip!
+      value.strip!
+      
+      if value == "{"
+
+        if current.has_key? key
+          $log.warn("Configuration.read_config") { "Duplicate configuration block #{key} on line #{line_number}" }
+        else
+          current[key] = {}
         end
 
-      # A setting! Read it in.
-      elsif line =~ /\A(.+)=(.+)\Z/
-        
-        if section.empty?
-          throw "Congifuration before section declaration."
-        end
+        parents << current
+        current = current[key]
 
-        self[section][$1.strip] = $2.strip
+        next
+      end
+
+      throw "Duplicate configuration option #{key} on line #{line_number}" if current.has_key? key
+
+      # Handle a few data types.
+
+      if value =~ /\A[0-9]+\Z/
+        value = value.to_i
+
+      elsif value.casecmp("true") == 0
+        value = true
+
+      elsif value.casecmp("false") == 0
+        value = false
 
       end
 
+      current[key] = value
     end
 
     $log.debug("Configuration.read_config") { "Done loading the configuration file." } 
@@ -77,3 +103,4 @@ class Configuration < Hash
     fi.close
   end
 end
+

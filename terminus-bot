@@ -70,7 +70,9 @@ load_files "includes"
 
 # Launch!
 pid = fork do
-  Bot.new
+  EM.run do
+    Bot.new
+  end
 end
 
 puts "Terminus-Bot started as #{pid}"
