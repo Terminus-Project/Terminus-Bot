@@ -22,7 +22,7 @@ def initialize
 
   register_command("icmp",   :cmd_icmp,  1,  0, "Check if the given host is up and answering pings.")
   register_command("mtr",    :cmd_mtr,   1,  0, "Show data about the route to the given host.")
-  register_command("icmp6",  :cmd_icmp,  1,  0, "Check if the given IPv6 host is up and answering pings.")
+  register_command("icmp6",  :cmd_icmp6, 1,  0, "Check if the given IPv6 host is up and answering pings.")
   register_command("mtr6",   :cmd_mtr,   1,  0, "Show data about the route to the given IPv6 host.")
 end
 
@@ -31,6 +31,16 @@ def cmd_icmp(msg, params)
 
   if validate_host_name(host)
     EM.defer(proc { do_ping(msg, host) })
+  else
+    msg.reply("Invalid host name.")
+  end
+end
+
+def cmd_icmp6(msg, params)
+  host = params[0].chomp
+
+  if validate_host_name(host)
+    EM.defer(proc { do_ping(msg, host, true) })
   else
     msg.reply("Invalid host name.")
   end
@@ -115,5 +125,5 @@ def do_mtr(msg, host, v6 = false)
 end
 
 def validate_host_name(host)
-  host =~ /\A[^-][\w.-]+\Z/
+  host =~ /\A[^-][\w.:-]+\Z/
 end
