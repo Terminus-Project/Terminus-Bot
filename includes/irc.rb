@@ -60,7 +60,7 @@ class IRC_Connection < EventMachine::Connection
     @password = password
     @realname = realname
 
-    @registered = false
+    @registered, @reconnecting = false, false
 
     # We queue up messages here
     @send_queue = Queue.new
@@ -150,7 +150,7 @@ class IRC_Connection < EventMachine::Connection
 
   # Called when we lose our connection.
   def unbind
-    return if @disconnecting
+    return if @disconnecting or @reconnecting
 
     reconnect
   end
@@ -180,7 +180,7 @@ class IRC_Connection < EventMachine::Connection
   def reconnect
     return if @disconnecting
 
-    @disconnecting = true
+    @reconnecting, @disconnecting = true, true
     raw "QUIT :Reconnecting"
 
     @send_queue.length.times do
