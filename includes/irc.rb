@@ -22,7 +22,7 @@ class IRC_Connection < EventMachine::Connection
   require 'socket'
   require 'timeout'
 
-  attr_reader :name, :channels, ,:conf, :bind,
+  attr_reader :name, :channels, :conf, :bind,
    :users, :client_host, :nick, :user, :realname
 
   # Create a new connection, then kick things off.
