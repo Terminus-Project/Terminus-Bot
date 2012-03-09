@@ -28,6 +28,7 @@ def initialize()
   register_command("password",  :cmd_password,  1, 1,  "Change your bot account password. Parameters: password")
   register_command("fpassword", :cmd_fpassword, 2, 8,  "Change another user's bot account password. Parameters: username password")
   register_command("level",     :cmd_level,     2, 10, "Change a user's account level. Parameters: username level")
+  register_command("account",   :cmd_account,   1,  5, "Display information about a user. Parameters: username")
 end
 
 def verify_password(stored, password)
@@ -160,4 +161,15 @@ def cmd_level(msg, params)
 
   msg.reply("Aurthorization level for \02#{params[0]}\02 changed to \02#{level}\02.")
   $log.info("account.cmd_level") { "#{msg.origin} changed authorization level for #{params[0]} to #{level}" }
+end
+
+def cmd_account(msg, params)
+  stored = get_data(params[0], nil)
+  
+  if stored == nil
+    msg.reply("No such account.")
+    return
+  end
+
+  msg.reply("Account #{params[0]} level: #{stored[:level]}")
 end
