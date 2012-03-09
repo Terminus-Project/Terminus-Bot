@@ -178,11 +178,9 @@ class Bot
       return
     end
 
-    if command.argc == 0
-      params = $3.strip.split(" ", 1)
-    else
-      params = $3.strip.split(" ", command.argc)
-    end
+    # Split command parameters. If the command requires no parameters, put
+    # everything in params[0].
+    params = $3.strip.split(" ", command.argc.zero? ? 1 : command.argc)
 
     if params.length < command.argc
       msg.reply("This command requires at least \02#{command.argc}\02 parameters.")

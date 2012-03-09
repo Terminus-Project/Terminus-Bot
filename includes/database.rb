@@ -19,7 +19,11 @@
 
 class Database
 
+  # The YAML library packaged with the current version of Ruby has a bug that
+  # causes crashes or data loss when some unicode characters are parsed. Once
+  # that is fixed, we can remove this.
   gem 'psych'
+
   require 'psych'
 
   FILENAME = DATA_DIR + "data.db"
@@ -33,6 +37,10 @@ class Database
     else
       write_database
     end
+
+    # Save the database every five minutes.
+    # TODO: Make this a config variable?
+    EM.add_periodic_timer(300) { write_database }
 
     # Try to make sure we write our database before we exit.
     at_exit { write_database }
@@ -55,14 +63,11 @@ class Database
 
 
   # Implement a few Hash methods.
-  # TODO: Make this less dumb. Maybe can extend Hash somehow.
-  #       Not really sure how exactly to do that. We could just
-  #       pass the method calls to @data if with method_missing but
-  #       that is pretty dorky. And I'm not sure how to extend
-  #       Hash and still be able to call Psych.load.
+  # TODO: Find a way for this class to extend Hash and still play nice with
+  #       Psych#load. Right now, it fails because load might not produce a Hash.
 
   def [](key)
-    return @data[key]
+    @data[key]
   end
 
   def []=(key, val)
@@ -74,7 +79,7 @@ class Database
   end
 
   def to_s
-    return @data.to_s
+    @data.to_s
   end
 
   def has_key?(key)

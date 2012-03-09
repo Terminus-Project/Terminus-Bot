@@ -23,6 +23,8 @@ class String
     # Since this is primarily going to be used for hostmask matches, we should
     # escape these so that character classes aren't used, as that might
     # produce unexpected results.
+    #
+    # If it isn't obvious, this escapes [ and ]. So many backslashes!
     s.gsub!(/([\[\]])/, '\\\\\1')
 
     # Wildcard matches can be done with fnmatch, a globbing function. This

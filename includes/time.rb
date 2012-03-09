@@ -22,14 +22,15 @@ class Time
   # convert seconds into [seconds, minutes, hours, days]
   def to_duration_a
     secs = (Time.now - self.to_i).to_i
+
     t = []
 
     [60, 60, 24].each do |n|
       secs, q = secs.divmod(n)
       t << q
     end
+
     t << secs
-    return t
   end
 
   def to_duration_s
@@ -43,18 +44,15 @@ class Time
 
       unless piece[0] == 0
         s = piece[0] == 1? "" : piece[2]
-        piece[0].to_s + piece[1] + s
+        piece[0].to_s << piece[1] << s
       end
 
     end
 
     pieces.compact!
 
-    # tack 'and' onto the last piece, unless there's only one piece
-    pieces[-1] = "and " + pieces[-1] unless pieces.length <= 1
+    pieces[-1] = "and " << pieces[-1] unless pieces.length <= 1
  
-    # omit the comma if only two pieces
-    return pieces.join(", ") unless pieces.length == 2
-    return pieces.join(" ")
+    pieces.join("#{"," unless pieces.length == 2} ")
   end
 end
