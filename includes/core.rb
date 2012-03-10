@@ -211,7 +211,6 @@ class Bot
     name = owner.my_short_name
 
     fetch = @flags.fetch(server, chan, name)
-    $log.debug("Bot.permit_message") { "#{fetch} on #{server}:#{chan} script #{name}" }
     fetch = true if fetch == nil
 
     return fetch
