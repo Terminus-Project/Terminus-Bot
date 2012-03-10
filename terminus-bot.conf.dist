@@ -155,6 +155,24 @@ servers = {
 
 }
 
+
+# Account level override.
+admins = {
+
+  # Here you can include account names and their authorization level, overriding
+  # whatever level they have in the account database. This is useful for
+  # creating administrative accounts by setting the level to 10.
+  #
+  # Warning: If you set an account to level 10 and that account doesn't exist,
+  # anyone can register it and immediately have full access to the bot. This
+  # can be very dangerous, since that grants access to the admin/eval command!
+  #
+  # Example:
+  #
+  #   Kabaka = 10
+
+}
+
 # CTCP reply script.
 ctcp = {
 

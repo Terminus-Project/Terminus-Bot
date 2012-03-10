@@ -62,10 +62,19 @@ def cmd_identify(msg, params)
   end
 
   msg.connection.users[msg.nick].account = params[0]
-  msg.connection.users[msg.nick].level = stored[:level]
 
-  msg.reply("Logged in with level #{stored[:level]} authorization.")
-  $log.info("account.cmd_identify") { "#{msg.origin} identified as #{params[0]} (#{stored[:level]})" }
+  level = stored[:level]
+
+  if $bot.config["admins"].has_key? params[0]
+    level = $bot.config["admins"][params[0]]
+
+    $log.info("account.cmd_identify") { "#{msg.origin} identifying with override level #{level}" }
+  end
+    
+  msg.connection.users[msg.nick].level = level
+
+  msg.reply("Logged in with level #{level} authorization.")
+  $log.info("account.cmd_identify") { "#{msg.origin} identified as #{params[0]} (#{level})" }
 end
 
 def cmd_register(msg, params)
