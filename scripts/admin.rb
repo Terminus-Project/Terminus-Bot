@@ -64,7 +64,6 @@ def cmd_rehash(msg, params)
 end
 
 def cmd_nick(msg, params)
-  msg.connection.nick = params[0]
   msg.raw("NICK #{params[0]}")
 
   msg.reply("Nick changed to #{params[0]}")
