@@ -19,7 +19,8 @@
 
 class FlagTable
 
-  attr_reader :table, :scripts
+  # I don't feel like this should be exposed like this, but meh
+  attr_accessor :table, :scripts
 
   def initialize(default)
     # these are effectively the columns
@@ -42,6 +43,9 @@ class FlagTable
 
   # adds a script column
   def add_script(name)
+    # don't add the script if we already have it
+    return if @scripts.has_key?(name)
+
     # first: add the script to the column array
     idx = 0
     while @scripts.has_value?(idx)
@@ -71,11 +75,15 @@ class FlagTable
 
 
   def fetch(server, channel, script)
-    # Not sure if this little cascade is a good idea...
     row = @table[[server, channel]]
     row = @table[[server, ""]] if row == nil
     row = @table[["", ""]] if row == nil
     return row[@scripts[script]]
+  end
+
+  def script_name(column)
+    # This feels like a very horribly wrong thing to do...
+    return @scripts.invert()[column]
   end
 
 
