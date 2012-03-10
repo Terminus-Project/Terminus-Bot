@@ -173,6 +173,17 @@ admins = {
 
 }
 
+
+# Flag table configuration
+flags = {
+
+  # To prevent accidental deactivation of important scripts, you can
+  # list scripts here that will never be deactivated by the flags script.
+  privileged = flags,account,admin,channels
+
+}
+
+
 # CTCP reply script.
 ctcp = {
 

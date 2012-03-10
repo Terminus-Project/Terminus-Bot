@@ -33,11 +33,11 @@ def cmd_enable(msg, params)
   count = 0
 
   $bot.flags.each_value!(params[0], params[1]) do |value|
-    count += 1
+    count += 1 unless value
     true
   end
 
-  msg.reply("Enabled \02#{count}\02 entries")
+  msg.reply("Changed \02#{count}\02 entries to \02enabled\02")
 end
 
 
@@ -45,40 +45,74 @@ def cmd_disable(msg, params)
   count = 0
   warnreject = false
 
+  privileged = get_config("privileged", "").split(/,/)
+  privileged.map! { |name| $bot.flags.scripts[name] }
+
   $bot.flags.each_pair!(params[0], params[1]) do |row, col, value|
-    if $bot.flags.scripts[my_short_name] == col
+    if privileged.include? col
       warnreject = true
       true
     else
-      count += 1
+      count += 1 if value
       false
     end
   end
 
-  reply = "Disabled \02#{count}\02 entries"
-  reply << " (Attempt to disable script '#{my_short_name}' rejected)" if warnreject
+  reply = "Changed \02#{count}\02 entries to \02disabled\02"
+  reply << " (Attempt to disable a privileged script rejected)" if warnreject
   msg.reply(reply)
 end
 
 
 def cmd_flags(msg, params)
-  falsecnt = 0
-  truecnt = 0
+  # Allocating four arrays, something doesn't seem right....
+  trues = Array.new
+  falses = Array.new
+  rows = Array.new
+  cols = Array.new
 
-  $bot.flags.each_value(params[0], params[1]) do |value|
+  $bot.flags.each_pair(params[0], params[1]) do |row, col, value|
+    rows << row unless rows.include? row
+    cols << col unless cols.include? col
     if value
-      truecnt += 1
+      trues << [row, col]
     else
-      falsecnt += 1
+      falses << [row, col]
     end
   end
 
-  if falsecnt == 0
-    msg.reply("I have \02#{truecnt}\02 enabled entries")
-  elsif truecnt == 0
-    msg.reply("I have \02#{falsecnt}\02 disabled entries")
+
+  if trues.length == 0 and falses.length == 0
+    msg.reply("That mask produced no matches")
+
+  elsif trues.length == 0
+    msg.reply("All matches are \02disabled\02")
+  elsif falses.length == 0
+    msg.reply("All matches are \02enabled\02")
+
+  elsif rows.length == 1
+    truecol = trues.map { |item| $bot.flags.script_name(item[1]) }
+    falsecol = falses.map { |item| $bot.flags.script_name(item[1]) }
+
+    if trues.length < falses.length
+      msg.reply("Enabled scripts in \02#{rows[0].join(':')}\02 are #{truecol.join(', ')}")
+    else
+      msg.reply("Disabled scripts in \02#{rows[0].join(':')}\02 are #{falsecol.join(', ')}")
+    end
+
+  elsif cols.length == 1
+    truerow = trues.map { |item| item[0].join(':') }
+    falserow = falses.map { |item| item[0].join(':') }
+    script = $bot.flags.script_name(cols[0])
+
+    if trues.length < falses.length
+      msg.reply("Enabled channels for \02#{}\02 are #{truerow.join(', ')}")
+    else
+      msg.reply("Disabled channels for \02#{}\02 are #{falserow.join(', ')}")
+    end
+
   else
-    msg.reply("I have \02#{truecnt} enabled\02 entries and \02#{falsecnt} disabled\02 entries")
+    msg.reply("There are \02#{trues.length} enabled\02 and \02#{falses.length} disabled\02 entries")
   end
 end
       
