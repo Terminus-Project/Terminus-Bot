@@ -29,6 +29,7 @@ def initialize()
   register_command("fpassword", :cmd_fpassword, 2, 8,  "Change another user's bot account password. Parameters: username password")
   register_command("level",     :cmd_level,     2, 10, "Change a user's account level. Parameters: username level")
   register_command("account",   :cmd_account,   1,  5, "Display information about a user. Parameters: username")
+  register_command("whoami",    :cmd_whoami,    0,  0, "Display your current user information if you are logged in.")
 end
 
 def verify_password(stored, password)
@@ -180,5 +181,16 @@ def cmd_account(msg, params)
     return
   end
 
-  msg.reply("Account #{params[0]} level: #{stored[:level]}")
+  msg.reply("\02Account:\02 #{params[0]} \02Level:\02 #{stored[:level]}")
 end
+
+def cmd_whoami(msg, params)
+  if msg.connection.users[msg.nick].account == nil
+    msg.reply("You are not logged in.")
+    return
+  end
+
+  u = msg.connection.users[msg.nick]
+  msg.reply("\02Account:\02 #{u.account} \02Level:\02 #{u.level}")
+end
+
