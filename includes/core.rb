@@ -92,6 +92,18 @@ class Bot
       @ignores = @database[:ignores]
     end
 
+    if @database.has_key? :flags
+      # This makes a lot of assumptions about what will be in
+      # @database[:flags], but if everything goes as planned (i.e. no
+      # user tampering with data.db) then this should be left alone
+      @flags.scripts = @database[:flags][:scripts]
+      @flags.table = @database[:flags][:table]
+    else
+      @database[:flags] = Hash.new
+      @database[:flags][:scripts] = @flags.scripts
+      @database[:flags][:table] = @flags.table
+    end
+
     # Since we made it this far, go ahead and be ready for signals.
     trap("INT")  { quit("Interrupted by host system. Exiting!") }
     trap("TERM") { quit("Terminated by host system. Exiting!") }
@@ -264,7 +276,6 @@ class Bot
   def unregister_script(name)
     $log.debug("Bot.unregister_script") { "Unregistering script #{name}" }
     @script_info.delete_if {|s| s.name == name}
-    @flags.del_script(name)
   end
 
   # Unregister a specific command. This doesn't check for ownership
