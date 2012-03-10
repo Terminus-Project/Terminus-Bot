@@ -76,8 +76,12 @@ end
 
 def cmd_reload(msg, params)
   op = proc {
-    $bot.scripts.reload(params[0])
-    msg.reply("Reloaded script \02#{params[0]}\02")
+    begin
+      $bot.scripts.reload(params[0])
+      msg.reply("Reloaded script \02#{params[0]}\02")
+    rescue => e
+      msg.reply("Failed to reload \02#{params[0]}\02: #{e}")
+    end
   }
 
   EM.defer(op)
