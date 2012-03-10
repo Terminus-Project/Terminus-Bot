@@ -69,6 +69,9 @@ end
 
 def log_msg(network, channel, type, speaker, str = "")
   $log.debug("chanlog.log_msg") { "#{network} #{channel} #{type} #{speaker} #{str}" }
+
+  new_logger network, channel
+
   @loggers[network][channel].info(type) { "#{speaker}\t#{str}" }
 end
 
