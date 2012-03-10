@@ -113,7 +113,7 @@ def cmd_password(msg, params)
   end
 
   stored[:password] = encrypt_password(params[0])
-  save_data(msg.connection.users[msg.nick].account, stored)
+  store_data(msg.connection.users[msg.nick].account, stored)
 
   msg.reply("Your password has been changed")
   $log.info("account.cmd_password") { "#{msg.origin} changed account password" }
@@ -133,7 +133,7 @@ def cmd_fpassword(msg, params)
   end
 
   stored[:password] = encrypt_password(params[0])
-  save_data(msg.connection.users[msg.nick].account, stored)
+  store_data(msg.connection.users[msg.nick].account, stored)
 
   msg.reply("The account password has been changed")
   $log.info("account.cmd_fpassword") { "#{msg.origin} changed account password for #{params[0]}" }
