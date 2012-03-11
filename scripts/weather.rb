@@ -21,6 +21,7 @@
 require "uri"
 require 'net/http'
 require 'rexml/document'
+require 'htmlentities'
 
 def initialize
   register_script("Weather information look-ups via Weather Underground (wunderground.com).")
@@ -109,8 +110,11 @@ def forecast(msg, params)
 
   root.elements.each("forecastday") { |element|
     title = element.elements["title"].text
+
     text = element.elements["fcttext"].text
-    reply += "[\02#{title}\02] #{text} "
+    text = HTMLEntities.new.decode(text)
+
+    reply << "[\02#{title}\02] #{text} "
   }
 
   msg.reply(reply)
