@@ -97,7 +97,7 @@ def get_youtube(msg, uri)
     dislikes = rating.attribute("numDislikes").to_s
   end
   
-  msg.reply("\02YouTube Video\02 #{title} \02Uploaded By:\02 #{author} \02Views:\02 #{views} \02Likes:\02 #{likes} \02Dislikes:\02 #{dislikes}#{link}")
+  msg.reply("\02YouTube Video\02 #{title} \02Uploaded By:\02 #{author} \02Views:\02 #{views} \02Likes:\02 #{likes} \02Dislikes:\02 #{dislikes}#{link}", false)
 
   return true
 end
