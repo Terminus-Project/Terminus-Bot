@@ -41,7 +41,7 @@ class Events < Hash
 
     self[name].each do |event|
       begin
-        event.owner.send(event.func, msg) if $bot.permit_message(event.owner, msg)
+        event.owner.send(event.func, msg) if $bot.permit_message?(event.owner, msg)
       rescue => e
         $log.error("events.run") { "Error running event #{name}: #{e}" }
         $log.debug("events.run") { "Backtrace for #{name}: #{e.backtrace}" }

@@ -200,7 +200,7 @@ class Bot
     $log.debug("Bot.run_commands") { "Match for command #{$2} in #{command.owner}" }
 
     begin
-      command.owner.send(command.func, msg, params) if permit_message(command.owner, msg)
+      command.owner.send(command.func, msg, params) if permit_message?(command.owner, msg)
     rescue => e
       $log.error("Bot.run_commands") { "Problem running command #{$2} in #{command.owner}: #{e}" }
       $log.debug("Bot.run_commands") { "Problem running command #{$2} in #{command.owner}: #{e.backtrace}" }
@@ -211,7 +211,7 @@ class Bot
 
   # Determine whether the given event should be sent or not, based on
   # the event itself and on the contents of the message
-  def permit_message(owner, msg)
+  def permit_message?(owner, msg)
     return true unless owner.is_a? Script
 
     server  = msg.connection.name
