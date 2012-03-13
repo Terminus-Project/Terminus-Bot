@@ -43,14 +43,14 @@ class Bot
 
     @database = Database.new      # Scripts can store data here.
 
-    @flags = FlagTable.new(true)  # Filtering events by source and destination
-
     @commands = Hash.new          # An hash table of Commands (see the above Struct).
                                   # These are fired like events.
     
     @script_info = Array.new      # Name and description for scripts (see above Struct).
 
     @events = Events.new          # We're event-driven. See includes/event.rb
+
+    @flags = Script_Flags.new     # Table of booleans to enable or disable scripts per-channel.
 
     @scripts = Scripts.new        # For those things in the scripts dir.
 
@@ -83,25 +83,21 @@ class Bot
       $log.level = Logger::INFO
     end
 
+
     # The only event we care about in the core.
     @events.create(self, "PRIVMSG", :run_commands)
 
+    # Plug the database into things.
     unless @database.has_key? :ignores
       @database[:ignores] = @ignores
     else
       @ignores = @database[:ignores]
     end
 
-    if @database.has_key? :flags
-      # This makes a lot of assumptions about what will be in
-      # @database[:flags], but if everything goes as planned (i.e. no
-      # user tampering with data.db) then this should be left alone
-      @flags.scripts = @database[:flags][:scripts]
-      @flags.table = @database[:flags][:table]
+    unless @database.has_key? :flags
+      @database[:flags] = @flags
     else
-      @database[:flags] = Hash.new
-      @database[:flags][:scripts] = @flags.scripts
-      @database[:flags][:table] = @flags.table
+      @flags = @database[:flags]
     end
 
     # Since we made it this far, go ahead and be ready for signals.
@@ -218,14 +214,11 @@ class Bot
   def permit_message(owner, msg)
     return true unless owner.is_a? Script
 
-    server = msg.connection.name
-    chan = msg.destination
-    name = owner.my_short_name
+    server  = msg.connection.name
+    channel = msg.destination
+    name    = owner.my_short_name
 
-    fetch = @flags.fetch(server, chan, name)
-    fetch = true if fetch == nil
-
-    return fetch
+    @flags.enabled?(server, channel, name)
   end
 
   # Send QUITs and do any other work that needs to be done before exiting.

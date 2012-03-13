@@ -179,7 +179,25 @@ flags = {
 
   # To prevent accidental deactivation of important scripts, you can
   # list scripts here that will never be deactivated by the flags script.
-  privileged = flags,account,admin,channels
+  #
+  # The only script included by default is the channels script. Without that
+  # script, the bot's behavior when joining or parting channels may be
+  # unpredicable.
+  # 
+  # Default: channels
+  privileged = channels
+
+  # Default flag value. Must be a boolean.
+  #
+  # If this is set to false, no scripts will work in channels until they are
+  # explicitly enabled through the flags management script. If is set to true,
+  # all scripts will operate in all channels until explicitly disabled.
+  #
+  # When used in private, all scripts are always operational, regardless of this
+  # setting for any flags.
+  #
+  # Default: true
+  default = true
 
 }
 

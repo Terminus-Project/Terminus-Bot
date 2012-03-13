@@ -20,114 +20,114 @@
 # TODO: Reimplement without all this confusing table/index stuff that doesn't
 # actually save us any memory with such small amounts of data.
 
-class FlagTable
+class Script_Flags < Hash
 
-  # I don't feel like this should be exposed like this, but meh
-  attr_accessor :table, :scripts
+  def initialize
+    @scripts = []
 
-  def initialize(default)
-    # these are effectively the columns
-    @scripts = { "" => 0 }
+    # This is here because YAML doesn't know how to initialize us with it after
+    # pullingthe flags table back out of the database.
+    # TODO: Correctly deal with rehashing since this likely won't pick up on it.
+    @default_flag = $bot.config['flags']['default'] rescue true
 
-    # and these are the rows
-    @table = Hash.new
-    @table[["", ""]] = [default]
+    super
   end
-
 
   def add_server(server)
-    @table[[server, ""]] ||= @table[["",""]].clone
+    self[server] ||= Hash.new
   end
+
 
   def add_channel(server, channel)
-    @table[[server, channel]] ||= @table[[server, ""]].clone
+    self[server][channel] ||= Hash.new
   end
 
 
-  # adds a script column
+  # New script loaded. Add it if we don't already have it.
   def add_script(name)
-    # don't add the script if we already have it
-    return if @scripts.has_key?(name)
+    return if @scripts.include? name
 
-    # first: add the script to the column array
-    idx = 0
-    while @scripts.has_value?(idx)
-      idx += 1
-    end
-    @scripts[name] = idx
+    @scripts << name
 
-    # second: add a column to every element of the hash
-    @table.each_key do |key|
-      @table[key][idx] = @table[key][0]
-    end
-  end
-
-  # deletes a script column
-  def del_script(name)
-    idx = @scripts[name]
-    return unless idx
-
-    # first: clear the script in the column array
-    @scripts.delete(name)
-
-    # second: clear every matching column in every row
-    @table.each_key do |key|
-      @table[key][idx] = nil
-    end
-  end
-
-
-  def fetch(server, channel, script)
-    row = @table[[server, channel]]
-    row = @table[[server, ""]] if row == nil
-    row = @table[["", ""]] if row == nil
-    return row[@scripts[script]]
-  end
-
-  def script_name(column)
-    # This feels like a very horribly wrong thing to do...
-    return @scripts.invert()[column]
-  end
-
-
-  # iterate over a server:channel and script mask
-  def each_key(chanmask, scriptmask)
-    # obtain only matching scripts
-    scriptidx = @scripts.select { |name, idx| name.wildcard_match(scriptmask) }
-
-    # iterate over the table.
-    @table.each_key do |row|
-      if row.join(":").wildcard_match(chanmask)
-        scriptidx.each_value { |col| yield row, col }
+    self.each_value do |server|
+      server.each_value do |channel|
+        channel[name] ||= 0
       end
     end
+
   end
 
+  # Return true if the script is enabled on the given server/channel. Otherwise,
+  # return false.
+  def enabled?(server, channel, script)
+    flag = self[server][channel][script] rescue 0
+    
+    case flag
 
-  def each_value(chanmask, scriptmask)
-    self.each_key(chanmask, scriptmask) do |row, col|
-      yield @table[row][col]
+    when -1
+      return false
+
+    when 0
+      return @default_flag
+
+    else
+      return true
+
     end
+
   end
 
-  def each_value!(chanmask, scriptmask)
-    self.each_key(chanmask, scriptmask) do |row, col|
-      @table[row][col] = yield @table[row][col]
+
+  # Enable all matching scripts for all matching servers and channels (by
+  # wildcard match).
+  def enable(server_mask, channel_mask, script_mask)
+    set_flags(server_mask, channel_mask, script_mask, 1)
+  end
+
+
+  # Disable all matching scripts for all matching servers and channels (by
+  # wildcard match).
+  def disable(server_mask, channel_mask, script_mask)
+    set_flags(server_mask, channel_mask, script_mask, -1)
+  end
+
+ 
+  # Do the hard work for enabling or disabling script flags. The last parameter
+  # is the value which will be used for the flag.
+  #
+  # Returns the number of changed flags.
+  def set_flags(server_mask, channel_mask, script_mask, flag)
+    count = 0
+
+    scripts = @scripts.select {|s| s.wildcard_match(script_mask)}
+
+    $log.debug("script_flags.set_flags") { "#{server_mask} #{channel_mask} #{script_mask} #{flag}" }
+
+    self.each_pair do |server, channels|
+      next unless server.wildcard_match(server_mask)
+
+      $log.debug("script_flags.set_flags") { "server: #{server}" }
+
+      channels.each_pair do |channel, channel_scripts|
+        next unless channel.wildcard_match(channel_mask)
+
+        $log.debug("script_flags.set_flags") { "channel: #{channel}" }
+        $log.debug("script_flags.set_flags") { "scripts: #{channel_scripts.keys.join(", ")}" }
+
+        scripts.each do |script|
+
+          $log.debug("script_flags.set_flags") { "script: #{script}" }
+          
+          if channel_scripts[script] != flag
+            channel_scripts[script] = flag
+            count += 1
+          end
+
+        end
+      end
     end
+
+    count
   end
-
-
-  def each_pair(chanmask, scriptmask)
-    self.each_key(chanmask, scriptmask) do |row, col|
-      yield row, col, @table[row][col]
-    end
-  end
-
-  def each_pair!(chanmask, scriptmask)
-    self.each_key(chanmask, scriptmask) do |row, col|
-      @table[row][col] = yield row, col, @table[row][col]
-    end
-  end
-
 end
 

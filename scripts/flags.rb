@@ -20,52 +20,31 @@
 
 
 def initialize
-  register_script("Modify and query the script flag table")
+  register_script("Modify and query the script flag table.")
 
-  register_command("enable",  :cmd_enable,  2, 4, "Enable scripts in the given server and channel. Wildcards are supported. Parameters: [server:channel] [scripts]")
-  register_command("disable", :cmd_disable, 2, 4, "Disable scripts in the given server and channel. Wildcards are supported. Parameters: [server:channel] [scripts]")
-  register_command("flags",   :cmd_flags,   2, 0, "View flags for a particular mask.")
+  register_command("enable",  :cmd_enable,  3, 4, "Enable scripts in the given server and channel. Wildcards are supported. Parameters: server channel scripts")
+  register_command("disable", :cmd_disable, 3, 4, "Disable scripts in the given server and channel. Wildcards are supported. Parameters: server channel scripts")
+  register_command("flags",   :cmd_flags,   3, 0, "View flags for a particular mask.")
 end
 
 
 def cmd_enable(msg, params)
-  count = 0
+  enabled = $bot.flags.enable(params[0], params[1], params[2])
 
-  $bot.flags.each_value!(params[0], params[1]) do |value|
-    count += 1 unless value
-    true
-  end
-
-  msg.reply("Changed \02#{count}\02 entries to \02enabled\02")
+  msg.reply("Enabled \02#{enabled}\02.")
 end
 
 
 def cmd_disable(msg, params)
-  count = 0
-  warn_rejected = false
+  enabled = $bot.flags.disable(params[0], params[1], params[2])
 
-  privileged = get_config("privileged", "").split(/,/)
-  privileged.map! { |name| $bot.flags.scripts[name] }
-
-  $bot.flags.each_pair!(params[0], params[1]) do |row, col, value|
-
-    if privileged.include? col
-      warn_rejected = true
-      true
-    else
-      count += 1 if value
-      false
-    end
-
-  end
-
-  reply = "Changed \02#{count}\02 entries to \02disabled\02"
-  reply << " (Attempt to disable a privileged script rejected)" if warn_rejected
-  msg.reply(reply)
+  msg.reply("Disabled \02#{enabled}\02.")
 end
 
 
 def cmd_flags(msg, params)
+  return
+
   trues, falses, rows, cols = [], [], [], []
 
   $bot.flags.each_pair(params[0], params[1]) do |row, col, value|
