@@ -109,7 +109,7 @@ class Bot
     trap("TERM") { quit("Terminated by host system. Exiting!") }
     trap("KILL") { exit }
     
-    trap("HUP") { $bot.config.read_config } # Rehash on HUP!
+    trap("HUP")  { $bot.config.read_config } # Rehash on HUP!
     
     # Try to exit cleanly if we have to.
     at_exit { quit }
@@ -265,11 +265,12 @@ class Bot
   def register_script(*args)
     $log.debug("Bot.register_script") { "Registering script." }
 
-    @script_info << Script_Info.new(*args)
-    @script_info.sort_by! {|s| s.name}
+    script = Script_Info.new(*args)
 
-    # I feel like I shouldn't know the contents of args...
-    @flags.add_script(args[0])
+    @script_info << script
+    @flags.add_script(script.name)
+    
+    @script_info.sort_by! {|s| s.name}
   end
 
   # Remove a script from @scripts (by name).
