@@ -42,42 +42,43 @@ end
 
 def cmd_disable(msg, params)
   count = 0
-  warnreject = false
+  warn_rejected = false
 
   privileged = get_config("privileged", "").split(/,/)
   privileged.map! { |name| $bot.flags.scripts[name] }
 
   $bot.flags.each_pair!(params[0], params[1]) do |row, col, value|
+
     if privileged.include? col
-      warnreject = true
+      warn_rejected = true
       true
     else
       count += 1 if value
       false
     end
+
   end
 
   reply = "Changed \02#{count}\02 entries to \02disabled\02"
-  reply << " (Attempt to disable a privileged script rejected)" if warnreject
+  reply << " (Attempt to disable a privileged script rejected)" if warn_rejected
   msg.reply(reply)
 end
 
 
 def cmd_flags(msg, params)
-  # Allocating four arrays, something doesn't seem right....
-  trues = Array.new
-  falses = Array.new
-  rows = Array.new
-  cols = Array.new
+  trues, falses, rows, cols = [], [], [], []
 
   $bot.flags.each_pair(params[0], params[1]) do |row, col, value|
+
     rows << row unless rows.include? row
     cols << col unless cols.include? col
+
     if value
       trues << [row, col]
     else
       falses << [row, col]
     end
+
   end
 
 
@@ -86,10 +87,12 @@ def cmd_flags(msg, params)
 
   elsif trues.length == 0
     msg.reply("All matches are \02disabled\02")
+
   elsif falses.length == 0
     msg.reply("All matches are \02enabled\02")
 
   elsif rows.length == 1
+
     truecol = trues.map { |item| $bot.flags.script_name(item[1]) }
     falsecol = falses.map { |item| $bot.flags.script_name(item[1]) }
 
@@ -100,6 +103,7 @@ def cmd_flags(msg, params)
     end
 
   elsif cols.length == 1
+
     truerow = trues.map { |item| item[0].join(':') }
     falserow = falses.map { |item| item[0].join(':') }
     script = $bot.flags.script_name(cols[0])
