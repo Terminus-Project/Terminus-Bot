@@ -22,10 +22,9 @@
 def initialize
   register_script("Modify and query the script flag table")
 
-  register_command("enable", :cmd_enable, 2, 4, "Enable matching channel/script pairs. Args: [server:channel mask] [script mask]")
-  register_command("disable", :cmd_disable, 2, 4, "Disable matching channel/script pairs. Args: [server:channel mask] [script mask]")
-
-  register_command("flags", :cmd_flags, 2, 0, "View flags for a particular mask.")
+  register_command("enable",  :cmd_enable,  2, 4, "Enable scripts in the given server and channel. Wildcards are supported. Parameters: [server:channel] [scripts]")
+  register_command("disable", :cmd_disable, 2, 4, "Disable scripts in the given server and channel. Wildcards are supported. Parameters: [server:channel] [scripts]")
+  register_command("flags",   :cmd_flags,   2, 0, "View flags for a particular mask.")
 end
 
 
