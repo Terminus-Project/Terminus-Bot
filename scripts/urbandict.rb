@@ -26,32 +26,45 @@ require "htmlentities"
 
 def initialize
   register_script("Look up words on UrbanDictionary.com.")
-  register_command("ud", :lookup,   1,  0, "Fetch definition of word from UrbanDictionary.com.")
+  register_command("ud",       :cmd_lookup,   0,  0, "Fetch the definition of a word from UrbanDictionary.com. If no parameter is given, fetch a random definition.")
 
-  @baseURL = "http://www.urbandictionary.com/define.php?term="
+  @baseURL = "https://www.urbandictionary.com/define.php?term="
 end
 
-def lookup(msg, params)
-  $log.debug('urbandict.lookup') { "Getting definition for #{params[0]}" }
+def cmd_lookup(msg, params)
+  if params.empty?
+    do_lookup("https://www.urbandictionary.com/random.php", msg)
+    return
+  end
 
   word = URI.encode(params[0])
   url = "#{@baseURL}#{word}"
 
-  page = StringScanner.new((Net::HTTP.get URI.parse(url)).force_encoding('UTF-8'))
+  do_lookup(url, msg)
+end
+
+def do_lookup(url, msg)
+  $log.debug('urbandict.do_lookup') { url }
+
+  page = StringScanner.new(get_page(URI.parse(url)).body.force_encoding('UTF-8'))
   defs = Array.new
   count = 0
   max = get_config("max", 1).to_i
+
+  page.skip_until(/class=.word.>/i)
+  word = page.scan_until(/<\/td>/i)
+  word = clean_result(word[0..word.length-7])
 
   while page.skip_until(/<div class="definition">/i) != nil and count < max
     count += 1
 
     d = page.scan_until(/<\/div>/i)
 
-    d = d[0..d.length - 7].strip.gsub(/<[^>]*>/, "").gsub(/[\n\s]+/, " ") rescue "I wasn't able to parse this definition."
+    d = clean_result(d[0..d.length - 7]) rescue "I wasn't able to parse this definition."
 
     d = HTMLEntities.new.decode(d)
 
-    defs << "\02[#{params[0]}]\02 #{d}"
+    defs << "\02[#{word}]\02 #{d}"
   end
   
   if count == 0
@@ -59,6 +72,37 @@ def lookup(msg, params)
   else
     msg.reply(defs, false)
   end
-     
 end
 
+def get_page(uri, limit = 3)
+  return nil if limit == 0
+
+  response = Net::HTTP.start(uri.host, uri.port,
+    :use_ssl => uri.scheme == "https",
+    :verify_mode => OpenSSL::SSL::VERIFY_NONE) do |http|
+
+    http.request Net::HTTP::Get.new(uri.request_uri)
+  end
+
+  case response
+
+  when Net::HTTPSuccess
+    return response
+
+  when Net::HTTPRedirection
+    location = URI(response['location'])
+
+    $log.debug("urbandict.get_page") { "Redirection: #{uri} -> #{location} (#{limit})" }
+
+    return get_page(location, limit - 1)
+
+  else
+    return nil
+
+  end
+end
+
+
+def clean_result(result)
+  result.strip.gsub(/<[^>]*>/, "").gsub(/[\n\s]+/, " ")
+end
