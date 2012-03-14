@@ -88,6 +88,7 @@ class Script_Flags < Hash
     count = 0
 
     scripts = @scripts.select {|s| s.wildcard_match(script_mask)}
+    privileged = $bot.config['flags']['privileged'].split(/,\s*/) rescue []
 
     $log.debug("script_flags.set_flags") { "#{server_mask} #{channel_mask} #{script_mask} #{flag}" }
     $log.debug("script_flags.set_flags") { "#{scripts.length} matching scripts" }
@@ -100,6 +101,8 @@ class Script_Flags < Hash
 
         scripts.each do |script|
           
+          next if privileged.include? script
+
           if channel_scripts[script] != flag
             $log.debug("script_flags.set_flags") { "#{script} -> #{flag}" }
 
