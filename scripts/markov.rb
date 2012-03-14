@@ -39,7 +39,7 @@ def initialize
 
   register_event("PRIVMSG", :on_privmsg)
 
-  register_command("markov", :cmd_markov, 1, 10, "Manage the Markov script. Parameters: ON|OFF|FREQUENCY percentage|CLEAR|LOAD filename|INFO")
+  register_command("markov", :cmd_markov, 1, 10, "Manage the Markov script. Parameters: ON|OFF|FREQUENCY percentage|CLEAR|LOAD filename|INFO|WRITE|NODE node|DELETE node")
   register_command("chain",  :cmd_chain,  0,  0, "Generate a random Markov chain. Parameters: [word [word]]")
 
   @nodes = Hash.new
@@ -177,9 +177,60 @@ def cmd_markov(msg, params)
     }
 
     EM.defer(op)
+
+  when "NODE"
+
+    if arr.empty? or arr.length > 2
+      msg.reply("Please provide one or two words.")
+      return
+    end
+
+    links = 0
+
+    if arr.length == 2
+      input = arr.join(" ")
+
+      unless @nodes.has_key? input
+        msg.reply("No such node.")
+        return
+      end
+
+      links = @nodes[input].links.length
+    else
+
+      input = arr.shift
+
+      @nodes.each_pair do |word, node|
+        if word.start_with? "#{input} " or word.end_with? " #{input}"
+          links += node.links.length
+        end
+      end
+
+    end
+
+    msg.reply("\02Links:\02 #{links}")
+
+  when "DELETE"
+
+    if arr.length != 2
+      msg.reply("Please provide a two-word node.")
+      return
+    end
+
+    input = arr.join(" ")
+
+    unless @nodes.has_key? input
+      msg.reply("No such node.")
+      return
+    end
+
+    @nodes.delete(input)
+
+    msg.reply("Markov node \02#{input}\02 deleted.")
+
   else
 
-    msg.reply("Unknown action. Parameters: ON|OFF|FREQUENCY percentage|CLEAR|LOAD filename|INFO")
+    msg.reply("Unknown action. Parameters: ON|OFF|FREQUENCY percentage|CLEAR|LOAD filename|INFO|WRITE|NODE node|DELETE node")
 
   end
 
@@ -255,7 +306,7 @@ end
 def parse_line(str)
   last_word = ""
 
-  str.scan(/[\w'-]+[[:punct:]]? [\w'-]+[[:punct:]]?/).each do |word|
+  str.scan(/[\w'-]+[[:punct:]]?\s+[\w'-]+[[:punct:]]?/).each do |word|
     word.downcase!
 
     # Skip empty words and links. This could use some improvement.
