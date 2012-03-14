@@ -37,7 +37,7 @@ def lookup(msg, params)
   word = URI.encode(params[0])
   url = "#{@baseURL}#{word}"
 
-  page = StringScanner.new(Net::HTTP.get URI.parse(url))
+  page = StringScanner.new((Net::HTTP.get URI.parse(url)).force_encoding('UTF-8'))
   defs = Array.new
   count = 0
   max = get_config("max", 1).to_i
