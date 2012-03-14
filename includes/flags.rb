@@ -26,12 +26,13 @@ class Script_Flags < Hash
     @scripts = []
 
     # This is here because YAML doesn't know how to initialize us with it after
-    # pullingthe flags table back out of the database.
+    # pulling the flags table back out of the database.
     # TODO: Correctly deal with rehashing since this likely won't pick up on it.
     @default_flag = $bot.config['flags']['default'] rescue true
 
     super
   end
+
 
   def add_server(server)
     self[server] ||= Hash.new
@@ -49,6 +50,7 @@ class Script_Flags < Hash
 
     @scripts << name
   end
+
 
   # Return true if the script is enabled on the given server/channel. Otherwise,
   # return false.
@@ -78,8 +80,8 @@ class Script_Flags < Hash
   def disable(server_mask, channel_mask, script_mask)
     set_flags(server_mask, channel_mask, script_mask, -1)
   end
-
  
+
   # Do the hard work for enabling or disabling script flags. The last parameter
   # is the value which will be used for the flag.
   #
