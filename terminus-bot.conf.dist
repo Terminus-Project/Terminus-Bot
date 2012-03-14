@@ -369,11 +369,27 @@ rss = {
 # Script to play IdleRPG
 idlerpg = {
 
-  # IdleRPG configuration is per-network. The script must be supplied with
-  # the name of the bot running the game, the channel the game is played
-  # in, and the command to log in with.
+  # IdleRPG configuration is per-network.
   #
-  # example for QuakeNet:
-  #quakenet = irpg,#irpg,LOGIN user pass
+  # In order for the bot to play IdleRPG, it must have:
+  #  - channel: the channel in which the game is played
+  #  - nick: the nick of the IdleRPG bot
+  #  - login_command: the message to send the IdleRPG bot to log in
+  #
+  # You may also include xml_url, the URL to use to get XML-formatted
+  # information about users playing IdleRPG. This only works for jotun's IRPG
+  # bot's PHP XML generator. You can include just the xml_url setting if you
+  # don't want the bot to play but you want it to be able to retrieve player
+  # information.
+  #
+  # Example: 
+  #
+  # ponychat = {
+  #   channel = #idlerpg
+  #   nick = IdleRPG
+  #   login_command = LOGIN Terminus-Bot foobar
+  #   xml_url = http://ponychat.net/idle-rpg/xml.php?player=
+  # }
+  #
 
 }
