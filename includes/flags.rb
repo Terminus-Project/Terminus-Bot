@@ -101,7 +101,7 @@ class Script_Flags < Hash
 
         scripts.each do |script|
           
-          next if privileged.include? script
+          next if privileged.include? script and flag == -1
 
           if channel_scripts[script] != flag
             $log.debug("script_flags.set_flags") { "#{script} -> #{flag}" }
