@@ -48,13 +48,6 @@ class Script_Flags < Hash
     return if @scripts.include? name
 
     @scripts << name
-
-    self.each_value do |server|
-      server.each_value do |channel|
-        channel[name] ||= 0
-      end
-    end
-
   end
 
   # Return true if the script is enabled on the given server/channel. Otherwise,
@@ -63,18 +56,13 @@ class Script_Flags < Hash
     flag = self[server][channel][script] rescue 0
     
     case flag
-
     when -1
       return false
-
-    when 0
-      return @default_flag
-
-    else
+    when 1
       return true
-
     end
 
+    @default_flag
   end
 
 
@@ -102,23 +90,19 @@ class Script_Flags < Hash
     scripts = @scripts.select {|s| s.wildcard_match(script_mask)}
 
     $log.debug("script_flags.set_flags") { "#{server_mask} #{channel_mask} #{script_mask} #{flag}" }
+    $log.debug("script_flags.set_flags") { "#{scripts.length} matching scripts" }
 
     self.each_pair do |server, channels|
       next unless server.wildcard_match(server_mask)
 
-      $log.debug("script_flags.set_flags") { "server: #{server}" }
-
       channels.each_pair do |channel, channel_scripts|
         next unless channel.wildcard_match(channel_mask)
 
-        $log.debug("script_flags.set_flags") { "channel: #{channel}" }
-        $log.debug("script_flags.set_flags") { "scripts: #{channel_scripts.keys.join(", ")}" }
-
         scripts.each do |script|
-
-          $log.debug("script_flags.set_flags") { "script: #{script}" }
           
           if channel_scripts[script] != flag
+            $log.debug("script_flags.set_flags") { "#{script} -> #{flag}" }
+
             channel_scripts[script] = flag
             count += 1
           end

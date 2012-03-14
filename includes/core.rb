@@ -52,6 +52,14 @@ class Bot
 
     @flags = Script_Flags.new     # Table of booleans to enable or disable scripts per-channel.
 
+    # We need to do this now so that the database can be populated when 
+    # @scripts is initialized.
+    unless @database.has_key? :flags
+      @database[:flags] = @flags
+    else
+      @flags = @database[:flags]
+    end
+
     @scripts = Scripts.new        # For those things in the scripts dir.
 
     @ignores = Array.new          # Array of ignored hostmasks.
@@ -87,6 +95,7 @@ class Bot
     # The only event we care about in the core.
     @events.create(self, "PRIVMSG", :run_commands)
 
+
     # Plug the database into things.
     unless @database.has_key? :ignores
       @database[:ignores] = @ignores
@@ -94,11 +103,6 @@ class Bot
       @ignores = @database[:ignores]
     end
 
-    unless @database.has_key? :flags
-      @database[:flags] = @flags
-    else
-      @flags = @database[:flags]
-    end
 
     # Since we made it this far, go ahead and be ready for signals.
     trap("INT")  { quit("Interrupted by host system. Exiting!") }
