@@ -53,7 +53,7 @@ end
 
 def cmd_chain(msg, params)
 
-  if @nodes.length == 0
+  if @nodes.empty?
     msg.reply("My Markov database is empty, so I can't generate any chains.")
     return
   end
@@ -131,7 +131,7 @@ def cmd_markov(msg, params)
 
   when "LOAD"
 
-    if arr.length == 0
+    if arr.empty?
       msg.reply("Please provide a list of files with the LOAD action.")
       return
     end
@@ -374,7 +374,7 @@ def create_chain(word = @nodes.keys.sample, random = true)
     tries = 0
 
     while word == nil
-      if buf.length == 0
+      if buf.empty?
 
         # We've popped off all our words! Looks like we can't build a chain
         # this word.

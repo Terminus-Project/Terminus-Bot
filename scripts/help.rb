@@ -26,7 +26,7 @@ def initialize()
 end
 
 def cmd_help(msg, params)
-  if params.length == 0
+  if params.empty?
     list_commands(msg)
     return
   end
@@ -64,7 +64,7 @@ end
 
 
 def cmd_script(msg, params)
-  if params.length == 0
+  if params.empty?
     list_scripts(msg)
     return
   end

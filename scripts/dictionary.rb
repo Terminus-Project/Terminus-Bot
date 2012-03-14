@@ -96,11 +96,12 @@ def get_definition(msg, word, root, definitions)
     end
   end
 
-  if results.length == 0
+  if results.empty?
     msg.reply("No results")
-  else
-    msg.reply(results)
+    return
   end
+    
+  msg.reply(results)
 end
 
 def cmd_define(msg, params)

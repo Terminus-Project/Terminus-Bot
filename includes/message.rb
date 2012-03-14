@@ -120,7 +120,7 @@ class Message
 
     silenced = silenced.split(" ")
     
-    return false if silenced.length == 0
+    return false if silenced.empty?
 
     silenced.each do |s|
       s = s.split(":")

@@ -40,12 +40,11 @@ def cmd_dns(msg, params)
   $log.debug("dns.cmd_dns") { type + " " + addr }
 
   resolv = Dnsruby::DNS.new()
-  results = nil
 
   begin
     results = resolv.getresources(addr, type)
 
-    if results.length == 0
+    if results.empty?
       msg.reply("No results.")
       return
     end
@@ -58,12 +57,11 @@ end
 
 def cmd_rdns(msg, params)
   resolv = Dnsruby::DNS.new()
-  results = nil
 
   begin
     results = resolv.getnames(params[0])
 
-    if results.length == 0
+    if results.empty?
       msg.reply("No results.")
       return
     end

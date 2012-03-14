@@ -26,7 +26,7 @@ def initialize
 end
 
 def cmd_time(msg, params)
-  if params.length == 0
+  if params.empty?
     msg.reply(Time.now.strftime("%Y-%m-%d %H:%M:%S %Z"))
   else
     msg.reply(Time.now.strftime(params[0]))

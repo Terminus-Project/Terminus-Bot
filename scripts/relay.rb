@@ -74,7 +74,7 @@ def cmd_relay(msg, params)
 end
 
 def cmd_relays(msg, params)
-  if @relays.length == 0
+  if @relays.empty?
     msg.reply("There are no active relays.")
   else
     msg.reply(@relays.join(", "))
