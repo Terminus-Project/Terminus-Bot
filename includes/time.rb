@@ -21,7 +21,7 @@ class Time
 
   # convert seconds into [seconds, minutes, hours, days]
   def to_duration_a
-    secs = (Time.now - self.to_i).to_i
+    secs = (Time.now - self.to_i).to_i.abs
 
     t = []
 
