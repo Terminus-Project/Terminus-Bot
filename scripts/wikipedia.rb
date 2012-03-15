@@ -33,7 +33,7 @@ end
 
 def cmd_wiki(msg, params)
   
-  $log.debug('wikipedia.cmd_wiki') { "Getting Wikipedia page for #{params[0]}" }
+  $log.info('wikipedia.cmd_wiki') { "Getting Wikipedia page for #{params[0]}" }
 
   url = WIKI_API_URL + "&titles=" + URI.escape(params[0])
   url += "&redirects"

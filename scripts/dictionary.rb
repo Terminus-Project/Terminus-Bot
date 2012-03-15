@@ -57,8 +57,6 @@ def api_call(msg, opt = {})
 
   body = Net::HTTP.get URI.parse(url)
 
-  $log.debug("dictionary.api_call") { body }
-
   return (REXML::Document.new(body)).root
 end
 

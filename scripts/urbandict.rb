@@ -90,11 +90,7 @@ def get_page(uri, limit = 3)
     return response
 
   when Net::HTTPRedirection
-    location = URI(response['location'])
-
-    $log.debug("urbandict.get_page") { "Redirection: #{uri} -> #{location} (#{limit})" }
-
-    return get_page(location, limit - 1)
+    return get_page(URI(response['location']), limit - 1)
 
   else
     return nil

@@ -40,8 +40,6 @@ def on_message(msg)
   URI.extract(msg.text, ["http","https"]) { |match|
     return if i >= max
 
-    $log.debug("title.on_message") { "#{i}/#{max}: #{match}" }
-
     match = URI(match)
 
     if match.host =~ /(www\.)?youtube\.com/ and not match.query == nil
@@ -57,7 +55,7 @@ def on_message(msg)
 end
 
 def get_youtube(msg, uri)
-  $log.debug('title.get_title') { "Getting YouTube info for #{uri}" }
+  $log.info('title.get_title') { "Getting YouTube info for #{uri}" }
 
   link, vid = "", ""
 
@@ -103,10 +101,9 @@ def get_youtube(msg, uri)
 end
 
 
-
 def get_title(msg, uri)
   begin
-    $log.debug('title.get_title') { "Getting title for #{uri}" }
+    $log.info('title.get_title') { "Getting title for #{uri}" }
 
     response = get_page(uri)
 
@@ -127,10 +124,11 @@ def get_title(msg, uri)
 
     msg.reply("\02Title on #{response[1]}#{" (redirected)" if response[2]}:\02 " + title, false)
   rescue => e
-    $log.debug('title.get_title') { "Error getting title for #{uri}: #{e}" }
+    $log.error('title.get_title') { "Error getting title for #{uri}: #{e}" }
     return
   end
 end
+
 
 def get_page(uri, limit = get_config("redirects", 10), redirected = false)
   return nil if limit == 0

@@ -55,7 +55,7 @@ def cmd_tell(msg, params)
 
   store_data(msg.connection.name, tells)
 
-  $log.debug("tell.cmd_tell") { "Added: #{tells[params[0]]}" }
+  $log.info("tell.cmd_tell") { "Added: #{tells[params[0]]}" }
 
   msg.reply("I will try to deliver your message.")
 end

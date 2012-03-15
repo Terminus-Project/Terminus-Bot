@@ -46,8 +46,6 @@ def on_privmsg(msg)
 
     search = Regexp.new($1.gsub(/\s/, '\s'), opts)
 
-    $log.debug("regex.on_privmsg") { "Grep: " + search.to_s }
-
     @messages[msg.connection.name][msg.destination].reverse.each do |message|
       if search.match(message[1])
 
@@ -70,8 +68,6 @@ def on_privmsg(msg)
     opts |= Regexp::IGNORECASE if flags.include? "i"
 
     search = Regexp.new($1.gsub(/\s/, '\s'), opts)
-
-    $log.debug("regex.on_privmsg") { "Substitute: " + search.to_s }
 
     @messages[msg.connection.name][msg.destination].reverse.each do |message|
       if search.match(message[1])

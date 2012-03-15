@@ -78,7 +78,7 @@ def get_reply(botid, str, msg)
   return if str.empty?
 
   begin
-    $log.debug('pandora.get_reply') { "Getting relpy with #{botid} for message: #{str}" }
+    $log.info('pandora.get_reply') { "Getting relpy with #{botid} for message: #{str}" }
 
     custid = msg.connection.name + "/" + msg.destination
 
@@ -86,8 +86,6 @@ def get_reply(botid, str, msg)
                                     :custid => custid,
                                     :botid => botid,
                                     :input => str)
-
-    $log.debug('pandora.get_reply') { response.body }
 
     response = response.body.gsub(/\n/, "").scan(/that>(.+)<\/that/)[0]
 
@@ -104,7 +102,7 @@ def get_reply(botid, str, msg)
 
     msg.reply(response.gsub(/<[^>]+>/, "").gsub(/\s+/, " "))
   rescue => e
-    $log.debug('pandora.get_reply') { "Error getting reply: #{e}" }
+    $log.error('pandora.get_reply') { "Error getting reply: #{e}" }
     msg.reply("Error getting reply from Pandora: #{e}")
   end
 end
