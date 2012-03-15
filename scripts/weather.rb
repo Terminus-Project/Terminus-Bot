@@ -55,17 +55,17 @@ def weather(msg, params)
   dewpoint = root.elements["//dewpoint_string"].text
   link = root.elements["//forecast_url"].text
 
-  updatedTime = "Updated #{Time.now.utc.to_i - updatedTime} seconds ago"
+  updatedTime = "Updated #{Time.at(updatedTime).to_duration_s} ago"
 
   reply = "[\02#{credit}\02 for \02#{stationLocation}\02] "
-  reply += "Current Conditions: \02#{weather}\02; "
-  reply += "Temperature: \02#{temperature}\02; "
-  reply += "Humidity: \02#{humidity}\02; "
-  reply += "Wind: \02#{wind}\02; "
-  reply += "Pressure: \02#{pressure}\02; "
-  reply += "Dewpoint: \02#{dewpoint}\02; "
-  reply += "#{updatedTime} (local time: \02#{localTime}\02); "
-  reply += "#{link}"
+  reply << "Currently: \02#{weather}\02; "
+  reply << "Temp: \02#{temperature}\02; "
+  reply << "Humidity: \02#{humidity}\02; "
+  reply << "Wind: \02#{wind}\02; "
+  reply << "Pressure: \02#{pressure}\02; "
+  #reply << "Dewpoint: \02#{dewpoint}\02; "
+  reply << "#{updatedTime}; "
+  reply << "#{link}"
 
   msg.reply(reply)
 end
@@ -88,7 +88,7 @@ def temp(msg, params)
   temperature = root.elements["//temperature_string"].text
 
   reply = "[\02#{credit}\02 for \02#{stationLocation}\02] "
-  reply += "Temperature: \02#{temperature}\02"
+  reply << "Temperature: \02#{temperature}\02"
 
   msg.reply(reply)
 end
