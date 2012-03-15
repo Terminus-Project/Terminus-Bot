@@ -27,17 +27,21 @@ def initialize
 end
 
 def cmd_remember(msg, params)
-  unless params[0].downcase =~ /\A(.+) (is|=) (.+)\Z/
+  arr = params[0].downcase.split(/\sis\s|\s=\s/, 2)
+
+  $log.debug("factoids.cmd_remember") { arr.to_s }
+
+  unless arr.length == 2
     msg.reply("Factoid must be given in the form: ___ is|= ___")
     return
   end
 
-  unless get_data($1) == nil
-    msg.reply("A factoid for \02#{$1}\02 already exists.")
+  unless get_data(arr[0]) == nil
+    msg.reply("A factoid for \02#{arr[0]}\02 already exists.")
     return
   end
 
-  store_data($1, $3)
+  store_data(arr[0], arr[1])
 
   msg.reply("I will remember that factoid. To recall it, use FACTOID. To delete, use FORGET.")
 end
