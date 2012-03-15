@@ -29,8 +29,8 @@ def initialize
   register_command("nick",     :cmd_nick,     1,  7,  "Change the bot's nick for this connection.")
 
   register_command("includes", :cmd_includes, 0,  9,  "Reload core files with stopping the bot. Warning: may produce undefined behavior.")
-  register_command("reload",   :cmd_reload,   1,  9,  "Reload the named script.")
-  register_command("unload",   :cmd_unload,   1,  9,  "Unload the named script.")
+  register_command("reload",   :cmd_reload,   1,  9,  "Reload one or more scripts.")
+  register_command("unload",   :cmd_unload,   1,  9,  "Unload one or more scripts.")
   register_command("load",     :cmd_load,     1,  9,  "Load the named script.")
 
   register_command("raw",      :cmd_raw,      1,  9,  "Send raw text over the IRC connection.")
@@ -90,21 +90,42 @@ def cmd_reload(msg, params)
 
     end
     
-    msg.reply("Reloaded script#{"s" if buf.length > 1} \02#{buf.join(", ")}\02")
+    msg.reply("Reloaded script#{"s" if buf.length > 1} \02#{buf.join(", ")}\02") unless buf.empty?
   }
 
   EM.defer(op)
 end
 
 def cmd_unload(msg, params)
-  $bot.scripts.unload(params[0])
-  msg.reply("Unloaded script \02#{params[0]}\02")
+  op = proc {
+    arr, buf = params[0].split, []
+
+    arr.each do |script|
+
+      begin
+        $bot.scripts.unload(script)
+        buf << script
+
+      rescue => e
+        msg.reply("Failed to unload \02#{script}\02: #{e}")
+      end
+
+    end
+    
+    msg.reply("Unloaded script#{"s" if buf.length > 1} \02#{buf.join(", ")}\02") unless buf.empty?
+  }
+
+  EM.defer(op)
 end
 
 def cmd_load(msg, params)
   op = proc {
-    $bot.scripts.load_file("scripts/#{params[0]}.rb")
-    msg.reply("Loaded script \02#{params[0]}\02")
+    begin
+      $bot.scripts.load_file("scripts/#{params[0]}.rb")
+      msg.reply("Loaded script \02#{params[0]}\02")
+    rescue => e
+      msg.reply("Failed to load \02#{params[0]}\02: #{e}")
+    end
   }
 
   EM.defer(op)
