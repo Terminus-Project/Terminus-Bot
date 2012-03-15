@@ -114,6 +114,10 @@ class Scripts
 
     @scripts[name].die if @scripts[name].respond_to? "die"
 
+    @scripts[name].unregister_script
+    @scripts[name].unregister_commands
+    @scripts[name].unregister_events
+
     @scripts.delete(name)
   end
 end
