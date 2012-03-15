@@ -76,12 +76,21 @@ end
 
 def cmd_reload(msg, params)
   op = proc {
-    begin
-      $bot.scripts.reload(params[0])
-      msg.reply("Reloaded script \02#{params[0]}\02")
-    rescue => e
-      msg.reply("Failed to reload \02#{params[0]}\02: #{e}")
+    arr, buf = params[0].split, []
+
+    arr.each do |script|
+
+      begin
+        $bot.scripts.reload(script)
+        buf << script
+
+      rescue => e
+        msg.reply("Failed to reload \02#{script}\02: #{e}")
+      end
+
     end
+    
+    msg.reply("Reloaded script#{"s" if buf.length > 1} \02#{buf.join(", ")}\02")
   }
 
   EM.defer(op)
