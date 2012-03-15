@@ -29,8 +29,6 @@ end
 def cmd_remember(msg, params)
   arr = params[0].downcase.split(/\sis\s|\s=\s/, 2)
 
-  $log.debug("factoids.cmd_remember") { arr.to_s }
-
   unless arr.length == 2
     msg.reply("Factoid must be given in the form: ___ is|= ___")
     return
