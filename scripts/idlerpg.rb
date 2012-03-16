@@ -84,18 +84,15 @@ def get_player_info(player, config)
 end
 
 def on_join(msg)
-
-  # TODO: Log in if the IdleRPG bot is rejoining. Most bots will log users back
-  # in based on hostname, but that's difficult to determine, so we should try to
-  # log back in regardless.
-
-  return unless msg.me?
-  
   config = get_config(msg.connection.name)
 
   return if config == nil
+
   return unless config["channel"].downcase == msg.destination.downcase
+
   return unless config.has_hey? "login_command" and config.has_key? "nick"
+
+  return if not msg.me? or not msg.nick != config["nick"]
 
   msg.send_privmsg(config["nick"], config["login_command"])
 end
