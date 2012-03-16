@@ -218,6 +218,9 @@ class Bot
   def permit_message?(owner, msg)
     return true unless owner.is_a? Script
 
+    # Always answer private messages!
+    return true if msg.private?
+
     server  = msg.connection.name
     channel = msg.destination
     name    = owner.my_short_name
