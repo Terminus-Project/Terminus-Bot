@@ -22,7 +22,7 @@ def initialize
   register_script("Bot administration script.")
 
   register_command("eval",     :cmd_eval,     1, 10,  "Run raw Ruby code.")
-  register_command("quit",     :cmd_quit,     1, 10,  "Kill the bot.")
+  register_command("quit",     :cmd_quit,     0, 10,  "Kill the bot.")
   register_command("reconnect",:cmd_reconnect,1, 10,  "Reconnect the named connection.")
 
   register_command("rehash",   :cmd_rehash,   0,  8,  "Reload the configuration file.")
@@ -43,7 +43,7 @@ def cmd_eval(msg, params)
 end
 
 def cmd_quit(msg, params)
-  EM.next_tick { $bot.quit(params[0]) }
+  EM.next_tick { params.empty? $bot.quit : $bot.quit(params[0]) }
 end
 
 def cmd_reconnect(msg, params)
