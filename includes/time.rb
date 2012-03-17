@@ -55,4 +55,34 @@ class Time
  
     pieces.join("#{"," unless pieces.length == 2} ")
   end
+
+  def to_fuzzy_duration_s
+    t = to_duration_a
+
+    # feels wrong to manually zip the data like this...
+    # time is incremented if cmp > thresh
+    #          time   cmp  thresh       name  plural
+    pieces = [[t[3], t[2],     16,    " day", "s"],
+              [t[2], t[1],     40,   " hour", "s"],
+              [t[1], t[0],     40, " minute", "s"],
+              [t[0],    0,      1, " second", "s"]]
+
+    pieces.map! do |piece|
+
+      piece[0] += 1 if piece[1] > piece[2]
+      unless piece[0] == 0
+        s = piece[0] == 1? "" : piece[4]
+        "about " << piece[0].to_s << piece[3] << s
+      end
+
+    end
+
+    pieces.compact!
+
+    # length is only zero if duration is zero
+    return "just now" if pieces.length == 0
+
+    return pieces[0]
+  end
+
 end
