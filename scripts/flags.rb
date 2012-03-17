@@ -67,6 +67,10 @@ def cmd_flags(msg, params)
     end
   end
 
+  disabled.uniq!
+  enabled.uniq!
+  default.uniq!
+
   buf = ""
   buf << "\02Enabled (#{enabled.length}):\02 #{enabled.join(", ")}" unless enabled.empty?
   buf << " \02Disabled (#{disabled.length}):\02 #{disabled.join(", ")}" unless disabled.empty?
