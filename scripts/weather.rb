@@ -55,7 +55,7 @@ def weather(msg, params)
   dewpoint = root.elements["//dewpoint_string"].text
   link = root.elements["//forecast_url"].text
 
-  updatedTime = "Updated #{Time.at(updatedTime).to_duration_s} ago"
+  updatedTime = "Updated #{Time.at(updatedTime).to_fuzzy_duration_s} ago"
 
   reply = "[\02#{credit}\02 for \02#{stationLocation}\02] "
   reply << "Currently: \02#{weather}\02; "
