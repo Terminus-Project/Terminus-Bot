@@ -43,7 +43,7 @@ def cmd_eval(msg, params)
 end
 
 def cmd_quit(msg, params)
-  EM.next_tick { params.empty? $bot.quit : $bot.quit(params[0]) }
+  EM.next_tick { params.empty? ? $bot.quit : $bot.quit(params[0]) }
 end
 
 def cmd_reconnect(msg, params)
