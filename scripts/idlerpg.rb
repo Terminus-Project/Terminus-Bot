@@ -40,7 +40,7 @@ def cmd_idlerpg(msg, params)
 
   if params.empty?
 
-    unless config.has_hey? "login_command"
+    unless config.has_key? "login_command"
       msg.reply("I am not configured to play IdleRPG on this network.")
       return
     end
@@ -90,7 +90,7 @@ def on_join(msg)
 
   return unless config["channel"].downcase == msg.destination.downcase
 
-  return unless config.has_hey? "login_command" and config.has_key? "nick"
+  return unless config.has_key? "login_command" and config.has_key? "nick"
 
   return if not msg.me? or not msg.nick != config["nick"]
 
