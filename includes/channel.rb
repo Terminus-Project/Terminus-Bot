@@ -92,6 +92,6 @@ class Channel
   def get_user(nick)
     results = @users.select {|u| u.nick == nick}
 
-    return results.empty ? nil : results[0]
+    return results.empty? ? nil : results[0]
   end
 end
