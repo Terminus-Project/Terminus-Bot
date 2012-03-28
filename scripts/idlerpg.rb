@@ -38,30 +38,21 @@ def cmd_idlerpg(msg, params)
     return
   end
 
-  if params.empty?
+  name = params.empty? ? msg.nick : params[0]
 
-    unless config.has_key? "login_command"
-      msg.reply("I am not configured to play IdleRPG on this network.")
-      return
-    end
-
-    msg.reply("\02IdleRPG Bot:\02 #{config["nick"]} \02Channel:\02 #{config["channel"]}. I will begin playing when I have joined the channel")
-  else
-
-    unless config.has_key? "xml_url"
-      msg.reply("I don't know where to get player info on this network.")
-      return
-    end
-
-    info = get_player_info(params.shift, config)
-
-    if info == nil
-      msg.reply("Player info not found.")
-      return
-    end
-
-    msg.reply(info)
+  unless config.has_key? "xml_url"
+    msg.reply("I don't know where to get player info on this network.")
+    return
   end
+
+  info = get_player_info(name, config)
+
+  if info == nil
+    msg.reply("Player info not found.")
+    return
+  end
+
+  msg.reply(info)
 end
 
 def get_player_info(player, config)
@@ -76,6 +67,8 @@ def get_player_info(player, config)
   ttl = root.elements["//ttl"].text.to_i
   idled = root.elements["//totalidled"].text.to_i
   klass = root.elements["//class"].text
+
+  return nil if level == nil or level.empty?
 
   ttl = Time.at(Time.now.to_i + ttl).to_duration_s
   idled = Time.at(Time.now.to_i + idled).to_duration_s
