@@ -517,7 +517,7 @@ def read_database
   fi = File.open(MARKOV_FILE, "r")
 
   while line = fi.gets
-    arr = line.split("\t")
+    arr = line.force_encoding('UTF-8').split("\t")
 
     word = arr.shift
 
