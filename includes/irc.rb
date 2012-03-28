@@ -23,7 +23,7 @@ class IRC_Connection < EventMachine::Connection
   require 'timeout'
 
   attr_reader :name, :channels, :conf, :bind,
-   :users, :client_host, :nick, :user, :realname
+   :users, :client_host, :nick, :user, :realname, :isupport
 
   # Create a new connection, then kick things off.
   def initialize(name, conf, bind = nil, nick = "Terminus-Bot",
@@ -49,6 +49,7 @@ class IRC_Connection < EventMachine::Connection
     $bot.events.create(self, "433",   :on_nick_in_use)
 
     $bot.events.create(self, "001",   :on_registered)
+    $bot.events.create(self, "005",   :on_isupport)
 
     @name = name
     @nick = nick
@@ -58,6 +59,8 @@ class IRC_Connection < EventMachine::Connection
     @bind = bind
 
     @conf = conf
+
+    @isupport = Hash.new
 
     @registered, @reconnecting = false, false
 
@@ -336,6 +339,41 @@ class IRC_Connection < EventMachine::Connection
     @nick << "_"
 
     raw "NICK #{@nick}"
+  end
+
+  def on_isupport(msg)
+
+    # Clear the hash, oops
+    @isupport = Hash.new
+
+    # Limit iteration to everything between the nick and ":are supported
+    # by this server"
+    msg.raw_arr[3...-5].each do |arg|
+      key, s, value = arg.partition(/=/)
+
+      @isupport[key] = value
+    end
+
+  end
+
+  # nickname canonizer, using the rule specified by CASEMAPPING
+  def canonize(nick)
+ 
+    # TODO: do this without such an ugly case statement :(
+
+    case @isupport["CASEMAPPING"]
+
+      when "ascii"
+        nick.upcase
+
+      when "rfc1459", nil
+        nick.upcase.tr("|{}^", "\\\\[]~")   
+
+      when "strict-rfc1459"
+        nick.upcase.tr("|{}", "\\\\[]")
+
+    end
+  
   end
 
   def to_s
