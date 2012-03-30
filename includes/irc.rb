@@ -227,7 +227,7 @@ class IRC_Connection < EventMachine::Connection
       @channels[msg.raw_arr[3]] = Channel.new(msg.raw_arr[3])
     end
 
-    @channels[msg.raw_arr[3]].join(ChannelUser.new(msg.raw_arr[7],
+    @channels[msg.raw_arr[3]].join(ChannelUser.new(canonize(msg.raw_arr[7]),
                                                    msg.raw_arr[4],
                                                    msg.raw_arr[5]))
   end
@@ -245,7 +245,7 @@ class IRC_Connection < EventMachine::Connection
       msg.raw('WHO ' + msg.destination)
     end
 
-    @channels[msg.destination].join(ChannelUser.new(msg.nick, msg.user, msg.host))
+    @channels[msg.destination].join(ChannelUser.new(msg.nickcanon, msg.user, msg.host))
   end
 
   def on_part(msg)
@@ -258,7 +258,7 @@ class IRC_Connection < EventMachine::Connection
       return
     end
 
-    @channels[msg.destination].part(msg.nick)
+    @channels[msg.destination].part(msg.nickcanon)
   end
 
   def on_kick(msg)
@@ -266,7 +266,7 @@ class IRC_Connection < EventMachine::Connection
 
     return unless @channels.has_key? msg.destination
 
-    @channels[msg.destination].part(msg.raw_arr[3])
+    @channels[msg.destination].part(canonize msg.raw_arr[3])
   end
 
   def on_mode(msg)
@@ -274,7 +274,7 @@ class IRC_Connection < EventMachine::Connection
 
     return unless @channels.has_key? msg.destination
 
-    @channels[msg.destination].mode_change(msg.raw_arr[3])
+    @channels[msg.destination].mode_change(canonize msg.raw_arr[3])
   end
 
   # modes sent on join
@@ -283,7 +283,7 @@ class IRC_Connection < EventMachine::Connection
 
     return unless @channels.has_key? msg.raw_arr[3]
 
-    @channels[msg.raw_arr[3]].mode_change(msg.raw_arr[4])
+    @channels[msg.raw_arr[3]].mode_change(canonize msg.raw_arr[4])
   end
 
   
