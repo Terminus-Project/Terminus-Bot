@@ -59,7 +59,10 @@ end
 def on_message(msg)
   return unless get_data(msg.connection.name + "/" + msg.destination, false)
 
-  return unless msg.text.start_with? "#{msg.connection.nick}: "
+  first = (msg.text.split)[0]
+  first = first[0..first.length-2].upcase
+
+  return unless first == msg.connection.nick.upcase
 
   botid = get_config("botid", "")
   if botid.empty?
