@@ -19,7 +19,7 @@
 
 class Message
   attr_reader :origin, :destination, :type, :text, :raw, :raw_arr,
-    :nick, :user, :host, :connection
+    :nick, :nickcanon, :user, :host, :connection
 
   # Parse the str as an IRC message and fire appropriate events.
   def initialize(connection, str, outgoing = false)
@@ -76,6 +76,8 @@ class Message
 
     end
 
+    @nickcanon = @connection.canonize @nick rescue nil
+      
   end
 
   # Reply to a message. If an array is given, send each reply separately.
