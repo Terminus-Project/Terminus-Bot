@@ -165,7 +165,7 @@ class Message
 
   # Return true if this message's origin appears to be the bot.
   def me?
-    return @connection.nick == @nick
+    return @nickcanon == @connection.canonize(@connection.nick)
   end
 
   # Return true if this message doesn't appear to have been sent in a
