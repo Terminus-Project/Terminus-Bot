@@ -378,8 +378,8 @@ class IRC_Connection < EventMachine::Connection
 
   # retrieve ISUPPORT values or default to a value we don't have
   def support(param, default=nil)
-    return default unless @isupport.has_key? param.upper
-    return @isupport[param.upper]
+    return default unless @isupport.has_key? param.upcase
+    return @isupport[param.upcase]
   end
 
   def to_s
