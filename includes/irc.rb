@@ -361,7 +361,7 @@ class IRC_Connection < EventMachine::Connection
  
     # TODO: do this without such an ugly case statement :(
 
-    case @isupport["CASEMAPPING"]
+    case support "CASEMAPPING"
 
       when "ascii"
         nick.upcase
@@ -374,6 +374,12 @@ class IRC_Connection < EventMachine::Connection
 
     end
   
+  end
+
+  # retrieve ISUPPORT values or default to a value we don't have
+  def support(param, default=nil)
+    return default unless @isupport.has_key? param.upper
+    return @isupport[param.upper]
   end
 
   def to_s
