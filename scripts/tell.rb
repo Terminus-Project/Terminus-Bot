@@ -28,34 +28,36 @@ end
 def on_privmsg(msg)
   tells = get_data(msg.connection.name, Hash.new)
 
-  return unless tells.has_key? msg.nick
+  return unless tells.has_key? msg.nickcanon
 
-  tells[msg.nick].each do |tell|
+  tells[msg.nickcanon].each do |tell|
     time = Time.at(tell[0]).strftime("%Y-%m-%d %H:%M:%S %Z")
 
     msg.reply("Tell from \02#{tell[1]}\02 (#{time}): #{tell[2]}")
   end
   
-  tells.delete(msg.nick)
+  tells.delete(msg.nickcanon)
 end
 
 def cmd_tell(msg, params)
   tells = get_data(msg.connection.name, Hash.new)
+
+  dest = msg.connection.canonize params[0]
   
-  if tells.has_key? params[0]
-    if tells[params[0]].length > get_config("max", 5).to_i
+  if tells.has_key? dest
+    if tells[dest].length > get_config("max", 5).to_i
       msg.reply("No more tells can be left for that nick.")
       return
     end
   else
-    tells[params[0]] = Array.new
+    tells[dest] = Array.new
   end
 
-  tells[params[0]] << [Time.now.to_i, msg.nick, params[1]]
+  tells[dest] << [Time.now.to_i, msg.nick, params[1]]
 
   store_data(msg.connection.name, tells)
 
-  $log.info("tell.cmd_tell") { "Added: #{tells[params[0]]}" }
+  $log.info("tell.cmd_tell") { "Added: #{tells[dest]}" }
 
   msg.reply("I will try to deliver your message.")
 end
