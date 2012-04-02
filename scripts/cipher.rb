@@ -49,25 +49,35 @@ def rot_decode(key, data)
 end
 
 
+# Generic Cipher API
+# TODO: find a way to indicate error messages better
+def do_encode(cipher, key, data)
+  return "Unknown cipher #{cipher}" unless @ciphers.has_key? cipher
+
+  encoded = self.send(@ciphers[cipher].encoder, key, data)
+
+  return "Unable to encode" unless encoded
+
+  return encoded
+end
+
+def do_decode(cipher, key, data)
+  return "Unknown cipher #{cipher}" unless @ciphers.has_key? cipher
+
+  encoded = self.send(@ciphers[cipher].encoder, key, data)
+
+  return "Unable to encode" unless encoded
+
+  return encoded
+end
+
 # Basic interface
 def cmd_encode(msg, params)
   cipher = params[0].upcase
   key = params[1]
   data = params[2]
 
-  unless @ciphers.has_key? cipher
-    msg.reply("Unknown cipher #{params[0]}")
-    return
-  end
-
-  encoded = self.send(@ciphers[cipher].encoder, key, data)
-
-  unless encoded
-    msg.reply("Unable to encode")
-    return
-  end
-
-  msg.reply(encoded)
+  msg.reply(do_encode(cipher, key, data))
 end
 
 def cmd_decode(msg, params)
@@ -75,23 +85,12 @@ def cmd_decode(msg, params)
   key = params[1]
   data = params[2]
 
-  unless @ciphers.has_key? cipher
-    msg.reply("Unknown cipher #{params[0]}")
-    return
-  end
-
-  decoded = self.send(@ciphers[cipher].decoder, key, data)
-
-  unless decoded
-    msg.reply("Unable to decode")
-    return
-  end
-
-  msg.reply(decoded)
+  msg.reply(do_decode(cipher, key, data))
 end
 
 
 # Some nifty aliases
 def cmd_rot13(msg, params)
-  cmd_decode(msg, ["rot", "13", params[0]])
+  # Should this be replaced with params[0].tr 'A-Za-z', 'N-ZA-Mn-za-m'?
+  msg.reply(do_encode("ROT", "13", params[0]))
 end
