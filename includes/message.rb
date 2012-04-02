@@ -43,7 +43,7 @@ class Message
       @type = arr[0]
       @destination = arr[1]
       
-      @text = (str =~ /\A.+\s:(.+)\Z/ ? $1 : "")
+      @text = (str =~ /\A([^ ]+\s){1,2}:(.+)\Z/ ? $2 : "")
 
     else
 
@@ -62,7 +62,7 @@ class Message
 
         # Grab the text portion, as in
         # :origin PRIVMSG #dest :THIS TEXT
-        @text = (str =~ /\A:.+\s:(.+)\Z/ ? $1 : "")
+        @text = (str =~ /\A:[^ ]+(\s[^ ]+){0,2}\s:(.+)\Z/ ? $2 : "")
 
       else
         # Server PINGs. Not much else.
