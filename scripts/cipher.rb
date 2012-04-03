@@ -10,6 +10,7 @@ def initialize
   cipher = Struct.new(:encoder, :decoder)
   @ciphers = {
     "ROT" => cipher.new(:rot_encode, :rot_decode),
+    "XOR" => cipher.new(:xor_encode, :xor_decode),
   }
 end
 
@@ -49,6 +50,27 @@ def rot_decode(key, data)
 end
 
 
+# XOR cipher
+def xor_core(key, data)
+  n = data.length
+
+  encoded = []
+  (0...n).each do |i|
+    encoded << (data[i].ord ^ key[n % key.length].ord).chr
+  end
+
+  encoded.join
+end
+
+def xor_encode(key, data)
+  Base64.encode64(xor_core(key, data))
+end
+
+def xor_decode(key, data)
+  xor_core(key, Base64.decode64(data))
+end
+
+
 # Generic Cipher API
 # TODO: find a way to indicate error messages better
 def do_encode(cipher, key, data)
@@ -64,7 +86,7 @@ end
 def do_decode(cipher, key, data)
   return "Unknown cipher #{cipher}" unless @ciphers.has_key? cipher
 
-  encoded = self.send(@ciphers[cipher].encoder, key, data)
+  encoded = self.send(@ciphers[cipher].decoder, key, data)
 
   return "Unable to encode" unless encoded
 
