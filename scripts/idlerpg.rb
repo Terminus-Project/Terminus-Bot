@@ -67,13 +67,18 @@ def get_player_info(player, config)
   ttl = root.elements["//ttl"].text.to_i
   idled = root.elements["//totalidled"].text.to_i
   klass = root.elements["//class"].text
+  rank = root.elements["//rank"].text # Not available on all most networks
 
   return nil if level == nil or level.empty?
 
   ttl = Time.at(Time.now.to_i + ttl).to_duration_s
   idled = Time.at(Time.now.to_i + idled).to_duration_s
 
-  "\02Level:\02 #{level} \02Class\02: #{klass} \02Time to Level:\02 #{ttl} \02Time Idled:\02 #{idled}"
+  buf =  "\02Level:\02 #{level}"
+  buf << " \02Rank:\02 #{rank}" if rank != nil and not rank.empty?
+  buf << " \02Class:\02 #{klass}"
+  buf << " \02Time to Level:\02 #{ttl}"
+  buf << " \02Time Idled:\02 #{idled}"
 end
 
 def on_join(msg)
