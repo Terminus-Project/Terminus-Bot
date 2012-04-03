@@ -63,7 +63,7 @@ def xor_core(key, data)
 end
 
 def xor_encode(key, data)
-  Base64.encode64(xor_core(key, data))
+  Base64.encode64(xor_core(key, data)).gsub(/[\r\n]*/, '')
 end
 
 def xor_decode(key, data)
