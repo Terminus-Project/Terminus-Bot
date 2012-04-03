@@ -86,11 +86,11 @@ end
 def do_decode(cipher, key, data)
   return "Unknown cipher #{cipher}" unless @ciphers.has_key? cipher
 
-  encoded = self.send(@ciphers[cipher].decoder, key, data)
+  decoded = self.send(@ciphers[cipher].decoder, key, data)
 
-  return "Unable to encode" unless encoded
+  return "Unable to decode" unless decoded
 
-  return encoded
+  return decoded
 end
 
 # Basic interface
