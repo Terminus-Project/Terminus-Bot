@@ -107,7 +107,7 @@ def cmd_decode(msg, params)
   key = params[1]
   data = params[2]
 
-  msg.reply(do_decode(cipher, key, data))
+  msg.reply(do_decode(cipher, key, data).gsub(/[\n\r\0]/, '.'))
 end
 
 
