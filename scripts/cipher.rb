@@ -56,7 +56,7 @@ def xor_core(key, data)
 
   encoded = []
   (0...n).each do |i|
-    encoded << (data[i].ord ^ key[n % key.length].ord).chr
+    encoded << (data[i].ord ^ key[i % key.length].ord).chr
   end
 
   encoded.join
