@@ -34,8 +34,6 @@ def initialize
   register_command("load",     :cmd_load,     1,  9,  "Load the named script.")
 
   register_command("raw",      :cmd_raw,      1,  9,  "Send raw text over the IRC connection.")
-
-
 end
 
 def cmd_eval(msg, params)
