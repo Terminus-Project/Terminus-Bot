@@ -195,7 +195,7 @@ class IRC_Connection < EventMachine::Connection
 
     EM.add_timer(5) {
       @disconnecting = false
-      super(@conf["host"], @conf["port"])
+      super(@conf["address"], @conf["port"])
       register
     }
   end
