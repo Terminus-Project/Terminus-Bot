@@ -35,6 +35,8 @@ class Bot
     # Dirty? A bit. TODO: Get rid of this. Maybe.
     $bot = self
 
+    # Gets rid of some junk that was being put int STDERR. Not sure if this is
+    # still necessary, but I'd rather not remove it.
     $-v = nil
 
     @connections = Hash.new       # IRC objects. Keys are configured names.
