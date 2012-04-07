@@ -19,6 +19,8 @@
 
 class Time
 
+  # TODO: These need to support longer durations (weeks, months, and years).
+
   # convert seconds into [seconds, minutes, hours, days]
   def to_duration_a
     secs = (Time.now - self.to_i).to_i.abs
