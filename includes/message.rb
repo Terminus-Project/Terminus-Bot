@@ -171,8 +171,7 @@ class Message
   # Return true if this message doesn't appear to have been sent in a
   # channel.
   def private?
-    # TODO: Use CHANTYPES from 003.
-    not @destination.start_with? "#" and not @destination.start_with? "&"
+    not @connection.support("CHANTYPES", "#&").include? @destination[0]
   end
 
   # This has to be separate from our method_missing cheat below because
