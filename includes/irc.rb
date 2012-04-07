@@ -106,7 +106,7 @@ class IRC_Connection < EventMachine::Connection
   end
 
   def send_data(data)
-    super(data + "\r\n")
+    super(data + "\n")
 
     $bot.lines_out += 1
     $bot.bytes_out += data.length + 2
