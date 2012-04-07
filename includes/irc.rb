@@ -307,6 +307,8 @@ class IRC_Connection < EventMachine::Connection
   def on_registered(msg)
     return if msg.connection != self
 
+    @isupport = Hash.new
+
     @registered = true
   end
 
