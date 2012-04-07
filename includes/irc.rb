@@ -159,6 +159,8 @@ class IRC_Connection < EventMachine::Connection
 
   # Add an unedited string to the outgoing queue for later sending.
   def raw(str)
+    str.delete! "\r\n"
+
     $log.debug("IRC.raw") { "Queued #{str}" }
 
     $bot.events.run(:raw_out, Message.new(self, str, true))
