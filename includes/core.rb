@@ -229,7 +229,6 @@ class Bot
   end
 
   # Send QUITs and do any other work that needs to be done before exiting.
-  # TODO: This is broken and results in an unclean disconnection.
   def quit(str = "Terminus-Bot: Terminating")
     @connections.each_value do |connection|
       connection.disconnect(str)
