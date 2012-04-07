@@ -72,6 +72,8 @@ end
 # Load all the includes.
 load_files "includes"
 
+# TODO: Verify configuration and check for database corruption.
+
 # Launch!
 pid = fork do
   EM.run do
