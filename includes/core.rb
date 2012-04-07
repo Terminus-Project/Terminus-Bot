@@ -181,8 +181,6 @@ class Bot
       "(#{@config['core']['prefix']})?" :
       "(#{@config['core']['prefix']})"}([^ ]+)(.*)\Z/
 
-    $log.debug("Bot.run_commands") { "Running command #{$2} from #{msg.origin}" }
-
     return unless @commands.has_key? $2
 
     command = @commands[$2]

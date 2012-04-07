@@ -103,8 +103,6 @@ class Script_Flags < Hash
           next if privileged.include? script and flag == -1
 
           if channel_scripts[script] != flag
-            $log.debug("script_flags.set_flags") { "#{script} -> #{flag}" }
-
             channel_scripts[script] = flag
             count += 1
           end
