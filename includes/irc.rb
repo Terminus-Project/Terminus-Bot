@@ -345,9 +345,6 @@ class IRC_Connection < EventMachine::Connection
 
   def on_isupport(msg)
 
-    # Clear the hash, oops
-    @isupport = Hash.new
-
     # Limit iteration to everything between the nick and ":are supported
     # by this server"
     msg.raw_arr[3...-5].each do |arg|
