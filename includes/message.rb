@@ -26,7 +26,6 @@ class Message
 
     arr = str.split
 
-    @stripped = ""
     @raw, @raw_arr = str, arr
     @connection = connection
 
@@ -187,9 +186,7 @@ class Message
 
   # Return the message with formatting stripped.
   def stripped
-    return @stripped unless @stripped.empty?
-
-    @stripped = strip(@text)
+    @stripped ||= strip(@text)
   end
 
   # Cheat mode for sending things to the owning connection. Useful for
