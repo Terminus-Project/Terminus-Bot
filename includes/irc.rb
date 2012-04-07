@@ -99,14 +99,14 @@ class IRC_Connection < EventMachine::Connection
 
   # TODO: Make room for SASL.
   def register
-    raw "PASS " + @conf["password"] if @conf.has_key? "password"
+    raw "PASS #{@conf["password"]}" if @conf.has_key? "password"
 
-    raw "NICK " + @nick
-    raw "USER #{@user} 0 0 :" + @realname
+    raw "NICK #{@nick}"
+    raw "USER #{@user} 0 0 :#{@realname}"
   end
 
   def send_data(data)
-    super(data + "\n")
+    super(data << "\n")
 
     $bot.lines_out += 1
     $bot.bytes_out += data.length + 2
@@ -240,8 +240,8 @@ class IRC_Connection < EventMachine::Connection
     end
 
     if msg.me?
-      msg.raw('MODE ' + msg.destination)
-      msg.raw('WHO ' + msg.destination)
+      msg.raw("MODE #{msg.destination}")
+      msg.raw("WHO #{msg.destination}")
     end
 
     @channels[msg.destination].join(ChannelUser.new(msg.nick, msg.user, msg.host))

@@ -103,7 +103,7 @@ class Message
     #       Just don't try to send it all in multiple messages without
     #       the user asking for it!
     unless self.private?
-      str = "PRIVMSG #{@destination} :#{prefix ? @nick + ": " : ""}#{truncate(str, @destination)}"
+      str = "PRIVMSG #{@destination} :#{prefix ? "#{@nick}: " : ""}#{truncate(str, @destination)}"
     else
       str = "NOTICE #{@nick} :#{truncate(str, @nick, true)}"
     end

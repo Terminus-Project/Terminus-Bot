@@ -178,8 +178,8 @@ class Bot
     return if msg.silent?
 
     return unless msg.text =~ /\A#{msg.private? ?
-      '(' + @config['core']['prefix'] + ')?' :
-      '(' + @config['core']['prefix'] + ')'}([^ ]+)(.*)\Z/
+      "(#{@config['core']['prefix']})?" :
+      "(#{@config['core']['prefix']})"}([^ ]+)(.*)\Z/
 
     $log.debug("Bot.run_commands") { "Running command #{$2} from #{msg.origin}" }
 
