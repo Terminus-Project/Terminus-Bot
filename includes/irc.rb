@@ -323,10 +323,10 @@ class IRC_Connection < EventMachine::Connection
   # We tried to switch to a nick that's in use.
   def on_nick_in_use(msg)
 
-
     # If we're done connecting, then this is happening because
     # someone tried to have the bot change nicks to something taken.
     # No sense in spinning around on it — just keep our current nick.
+    
     return if @registered or msg.connection != self
 
     if @nick == $bot.config['core']['nick']
@@ -350,7 +350,7 @@ class IRC_Connection < EventMachine::Connection
     # Limit iteration to everything between the nick and ":are supported
     # by this server"
     msg.raw_arr[3...-5].each do |arg|
-      key, s, value = arg.partition(/=/)
+      key, s, value = arg.split('=', 2)
 
       @isupport[key] = value
     end
