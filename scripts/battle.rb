@@ -119,6 +119,10 @@ def attack_player(msg, target, weapon)
 
   damage = get_config("min_dmg", 5).to_i + rand(get_config("max_dmg", 25).to_i - get_config("min_dmg", 5).to_i)
 
+  if rand(get_config("absorb", 5).to_i)
+    damage = damage * -1
+  end
+
   new = current - damage
   new = 0 if new < 0
 

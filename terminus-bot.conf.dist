@@ -344,6 +344,10 @@ battle = {
   # The chance (out of 100) that an attack will miss.
   # default: 10
   #miss = 10
+  
+  # The chance damage will be absorbed and will heal the target.
+  # default: 5
+  #absorb = 5
 
 }
 
