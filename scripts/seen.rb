@@ -35,14 +35,14 @@ def on_message(msg)
   seen_nicks = get_data(msg.connection.name, Hash.new)
 
   if msg.text =~ /\01ACTION (.+)\01/
-    seen_nicks[msg.nick.downcase] = [Time.now.to_i, $1]
+    seen_nicks[msg.nickcanon] = [Time.now.to_i, $1, msg.nick, true]
 
   elsif msg.text.include? "\01"
     # Don't record CTCPs that aren't ACTIONs.
     return
 
   else
-    seen_nicks[msg.nick.downcase] = [Time.now.to_i, msg.text]
+    seen_nicks[msg.nickcanon] = [Time.now.to_i, msg.text, msg.nick, false]
 
   end
 
@@ -50,9 +50,9 @@ def on_message(msg)
 end
 
 def cmd_seen(msg, params)
-  nick = params[0].downcase
+  nick = msg.connection.canonize params[0]
 
-  if msg.nick.downcase == nick
+  if msg.nickcanon == nick
     msg.reply("That's you, silly!")
     return
   end
@@ -60,13 +60,21 @@ def cmd_seen(msg, params)
   seen_nicks = get_data(msg.connection.name, Hash.new)
 
   unless seen_nicks.has_key? nick
-    msg.reply("I have not seen \02#{nick}\02.")
+    msg.reply("I have not seen \02#{params[0]}\02.")
     return
   end
 
-  seen_nick = seen_nicks[nick]
+  time, text, usenick, isaction = seen_nicks[nick]
 
-  time = Time.at(seen_nick[0]).to_duration_s
+  time = Time.at(time).to_duration_s
 
-  msg.reply("\02#{params[0]}\02 was last seen \02#{time} ago\02: <#{params[0]}> #{seen_nick[1]}")
+  usenick = params[0] unless usenick
+
+  if isaction
+    text = "* #{usenick} #{text}"
+  else
+    text = "<#{usenick}> #{text}"
+  end
+
+  msg.reply("\02#{usenick}\02 was last seen \02#{time} ago\02: #{text}")
 end

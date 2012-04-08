@@ -39,26 +39,26 @@ class Users < Hash
   def quit(msg)
     return unless msg.connection == @connection
 
-    delete_user(msg.nick)
+    delete_user(msg.nickcanon)
   end
 
   # Check if the parting user no longer has any common channels with us.
   # If they don't, forget about them.
   def part(msg)
     msg.connection.channels.each_value do |chan|
-      unless chan.get_user(msg.nick) == nil
+      unless chan.get_user(msg.nickcanon) == nil
         return
       end
     end
 
-    delete_user(msg.nick)
+    delete_user(msg.nickcanon)
   end
 
   # WHO reply
   def add_352(msg)
     return if msg.connection != @connection
       
-    add_user(msg.raw_arr[7], msg.raw_arr[4], msg.raw_arr[5])
+    add_user(msg.connection.canonize(msg.raw_arr[7]), msg.raw_arr[4], msg.raw_arr[5])
   end
 
   # Add the user in the origin (first word) position of a raw message
@@ -68,7 +68,7 @@ class Users < Hash
 
     msg.origin =~ /(.+)!(.+)@(.+)/
       
-    add_user($1, $2, $3)
+    add_user(msg.connection.canonize($1), $2, $3)
   end
 
   # Actually add a nick!user@host to our list.
@@ -83,19 +83,23 @@ class Users < Hash
   # Someone changed nicks. Make the necessary updates.
   def change_nick(msg)
     return if msg.connection != @connection
-    return unless has_key? msg.nick
+    return unless has_key? msg.nickcanon
 
     $log.debug("Users.add_user") { "Renaming user #{msg.nick} on #{@connection.name}" }
 
+    changednickcanon = msg.connection.canonize(msg.text)
+
     # Apparently structs don't let you change values. So just make a
     # new user.
-    self[msg.text] = User.new(@connection, msg.text,
-                               self[msg.nick].user,
-                               self[msg.nick].host,
-                               self[msg.nick].level,
-                               self[msg.nick].account)
+    changeduser = User.new(@connection, changednickcanon,
+                               self[msg.nickcanon].user,
+                               self[msg.nickcanon].host,
+                               self[msg.nickcanon].level,
+                               self[msg.nickcanon].account)
 
-    delete_user(msg.nick)
+    delete_user(msg.nickcanon)
+
+    self[changednickcanon] = changeduser
   end
 
   # Remove a user by nick.
@@ -108,9 +112,9 @@ class Users < Hash
   # Get the level of the user speaking in msg.
   # Used when checking permissions.
   def get_level(msg)
-    add_origin(msg) unless has_key? msg.nick
+    add_origin(msg) unless has_key? msg.nickcanon
 
-    return self[msg.nick].level
+    return self[msg.nickcanon].level
   end
 
   def to_s

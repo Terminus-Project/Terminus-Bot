@@ -62,7 +62,7 @@ def cmd_identify(msg, params)
     return
   end
 
-  msg.connection.users[msg.nick].account = params[0]
+  msg.connection.users[msg.nickcanon].account = params[0]
 
   level = stored[:level]
 
@@ -72,7 +72,7 @@ def cmd_identify(msg, params)
     $log.info("account.cmd_identify") { "#{msg.origin} identifying with override level #{level}" }
   end
     
-  msg.connection.users[msg.nick].level = level
+  msg.connection.users[msg.nickcanon].level = level
 
   msg.reply("Logged in with level #{level} authorization.")
   $log.info("account.cmd_identify") { "#{msg.origin} identified as #{params[0]} (#{level})" }
@@ -84,7 +84,7 @@ def cmd_register(msg, params)
     return
   end
 
-  unless msg.connection.users[msg.nick].account == nil
+  unless msg.connection.users[msg.nickcanon].account == nil
     msg.reply("You are already logged in to a bot account.")
     return
   end
@@ -106,7 +106,7 @@ def cmd_password(msg, params)
     return
   end
 
-  stored = get_data(msg.connection.users[msg.nick].account, nil)
+  stored = get_data(msg.connection.users[msg.nickcanon].account, nil)
   
   if stored == nil
     msg.reply("Your account no longer exists.")
@@ -114,7 +114,7 @@ def cmd_password(msg, params)
   end
 
   stored[:password] = encrypt_password(params[0])
-  store_data(msg.connection.users[msg.nick].account, stored)
+  store_data(msg.connection.users[msg.nickcanon].account, stored)
 
   msg.reply("Your password has been changed")
   $log.info("account.cmd_password") { "#{msg.origin} changed account password" }
@@ -134,7 +134,7 @@ def cmd_fpassword(msg, params)
   end
 
   stored[:password] = encrypt_password(params[0])
-  store_data(msg.connection.users[msg.nick].account, stored)
+  store_data(msg.connection.users[msg.nickcanon].account, stored)
 
   msg.reply("The account password has been changed")
   $log.info("account.cmd_fpassword") { "#{msg.origin} changed account password for #{params[0]}" }
@@ -185,12 +185,12 @@ def cmd_account(msg, params)
 end
 
 def cmd_whoami(msg, params)
-  if msg.connection.users[msg.nick].account == nil
+  if msg.connection.users[msg.nickcanon].account == nil
     msg.reply("You are not logged in.")
     return
   end
 
-  u = msg.connection.users[msg.nick]
+  u = msg.connection.users[msg.nickcanon]
   msg.reply("\02Account:\02 #{u.account} \02Level:\02 #{u.level}")
 end
 

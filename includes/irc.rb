@@ -23,7 +23,7 @@ class IRC_Connection < EventMachine::Connection
   require 'timeout'
 
   attr_reader :name, :channels, :conf, :bind,
-   :users, :client_host, :nick, :user, :realname
+   :users, :client_host, :nick, :user, :realname, :isupport
 
   # Create a new connection, then kick things off.
   def initialize(name, conf, bind = nil, nick = "Terminus-Bot",
@@ -49,6 +49,7 @@ class IRC_Connection < EventMachine::Connection
     $bot.events.create(self, "433",   :on_nick_in_use)
 
     $bot.events.create(self, "001",   :on_registered)
+    $bot.events.create(self, "005",   :on_isupport)
 
     @name = name
     @nick = nick
@@ -58,6 +59,8 @@ class IRC_Connection < EventMachine::Connection
     @bind = bind
 
     @conf = conf
+
+    @isupport = Hash.new
 
     @registered, @reconnecting = false, false
 
@@ -226,7 +229,7 @@ class IRC_Connection < EventMachine::Connection
       @channels[msg.raw_arr[3]] = Channel.new(msg.raw_arr[3])
     end
 
-    @channels[msg.raw_arr[3]].join(ChannelUser.new(msg.raw_arr[7],
+    @channels[msg.raw_arr[3]].join(ChannelUser.new(canonize(msg.raw_arr[7]),
                                                    msg.raw_arr[4],
                                                    msg.raw_arr[5]))
   end
@@ -244,7 +247,7 @@ class IRC_Connection < EventMachine::Connection
       msg.raw("WHO #{msg.destination}")
     end
 
-    @channels[msg.destination].join(ChannelUser.new(msg.nick, msg.user, msg.host))
+    @channels[msg.destination].join(ChannelUser.new(msg.nickcanon, msg.user, msg.host))
   end
 
   def on_part(msg)
@@ -257,7 +260,7 @@ class IRC_Connection < EventMachine::Connection
       return
     end
 
-    @channels[msg.destination].part(msg.nick)
+    @channels[msg.destination].part(msg.nickcanon)
   end
 
   def on_kick(msg)
@@ -265,7 +268,7 @@ class IRC_Connection < EventMachine::Connection
 
     return unless @channels.has_key? msg.destination
 
-    @channels[msg.destination].part(msg.raw_arr[3])
+    @channels[msg.destination].part(canonize msg.raw_arr[3])
   end
 
   def on_mode(msg)
@@ -273,7 +276,7 @@ class IRC_Connection < EventMachine::Connection
 
     return unless @channels.has_key? msg.destination
 
-    @channels[msg.destination].mode_change(msg.raw_arr[3])
+    @channels[msg.destination].mode_change(canonize msg.raw_arr[3])
   end
 
   # modes sent on join
@@ -282,7 +285,7 @@ class IRC_Connection < EventMachine::Connection
 
     return unless @channels.has_key? msg.raw_arr[3]
 
-    @channels[msg.raw_arr[3]].mode_change(msg.raw_arr[4])
+    @channels[msg.raw_arr[3]].mode_change(canonize msg.raw_arr[4])
   end
 
   
@@ -305,6 +308,8 @@ class IRC_Connection < EventMachine::Connection
 
   def on_registered(msg)
     return if msg.connection != self
+
+    @isupport = Hash.new
 
     @registered = true
   end
@@ -338,6 +343,44 @@ class IRC_Connection < EventMachine::Connection
     @nick << "_"
 
     raw "NICK #{@nick}"
+  end
+
+  def on_isupport(msg)
+
+    # Limit iteration to everything between the nick and ":are supported
+    # by this server"
+    msg.raw_arr[3...-5].each do |arg|
+      key, s, value = arg.partition(/=/)
+
+      @isupport[key] = value
+    end
+
+  end
+
+  # nickname canonizer, using the rule specified by CASEMAPPING
+  def canonize(nick)
+ 
+    # TODO: do this without such an ugly case statement :(
+
+    case support "CASEMAPPING"
+
+      when "ascii"
+        nick.upcase
+
+      when "rfc1459", nil
+        nick.upcase.tr("|{}^", "\\\\[]~")   
+
+      when "strict-rfc1459"
+        nick.upcase.tr("|{}", "\\\\[]")
+
+    end
+  
+  end
+
+  # retrieve ISUPPORT values or default to a value we don't have
+  def support(param, default=nil)
+    return default unless @isupport.has_key? param.upcase
+    return @isupport[param.upcase]
   end
 
   def to_s
