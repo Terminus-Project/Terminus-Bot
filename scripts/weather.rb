@@ -108,6 +108,8 @@ def forecast(msg, params)
 
   reply = "[\02Forecast for #{params[0]}\02 as of \02#{date}\02] "
 
+  count = 0
+
   root.elements.each("forecastday") { |element|
     title = element.elements["title"].text
 
@@ -115,6 +117,9 @@ def forecast(msg, params)
     text = HTMLEntities.new.decode(text)
 
     reply << "[\02#{title}\02] #{text} "
+
+    count += 1
+    break if count == 2
   }
 
   msg.reply(reply)
