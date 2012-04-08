@@ -122,5 +122,10 @@ def forecast(msg, params)
     break if count == 2
   }
 
+  if count == 0
+    msg.reply("That does not appear to be a valid location. If it is, try being more specific, or specify the location in another way.")
+    return
+  end
+
   msg.reply(reply)
 end
