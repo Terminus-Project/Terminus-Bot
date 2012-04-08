@@ -350,7 +350,7 @@ class IRC_Connection < EventMachine::Connection
     # Limit iteration to everything between the nick and ":are supported
     # by this server"
     msg.raw_arr[3...-5].each do |arg|
-      key, s, value = arg.split('=', 2)
+      key, value = arg.split('=', 2)
 
       @isupport[key] = value
     end
