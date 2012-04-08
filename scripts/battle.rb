@@ -197,7 +197,7 @@ end
 def on_privmsg(msg)
   return if msg.private? or msg.silent? or not @active.has_key? msg.destination
 
-  if msg.text =~ /\01ACTION atta[^ ]+ (.*) with (.*)\01/
+  if msg.text =~ /\01ACTION atta[^ ]+ (.*?) with (.*)\01/i
     attack_player(msg, $1, $2)
   end
 
