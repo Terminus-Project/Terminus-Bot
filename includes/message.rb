@@ -36,6 +36,7 @@ class Message
       @nick = connection.nick
       @user = connection.user
       @host = connection.client_host
+      @nick_canon = @connection.canonize @nick
       
       @origin = "#{@nick}!#{@user}@#{@host}"
 
@@ -55,8 +56,10 @@ class Message
 
         if @origin =~ /\A([^ ]+)!([^ ]+)@([^ ]+)/
           @nick, @user, @host = $1, $2, $3
+          @nick_canon = @connection.canonize @nick
         else
           @nick, @user, @host = "", "", ""
+          @nick_canon = ""
         end
 
         # Grab the text portion, as in
@@ -74,8 +77,6 @@ class Message
       end
 
     end
-
-    @nick_canon = @connection.canonize @nick rescue nil
       
   end
 
