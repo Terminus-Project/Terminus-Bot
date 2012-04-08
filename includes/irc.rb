@@ -247,7 +247,7 @@ class IRC_Connection < EventMachine::Connection
       msg.raw("WHO #{msg.destination}")
     end
 
-    @channels[msg.destination].join(ChannelUser.new(msg.nickcanon, msg.user, msg.host))
+    @channels[msg.destination].join(ChannelUser.new(msg.nick_canon, msg.user, msg.host))
   end
 
   def on_part(msg)
@@ -260,7 +260,7 @@ class IRC_Connection < EventMachine::Connection
       return
     end
 
-    @channels[msg.destination].part(msg.nickcanon)
+    @channels[msg.destination].part(msg.nick_canon)
   end
 
   def on_kick(msg)
@@ -378,12 +378,13 @@ class IRC_Connection < EventMachine::Connection
   end
 
   # retrieve ISUPPORT values or default to a value we don't have
-  def support(param, default=nil)
+  def support(param, default = nil)
     return default unless @isupport.has_key? param.upcase
-    return @isupport[param.upcase]
+    
+    @isupport[param.upcase]
   end
 
   def to_s
-    return "#{@name} (#{@channels.length} channels)"
+    "#{@name} (#{@channels.length} channels)"
   end
 end

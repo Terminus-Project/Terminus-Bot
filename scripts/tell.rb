@@ -28,15 +28,15 @@ end
 def on_privmsg(msg)
   tells = get_data(msg.connection.name, Hash.new)
 
-  return unless tells.has_key? msg.nickcanon
+  return unless tells.has_key? msg.nick_canon
 
-  tells[msg.nickcanon].each do |tell|
+  tells[msg.nick_canon].each do |tell|
     time = Time.at(tell[0]).strftime("%Y-%m-%d %H:%M:%S %Z")
 
     msg.reply("Tell from \02#{tell[1]}\02 (#{time}): #{tell[2]}")
   end
   
-  tells.delete(msg.nickcanon)
+  tells.delete(msg.nick_canon)
 end
 
 def cmd_tell(msg, params)

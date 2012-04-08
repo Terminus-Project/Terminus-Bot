@@ -39,19 +39,19 @@ class Users < Hash
   def quit(msg)
     return unless msg.connection == @connection
 
-    delete_user(msg.nickcanon)
+    delete_user(msg.nick_canon)
   end
 
   # Check if the parting user no longer has any common channels with us.
   # If they don't, forget about them.
   def part(msg)
     msg.connection.channels.each_value do |chan|
-      unless chan.get_user(msg.nickcanon) == nil
+      unless chan.get_user(msg.nick_canon) == nil
         return
       end
     end
 
-    delete_user(msg.nickcanon)
+    delete_user(msg.nick_canon)
   end
 
   # WHO reply
@@ -83,23 +83,23 @@ class Users < Hash
   # Someone changed nicks. Make the necessary updates.
   def change_nick(msg)
     return if msg.connection != @connection
-    return unless has_key? msg.nickcanon
+    return unless has_key? msg.nick_canon
 
     $log.debug("Users.add_user") { "Renaming user #{msg.nick} on #{@connection.name}" }
 
-    changednickcanon = msg.connection.canonize(msg.text)
+    changed_nick_canon = msg.connection.canonize(msg.text)
 
     # Apparently structs don't let you change values. So just make a
     # new user.
-    changeduser = User.new(@connection, changednickcanon,
-                               self[msg.nickcanon].user,
-                               self[msg.nickcanon].host,
-                               self[msg.nickcanon].level,
-                               self[msg.nickcanon].account)
+    changed_user = User.new(@connection, changed_nick_canon,
+                               self[msg.nick_canon].user,
+                               self[msg.nick_canon].host,
+                               self[msg.nick_canon].level,
+                               self[msg.nick_canon].account)
 
-    delete_user(msg.nickcanon)
+    delete_user(msg.nick_canon)
 
-    self[changednickcanon] = changeduser
+    self[changed_nick_canon] = changed_user
   end
 
   # Remove a user by nick.
@@ -112,9 +112,9 @@ class Users < Hash
   # Get the level of the user speaking in msg.
   # Used when checking permissions.
   def get_level(msg)
-    add_origin(msg) unless has_key? msg.nickcanon
+    add_origin(msg) unless has_key? msg.nick_canon
 
-    return self[msg.nickcanon].level
+    return self[msg.nick_canon].level
   end
 
   def to_s

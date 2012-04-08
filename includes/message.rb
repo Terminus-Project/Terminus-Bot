@@ -19,7 +19,7 @@
 
 class Message
   attr_reader :origin, :destination, :type, :text, :raw, :raw_arr,
-    :nick, :nickcanon, :user, :host, :connection
+    :nick, :nick_canon, :user, :host, :connection
 
   # Parse the str as an IRC message and fire appropriate events.
   def initialize(connection, str, outgoing = false)
@@ -75,7 +75,7 @@ class Message
 
     end
 
-    @nickcanon = @connection.canonize @nick rescue nil
+    @nick_canon = @connection.canonize @nick rescue nil
       
   end
 
@@ -164,7 +164,7 @@ class Message
 
   # Return true if this message's origin appears to be the bot.
   def me?
-    return @nickcanon == @connection.canonize(@connection.nick)
+    return @nick_canon == @connection.canonize(@connection.nick)
   end
 
   # Return true if this message doesn't appear to have been sent in a

@@ -35,14 +35,14 @@ def on_message(msg)
   seen_nicks = get_data(msg.connection.name, Hash.new)
 
   if msg.text =~ /\01ACTION (.+)\01/
-    seen_nicks[msg.nickcanon] = [Time.now.to_i, $1, msg.nick, true]
+    seen_nicks[msg.nick_canon] = [Time.now.to_i, $1, msg.nick, true]
 
   elsif msg.text.include? "\01"
     # Don't record CTCPs that aren't ACTIONs.
     return
 
   else
-    seen_nicks[msg.nickcanon] = [Time.now.to_i, msg.text, msg.nick, false]
+    seen_nicks[msg.nick_canon] = [Time.now.to_i, msg.text, msg.nick, false]
 
   end
 
@@ -52,7 +52,7 @@ end
 def cmd_seen(msg, params)
   nick = msg.connection.canonize params[0]
 
-  if msg.nickcanon == nick
+  if msg.nick_canon == nick
     msg.reply("That's you, silly!")
     return
   end
