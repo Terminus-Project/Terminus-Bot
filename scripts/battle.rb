@@ -107,7 +107,7 @@ def attack_player(msg, target, weapon)
   original = target
   target = msg.connection.canonize target
   current = get_health(msg, target)
-  my_health = get_health(msg, msg.nick)
+  my_health = get_health(msg, msg.connection.canonize(msg.nick))
 
   if my_health == 0
     msg.reply("You cannot attack when dead.")
