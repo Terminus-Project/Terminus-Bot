@@ -113,6 +113,5 @@ end
 
 # Some nifty aliases
 def cmd_rot13(msg, params)
-  # Should this be replaced with params[0].tr 'A-Za-z', 'N-ZA-Mn-za-m'?
-  msg.reply(do_encode("ROT", "13", params[0]))
+  msg.reply(params[0].tr "A-Za-z", "N-ZA-Mn-za-m")
 end
