@@ -22,8 +22,8 @@ def initialize
   register_script("Encode and decode strings using various basic ciphers")
 
   register_command("ciphers", :cmd_ciphers, 0, 0, "List ciphers")
-  register_command("encode", :cmd_encode, 3, 0, "Encode something using a particular cipher and key")
-  register_command("decode", :cmd_decode, 3, 0, "Decode something using a particular cipher and key")
+  register_command("encode", :cmd_encode, 3, 0, "Encode something using a particular cipher and key. Parameters: cipher key message")
+  register_command("decode", :cmd_decode, 3, 0, "Decode something using a particular cipher and key. Parameters: cipher key message")
 
   register_command("rot13", :cmd_rot13, 0, 0, "Alias for ;{en,de}code rot 13")
 
