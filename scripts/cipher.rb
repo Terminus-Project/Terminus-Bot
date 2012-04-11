@@ -1,6 +1,7 @@
 def initialize
   register_script("Encode and decode strings using various basic ciphers")
 
+  register_command("ciphers", :cmd_ciphers, 0, 0, "List ciphers")
   register_command("encode", :cmd_encode, 3, 0, "Encode something using a particular cipher and key")
   register_command("decode", :cmd_decode, 3, 0, "Decode something using a particular cipher and key")
 
@@ -94,6 +95,10 @@ def do_decode(cipher, key, data)
 end
 
 # Basic interface
+def cmd_ciphers(msg, params)
+  msg.reply("Available ciphers: #{@ciphers.keys.join(', ')}")
+end
+
 def cmd_encode(msg, params)
   cipher = params[0].upcase
   key = params[1]
