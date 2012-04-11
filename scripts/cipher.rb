@@ -47,26 +47,18 @@ def rot_gen_tr(key)
   from = alpha + alpha.downcase
 
   # rotate
-  (0...key).each { |i| alpha = alpha[1..-1] + alpha[0] }
+  key.times { |i| alpha = alpha[1..-1] + alpha[0] }
 
-  to = alpha + alpha.downcase
-
-  return [from, to]
+  return [from, alpha + alpha.downcase]
 end
 
 def rot_encode(key, data)
-  trpair = rot_gen_tr key
-
-  return nil if trpair == nil
-
+  return nil unless (trpair = rot_gen_tr key)
   return data.tr(trpair[0], trpair[1])
 end
 
 def rot_decode(key, data)
-  trpair = rot_gen_tr key
-
-  return nil if trpair == nil
-
+  return nil unless (trpair = rot_gen_tr key)
   return data.tr(trpair[1], trpair[0])
 end
 
@@ -76,7 +68,7 @@ def xor_core(key, data)
   n = data.length
 
   encoded = []
-  (0...n).each do |i|
+  n.times do |i|
     encoded << (data[i].ord ^ key[i % key.length].ord).chr
   end
 
@@ -98,20 +90,14 @@ def do_encode(cipher, key, data)
   return "Unknown cipher #{cipher}" unless @ciphers.has_key? cipher
 
   encoded = self.send(@ciphers[cipher].encoder, key, data)
-
-  return "Unable to encode" unless encoded
-
-  return encoded
+  encoded ? encoded : "Unable to encode"
 end
 
 def do_decode(cipher, key, data)
   return "Unknown cipher #{cipher}" unless @ciphers.has_key? cipher
 
   decoded = self.send(@ciphers[cipher].decoder, key, data)
-
-  return "Unable to decode" unless decoded
-
-  return decoded
+  decoded ? decoded : "Unable to decode"
 end
 
 # Basic interface
@@ -120,19 +106,11 @@ def cmd_ciphers(msg, params)
 end
 
 def cmd_encode(msg, params)
-  cipher = params[0].upcase
-  key = params[1]
-  data = params[2]
-
-  msg.reply(do_encode(cipher, key, data))
+  msg.reply(do_encode(params[0].upcase, params[1], params[2]))
 end
 
 def cmd_decode(msg, params)
-  cipher = params[0].upcase
-  key = params[1]
-  data = params[2]
-
-  msg.reply(do_decode(cipher, key, data).gsub(/[\n\r\0]/, '.'))
+  msg.reply(do_decode(params[0].upcase, params[1], params[2]).gsub(/[\n\r\0]/, ''))
 end
 
 
