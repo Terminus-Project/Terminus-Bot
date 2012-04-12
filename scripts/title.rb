@@ -42,10 +42,14 @@ def on_message(msg)
 
     match = URI(match)
 
+    # TODO: Find a way to make these site-specific things work after following
+    # redirects so we can get info from shortened URLs.
     if match.host =~ /(www\.)?youtube\.com/ and not match.query == nil
       next if get_youtube(msg, match)
     elsif match.host =~ /(www\.)?youtu\.be/ and not match.path == nil
       next if get_youtube(msg, match)
+    elsif match.host =~ /(www\.)?twitter.com/ and not match.path == nil
+      next if get_twitter(msg, match)
     end
     
     get_title(msg, match)
@@ -78,6 +82,7 @@ def get_youtube(msg, uri)
 
   return false if response == nil
 
+  # TODO: YouTube apparently does some things with JSON. Use that if possible!
   root = REXML::Document.new(response[0].body.force_encoding('UTF-8')).root
 
   return false unless root.get_elements("error").empty?
@@ -129,6 +134,35 @@ def get_title(msg, uri)
   end
 end
 
+def get_twitter(msg, uri)
+  $log.debug('title.get_twitter') { uri.to_s }
+
+  # TODO: Get the latest status for a linked user.
+  unless uri.fragment =~ /status\/([0-9]+)/
+    return false
+  end
+
+  id = URI.escape($1)
+  api = URI("https://api.twitter.com/1/statuses/show.xml?id=#{id}")
+
+  response = get_page(api)
+
+  return false if response == nil
+
+  # Since we're already using REXML for YouTube, we may as well use it here too.
+  # (However, see the TODO about that.)
+  
+  root = REXML::Document.new(response[0].body.force_encoding('UTF-8')).root
+
+  return false unless root.get_elements("error").empty?
+
+  text     = root.get_elements("text").first.text.to_s.gsub(/[\r\n[[:print:]]]/, '')
+  author   = root.get_elements("user/screen_name").first.text.to_s
+  
+  msg.reply("\02<@#{author}>\02 #{text}", false)
+
+  return true
+end
 
 def get_page(uri, limit = get_config("redirects", 10), redirected = false)
   return nil if limit == 0
