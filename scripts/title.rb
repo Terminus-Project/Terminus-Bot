@@ -156,7 +156,7 @@ def get_twitter(msg, uri)
 
   return false unless root.get_elements("error").empty?
 
-  text     = root.get_elements("text").first.text.to_s.gsub(/[\r\n[[:print:]]]/, '')
+  text     = root.get_elements("text").first.text.to_s.gsub(/[\r\n[[:cntrl:]]]/, '')
   author   = root.get_elements("user/screen_name").first.text.to_s
   
   msg.reply("\02<@#{author}>\02 #{text}", false)
