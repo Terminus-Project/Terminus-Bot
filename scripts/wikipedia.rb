@@ -48,7 +48,7 @@ def cmd_wiki(msg, params)
   link_title = data["title"].gsub(/\s/, "_")
 
   # .gsub ALL THE THINGS!
-  snippet = data["snippet"].gsub(/<[^>]+>/, '').gsub(/\s+/, ' ').gsub(/\s([[:punct:]])\s/, '\1 ')
+  snippet = data["snippet"].gsub(/<[^>]+>/, '').gsub(/\s+/, ' ').gsub(/\s([[:punct:]]+)\s/, '\1 ')
 
   buf = "\02#{data["title"]}:\02 #{snippet}"
   buf << " https://en.wikipedia.org/wiki/#{URI.escape(link_title)}"
