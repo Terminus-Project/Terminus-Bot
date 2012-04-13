@@ -32,27 +32,26 @@ def initialize
 end
 
 def cmd_wiki(msg, params)
-  
   $log.info('wikipedia.cmd_wiki') { "Getting Wikipedia page for #{params[0]}" }
 
-  url = WIKI_API_URL + "&titles=" + URI.escape(params[0])
-  url += "&redirects"
+  url = "#{WIKI_API_URL}&srsearch=#{URI.escape(params[0])}&limit=1&list=search"
 
-  reply = JSON.parse(Net::HTTP.get URI.parse(url))
+  reply = JSON.parse(Net::HTTP.get(URI.parse(url)).force_encoding('UTF-8'))
 
-  if reply["query"]["pages"].has_key? "-1"
+  if reply["query"]["search"].empty?
     msg.reply("No results.")
     return
   end
 
-  lines = Array.new
+  data = reply["query"]["search"][0]
 
-  reply["query"]["pages"].each do |id, data|
+  link_title = data["title"].gsub(/\s/, "_")
 
-    link_title = data["title"].gsub(/\s/, "_")
-    lines << "#{data["title"]}: https://en.wikipedia.org/wiki/#{URI.escape(link_title)}"
+  # .gsub ALL THE THINGS!
+  snippet = data["snippet"].gsub(/<[^>]+>/, '').gsub(/\s+/, ' ').gsub(/\s([[:punct:]])\s/, '\1 ')
 
-  end
+  buf = "\02#{data["title"]}:\02 #{snippet}"
+  buf << " https://en.wikipedia.org/wiki/#{URI.escape(link_title)}"
 
-  msg.reply(lines, false)
+  msg.reply(buf, false)
 end
