@@ -40,25 +40,29 @@ end
 
 # ROT cipher
 def rot_gen_tr(key)
-    key = key.to_i % 26
+  key = key.to_i % 26
 
-    alpha = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-    from = "#{alpha}#{alpha.downcase}"
-    
-    # rotate
-    key.times { |i| alpha = alpha[1..-1] + alpha[0] }
-    
-    return [from, "#{alpha}#{alpha.downcase}"]
+  from = ('A'..'Z').to_a
+  
+  to    = from.rotate(key).join
+  from  = from.join
+
+  from  = "#{from}#{from.downcase}"
+  to    = "#{to}#{to.downcase}"
+
+  [from, to]
 end
 
 def rot_encode(key, data)
-  return nil unless (trpair = rot_gen_tr key)
-  return data.tr(trpair[0], trpair[1])
+  trpair = rot_gen_tr key
+  
+  data.tr(trpair[0], trpair[1])
 end
 
 def rot_decode(key, data)
-  return nil unless (trpair = rot_gen_tr key)
-  return data.tr(trpair[1], trpair[0])
+  trpair = rot_gen_tr key
+
+  data.tr(trpair[1], trpair[0])
 end
 
 
