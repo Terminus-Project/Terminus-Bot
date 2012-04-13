@@ -311,19 +311,6 @@ tell = {
 }
 
 
-# Oper script for logging the bot in as an IRC operator.
-oper = {
-
-  # Operator configuration is set with one setting per network. The format is:
-  #   network = username:password
-  # The network name must *exaclty* match the name used in the servers config in
-  # the core section!
-
-  #network = username:password
-
-}
-
-
 # Role-play battle assistance script.
 battle = {
 
