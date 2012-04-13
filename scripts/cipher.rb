@@ -21,14 +21,16 @@
 def initialize
   register_script("Encode and decode strings using various basic ciphers")
 
-  register_command("ciphers", :cmd_ciphers, 0, 0, "List ciphers")
-  register_command("encode", :cmd_encode, 3, 0, "Encode something using a particular cipher and key. Parameters: cipher key message")
-  register_command("decode", :cmd_decode, 3, 0, "Decode something using a particular cipher and key. Parameters: cipher key message")
+  register_command("ciphers", :cmd_ciphers, 0,  0, "List ciphers")
+  register_command("encode",  :cmd_encode,  3,  0, "Encode something using a particular cipher and key. Parameters: cipher key message")
+  register_command("decode",  :cmd_decode,  3,  0, "Decode something using a particular cipher and key. Parameters: cipher key message")
 
-  register_command("rot13", :cmd_rot13, 0, 0, "Alias for ;{en,de}code rot 13")
+  # TODO: When aliases are added to core, kill this.
+  register_command("rot13",   :cmd_rot13,   0,  0, "Alias for encode/decode rot 13.")
 
   # the kinds of cipher
   cipher = Struct.new(:encoder, :decoder)
+
   @ciphers = {
     "ROT" => cipher.new(:rot_encode, :rot_decode),
     "XOR" => cipher.new(:xor_encode, :xor_decode),
@@ -44,7 +46,7 @@ def rot_gen_tr(key)
   return nil unless 0 < key and key < 26
 
   alpha = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-  from = alpha + alpha.downcase
+  from = "#{alpha}#{alpha.downcase}"
 
   # rotate
   key.times { |i| alpha = alpha[1..-1] + alpha[0] }
@@ -67,12 +69,13 @@ end
 def xor_core(key, data)
   n = data.length
 
-  encoded = []
+  encoded = ""
+
   n.times do |i|
     encoded << (data[i].ord ^ key[i % key.length].ord).chr
   end
 
-  encoded.join
+  encoded
 end
 
 def xor_encode(key, data)
