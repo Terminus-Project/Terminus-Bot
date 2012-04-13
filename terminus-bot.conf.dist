@@ -370,6 +370,22 @@ rss = {
 }
 
 
+# Regular Expression script.
+regex = {
+  
+  # The number of message to keep in the buffer. A larger value here will of
+  # course mean more memory usage, but it also means regular expression searches
+  # (g/foo/) and replacements (s/foo/bar) will work for older messages.
+  #
+  # If the search function is not important to you, a very small value (10 or
+  # 20) is probably fine.
+  #
+  # default: 100
+  #buffer = 100
+
+}
+
+
 # Script to play IdleRPG
 idlerpg = {
 

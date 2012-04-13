@@ -47,6 +47,7 @@ def on_privmsg(msg)
     search = Regexp.new($1.gsub(/\s/, '\s'), opts)
 
     @messages[msg.connection.name][msg.destination].reverse.each do |message|
+
       if search.match(message[1])
 
         if message[2]
@@ -57,12 +58,15 @@ def on_privmsg(msg)
 
         return
       end
+
     end
 
     return
+
   elsif msg.text =~ /\As\/(.+)\/(.*)\/(.*)\Z/
     return unless @messages.has_key? msg.connection.name
     return unless @messages[msg.connection.name].has_key? msg.destination
+
     replace, flags, opts = $2, $3, Regexp::EXTENDED
 
     opts |= Regexp::IGNORECASE if flags.include? "i"
@@ -70,20 +74,23 @@ def on_privmsg(msg)
     search = Regexp.new($1.gsub(/\s/, '\s'), opts)
 
     @messages[msg.connection.name][msg.destination].reverse.each do |message|
+
       if search.match(message[1])
-        newmsg = (flags.include?("g") ? message[1].gsub(search, replace) : message[1].sub(search, replace) )
+        new_msg = (flags.include?("g") ? message[1].gsub(search, replace) : message[1].sub(search, replace) )
 
         if message[2]
-          msg.reply("* #{message[0]} #{newmsg}", false)
+          msg.reply("* #{message[0]} #{new_msg}", false)
         else
-          msg.reply("<#{message[0]}> #{newmsg}", false)
+          msg.reply("<#{message[0]}> #{new_msg}", false)
         end
 
         return
       end
+
     end
 
     return
+
   end
 
 
@@ -98,7 +105,7 @@ def on_privmsg(msg)
   end
 
 
-  if @messages[msg.connection.name][msg.destination].length > 500
+  if @messages[msg.connection.name][msg.destination].length > get_config("buffer", 100)
     @messages[msg.connection.name][msg.destination].shift
   end
 end
