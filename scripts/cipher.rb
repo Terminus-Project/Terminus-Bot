@@ -40,18 +40,15 @@ end
 
 # ROT cipher
 def rot_gen_tr(key)
-  key = key.to_i
+    key = key.to_i % 26
 
-  # 0 < key < 26, anything else makes no sense or is redundant
-  return nil unless 0 < key and key < 26
-
-  alpha = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-  from = "#{alpha}#{alpha.downcase}"
-
-  # rotate
-  key.times { |i| alpha = alpha[1..-1] + alpha[0] }
-
-  return [from, alpha + alpha.downcase]
+    alpha = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+    from = "#{alpha}#{alpha.downcase}"
+    
+    # rotate
+    key.times { |i| alpha = alpha[1..-1] + alpha[0] }
+    
+    return [from, "#{alpha}#{alpha.downcase}"]
 end
 
 def rot_encode(key, data)
@@ -67,15 +64,9 @@ end
 
 # XOR cipher
 def xor_core(key, data)
-  n = data.length
-
-  encoded = ""
-
-  n.times do |i|
-    encoded << (data[i].ord ^ key[i % key.length].ord).chr
-  end
-
-  encoded
+  data.each_char.map.each_with_index { |c, i|
+    (c.ord ^ key[i % key.length].ord).chr
+  }.join
 end
 
 def xor_encode(key, data)
