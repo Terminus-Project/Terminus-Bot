@@ -19,7 +19,8 @@
 
 class Time
 
-  # TODO: These need to support longer durations (weeks, months, and years).
+  # TODO: These need to support longer durations (months and years).
+  # Month length is not constant. How should we deal with it? --Kabaka
 
   # convert seconds into [seconds, minutes, hours, days]
   def to_duration_a
@@ -27,7 +28,7 @@ class Time
 
     t = []
 
-    [60, 60, 24].each do |n|
+    [60, 60, 24, 7].each do |n|
       secs, q = secs.divmod(n)
       t << q
     end
@@ -40,7 +41,11 @@ class Time
 
     # glue the pieces together, omitting ones with zero
     # this loop also takes care of pluralization
-    pieces = [[t[3], " day", "s"], [t[2], " hour", "s"], [t[1], " minute", "s"], [t[0], " second", "s"]]
+    pieces = [[t[4], " week",   "s"],
+              [t[3], " day",    "s"],
+              [t[2], " hour",   "s"],
+              [t[1], " minute", "s"],
+              [t[0], " second", "s"]]
 
     pieces.map! do |piece|
 
@@ -64,7 +69,8 @@ class Time
     # feels wrong to manually zip the data like this...
     # time is incremented if cmp > thresh
     #          time   cmp  thresh       name  plural
-    pieces = [[t[3], t[2],     16,    " day", "s"],
+    pieces = [[t[4], t[3],      5,   " week", "s"],
+              [t[3], t[2],     16,    " day", "s"],
               [t[2], t[1],     40,   " hour", "s"],
               [t[1], t[0],     40, " minute", "s"],
               [t[0],    0,      1, " second", "s"]]
