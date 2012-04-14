@@ -34,7 +34,32 @@ def initialize
   @ciphers = {
     "ROT" => cipher.new(:rot_encode, :rot_decode),
     "XOR" => cipher.new(:xor_encode, :xor_decode),
+    "VIG" => cipher.new(:vig_encode, :vig_decode),
   }
+end
+
+
+# Vigenere Cipher
+def vigenere(key, text, direction)
+  text = text.upcase.gsub(/[^A-Z]/, '')
+  
+  key_it = key.chars.cycle
+
+  base = 'A'.ord
+  size = 'Z'.ord - base + 1
+
+  text.each_char.map { |c|
+    offset = key_it.next.ord - base
+    ((c.ord - base).send(direction, offset) % size + base).chr
+  }.join
+end
+
+def vig_encode(key, data)
+  vigenere(key, data, :+)
+end
+
+def vig_decode(key, data)
+  vigenere(key, data, :-)
 end
 
 
@@ -47,8 +72,8 @@ def rot_gen_tr(key)
   to    = from.rotate(key).join
   from  = from.join
 
-  from  = "#{from}#{from.downcase}"
   to    = "#{to}#{to.downcase}"
+  from  = "#{from}#{from.downcase}"
 
   [from, to]
 end
@@ -68,8 +93,10 @@ end
 
 # XOR cipher
 def xor_core(key, data)
+  key_it = key.chars.cycle
+
   data.each_char.map.each_with_index { |c, i|
-    (c.ord ^ key[i % key.length].ord).chr
+    (c.ord ^ key_it.next.ord).chr
   }.join
 end
 
