@@ -43,7 +43,7 @@ end
 def vigenere(key, text, direction)
   text = text.upcase.gsub(/[^A-Z]/, '')
   
-  key_it = key.chars.cycle
+  key_it = key.upcase.gsub(/[^A-Z]/, '').chars.cycle
 
   base = 'A'.ord
   size = 'Z'.ord - base + 1
