@@ -200,7 +200,7 @@ def on_privmsg(msg)
   return if msg.private? or msg.silent? or not @active.has_key? msg.destination
 
   if msg.text =~ /\01ACTION (atta|hit)[^ ]+ (.*?) with (.*)\01/i
-    attack_player(msg, $1, $2)
+    attack_player(msg, $2, $3)
   end
 
 end
