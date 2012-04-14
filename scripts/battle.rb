@@ -110,7 +110,7 @@ def attack_player(msg, target, weapon)
   my_health = get_health(msg, msg.connection.canonize(msg.nick))
 
   if my_health == 0
-    msg.reply("You cannot attack when dead.")
+    msg.reply("You cannot attack while dead.")
     return
   end
 
@@ -131,11 +131,11 @@ def attack_player(msg, target, weapon)
   set_health(msg, target, new)
 
   if rand(100) < get_config("miss", 10).to_i
-
     msg.reply("#{original} dodges #{msg.nick}'s #{weapon}.", false)
+    return
+  end
 
-  elsif damage > 0
-
+  if damage > 0
     msg.reply("#{msg.nick}'s #{weapon} hits #{original} for \02#{damage} damage\02.", false)
 
     if new == 0
@@ -146,16 +146,18 @@ def attack_player(msg, target, weapon)
 
     end
 
-  elsif damage < 0
+    return
+  end
 
+  if damage < 0
     msg.reply("#{original} absorbs the hit and \02gains #{(damage*-1)} health!\2", false)
     msg.reply("#{original} has \02#{new}\02 health remaining.", false)
 
-  else
-
-    msg.reply("#{msg.nick}'s #{weapon} is completely ineffective.", false)
-
+    return
   end
+
+  msg.reply("#{msg.nick}'s #{weapon} is completely ineffective.", false)
+
 end
 
 def cmd_health(msg, params)
@@ -167,9 +169,9 @@ def cmd_health(msg, params)
 
   msg.raw("NOTICE #{msg.nick} :There are currently \02#{@active[msg.destination].keys.length}\02 players in \02#{msg.destination}\02:")
 
-  @active[msg.destination].each { |player, health|
+  @active[msg.destination].each do |player, health|
     msg.raw("NOTICE #{msg.nick} :\02#{sprintf("%31.31s", player)}\02 #{health} HP")
-  }
+  end
 
   msg.raw("NOTICE #{msg.nick} :End of list.")
 
@@ -197,7 +199,7 @@ end
 def on_privmsg(msg)
   return if msg.private? or msg.silent? or not @active.has_key? msg.destination
 
-  if msg.text =~ /\01ACTION atta[^ ]+ (.*?) with (.*)\01/i
+  if msg.text =~ /\01ACTION (atta|hit)[^ ]+ (.*?) with (.*)\01/i
     attack_player(msg, $1, $2)
   end
 
