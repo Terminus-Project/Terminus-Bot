@@ -23,7 +23,7 @@ require "net/http"
 require "uri"
 require "json"
 
-WIKI_API_URL = "http://en.wikipedia.org/w/api.php?action=query&format=json"
+WIKI_API_URL = "https://en.wikipedia.org/w/api.php?action=query&format=json"
 
 def initialize
   register_script("Perform Wikipedia look-ups.")
@@ -34,16 +34,28 @@ end
 def cmd_wiki(msg, params)
   $log.info('wikipedia.cmd_wiki') { "Getting Wikipedia page for #{params[0]}" }
 
-  url = "#{WIKI_API_URL}&srsearch=#{URI.escape(params[0])}&limit=1&list=search"
+  uri = URI("#{WIKI_API_URL}&srsearch=#{URI.escape(params[0])}&limit=1&list=search")
 
-  reply = JSON.parse(Net::HTTP.get(URI.parse(url)).force_encoding('UTF-8'))
+  http    = Net::HTTP.new(uri.host, uri.port)
+  request = Net::HTTP::Get.new(uri.request_uri)
 
-  if reply["query"]["search"].empty?
+  http.use_ssl = true
+
+  response = http.request(request)
+
+  if response.code != "200"
+    msg.reply("There was a problem with the search. Response code was #{response.code}.")
+    return
+  end
+
+  response = JSON.parse(response.body.force_encoding("UTF-8"))
+
+  if response["query"]["search"].empty?
     msg.reply("No results.")
     return
   end
 
-  data = reply["query"]["search"][0]
+  data = response["query"]["search"][0]
 
   link_title = data["title"].gsub(/\s/, "_")
 
