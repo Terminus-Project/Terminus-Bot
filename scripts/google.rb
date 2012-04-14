@@ -84,30 +84,39 @@ def getResult(query, type)
   
   response = JSON.parse(response.body)
 
-  results, num = Array.new, 0
+  results = Array.new
   limit = get_config("resultlimit", 3).to_i
 
-  response["responseData"]["results"].each { |result|
+  response["responseData"]["results"].each_with_index do |result, num|
+
     break if num >= limit
 
     case type
+
       when "web"
         results << "\02#{result["titleNoFormatting"]}\02 - #{result["url"]}"
+
       when "images"
         results << "\02#{result["titleNoFormatting"]}\02 - #{result["url"]}"
+
       when "books"
         results << "\02#{result["titleNoFormatting"]}\02 by #{result["authors"]} - #{URI.unescape(result["url"])} - #{result["bookId"]} - Published: #{result["publishedYear"]} - #{result["pageCount"]} Pages"
+
       when "news"
         results << "\02#{result["titleNoFormatting"]}\02 - #{URI.unescape(result["url"])}"
+
       when "blogs"
         results << "\02#{result["titleNoFormatting"]}\02 by #{result["author"]} - #{result["postUrl"]} - Published #{result["publishedDate"]}"
+
       when "patent"
         results << "\02#{result["titleNoFormatting"]}\02 - #{URI.unescape(result["url"])} - assigned to #{result["assignee"]} - #{result["patentNumber"]} (#{result["patentStatus"]}) - Applied for on: #{result["applicationDate"]}"
+
       when "video"
-        results << "\02#{result["titleNoFormatting"]}\02 - #{result["url"]}"
+        results << "\02#{result["titleNoFormatting"]}\02 - #{result["playUrl"]}"
+
     end
-    num += 1
-  }
+
+  end
 
   results.empty? ? "No results." : results
 end
