@@ -167,13 +167,13 @@ def cmd_health(msg, params)
     return
   end
 
-  msg.raw("NOTICE #{msg.nick} :There are currently \02#{@active[msg.destination].keys.length}\02 players in \02#{msg.destination}\02:")
+  msg.send_notice(msg.nick, "There are currently \02#{@active[msg.destination].keys.length}\02 players in \02#{msg.destination}\02:")
 
   @active[msg.destination].each do |player, health|
-    msg.raw("NOTICE #{msg.nick} :\02#{sprintf("%31.31s", player)}\02 #{health} HP")
+    msg.send_notice(msg.nick, "\02#{sprintf("%31.31s", player)}\02 #{health} HP")
   end
 
-  msg.raw("NOTICE #{msg.nick} :End of list.")
+  msg.send_notice(msg.nick, "End of list.")
 
 end
 
