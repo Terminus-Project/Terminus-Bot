@@ -66,7 +66,7 @@ def cmd_seen(msg, params)
 
   time, text, usenick, isaction = seen_nicks[nick]
 
-  time = Time.at(time).to_duration_s
+  time = Time.at(time).to_fuzzy_duration_s
 
   usenick = params[0] unless usenick
 
