@@ -56,6 +56,8 @@ class IRC_Connection < EventMachine::Connection
     @user = user
     @realname = realname
 
+    @name.freeze
+
     @bind = bind
 
     @conf = conf
@@ -128,7 +130,7 @@ class IRC_Connection < EventMachine::Connection
   end
 
   def send_data(data)
-    super(data << "\n")
+    super("#{data}\n")
 
     $bot.lines_out += 1
     $bot.bytes_out += data.length + 2

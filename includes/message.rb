@@ -29,6 +29,10 @@ class Message
     @raw, @raw_arr = str, arr
     @connection = connection
 
+    @raw.freeze
+    @raw_arr.freeze
+    @outgoing.freeze
+
     # TODO: This whole thing can be done with just one regex!
 
     if outgoing
@@ -74,7 +78,15 @@ class Message
       end
 
     end
-      
+    
+    @nick.freeze
+    @user.freeze
+    @host.freeze
+    @text.freeze
+    @origin.freeze
+    @type.freeze
+    @destination.freeze
+
   end
 
   # Reply to a message. If an array is given, send each reply separately.
