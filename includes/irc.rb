@@ -255,6 +255,8 @@ class IRC_Connection < EventMachine::Connection
     @channels[msg.raw_arr[3]].join(ChannelUser.new(canonize(msg.raw_arr[7]),
                                                    msg.raw_arr[4],
                                                    msg.raw_arr[5]))
+
+    @channels[msg.raw_arr[3]].who_modes(msg.raw_arr[7], msg.raw_arr[8])
   end
 
   def on_join(msg)

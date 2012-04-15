@@ -27,22 +27,24 @@ class Channel
   # that's all we're going to store here.
   def initialize(name, connection)
     @name, @connection = name, connection
+    @name.freeze
 
     @topic, @users = "", []
     @modes, @prefix_modes = {}, {}
-    @prefixes = {}
 
     parse_prefixes
   end
 
   # TODO: Move to IRC_Connection?
   def parse_prefixes
-    prefixes_arr = @connection.support("PREFIX", "(@+)ov")[1..-1].split(")")
+    prefixes_arr = @connection.support("PREFIX", "(ov)@+")[1..-1].split(")")
+
+    @prefixes = {}
 
     prefixes_arr[0].each_char.each_with_index do |c, i|
-      @prefixes[c] = prefixes_arr[1][i]
+      @prefixes[prefixes_arr[1][i]] = c
 
-      @prefix_modes[prefixes_arr[1][i]] ||= []
+      @prefix_modes[c] ||= []
     end
   end
 
@@ -57,7 +59,7 @@ class Channel
     # 3 = Mode that changes a setting and never has a parameter.
     chanmodes = @connection.support("CHANMODES", ",,,,").split(',', 4)
 
-    plus, with_params = true, []
+    plus, with_params, who = true, [], false
 
     modes[0].each_char do |mode|
 
@@ -125,13 +127,15 @@ class Channel
 
       $log.debug("Channel.mode_change") { "#{plus ? "+" : "-"}#{key} => #{param}" }
 
-      if @prefixes.has_key? key
-        @prefix_modes[key] ||= []
+      if @prefix_modes.has_key? key
+        param = @connection.canonize param
 
         if plus
-          @prefix_modes[key] |= [@connection.canonize(param)]
+          @prefix_modes[key] |= [param]
         else
           @prefix_modes[key].delete(param)
+
+          who = true
         end
 
       elsif chanmodes[0].include? key
@@ -146,6 +150,8 @@ class Channel
       end
 
     end
+
+    @connection.raw("WHO #{@name}") if who
   end
 
   def op?(nick)
@@ -214,5 +220,23 @@ class Channel
     results = @users.select {|u| u.nick == nick}
 
     return results.empty? ? nil : results[0]
+  end
+
+  def who_modes(nick, info)
+    $log.debug("Channel.who_modes") { "#{nick} => #{info}" }
+    $log.debug("Channel.who_modes") { @prefixes.to_s }
+
+    info.each_char do |c|
+
+      $log.debug("Channel.who_modes") { "#{info} => #{c}" }
+
+      if @prefixes.has_key? c
+
+        $log.debug("Channel.who_modes") { "#{c} => #{@prefixes[c]}" }
+        @prefix_modes[@prefixes[c]] |= [@connection.canonize(nick)]
+
+      end
+
+    end
   end
 end
