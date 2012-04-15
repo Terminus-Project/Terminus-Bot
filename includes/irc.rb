@@ -383,7 +383,7 @@ class IRC_Connection < EventMachine::Connection
  
     # TODO: do this without such an ugly case statement :(
 
-    case support "CASEMAPPING"
+    case support("CASEMAPPING").downcase
 
       when "ascii"
         nick.upcase
@@ -393,6 +393,9 @@ class IRC_Connection < EventMachine::Connection
 
       when "strict-rfc1459"
         nick.upcase.tr("|{}", "\\\\[]")
+
+      else
+        nick
 
     end
   
