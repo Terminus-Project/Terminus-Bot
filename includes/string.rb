@@ -19,7 +19,10 @@
 class String
 
   def wildcard_match(s)
-   
+ 
+    # TODO: This probably needs to obey CASEMAPPING since it will be used for
+    # hostname matching and probably nothing else. --Kabaka
+
     # Since this is primarily going to be used for hostmask matches, we should
     # escape these so that character classes aren't used, as that might
     # produce unexpected results.
