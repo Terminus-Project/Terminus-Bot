@@ -21,14 +21,29 @@ ChannelUser = Struct.new(:nick, :user, :host)
 
 class Channel
 
-  attr_reader :name, :topic, :modes, :users
+  attr_reader :name, :topic, :modes, :users, :prefix_modes
 
   # Create the channel object. Since all we know when we join is the name,
   # that's all we're going to store here.
   def initialize(name, connection)
     @name, @connection = name, connection
 
-    @topic, @modes, @users = "", {}, []
+    @topic, @users = "", []
+    @modes, @prefix_modes = {}, {}
+    @prefixes = {}
+
+    parse_prefixes
+  end
+
+  # TODO: Move to IRC_Connection?
+  def parse_prefixes
+    prefixes_arr = @connection.support("PREFIX", "(@+)ov")[1..-1].split(")")
+
+    prefixes_arr[0].each_char.each_with_index do |c, i|
+      @prefixes[c] = prefixes_arr[1][i]
+
+      @prefix_modes[prefixes_arr[1][i]] ||= []
+    end
   end
 
   # Parse mode changes for the channel. The modes are extracted elsewhere
@@ -36,28 +51,18 @@ class Channel
   def mode_change(modes)
     $log.debug("Channel.mode_change") { "Changing modes for #{@name}: #{modes}" }
 
-    plus = true
-
-    prefixes_arr = @connection.support("PREFIX", "(@+)ov")[1..-1].split(")")
-    prefixes = {}
-
-    prefixes_arr[0].each_char.each_with_index do |c, i|
-      prefixes[c] = prefixes_arr[1][i]
-    end
-
-    $log.debug("Channel.mode_change") { prefixes.to_s }
-
-    chanmodes = @connection.support("CHANMODES", ",,,,").split(',', 4)
     # 0 = Mode that adds or removes a nick or address to a list. Always has a parameter.
     # 1 = Mode that changes a setting and always has a parameter.
     # 2 = Mode that changes a setting and only has a parameter when set.
     # 3 = Mode that changes a setting and never has a parameter.
+    chanmodes = @connection.support("CHANMODES", ",,,,").split(',', 4)
 
-    with_params = []
+    plus, with_params = true, []
 
     modes[0].each_char do |mode|
 
       case mode
+
       when "+"
         plus = true
         with_params << mode
@@ -65,10 +70,6 @@ class Channel
       when "-"
         plus = false
         with_params << mode
-
-      when " "
-        # This should never happen. (TODO: Remove? --Kabaka)
-        break
 
       else
         if plus
@@ -124,9 +125,14 @@ class Channel
 
       $log.debug("Channel.mode_change") { "#{plus ? "+" : "-"}#{key} => #{param}" }
 
-      if prefixes.has_key? key
-        # TODO: Track this crap.
-        $log.debug("Channel.mode_change") { "#{param} has been given #{plus ? "+" : "-"}#{key}" }
+      if @prefixes.has_key? key
+        @prefix_modes[key] ||= []
+
+        if plus
+          @prefix_modes[key] |= [@connection.canonize(param)]
+        else
+          @prefix_modes[key].delete(param)
+        end
 
       elsif chanmodes[0].include? key
         # TODO: Track lists.
@@ -142,12 +148,53 @@ class Channel
     end
   end
 
+  def op?(nick)
+    nick = @connection.canonize(nick)
+    if @prefix_modes.has_key? "q"
+      return true if @prefix_modes["q"].include? nick
+    end
+
+    if @prefix_modes.has_key? "a"
+      return true if @prefix_modes["a"].include? nick
+    end
+
+    if @prefix_modes.has_key? "o"
+      return true if @prefix_modes["o"].include? nick
+    end
+
+    # This is here for one IRCD that supports it. It shouldn't conflict with
+    # anything else though.
+    if @prefix_modes.has_key? "y"
+      return true if @prefix_modes["y"].include? nick
+    end
+
+    false
+  end
+
+  def half_op?(nick)
+    nick = @connection.canonize(nick)
+    return true if op? nick
+
+    return false unless @prefix_modes.has_key? "h"
+
+    @prefix_modes["h"].include? nick
+  end
+
+  def voice?(nick)
+    nick = @connection.canonize(nick)
+    return true if op? nick
+
+    return false unless @prefix_modes.has_key? "v"
+
+    @prefix_modes["v"].include? nick
+  end
+
   # Store the topic.
   def topic(str)
     @topic = str
   end
 
-# Add a user to our channel's user list.
+  # Add a user to our channel's user list.
   def join(user)
     return if @users.select {|u| u.nick == user.nick}.length > 0
 
