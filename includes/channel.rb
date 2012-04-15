@@ -21,7 +21,7 @@ ChannelUser = Struct.new(:nick, :user, :host)
 
 class Channel
 
-  attr_reader :name, :topic, :modes, :users, :prefix_modes
+  attr_reader :name, :topic, :modes, :users, :lists
 
   # Create the channel object. Since all we know when we join is the name,
   # that's all we're going to store here.
@@ -31,6 +31,7 @@ class Channel
 
     @topic, @users = "", []
     @modes, @prefix_modes = {}, {}
+    @lists = {} # bans, exempts, etc.
 
     parse_prefixes
   end
@@ -139,13 +140,21 @@ class Channel
         end
 
       elsif chanmodes[0].include? key
-        # TODO: Track lists.
+        @lists[key] ||= []
+
+        if plus
+          @lists[key] |= [param]
+        else
+          @lists[key].delete(param)
+
+          @lists.delete(key) if @lists[key].empty?
+        end
 
       else
         if plus
           @modes[key] = param
         else
-          @modes.delete(key) 
+          @modes.delete(key)
         end
       end
 
