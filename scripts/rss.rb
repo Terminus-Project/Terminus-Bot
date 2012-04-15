@@ -113,8 +113,8 @@ def check_feeds
     network = key[0]
     channel = key[1]
 
-    next unless $bot.connection.has_key? network
-    next unless $bot.connection[network].channels.has_key? channel
+    next unless $bot.connections.has_key? network
+    next unless $bot.connections[network].channels.has_key? channel
 
     val.each do |feed|
       rss = get_feed(feed[0])
