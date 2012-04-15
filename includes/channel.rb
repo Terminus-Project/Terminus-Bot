@@ -25,8 +25,8 @@ class Channel
 
   # Create the channel object. Since all we know when we join is the name,
   # that's all we're going to store here.
-  def initialize(name)
-    @name = name
+  def initialize(name, connection)
+    @name, @connection = name, connection
 
     @topic, @key, @modes, @users = "", "", [], []
   end
@@ -46,16 +46,24 @@ class Channel
     #       message from the server. This was done in the old Terminus-Bot
     #       but hasn't been ported yet.
 
-    with_params, index = [], 0
+    chanmodes = @connection.support("CHANMODES").split(',', 4)
+    # 0 = Mode that adds or removes a nick or address to a list. Always has a parameter.
+    # 1 = Mode that changes a setting and always has a parameter.
+    # 2 = Mode that changes a setting and only has a parameter when set.
+    # 3 = Mode that changes a setting and never has a parameter.
+
+    with_params = []
 
     modes[0].each_char do |mode|
 
       case mode
       when "+"
         plus = true
+        with_params << mode
 
       when "-"
         plus = false
+        with_params << mode
 
       when " "
         # This should never happen. (TODO: Remove? --Kabaka)
@@ -63,9 +71,21 @@ class Channel
 
       else
         if plus
-          @modes << mode
+
+          if chanmodes[3].include? mode
+            @modes << mode
+          else
+            with_params << mode
+          end
+
         else
-          @modes.delete(mode)
+
+          if chanmodes[3].include? mode
+            @modes.delete(mode)
+          else
+            with_params << mode
+          end
+
         end
 
       end
@@ -77,8 +97,32 @@ class Channel
         next
       end
 
-      key = with_params.shift
-      $log.debug("Channel.mode_change") { "#{key} => #{param}" }
+      key = ""
+
+      until with_params.empty?
+          
+        key = with_params.shift
+
+        if key == "+"
+          plus = true
+          key = with_params.shift
+          break
+
+        elsif key == "-"
+          plus = false
+          key = with_params.shift
+          break
+
+        end
+
+      end
+
+      if key.empty?
+        $log.warn("Channel.mode_change") { "Mode change parameter with no valid mode: #{param}" }
+        next
+      end
+
+      $log.debug("Channel.mode_change") { "#{plus ? "+" : "-"}#{key} => #{param}" }
     end
   end
 
@@ -87,7 +131,7 @@ class Channel
     @topic = str
   end
 
-  # Add a user to our channel's user list.
+# Add a user to our channel's user list.
   def join(user)
     return if @users.select {|u| u.nick == user.nick}.length > 0
 

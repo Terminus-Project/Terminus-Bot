@@ -249,7 +249,7 @@ class IRC_Connection < EventMachine::Connection
     return if msg.connection != self
 
     unless @channels.has_key? msg.raw_arr[3]
-      @channels[msg.raw_arr[3]] = Channel.new(msg.raw_arr[3])
+      @channels[msg.raw_arr[3]] = Channel.new(msg.raw_arr[3], self)
     end
 
     @channels[msg.raw_arr[3]].join(ChannelUser.new(canonize(msg.raw_arr[7]),
@@ -261,7 +261,7 @@ class IRC_Connection < EventMachine::Connection
     return if msg.connection != self
 
     unless @channels.has_key? msg.destination
-      @channels[msg.destination] = Channel.new(msg.destination)
+      @channels[msg.destination] = Channel.new(msg.destination, self)
       $bot.flags.add_channel(@name, msg.destination)
     end
 
