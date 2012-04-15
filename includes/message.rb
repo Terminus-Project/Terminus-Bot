@@ -36,7 +36,6 @@ class Message
       @nick = connection.nick
       @user = connection.user
       @host = connection.client_host
-      @nick_canon = @connection.canonize @nick
       
       @origin = "#{@nick}!#{@user}@#{@host}"
 
@@ -56,10 +55,8 @@ class Message
 
         if @origin =~ /\A([^ ]+)!([^ ]+)@([^ ]+)/
           @nick, @user, @host = $1, $2, $3
-          @nick_canon = @connection.canonize @nick
         else
           @nick, @user, @host = "", "", ""
-          @nick_canon = ""
         end
 
         # Grab the text portion, as in
@@ -70,8 +67,8 @@ class Message
         # Server PINGs. Not much else.
 
         @type = arr[0]
-        @origin = ""
-        @destination = ""
+        @origin, @destination = "", ""
+        @nick, @user, @host = "", "", ""
 
         @text = (str =~ /.+:(.+)\Z/ ? $1 : "")
       end
@@ -189,6 +186,11 @@ class Message
   # Return the message with formatting stripped.
   def stripped
     @stripped ||= strip(@text)
+  end
+
+  # Apply CASEMAPPING to the nick and return it.
+  def nick_canon
+    @nick_canon ||= @connection.canonize @nick
   end
 
   # Cheat mode for sending things to the owning connection. Useful for
