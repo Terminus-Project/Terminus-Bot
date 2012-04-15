@@ -67,9 +67,10 @@ class IRC_Connection < EventMachine::Connection
     # We queue up messages here
     @send_queue = Queue.new
 
-    EM.add_periodic_timer($bot.config['core']['throttle']) {
-      send_single_message
-    }
+    # Keep the timestamps for our last few messages for smart throttling.
+    @history = []
+
+    send_single_message
 
     # TODO: Okay to probe $bot's inner structures?
     $bot.connections[name] = self
@@ -95,12 +96,29 @@ class IRC_Connection < EventMachine::Connection
   end
 
   def send_single_message
-    return if @send_queue.empty? or @reconnecting
+    now = Time.now.to_i
 
-    msg = @send_queue.pop
-    throw "Message Too Large" if msg.length > 512
+    delay = $bot.config['core']['throttle']
 
-    send_data msg
+    unless @send_queue.empty? or @reconnecting
+      msg = @send_queue.pop
+      throw "Message Too Large" if msg.length > 512
+
+      send_data msg
+      @history << now
+      @history.shift if @history.length == 5
+
+      $log.info("irc.send_single_Message") { @history.join(", ") }
+
+      unless @history.empty?
+        if @history[0] > now - 2
+          delay = 2
+          $log.info("irc.send_single_Message") { "Outgoing flood detected. Throttling (#{delay})." }
+        end
+      end
+    end
+    
+    EM.add_timer(delay) { send_single_message }
   end
 
   # TODO: Make room for SASL.
