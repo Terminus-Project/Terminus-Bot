@@ -108,8 +108,6 @@ class IRC_Connection < EventMachine::Connection
       @history << now
       @history.shift if @history.length == 5
 
-      $log.info("irc.send_single_Message") { @history.join(", ") }
-
       unless @history.empty?
         if @history[0] > now - 2
           delay = 2
