@@ -377,7 +377,7 @@ class IRC_Connection < EventMachine::Connection
     msg.raw_arr[3...-5].each do |arg|
       key, value = arg.split('=', 2)
 
-      @isupport[key] = value
+      @isupport[key.upcase] = value
     end
 
   end
