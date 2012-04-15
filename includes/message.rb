@@ -18,7 +18,7 @@
 #
 
 class Message
-  attr_reader :origin, :destination, :type, :text, :raw, :raw_arr,
+  attr_reader :origin, :destination, :type, :text, :raw_str, :raw_arr,
     :nick, :nick_canon, :user, :host, :connection
 
   # Parse the str as an IRC message and fire appropriate events.
@@ -26,10 +26,10 @@ class Message
 
     arr = str.split
 
-    @raw, @raw_arr = str, arr
+    @raw_str, @raw_arr = str, arr
     @connection = connection
 
-    @raw.freeze
+    @raw_str.freeze
     @raw_arr.freeze
     @outgoing.freeze
 
