@@ -168,7 +168,7 @@ class IRC_Connection < EventMachine::Connection
       end
 
     rescue => e
-      $log.error("IRC.receive_line") { "#{@name}: Uncaught error in message handler thread: #{e}" }
+      $log.error("IRC.receive_line") { "#{@name}: Uncaught error in message handler: #{e}" }
       $log.error("IRC.receive_line") { "#{@name}: Backtrace: #{e.backtrace}" }
     end
 
@@ -228,7 +228,7 @@ class IRC_Connection < EventMachine::Connection
     }
   end
 
-  # Clean up the connection and kill our threads.
+  # Clean up the connection.
   def close
     @send_queue.length.times do
       send_data @send_queue.pop
