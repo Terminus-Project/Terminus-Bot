@@ -382,6 +382,9 @@ class IRC_Connection < EventMachine::Connection
 
   end
 
+  # TODO: Re-implement this as String#irccasecmp or something. Doing it this
+  # way seems really incorrect.
+  #
   # nickname canonizer, using the rule specified by CASEMAPPING
   def canonize(nick)
  
