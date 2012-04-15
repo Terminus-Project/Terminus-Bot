@@ -21,14 +21,14 @@ ChannelUser = Struct.new(:nick, :user, :host)
 
 class Channel
 
-  attr_reader :name, :topic, :modes, :key, :users
+  attr_reader :name, :topic, :modes, :users
 
   # Create the channel object. Since all we know when we join is the name,
   # that's all we're going to store here.
   def initialize(name, connection)
     @name, @connection = name, connection
 
-    @topic, @key, @modes, @users = "", "", [], []
+    @topic, @modes, @users = "", {}, []
   end
 
   # Parse mode changes for the channel. The modes are extracted elsewhere
@@ -38,15 +38,16 @@ class Channel
 
     plus = true
 
-    # TODO: Handle modes with args (bans, ops, etc.) correctly.
-    #       More data structures will be necessary to store that
-    #       data. If we're going to parse bans and such, we'll
-    #       also need to request a ban list on JOIN, and also
-    #       parse the modes that can have such lists from the 003
-    #       message from the server. This was done in the old Terminus-Bot
-    #       but hasn't been ported yet.
+    prefixes_arr = @connection.support("PREFIX", "(@+)ov")[1..-1].split(")")
+    prefixes = {}
 
-    chanmodes = @connection.support("CHANMODES").split(',', 4)
+    prefixes_arr[0].each_char.each_with_index do |c, i|
+      prefixes[c] = prefixes_arr[1][i]
+    end
+
+    $log.debug("Channel.mode_change") { prefixes.to_s }
+
+    chanmodes = @connection.support("CHANMODES", ",,,,").split(',', 4)
     # 0 = Mode that adds or removes a nick or address to a list. Always has a parameter.
     # 1 = Mode that changes a setting and always has a parameter.
     # 2 = Mode that changes a setting and only has a parameter when set.
@@ -73,14 +74,14 @@ class Channel
         if plus
 
           if chanmodes[3].include? mode
-            @modes << mode
+            @modes[mode] = ""
           else
             with_params << mode
           end
 
         else
 
-          if chanmodes[3].include? mode
+          if chanmodes[3].include? mode or chanmodes[2].include? mode
             @modes.delete(mode)
           else
             with_params << mode
@@ -100,17 +101,16 @@ class Channel
       key = ""
 
       until with_params.empty?
-          
+
         key = with_params.shift
 
         if key == "+"
           plus = true
-          key = with_params.shift
-          break
 
         elsif key == "-"
           plus = false
-          key = with_params.shift
+
+        else
           break
 
         end
@@ -123,6 +123,22 @@ class Channel
       end
 
       $log.debug("Channel.mode_change") { "#{plus ? "+" : "-"}#{key} => #{param}" }
+
+      if prefixes.has_key? key
+        # TODO: Track this crap.
+        $log.debug("Channel.mode_change") { "#{param} has been given #{plus ? "+" : "-"}#{key}" }
+
+      elsif chanmodes[0].include? key
+        # TODO: Track lists.
+
+      else
+        if plus
+          @modes[key] = param
+        else
+          @modes.delete(key) 
+        end
+      end
+
     end
   end
 
