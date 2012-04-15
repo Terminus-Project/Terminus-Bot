@@ -45,7 +45,10 @@ class Channel
     #       parse the modes that can have such lists from the 003
     #       message from the server. This was done in the old Terminus-Bot
     #       but hasn't been ported yet.
-    modes.each_char do |mode|
+
+    with_params, index = [], 0
+
+    modes[0].each_char do |mode|
 
       case mode
       when "+"
@@ -55,7 +58,8 @@ class Channel
         plus = false
 
       when " "
-        return
+        # This should never happen. (TODO: Remove? --Kabaka)
+        break
 
       else
         if plus
@@ -65,6 +69,16 @@ class Channel
         end
 
       end
+    end
+
+    modes[1..-1].each do |param|
+      if with_params.empty?
+        $log.warn("Channel.mode_change") { "Mode change parameter with no valid mode: #{param}" }
+        next
+      end
+
+      key = with_params.shift
+      $log.debug("Channel.mode_change") { "#{key} => #{param}" }
     end
   end
 

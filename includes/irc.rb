@@ -299,7 +299,7 @@ class IRC_Connection < EventMachine::Connection
 
     return unless @channels.has_key? msg.destination
 
-    @channels[msg.destination].mode_change(msg.raw_arr[3])
+    @channels[msg.destination].mode_change(msg.raw_arr[3..-1])
   end
 
   # modes sent on join
@@ -308,7 +308,7 @@ class IRC_Connection < EventMachine::Connection
 
     return unless @channels.has_key? msg.raw_arr[3]
 
-    @channels[msg.raw_arr[3]].mode_change(msg.raw_arr[4])
+    @channels[msg.raw_arr[3]].mode_change(msg.raw_arr[4..-1])
   end
 
   
