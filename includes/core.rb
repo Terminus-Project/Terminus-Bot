@@ -196,13 +196,13 @@ class Bot
 
     when :voice
       unless msg.voice?
-        msg.reply("You must be voiced to use this command.")
+        msg.reply("You must be voiced or better to use this command.")
         return
       end
 
     when :half_op
       unless msg.half_op?
-        msg.reply("You must be a half-op to use this command.")
+        msg.reply("You must be half-op or better to use this command.")
         return
       end
 
