@@ -37,7 +37,11 @@ def initialize
 end
 
 def cmd_eval(msg, params)
-  msg.reply(eval(params[0]).to_s)
+  begin
+    msg.reply(eval(params[0]).to_s)
+  rescue Exception => e
+    msg.reply(e.to_s)
+  end
 end
 
 def cmd_quit(msg, params)
