@@ -233,11 +233,8 @@ class Channel
 
   def who_modes(nick, info)
     $log.debug("Channel.who_modes") { "#{nick} => #{info}" }
-    $log.debug("Channel.who_modes") { @prefixes.to_s }
 
     info.each_char do |c|
-
-      $log.debug("Channel.who_modes") { "#{info} => #{c}" }
 
       if @prefixes.has_key? c
 
