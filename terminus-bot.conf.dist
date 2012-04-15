@@ -67,8 +67,10 @@ core = {
   # Channels in which the bot should never speak. This is useful if you want the
   # bot to log chat for a channel but not actually contribute or do anything. Note
   # that it is possible to write scripts which ignore this setting!
-  # format: server:#foo server:#bar server2:#baz
-  #silent =
+  # format: server = #channel #channel2 #channel3
+  #silent = {
+  #  freenode = #botters
+  #}
 
   # OPTIONAL
   # If your bot is running on a machine with multiple IP addresses, you should use

@@ -113,23 +113,20 @@ class Message
   # Return true if this channel is listed in the silent setting.
   def silent?
     return false if self.private?
+
     silenced = $bot.config['core']['silent']
 
     return false if silenced == nil
-
-    silenced = silenced.split(" ")
-    
     return false if silenced.empty?
 
-    silenced.each do |s|
-      s = s.split(":")
+    silenced.each_pair do |connection, channels|
+      next unless connection == @connection.name
+      next if channels.empty?
 
-      next if s.length != 2
-
-      return true if s[0] == @connection.name and s[1] == @destination
+      return true if channels.include? @destination
     end
 
-    return false
+    false
   end
 
   # Attempt to truncate messages in such a way that the maximum
