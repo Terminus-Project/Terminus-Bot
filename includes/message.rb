@@ -180,6 +180,21 @@ class Message
     not @connection.support("CHANTYPES", "#&").include? @destination.chr
   end
 
+  def op?
+    return true if private?
+    @connection.channels[@destination].op? @nick
+  end
+
+  def half_op?
+    return true if private?
+    @connection.channels[@destination].half_op? @nick
+  end
+
+  def voice?
+    return true if private?
+    @connection.channels[@destination].voice? @nick
+  end
+
   # This has to be separate from our method_missing cheat below because
   # raw is apparently an existing function. Oops! Better than overriding
   # send, though.
