@@ -142,7 +142,7 @@ def on_part(msg)
 
   # We parted, apparently. Stop logging.
   if msg.me?
-    closer_logger(msg.connection.name, msg.destination)
+    close_logger(msg.connection.name, msg.destination)
   end
 end
 
