@@ -167,7 +167,6 @@ class Bot
       next if servers.include? name
 
       connection.disconnect
-      connection.close
       @connections.delete(name)
     end
   end
@@ -259,19 +258,22 @@ class Bot
 
     @scripts.die
 
-    $log.debug("Bot.quit") { "Removing PID file #{PID_FILE}" }
-    File.delete(PID_FILE) if File.exists? PID_FILE
-
     try_exit
   end
 
   # Keep running until we've cleanly closed all connections.
   def try_exit
-    if EM.connection_count == 0
-      EM.stop_event_loop
-    else
+    $log.debug("Bot.try_exit") { "Waiting for all connections to close (#{EM.connection_count})..." }
+
+    if EM.connection_count != 0
       EM.add_timer(1) { try_exit }
+      return
     end
+    
+    EM.stop_event_loop
+
+    $log.debug("Bot.quit") { "Removing PID file #{PID_FILE}" }
+    File.delete(PID_FILE) if File.exists? PID_FILE
   end
 
   # Register a command. See the Commands struct for the args.
