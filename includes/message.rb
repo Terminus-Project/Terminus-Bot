@@ -166,7 +166,7 @@ class Message
   end
 
   def send_notice(target, str)
-    raw("NOTICE #{target} :#{truncate(str, target)}")
+    raw("NOTICE #{target} :#{truncate(str, target, true)}")
   end
 
   # Return true if this message's origin appears to be the bot.
