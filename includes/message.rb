@@ -153,11 +153,11 @@ class Message
   end
 
   def send_privmsg(target, str)
-    raw("PRIVMSG #{target} :#{str}")
+    raw("PRIVMSG #{target} :#{truncate(str, target)}")
   end
 
   def send_notice(target, str)
-    raw("NOTICE #{target} :#{str}")
+    raw("NOTICE #{target} :#{truncate(str, target)}")
   end
 
   # Return true if this message's origin appears to be the bot.
