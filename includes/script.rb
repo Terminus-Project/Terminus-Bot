@@ -70,7 +70,7 @@ class Scripts
 
     begin
       @scripts[name] = eval(script, nil, filename, 0)
-    rescue => e
+    rescue Exception => e
       $log.error("scripts.load_file") { "Problem loading script #{name}. Clearing data and aborting..." }
 
       if @scripts.has_key? name
