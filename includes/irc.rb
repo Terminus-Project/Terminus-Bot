@@ -68,13 +68,7 @@ class IRC_Connection < EventMachine::Connection
     @send_queue = Queue.new
 
     EM.add_periodic_timer($bot.config['core']['throttle']) {
-      unless @send_queue.empty? or @reconnecting
-        msg = @send_queue.pop
-
-        throw "Message Too Large" if msg.length > 512
-
-        send_data msg
-      end
+      send_single_message
     }
 
     # TODO: Okay to probe $bot's inner structures?
@@ -98,6 +92,15 @@ class IRC_Connection < EventMachine::Connection
     end
 
     register
+  end
+
+  def send_single_message
+    return if @send_queue.empty? or @reconnecting
+
+    msg = @send_queue.pop
+    throw "Message Too Large" if msg.length > 512
+
+    send_data msg
   end
 
   # TODO: Make room for SASL.
