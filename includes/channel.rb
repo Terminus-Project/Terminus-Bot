@@ -188,7 +188,7 @@ class Channel
 
   def voice?(nick)
     nick = @connection.canonize(nick)
-    return true if op? nick or halfop? nick
+    return true if op? nick or half_op? nick
 
     return false unless @prefix_modes.has_key? "v"
 
