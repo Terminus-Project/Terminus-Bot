@@ -162,6 +162,8 @@ class IRC_Connection < EventMachine::Connection
 
   # Add an unedited string to the outgoing queue for later sending.
   def raw(str)
+    return if @disconnecting
+
     str.delete! "\r\n"
 
     $log.debug("IRC.raw") { "Queued #{str}" }
