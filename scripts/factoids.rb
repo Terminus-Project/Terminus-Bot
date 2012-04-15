@@ -21,9 +21,9 @@
 def initialize
   register_script("Remember and recall short factoids.")
 
-  register_command("remember", :cmd_remember,  1,  0, "Remember the given factoid. Should be in the form: ___ is|= ___")
-  register_command("forget",   :cmd_forget,    1,  0, "Forget this factoid.")
-  register_command("factoid",  :cmd_factoid,   1,  0, "Retrieve a factoid.")
+  register_command("remember", :cmd_remember,  1,  0, nil, "Remember the given factoid. Should be in the form: ___ is|= ___")
+  register_command("forget",   :cmd_forget,    1,  0, nil, "Forget this factoid.")
+  register_command("factoid",  :cmd_factoid,   1,  0, nil, "Retrieve a factoid.")
 end
 
 def cmd_remember(msg, params)

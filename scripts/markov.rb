@@ -39,8 +39,8 @@ def initialize
 
   register_event("PRIVMSG", :on_privmsg)
 
-  register_command("markov", :cmd_markov, 1, 10, "Manage the Markov script. Parameters: ON|OFF|FREQUENCY percentage|CLEAR|LOAD filename|INFO|WRITE|NODE node|DELETE node")
-  register_command("chain",  :cmd_chain,  0,  0, "Generate a random Markov chain. Parameters: [word [word]]")
+  register_command("markov", :cmd_markov, 1, 10, nil, "Manage the Markov script. Parameters: ON|OFF|FREQUENCY percentage|CLEAR|LOAD filename|INFO|WRITE|NODE node|DELETE node")
+  register_command("chain",  :cmd_chain,  0,  0, nil, "Generate a random Markov chain. Parameters: [word [word]]")
 
   @nodes = Hash.new
 

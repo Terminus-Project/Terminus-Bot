@@ -21,7 +21,7 @@
 def initialize
   register_script("Show information about the networks to which the bot is connected.")
 
-  register_command("networks", :cmd_networks, 0,  0, "Show a list of networks to which the bot is connected.")
+  register_command("networks", :cmd_networks, 0,  0, nil, "Show a list of networks to which the bot is connected.")
 end
 
 def cmd_networks(msg, params)

@@ -22,7 +22,7 @@
 def initialize
   register_script("Get the time and date from the bot.")
 
-  register_command("time", :cmd_time,  0,  0, "Get the current time with optional time format. Parameters: [format]")
+  register_command("time", :cmd_time,  0,  0, nil, "Get the current time with optional time format. Parameters: [format]")
 end
 
 def cmd_time(msg, params)

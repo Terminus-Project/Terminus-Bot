@@ -21,7 +21,7 @@
 def initialize
   register_script("A Russian Roulette-style game of chance.")
 
-  register_command("roulette", :cmd_roulette,  0,  0, "Pull the trigger. You have a 5/6 chance of surviving.")
+  register_command("roulette", :cmd_roulette,  0,  0, nil, "Pull the trigger. You have a 5/6 chance of surviving.")
 end
 
 def cmd_roulette(msg, params)

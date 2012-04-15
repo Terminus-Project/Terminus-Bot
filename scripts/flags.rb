@@ -22,9 +22,11 @@
 def initialize
   register_script("Modify and query the script flag table.")
 
-  register_command("enable",  :cmd_enable,  3, 4, "Enable scripts in the given server and channel. Wildcards are supported. Parameters: server channel scripts")
-  register_command("disable", :cmd_disable, 3, 4, "Disable scripts in the given server and channel. Wildcards are supported. Parameters: server channel scripts")
-  register_command("flags",   :cmd_flags,   3, 0, "View flags for the given servers, channels, and scripts. Wildcards are supported. Parameters: server channel scripts")
+  # TODO: Allow channel operators to change flags for their own channels.
+
+  register_command("enable",  :cmd_enable,  3, 4, nil, "Enable scripts in the given server and channel. Wildcards are supported. Parameters: server channel scripts")
+  register_command("disable", :cmd_disable, 3, 4, nil, "Disable scripts in the given server and channel. Wildcards are supported. Parameters: server channel scripts")
+  register_command("flags",   :cmd_flags,   3, 0, nil, "View flags for the given servers, channels, and scripts. Wildcards are supported. Parameters: server channel scripts")
 end
 
 

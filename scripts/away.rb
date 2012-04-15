@@ -21,7 +21,7 @@
 def initialize
   register_script("Announce away status when away users are highlighted.")
 
-  register_command("away", :cmd_away,  1,  3, "Enable or disable away status announcements for the current channel. Parameters: ON|OFF")
+  register_command("away", :cmd_away,  1, 0, :half_op, "Enable or disable away status announcements for the current channel. Parameters: ON|OFF")
 
   register_event("PRIVMSG", :on_privmsg)
   register_event("301",     :on_away)

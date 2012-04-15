@@ -25,13 +25,13 @@ require "json"
 def initialize
   register_script("Search the Internet with Google.")
 
-  register_command("g",       :cmd_g,       1, 0, "Search for web pages using Google.")
-  register_command("gimage",  :cmd_gimage,  1, 0, "Search for images using Google.")
-  register_command("gvideo",  :cmd_gvideo,  1, 0, "Search for videos using Google.")
-  register_command("gbook",   :cmd_gbook,   1, 0, "Search books using Google.")
-  register_command("gpatent", :cmd_gpatent, 1, 0, "Search patents using Google.")
-  register_command("gblog",   :cmd_gblog,   1, 0, "Search blogs using Google.")
-  register_command("gnews",   :cmd_gnews,   1, 0, "Search news using Google.")
+  register_command("g",       :cmd_g,       1, 0, nil, "Search for web pages using Google.")
+  register_command("gimage",  :cmd_gimage,  1, 0, nil, "Search for images using Google.")
+  register_command("gvideo",  :cmd_gvideo,  1, 0, nil, "Search for videos using Google.")
+  register_command("gbook",   :cmd_gbook,   1, 0, nil, "Search books using Google.")
+  register_command("gpatent", :cmd_gpatent, 1, 0, nil, "Search patents using Google.")
+  register_command("gblog",   :cmd_gblog,   1, 0, nil, "Search blogs using Google.")
+  register_command("gnews",   :cmd_gnews,   1, 0, nil, "Search news using Google.")
 end
 
 def cmd_g(msg, params)

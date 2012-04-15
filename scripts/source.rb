@@ -21,7 +21,7 @@
 def initialize
   register_script("Provides the SOURCE command.")
 
-  register_command("source", :cmd_source, 0, 0, "Share info about the bot and its source code.")
+  register_command("source", :cmd_source, 0, 0, nil, "Share info about the bot and its source code.")
 end
 
 def cmd_source(msg, params)

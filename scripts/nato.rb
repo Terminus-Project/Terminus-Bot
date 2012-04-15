@@ -21,7 +21,7 @@
 def initialize
   register_script("Convert text to the NATO phonetic alphabet.")
 
-  register_command("nato", :cmd_nato,  1,  0, "Convert text to the NATO phonetic alphabet.")
+  register_command("nato", :cmd_nato,  1,  0, nil, "Convert text to the NATO phonetic alphabet.")
 end
 
 def cmd_nato(msg, params)

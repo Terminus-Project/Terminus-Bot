@@ -20,7 +20,7 @@
 def initialize
   register_script("Show bot uptime and usage information.")
 
-  register_command("uptime", :cmd_uptime,  0,  0, "Show how long the bot has been active.")
+  register_command("uptime", :cmd_uptime,  0,  0, nil, "Show how long the bot has been active.")
 end
 
 def cmd_uptime(msg, params)

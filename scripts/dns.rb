@@ -23,8 +23,8 @@ require 'dnsruby'
 def initialize
   register_script("Perform DNS look-ups.")
 
-  register_command("dns",  :cmd_dns,   1,  0, "Perform a DNS look-up. Parameters: [type] host_name")
-  register_command("rdns", :cmd_rdns,  1,  0, "Perform a reverse DNS look-up.")
+  register_command("dns",  :cmd_dns,   1,  0, nil, "Perform a DNS look-up. Parameters: [type] host_name")
+  register_command("rdns", :cmd_rdns,  1,  0, nil, "Perform a reverse DNS look-up.")
 end
 
 def cmd_dns(msg, params)

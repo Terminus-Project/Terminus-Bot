@@ -25,7 +25,7 @@ require 'htmlentities'
 def initialize
   register_script("Periodically check RSS and ATOM feeds and post the new items to channels.")
 
-  register_command("rss", :cmd_rss,  1,  3, "Manage the RSS/ATOM feeds for the current channel. Parameters: LIST|CHECK|CLEAR|ADD uri|DEL uri")
+  register_command("rss", :cmd_rss,  1,  0, :half_op, "Manage the RSS/ATOM feeds for the current channel. Parameters: LIST|CHECK|CLEAR|ADD uri|DEL uri")
 
   EM.add_periodic_timer(1800) { check_feeds }
 end

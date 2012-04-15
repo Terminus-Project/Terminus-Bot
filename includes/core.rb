@@ -26,7 +26,7 @@ class Bot
   attr_accessor :connections, :lines_out, :lines_in, :bytes_out, :bytes_in, :ignores
   attr_reader :config, :events, :database, :commands, :script_info, :scripts, :flags
 
-  Command = Struct.new(:owner, :cmd, :func, :argc, :level, :help)
+  Command = Struct.new(:owner, :cmd, :func, :argc, :level, :chan_level, :help)
   Script_Info = Struct.new(:name, :description)
 
   # This starts the whole thing.
@@ -192,6 +192,29 @@ class Bot
       return
     end
 
+
+    case command.chan_level
+
+    when :voice
+      unless msg.voice?
+        msg.reply("You must be voiced to use this command.")
+        return
+      end
+
+    when :half_op
+      unless msg.half_op?
+        msg.reply("You must be a half-op to use this command.")
+        return
+      end
+
+    when :op
+      unless msg.op?
+        msg.reply("You must be a channel op to use this command.")
+        return
+      end
+
+    end
+
     # Split command parameters. If the command requires no parameters, put
     # everything in params[0].
     params = $3.strip.split(" ", command.argc.zero? ? 1 : command.argc)
@@ -252,12 +275,12 @@ class Bot
   end
 
   # Register a command. See the Commands struct for the args.
-  def register_command(owner, cmd, func, argc, level, help)
+  def register_command(owner, cmd, func, argc, level, chan_level, help)
     $log.debug("Bot.register_command") { "Registering command." }
 
     throw "Duplicate command registration: #{cmd}" if @commands.has_key? cmd
 
-    @commands[cmd] = Command.new(owner, cmd, func, argc, level, help)
+    @commands[cmd] = Command.new(owner, cmd, func, argc, level, chan_level, help)
   end
 
   # Register a script. See the Script_Info struct for args.

@@ -20,10 +20,10 @@
 def initialize
   register_script("Network utility script, including ping and other tools.")
 
-  register_command("icmp",   :cmd_icmp,  1,  0, "Check if the given host is up and answering pings.")
-  register_command("mtr",    :cmd_mtr,   1,  0, "Show data about the route to the given host.")
-  register_command("icmp6",  :cmd_icmp6, 1,  0, "Check if the given IPv6 host is up and answering pings.")
-  register_command("mtr6",   :cmd_mtr6,  1,  0, "Show data about the route to the given IPv6 host.")
+  register_command("icmp",   :cmd_icmp,  1,  0, nil, "Check if the given host is up and answering pings.")
+  register_command("mtr",    :cmd_mtr,   1,  0, nil, "Show data about the route to the given host.")
+  register_command("icmp6",  :cmd_icmp6, 1,  0, nil, "Check if the given IPv6 host is up and answering pings.")
+  register_command("mtr6",   :cmd_mtr6,  1,  0, nil, "Show data about the route to the given IPv6 host.")
 end
 
 def cmd_icmp(msg, params)

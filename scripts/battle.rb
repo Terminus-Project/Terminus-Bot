@@ -21,9 +21,9 @@
 def initialize
   register_script("IRC role-play battle tracker.")
 
-  register_command("battle", :cmd_battle, 1, 0, "Start, stop, or reset the battle in the current channel. Parameters: START|STOP|RESTART")
-  register_command("health", :cmd_health, 0, 0, "View the health of all active players in this channel.")
-  register_command("heal",   :cmd_heal,   1, 2, "Heal players to maximum health. If no nick is given, all players are reset. Parameters: nick")
+  register_command("battle", :cmd_battle, 1, 0, :half_op, "Start, stop, or reset the battle in the current channel. Parameters: START|STOP|RESTART")
+  register_command("health", :cmd_health, 0, 0, nil,      "View the health of all active players in this channel.")
+  register_command("heal",   :cmd_heal,   1, 0, :half_op, "Heal players to maximum health. If no nick is given, all players are reset. Parameters: nick")
 
   register_event("PRIVMSG", :on_privmsg)
   

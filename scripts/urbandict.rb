@@ -26,7 +26,7 @@ require "htmlentities"
 
 def initialize
   register_script("Look up words on UrbanDictionary.com.")
-  register_command("ud",       :cmd_lookup,   0,  0, "Fetch the definition of a word from UrbanDictionary.com. If no parameter is given, fetch a random definition.")
+  register_command("ud",       :cmd_lookup,   0,  0, nil, "Fetch the definition of a word from UrbanDictionary.com. If no parameter is given, fetch a random definition.")
 
   @baseURL = "https://www.urbandictionary.com/define.php?term="
 end

@@ -26,8 +26,8 @@ def initialize
   register_event("KICK",    :on_kick)
   register_event("QUIT",    :on_quit)
 
-  register_command("relay",  :cmd_relay,  5,  7, "Manage channel relays. Parameters: ON|OFF source-network source-channel target-network target-channel")
-  register_command("relays", :cmd_relays, 0,  7, "List active channel relays.")
+  register_command("relay",  :cmd_relay,  5,  7, nil, "Manage channel relays. Parameters: ON|OFF source-network source-channel target-network target-channel")
+  register_command("relays", :cmd_relays, 0,  7, nil, "List active channel relays.")
 
   @relays = get_data("relays", Array.new)
 end

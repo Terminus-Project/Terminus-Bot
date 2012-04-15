@@ -26,9 +26,9 @@ require 'htmlentities'
 def initialize
   register_script("Weather information look-ups via Weather Underground (wunderground.com).")
 
-  register_command("weather",   :weather,  1,  0, "View current conditions for the specified location.")
-  register_command("temp",      :temp,     1,  0, "View current temperature for the specified location.")
-  register_command("forecast",  :forecast, 1,  0, "View a short-term forecast for the specified location.")
+  register_command("weather",   :weather,  1,  0, nil, "View current conditions for the specified location.")
+  register_command("temp",      :temp,     1,  0, nil, "View current temperature for the specified location.")
+  register_command("forecast",  :forecast, 1,  0, nil, "View a short-term forecast for the specified location.")
 end
 
 def weather(msg, params)

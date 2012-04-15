@@ -21,8 +21,8 @@
 def initialize
   register_script("Provides SAY and ACT commands for making the bot speak in channel.")
 
-  register_command("say", :say,  1,  8, "Speak the given text.")
-  register_command("act", :act,  1,  8, "Act the given text (CTCP ACTION).")
+  register_command("say", :say,  1,  8, nil, "Speak the given text.")
+  register_command("act", :act,  1,  8, nil, "Act the given text (CTCP ACTION).")
 end
 
 def say(msg, params)

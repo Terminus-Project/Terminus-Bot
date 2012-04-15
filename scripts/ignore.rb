@@ -21,9 +21,9 @@
 def initialize
   register_script("Manipulate the bot's hostmask-based ignore list.")
 
-  register_command("ignores",  :cmd_ignores,  0,  4, "List all active ignores.")
-  register_command("ignore",   :cmd_ignore,   1,  4, "Ignore the given hostmask.")
-  register_command("unignore", :cmd_unignore, 1,  4, "Remove the given ignore.")
+  register_command("ignores",  :cmd_ignores,  0,  4, nil, "List all active ignores.")
+  register_command("ignore",   :cmd_ignore,   1,  4, nil, "Ignore the given hostmask.")
+  register_command("unignore", :cmd_unignore, 1,  4, nil, "Remove the given ignore.")
 end
 
 def cmd_ignores(msg, params)

@@ -21,9 +21,9 @@
 def initialize
   register_script("Provides several game commands.")
 
-  register_command("dice",        :cmd_dice,       1,  0, "Roll dice. Parameters: <count>d<sides>[+/-<modifier>]")
-  register_command("eightball",   :cmd_eightball,  0,  0, "Shake the 8-ball.")
-  register_command("coin",        :cmd_coin,       0,  0, "Flip a coin.")
+  register_command("dice",        :cmd_dice,       1,  0, nil, "Roll dice. Parameters: <count>d<sides>[+/-<modifier>]")
+  register_command("eightball",   :cmd_eightball,  0,  0, nil, "Shake the 8-ball.")
+  register_command("coin",        :cmd_coin,       0,  0, nil, "Flip a coin.")
 end
 
 def cmd_dice(msg, params)

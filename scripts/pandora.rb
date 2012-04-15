@@ -26,10 +26,12 @@ require "htmlentities"
 
 PANDORA_URL = "http://www.pandorabots.com/pandora/talk-xml"
 
+# TODO: Use config keys that aren't concatenated strings. :|
+
 def initialize
   register_script("Provides an interface to Pandorabots.")
 
-  register_command("pandora", :pandora, 1, 5, "Enable or disable Pandorabot interaction. Parameters: ON or OFF.")
+  register_command("pandora", :pandora, 1, 0, :half_op, "Enable or disable Pandorabot interaction. Parameters: ON or OFF.")
 
   register_event("PRIVMSG", :on_message)
 end
