@@ -29,7 +29,7 @@ require 'eventmachine'
 
 Dir.chdir(File.dirname(__FILE__))
 
-VERSION = "Terminus-Bot v0.5"
+VERSION = "Terminus-Bot v0.6"
 PID_FILE = "var/terminus-bot.pid"
 
 puts VERSION
