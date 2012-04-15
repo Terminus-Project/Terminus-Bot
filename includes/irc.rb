@@ -68,7 +68,7 @@ class IRC_Connection < EventMachine::Connection
     @send_queue = Queue.new
 
     EM.add_periodic_timer($bot.config['core']['throttle']) {
-      unless @send_queue.empty?
+      unless @send_queue.empty? or @reconnecting
         msg = @send_queue.pop
 
         throw "Message Too Large" if msg.length > 512
