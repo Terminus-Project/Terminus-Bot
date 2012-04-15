@@ -265,6 +265,10 @@ class Bot
   def try_exit
     $log.debug("Bot.try_exit") { "Waiting for all connections to close (#{EM.connection_count})..." }
 
+    # TODO: This shit doesn't work. The bot never exits gracefully because
+    # close_connection_after_writing gets called after the event loop is
+    # stopped. Somehow. !?!?!?!
+
     if EM.connection_count != 0
       EM.add_timer(1) { try_exit }
       return
