@@ -200,7 +200,7 @@ class IRC_Connection < EventMachine::Connection
   # is up to other things; this just adds the QUIT to the queue and
   # returns.
   def disconnect(quit_message = "Terminus-Bot: Terminating")
-    raw "QUIT :" + quit_message
+    raw "QUIT :#{quit_message}"
 
     @disconnecting = true
 
