@@ -403,9 +403,11 @@ class IRC_Connection < EventMachine::Connection
 
   # retrieve ISUPPORT values or default to a value we don't have
   def support(param, default = nil)
-    return default unless @isupport.has_key? param.upcase
+    param.upcase!
+
+    return default unless @isupport.has_key? param
     
-    @isupport[param.upcase]
+    @isupport[param]
   end
 
   def to_s
