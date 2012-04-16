@@ -104,20 +104,29 @@ class IRC_Connection < EventMachine::Connection
 
     delay = $bot.config['core']['throttle']
 
-    unless @send_queue.empty? or @reconnecting
-      msg = @send_queue.pop
-      throw "Message Too Large" if msg.length > 512
+    begin
+      unless @send_queue.empty? or @reconnecting
+        msg = @send_queue.pop
 
-      send_data msg
-      @history << now
-      @history.shift if @history.length == 5
+        if msg.length > 512
+          $log.error("IRC.send_single_message") { "Large message not sent: #{msg}" }
+          EM.add_timer(delay) { send_single_message }
+          return
+        end
 
-      unless @history.empty?
-        if @history[0] > now - 2
-          delay = 2
-          $log.info("irc.send_single_Message") { "Outgoing flood detected. Throttling (#{delay})." }
+        send_data msg
+        @history << now
+        @history.shift if @history.length == 5
+
+        unless @history.empty?
+          if @history[0] > now - 2
+            delay = 2
+            $log.info("irc.send_single_essage") { "Outgoing flood detected. Throttling (#{delay})." }
+          end
         end
       end
+    rescue Exception => e
+      $log.error("IRC.send_single_message") { e }
     end
     
     EM.add_timer(delay) { send_single_message }
@@ -225,6 +234,7 @@ class IRC_Connection < EventMachine::Connection
 
     EM.add_timer(5) {
       @disconnecting = false
+      @reconnecting = false
       super(@conf["address"], @conf["port"])
       register
     }
