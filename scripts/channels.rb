@@ -27,7 +27,7 @@ def initialize
 
   register_event("001",   :join_channels)
   register_event("JOIN",  :on_join)
-  register_event("PING",  :leave_channels)
+  #register_event("PING",  :leave_channels)
   register_event("PING",  :join_channels)
 
   # TODO: All channel names in here need to use proper casemapping.
