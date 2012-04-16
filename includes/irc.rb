@@ -87,6 +87,8 @@ class IRC_Connection < EventMachine::Connection
     @channels = Hash.new
     @registered = false
 
+    @disconnecting, @reconnecting = false, false
+
     @client_host = (bind == nil ? "" : bind)
 
     if @conf["ssl"]
