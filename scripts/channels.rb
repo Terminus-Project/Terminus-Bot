@@ -41,7 +41,7 @@ def join_channels(msg)
   # TODO: Don't join channels we are already in!
   channels.each_pair do |channel, key|
     chans << channel
-    keys << key
+    keys << key.empty? ? "x" : key
 
     # TODO: determine a sane maximum for this
     if chans.length == 4
