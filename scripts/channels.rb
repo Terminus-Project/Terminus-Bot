@@ -32,21 +32,41 @@ def initialize
 
   data = get_all_data
 
+  # TODO: All channel names in here need to use proper casemapping.
+
   # Code to convert old channel database entries to the new style.
+  # Uh, twice, because I am a retard. --Kabaka
   # TODO: Remove this at some point.
 
   return if data.empty?
 
-  return if data[0].is_a? Array
+  if not data[0].is_a? Array
 
-  data.each_pair do |server, channels|
-    new_channels = []
+    data.each_pair do |server, channels|
+      new_channels = []
 
-    channels.each do |channel|
-      new_channels << [channel, ""]
+      channels.each do |channel|
+        new_channels << [channel, ""]
+      end
+
+      store_data(server, new_channels)
     end
 
-    store_data(server, new_channels)
+    data = get_all_data
+  end
+
+  if data[0].is_a? Array
+
+    data.each_pair do |server, channels|
+      new_channels = []
+
+      channels.each do |channel|
+        new_channels[channel[0]] = channels[1]
+      end
+
+      store_data(server, new_channels)
+    end
+
   end
 
 
@@ -55,14 +75,12 @@ end
 
 def join_channels(msg)
   chans, keys = [], []
-  channels = get_data(msg.connection.name, Array.new)
-
-  channels.uniq!
+  channels = get_data(msg.connection.name, Hash.new)
 
   # TODO: Don't join channels we are already in!
-  channels.each do |channel|
-    chans << channel[0]
-    keys << channel[1]
+  channels.each_pair do |channel, key|
+    chans << channel
+    keys << key
 
     # TODO: determine a sane maximum for this
     if chans.length == 4
@@ -85,10 +103,10 @@ def on_join(msg)
   # Are we the ones joining?
   return unless msg.me?
 
-  channels = get_data(msg.connection.name, Array.new)
+  channels = get_data(msg.connection.name, Hash.new)
 
   # Are we configured to be in this channel?
-  return unless (channels.select {|c| c[0] == msg.destination.downcase }).empty?
+  return unless channels.has_key? msg.destination.downcase
  
   $log.debug("channels.on_join") { "Parting channel #{msg.destination} since we are not configured to be in it." }
 
@@ -97,10 +115,10 @@ def on_join(msg)
 end
 
 def leave_channels(msg)
-  channels = get_data(msg.connection.name, Array.new)
+  channels = get_data(msg.connection.name, Hash.new)
 
   msg.channels.each_key do |chan|
-    next if (channels.select {|c| c[0] == msg.destination.downcase }).empty?
+    next unless channels.has_key? chan
 
     msg.raw("PART #{chan} :I am not configured to be in this channel.") 
   end
@@ -112,35 +130,37 @@ def cmd_joinchans(msg, params)
 end
 
 def cmd_join(msg, params)
-  name = params[0].downcase
+  arr = params[0].split(/\s+/, 2)
+
+  name = arr[0].downcase
+  key = arr.length == 2 ? arr[1] : ""
 
   unless name.start_with? "#" or name.start_with? "&"
     msg.reply("That does not look like a channel name.")
     return
   end
 
-  channels = get_data(msg.connection.name, Array.new)
+  channels = get_data(msg.connection.name, Hash.new)
 
-  channels << [name, "x"] if (channels.select {|c| c[0] == msg.destination.downcase }).empty?
+  channels[name] = key
   store_data(msg.connection.name, channels)
 
-  msg.raw("JOIN #{name}")
+  msg.raw("JOIN #{name} #{key}")
   msg.reply("I have joined #{name}")
 end
 
 def cmd_part(msg, params)
   name = params[0].downcase
-  channels = get_data(msg.connection.name, Array.new)
+  channels = get_data(msg.connection.name, Hash.new)
 
-  results = channels.select {|c| c[0] == name }
-
-  if results.empty?
+  unless channels.has_key? name
     msg.reply("I am not configured to join that channel, but I'll dispatch a PART for it just in case.")
     msg.raw("PART #{name} :Leaving channel at request of #{msg.nick}")
     return
   end
 
-  channels.delete(results[0])
+  results = channels[name]
+  channels.delete(name)
 
   store_data(msg.connection.name, channels)
 
@@ -149,6 +169,10 @@ def cmd_part(msg, params)
 end
 
 def cmd_cycle(msg, params)
+  channels = get_data(msg.connection.name, Hash.new)
+
+  return unless channels.has_key? params[0].downcase
+  
   msg.raw("PART #{params[0]} :Be right back!")
   msg.raw("JOIN #{params[0]}")
 end
