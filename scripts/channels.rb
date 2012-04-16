@@ -30,46 +30,7 @@ def initialize
   register_event("PING",  :leave_channels)
   register_event("PING",  :join_channels)
 
-  data = get_all_data
-
   # TODO: All channel names in here need to use proper casemapping.
-
-  # Code to convert old channel database entries to the new style.
-  # Uh, twice, because I am a retard. --Kabaka
-  # TODO: Remove this at some point.
-
-  return if data.empty?
-
-  if not data[0].is_a? Array
-
-    data.each_pair do |server, channels|
-      new_channels = []
-
-      channels.each do |channel|
-        new_channels << [channel, ""]
-      end
-
-      store_data(server, new_channels)
-    end
-
-    data = get_all_data
-  end
-
-  if data[0].is_a? Array
-
-    data.each_pair do |server, channels|
-      new_channels = []
-
-      channels.each do |channel|
-        new_channels[channel[0]] = channels[1]
-      end
-
-      store_data(server, new_channels)
-    end
-
-  end
-
-
   # TODO: Handle 405?
 end
 
@@ -106,7 +67,7 @@ def on_join(msg)
   channels = get_data(msg.connection.name, Hash.new)
 
   # Are we configured to be in this channel?
-  return unless channels.has_key? msg.destination.downcase
+  return if channels.has_key? msg.destination.downcase
  
   $log.debug("channels.on_join") { "Parting channel #{msg.destination} since we are not configured to be in it." }
 
@@ -118,7 +79,7 @@ def leave_channels(msg)
   channels = get_data(msg.connection.name, Hash.new)
 
   msg.channels.each_key do |chan|
-    next unless channels.has_key? chan
+    next if channels.has_key? chan
 
     msg.raw("PART #{chan} :I am not configured to be in this channel.") 
   end
