@@ -73,7 +73,7 @@ def getResult(query, type)
   http      = Net::HTTP.new(uri.host, uri.port)
   request   = Net::HTTP::Get.new(uri.request_uri)
 
-  request.initialize_http_header({"User-Agent" => get_config("useragent", "sinsira.net")})
+  request.initialize_http_header({"User-Agent" => get_config("useragent", "terminus-bot.net")})
   http.use_ssl = true
 
   response  = http.request(request)
