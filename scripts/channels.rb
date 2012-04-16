@@ -17,40 +17,62 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 
-
 def initialize
   register_script("Manage the list of channels the bot occupies.")
 
   register_command("joinchans", :cmd_joinchans, 0,  10, nil, "Force the join channels event.")
-  register_command("join", :cmd_join, 1,  5, nil, "Join a channel.")
-  register_command("part", :cmd_part, 1,  5, nil, "Part a channel.")
+  register_command("join",      :cmd_join,      1,  5,  nil, "Join a channel with optional key.")
+  register_command("part",      :cmd_part,      1,  5,  nil, "Part a channel.")
+  register_command("cycle",     :cmd_cycle,     1,  5,  nil, "Part and then join a channel.")
 
   register_event("001",   :join_channels)
   register_event("JOIN",  :on_join)
   register_event("PING",  :leave_channels)
   register_event("PING",  :join_channels)
 
+  data = get_all_data
+
+  # Code to convert old channel database entries to the new style.
+  # TODO: Remove this at some point.
+
+  return if data.empty?
+
+  return if data[0].is_a? Array
+
+  data.each_pair do |server, channels|
+    new_channels = []
+
+    channels.each do |channel|
+      new_channels << [channel, ""]
+    end
+
+    store_data(server, new_channels)
+  end
+
+
   # TODO: Handle 405?
 end
 
 def join_channels(msg)
-  buf = Array.new
+  chans, keys = [], []
   channels = get_data(msg.connection.name, Array.new)
 
   channels.uniq!
 
   # TODO: Don't join channels we are already in!
   channels.each do |channel|
-    buf << channel
+    chans << channel[0]
+    keys << channel[1]
 
     # TODO: determine a sane maximum for this
-    if buf.length == 4
-      msg.raw("JOIN #{buf.join(",")}")
-      buf.clear
+    if chans.length == 4
+      msg.raw("JOIN #{chans.join(",")} #{keys.join(",")}")
+      chans.clear
+      keys.clear
     end
   end
 
-  msg.raw("JOIN #{buf.join(",")}") unless buf.empty?
+  msg.raw("JOIN #{chans.join(",")} #{keys.join(",")}") unless chans.empty?
 
   # Just in case uniq! got rid of dupes
   store_data(msg.connection.name, channels)
@@ -66,7 +88,7 @@ def on_join(msg)
   channels = get_data(msg.connection.name, Array.new)
 
   # Are we configured to be in this channel?
-  return if channels.include? msg.destination.downcase
+  return unless (channels.select {|c| c[0] == msg.destination.downcase }).empty?
  
   $log.debug("channels.on_join") { "Parting channel #{msg.destination} since we are not configured to be in it." }
 
@@ -78,8 +100,8 @@ def leave_channels(msg)
   channels = get_data(msg.connection.name, Array.new)
 
   msg.channels.each_key do |chan|
-    next if channels.include? chan.downcase
-    
+    next if (channels.select {|c| c[0] == msg.destination.downcase }).empty?
+
     msg.raw("PART #{chan} :I am not configured to be in this channel.") 
   end
 end
@@ -99,7 +121,7 @@ def cmd_join(msg, params)
 
   channels = get_data(msg.connection.name, Array.new)
 
-  channels << name unless channels.include? name
+  channels << [name, "x"] if (channels.select {|c| c[0] == msg.destination.downcase }).empty?
   store_data(msg.connection.name, channels)
 
   msg.raw("JOIN #{name}")
@@ -110,15 +132,23 @@ def cmd_part(msg, params)
   name = params[0].downcase
   channels = get_data(msg.connection.name, Array.new)
 
-  unless channels.include? name
+  results = channels.select {|c| c[0] == name }
+
+  if results.empty?
     msg.reply("I am not configured to join that channel, but I'll dispatch a PART for it just in case.")
     msg.raw("PART #{name} :Leaving channel at request of #{msg.nick}")
     return
   end
 
-  channels.delete(name)
+  channels.delete(results[0])
+
   store_data(msg.connection.name, channels)
 
   msg.raw("PART #{name} :Leaving channel at request of #{msg.nick}")
   msg.reply("I have left #{name}")
+end
+
+def cmd_cycle(msg, params)
+  msg.raw("PART #{params[0]} :Be right back!")
+  msg.raw("JOIN #{params[0]}")
 end
