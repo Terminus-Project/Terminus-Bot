@@ -38,8 +38,9 @@ def join_channels(msg)
   chans, keys = [], []
   channels = get_data(msg.connection.name, Hash.new)
 
-  # TODO: Don't join channels we are already in!
   channels.each_pair do |channel, key|
+    next if msg.connection.channels.has_key? channel
+
     chans << channel
     keys << key.empty? ? "x" : key
 
