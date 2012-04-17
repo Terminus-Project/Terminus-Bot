@@ -391,7 +391,7 @@ class IRC_Connection < EventMachine::Connection
   end
 
   def sasl_timeout
-    return if msg.connection != self
+    return if msg.connection != self or not @sasl_pending
 
     @sasl_pending = false
     $log.warn("IRC.sasl_timeout") { "SASL authentication timed out on #{@name}." }
