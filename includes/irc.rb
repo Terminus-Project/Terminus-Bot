@@ -285,6 +285,7 @@ class IRC_Connection < EventMachine::Connection
   def on_cap_ls(msg)
     req = []
 
+    # TODO: This thing (and the one in on_cap_ack) is insane. Fix it in Message.
     msg.raw_arr[4..-1].join(" ")[1..-1].split.each do |cap|
       cap.downcase!
 
