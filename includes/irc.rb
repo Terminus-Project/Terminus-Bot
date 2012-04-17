@@ -511,6 +511,7 @@ class IRC_Connection < EventMachine::Connection
   end
 
   def on_isupport(msg)
+    return if msg.connection != self
 
     # Limit iteration to everything between the nick and ":are supported
     # by this server"
