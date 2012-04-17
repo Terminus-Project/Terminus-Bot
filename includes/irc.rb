@@ -77,6 +77,7 @@ class IRC_Connection < EventMachine::Connection
 
     @isupport = Hash.new
     @caps = []
+    @sasl_pending = false
 
     @registered, @reconnecting = false, false
 
@@ -312,11 +313,11 @@ class IRC_Connection < EventMachine::Connection
   end
 
   def on_cap_ack(msg)
-    sasl_pending = false
+    @sasl_pending = false
 
     msg.raw_arr[4..-1].join(" ")[1..-1].downcase.split.each do |cap|
 
-      sasl_pending = begin_sasl if cap == "sasl"
+      @sasl_pending = begin_sasl if cap == "sasl"
 
       $log.info("IRC.on_cap_ack") { "Enabled CAP #{cap}" }
 
@@ -324,7 +325,13 @@ class IRC_Connection < EventMachine::Connection
 
     end
 
-    raw "CAP END" unless sasl_pending
+    unless @sasl_pending
+      raw "CAP END"
+    else
+      timeout = @conf.has_key?("sasl_timeout") ? @conf["sasl_timeout"] : 15
+      EM.timer_add(timeout) { sasl_timeout if @sasl_pending }
+    end
+
   end
 
   def begin_sasl
@@ -338,7 +345,7 @@ class IRC_Connection < EventMachine::Connection
   end
 
   def on_authenticate(msg)
-    return if msg.connection != self
+    return if msg.connection != self or not @sasl_pending
 
     if msg.raw_arr[1] == "+"
 
@@ -359,21 +366,36 @@ class IRC_Connection < EventMachine::Connection
   def on_sasl_fail(msg)
     return if msg.connection != self
 
-    $log.error("IRC.on_sasl_fail") { "SASL authentication failed (#{msg.raw_str})." }
+    @sasl_pending = false
+    $log.error("IRC.on_sasl_fail") { "SASL authentication failed on #{@name} (#{msg.raw_str})." }
+
     raw "CAP END"
   end
 
   def on_sasl_success(msg)
     return if msg.connection != self
 
-    $log.error("IRC.on_sasl_success") { "SASL authentication completed." }
+    @sasl_pending = false
+    $log.error("IRC.on_sasl_success") { "SASL authentication completed on #{@name}." }
+
     raw "CAP END"
   end
 
   def on_sasl_abort(msg)
     return if msg.connection != self
 
-    $log.warn("IRC.on_sasl_abort") { "SASL authentication aborted (#{msg.raw_str})." }
+    @sasl_pending = false
+    $log.warn("IRC.on_sasl_abort") { "SASL authentication aborted on #{@name} (#{msg.raw_str})." }
+
+    raw "CAP END"
+  end
+
+  def sasl_timeout
+    return if msg.connection != self
+
+    @sasl_pending = false
+    $log.warn("IRC.sasl_timeout") { "SASL authentication timed out on #{@name}." }
+
     raw "CAP END"
   end
 

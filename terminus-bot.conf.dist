@@ -155,6 +155,8 @@ servers = {
   #   ssl             (boolean)
   #   sasl_username   (string)
   #   sasl_password   (string)
+  #   sasl_mechanism  (string: auto, plain, or dh-blowfish)
+  #   sasl_timeout    (number)
   #
   # Note: At the moment, only SASL PLAIN is supported.
   #
