@@ -17,7 +17,7 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 
-ChannelUser = Struct.new(:nick, :user, :host)
+ChannelUser = Struct.new(:nick, :user, :host, :modes)
 
 class Channel
 
@@ -29,14 +29,14 @@ class Channel
     @name, @connection = name, connection
     @name.freeze
 
-    @topic, @users = "", []
-    @modes, @prefix_modes = {}, {}
+    @topic, @users = "", {}
+    @modes = {}
     @lists = {} # bans, exempts, etc.
 
     parse_prefixes
   end
 
-  # TODO: Move to IRC_Connection?
+  # TODO: Move to IRC_Connection.
   def parse_prefixes
     prefixes_arr = @connection.support("PREFIX", "(ov)@+")[1..-1].split(")")
 
@@ -44,8 +44,6 @@ class Channel
 
     prefixes_arr[0].each_char.each_with_index do |c, i|
       @prefixes[prefixes_arr[1][i]] = c
-
-      @prefix_modes[c] ||= []
     end
   end
 
@@ -128,13 +126,15 @@ class Channel
 
       $log.debug("Channel.mode_change") { "#{plus ? "+" : "-"}#{key} => #{param}" }
 
-      if @prefix_modes.has_key? key
-        param = @connection.canonize param
+      if @prefixes.has_value? key
+        param = @connection.canonize(param)
 
         if plus
-          @prefix_modes[key] |= [param]
+          $log.debug("Channel.mode_change") { "Adding #{key} to #{param}" }
+          @users[param].modes |= [key]
         else
-          @prefix_modes[key].delete(param)
+          $log.debug("Channel.mode_change") { "Removing #{key} from #{param}" }
+          @users[param].modes.delete(key)
 
           who = true
         end
@@ -165,22 +165,25 @@ class Channel
 
   def op?(nick)
     nick = @connection.canonize(nick)
-    if @prefix_modes.has_key? "q"
-      return true if @prefix_modes["q"].include? nick
+
+    return false unless @users.has_key? nick
+
+    if @prefixes.has_value? "q"
+      return true if @users[nick].modes.include? "q"
     end
 
-    if @prefix_modes.has_key? "a"
-      return true if @prefix_modes["a"].include? nick
+    if @prefixes.has_value? "a"
+      return true if @users[nick].modes.include? "a"
     end
 
-    if @prefix_modes.has_key? "o"
-      return true if @prefix_modes["o"].include? nick
+    if @prefixes.has_value? "o"
+      return true if @users[nick].modes.include? "o"
     end
 
     # This is here for one IRCD that supports it. It shouldn't conflict with
     # anything else though.
-    if @prefix_modes.has_key? "y"
-      return true if @prefix_modes["y"].include? nick
+    if @prefixes.has_value? "y"
+      return true if @users[nick].modes.include? "y"
     end
 
     false
@@ -188,20 +191,26 @@ class Channel
 
   def half_op?(nick)
     nick = @connection.canonize(nick)
+
+    return false unless @users.has_key? nick
+
     return true if op? nick
 
-    return false unless @prefix_modes.has_key? "h"
+    return false unless @users[nick].modes.include? "h"
 
-    @prefix_modes["h"].include? nick
+    true
   end
 
   def voice?(nick)
     nick = @connection.canonize(nick)
+
+    return false unless @users.has_key? nick
+
     return true if op? nick or half_op? nick
 
-    return false unless @prefix_modes.has_key? "v"
+    return false unless @users[nick].modes.include? "v"
 
-    @prefix_modes["v"].include? nick
+    true
   end
 
   # Store the topic.
@@ -211,35 +220,40 @@ class Channel
 
   # Add a user to our channel's user list.
   def join(user)
-    return if @users.select {|u| u.nick == user.nick}.length > 0
-
     $log.debug("Channel.join") { "#{user.nick} joined #{@name}" }
-    @users << user
+
+    @users[@connection.canonize(user.nick)] = user
   end
 
   # Remove a user from our channel's user list.
   def part(nick)
     $log.debug("Channel.part") { "#{nick} parted #{@name}" }
-    @users.delete_if {|u| u.nick == nick}
+
+    @users.delete(@connection.canonize(nick))
   end
 
   # Retrieve the channel user object for the named user, or return nil
   # if none exists.
   def get_user(nick)
-    results = @users.select {|u| u.nick == nick}
+    nick = @connection.canonize(nick)
 
-    return results.empty? ? nil : results[0]
+    @users.has_key?(nick) ? @users[nick] : nil
   end
 
   def who_modes(nick, info)
     $log.debug("Channel.who_modes") { "#{nick} => #{info}" }
+
+    nick = @connection.canonize(nick)
 
     info.each_char do |c|
 
       if @prefixes.has_key? c
 
         $log.debug("Channel.who_modes") { "#{c} => #{@prefixes[c]}" }
-        @prefix_modes[@prefixes[c]] |= [@connection.canonize(nick)]
+        
+        next unless @users.has_key? nick
+
+        @users[nick].modes |= [@prefixes[c]]
 
       end
 
