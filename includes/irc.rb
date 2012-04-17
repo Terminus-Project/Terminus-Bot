@@ -23,7 +23,7 @@ class IRC_Connection < EventMachine::Connection
   require 'timeout'
 
   attr_reader :name, :channels, :conf, :bind,
-   :users, :client_host, :nick, :user, :realname
+   :users, :client_host, :nick, :user, :realname, :caps
 
   # Create a new connection, then kick things off.
   def initialize(name, conf, bind = nil, nick = "Terminus-Bot",
@@ -65,6 +65,7 @@ class IRC_Connection < EventMachine::Connection
     @conf = conf
 
     @isupport = Hash.new
+    @caps, @pending_caps = [], []
 
     @registered, @reconnecting = false, false
 
@@ -120,7 +121,7 @@ class IRC_Connection < EventMachine::Connection
         @history << now
         @history.shift if @history.length == 5
 
-        unless @history.empty?
+        if @registered and not @history.empty?
           if @history[0] > now - 2
             delay = 2
             $log.info("irc.send_single_essage") { "Outgoing flood detected. Throttling (#{delay})." }
@@ -136,8 +137,8 @@ class IRC_Connection < EventMachine::Connection
 
   def register
     raw "PASS #{@conf["password"]}" if @conf.has_key? "password"
-
     raw "CAP LS"
+
     raw "NICK #{@nick}"
     raw "USER #{@user} 0 0 :#{@realname}"
   end
@@ -251,26 +252,60 @@ class IRC_Connection < EventMachine::Connection
     close_connection_after_writing
   end
 
+
+  # CAP stuff
+
   # CAP LS reply
   def on_cap(msg)
+    return if msg.connection != self
+
     $log.debug("IRC.on_cap") { msg.raw_str }
 
-    msg.text.split.each do |cap|
-      case cap.downcase
+    case msg.raw_arr[3]
+
+    when "LS"
+      on_cap_ls(msg)
+
+    when "ACK"
+      on_cap_ack(msg)
+
+    end
+  end
+
+  def on_cap_ls(msg)
+    msg.raw_arr[4..-1].join(" ")[1..-1].split.each do |cap|
+      cap.downcase!
+
+      case cap
 
         # TODO: Support more!
 
       when "sasl"
         # TODO: SASL!
 
-      when "mutli-prefix"
+      when "multi-prefix"
         # TODO: Store this, then use it in the Channels who reply handler.
+        raw "CAP REQ :multi-prefix"
+        @pending_caps << cap
 
-      end      
+      end
+
     end
 
-    raw "CAP END" # TODO: Move this elsewhere!
+    raw "CAP END" if @pending_caps.empty?
   end
+
+  def on_cap_ack(msg)
+    cap = msg.raw_arr[4][1..-1].downcase
+
+    $log.info("IRC.on_cap_ack") { "Enabled CAP #{cap}" }
+
+    @caps << cap.gsub(/[^a-z]/, '_').to_sym
+    @pending_caps.delete(cap)
+
+    raw "CAP END" if @pending_caps.empty?
+  end
+
 
   # hidden host
   def on_396(msg)
