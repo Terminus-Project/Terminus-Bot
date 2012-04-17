@@ -168,23 +168,13 @@ class Channel
 
     return false unless @users.has_key? nick
 
-    if @prefixes.has_value? "q"
-      return true if @users[nick].modes.include? "q"
-    end
-
-    if @prefixes.has_value? "a"
-      return true if @users[nick].modes.include? "a"
-    end
-
-    if @prefixes.has_value? "o"
-      return true if @users[nick].modes.include? "o"
-    end
+    return true if @users[nick].modes.include? "q"
+    return true if @users[nick].modes.include? "a"
+    return true if @users[nick].modes.include? "o"
 
     # This is here for one IRCD that supports it. It shouldn't conflict with
     # anything else though.
-    if @prefixes.has_value? "y"
-      return true if @users[nick].modes.include? "y"
-    end
+    return true if @users[nick].modes.include? "y"
 
     false
   end
