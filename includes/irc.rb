@@ -21,6 +21,7 @@ class IRC_Connection < EventMachine::Connection
 
   require 'socket'
   require 'timeout'
+  require 'base64'
 
   attr_reader :name, :channels, :conf, :bind,
    :users, :client_host, :nick, :user, :realname, :caps
@@ -52,6 +53,16 @@ class IRC_Connection < EventMachine::Connection
     $bot.events.create(self, "005",   :on_isupport)
 
     $bot.events.create(self, "CAP",   :on_cap)
+    
+    # SASL events
+    $bot.events.create(self, "AUTHENTICATE", :on_authenticate)
+    $bot.events.create(self, "904",   :on_sasl_fail)
+    $bot.events.create(self, "905",   :on_sasl_fail)
+    $bot.events.create(self, "900",   :on_sasl_success)
+    #$bot.events.create(self, "903",   :on_sasl_success)
+    $bot.events.create(self, "906",   :on_sasl_abort)
+    $bot.events.create(self, "907",   :on_sasl_abort)
+
 
     @name = name
     @nick = nick
@@ -65,7 +76,7 @@ class IRC_Connection < EventMachine::Connection
     @conf = conf
 
     @isupport = Hash.new
-    @caps, @pending_caps = [], []
+    @caps = []
 
     @registered, @reconnecting = false, false
 
@@ -225,7 +236,7 @@ class IRC_Connection < EventMachine::Connection
   def reconnect
     return if @disconnecting
 
-    @reconnecting, @disconnecting = true, true
+    @reconnecting = true
     raw "QUIT :Reconnecting"
 
     @send_queue.length.times do
@@ -236,7 +247,6 @@ class IRC_Connection < EventMachine::Connection
     @conf = $bot.config["servers"][@name]
 
     EM.add_timer(5) {
-      @disconnecting = false
       @reconnecting = false
       super(@conf["address"], @conf["port"])
       register
@@ -273,6 +283,8 @@ class IRC_Connection < EventMachine::Connection
   end
 
   def on_cap_ls(msg)
+    req = []
+
     msg.raw_arr[4..-1].join(" ")[1..-1].split.each do |cap|
       cap.downcase!
 
@@ -281,34 +293,87 @@ class IRC_Connection < EventMachine::Connection
         # TODO: Support more!
 
       when "sasl"
-        # TODO: SASL!
+        req << cap
 
       when "multi-prefix"
-        @pending_caps << cap
+        req << cap
 
       end
 
     end
 
-    if @pending_caps.empty?
+    if req.empty?
       raw "CAP END"
       return
     end
 
-    raw "CAP REQ :#{@pending_caps.join(" ")}"
+    raw "CAP REQ :#{req.join(" ")}"
   end
 
   def on_cap_ack(msg)
-    cap = msg.raw_arr[4][1..-1].downcase.split.each do |cap|
+    sasl_pending = false
+
+    msg.raw_arr[4..-1].join(" ")[1..-1].downcase.split.each do |cap|
+
+      sasl_pending = begin_sasl if cap == "sasl"
 
       $log.info("IRC.on_cap_ack") { "Enabled CAP #{cap}" }
 
       @caps << cap.gsub(/[^a-z]/, '_').to_sym
-      @pending_caps.delete(cap)
 
     end
 
-    raw "CAP END" if @pending_caps.empty?
+    raw "CAP END" unless sasl_pending
+  end
+
+  def begin_sasl
+    if not @conf.has_key? "sasl_username" or not @conf.has_key? "sasl_password"
+      $log.debug("IRC.begin_sasl") { "Server #{@name} supports SASL but we aren't configured to use it." }
+      return false
+    end
+    
+    @sasl_pending = true
+    raw "AUTHENTICATE PLAIN"
+  end
+
+  def on_authenticate(msg)
+    return if msg.connection != self
+
+    if msg.raw_arr[1] == "+"
+
+      username = @conf["sasl_username"]
+      password = @conf["sasl_password"]
+
+      encoded = Base64.encode64("#{username}\0#{username}\0#{password}")
+
+      raw "AUTHENTICATE #{encoded}"
+
+    else
+
+      # TODO: DH-BLOWFISH?
+
+    end
+  end
+
+  def on_sasl_fail(msg)
+    return if msg.connection != self
+
+    $log.error("IRC.on_sasl_fail") { "SASL authentication failed (#{msg.raw_str})." }
+    raw "CAP END"
+  end
+
+  def on_sasl_success(msg)
+    return if msg.connection != self
+
+    $log.error("IRC.on_sasl_success") { "SASL authentication completed." }
+    raw "CAP END"
+  end
+
+  def on_sasl_abort(msg)
+    return if msg.connection != self
+
+    $log.warn("IRC.on_sasl_abort") { "SASL authentication aborted (#{msg.raw_str})." }
+    raw "CAP END"
   end
 
 
