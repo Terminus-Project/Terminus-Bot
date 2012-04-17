@@ -179,6 +179,8 @@ class Message
   # Return true if this message doesn't appear to have been sent in a
   # channel.
   def private?
+    return true if @destination == nil
+
     not @connection.support("CHANTYPES", "#&").include? @destination.chr
   end
 
