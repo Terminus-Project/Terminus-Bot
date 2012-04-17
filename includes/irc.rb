@@ -504,9 +504,18 @@ class IRC_Connection < EventMachine::Connection
   end
 
   def on_nick(msg)
-    return unless msg.me? and msg.connection == self
+    return unless msg.connection == self
 
-    @nick = msg.text
+    if msg.me?
+      @nick = msg.text
+      return
+    end
+
+    # TODO: This is fucko. The Users class needs to hold channel users. We have
+    # too much duplicate data.
+    @channels.each_value do |c|
+      c.change_nick(msg)
+    end
   end
 
   # We tried to switch to a nick that's in use.

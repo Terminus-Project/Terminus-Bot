@@ -230,6 +230,25 @@ class Channel
     @users.has_key?(nick) ? @users[nick] : nil
   end
 
+  # Someone changed nicks. Make the necessary updates.
+  def change_nick(msg)
+    return unless @users.has_key? msg.nick_canon
+
+    $log.debug("Channel.change_nick") { "Renaming user #{msg.nick} on #{@name}" }
+
+    changed_nick_canon = msg.connection.canonize(msg.text)
+
+    # Apparently structs don't let you change values. So just make a
+    # new user.
+    changed_user = ChannelUser.new(changed_nick_canon,
+                               @users[msg.nick_canon].user,
+                               @users[msg.nick_canon].host,
+                               @users[msg.nick_canon].modes)
+
+    @users.delete(msg.nick_canon)
+    @users[changed_nick_canon] = changed_user
+  end
+
   def who_modes(nick, info)
     $log.debug("Channel.who_modes") { "#{nick} => #{info}" }
 
