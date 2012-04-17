@@ -151,8 +151,12 @@ servers = {
   # }
   #
   # Optional settings include:
-  #   password  (string)
-  #   ssl       (boolean)
+  #   password        (string)
+  #   ssl             (boolean)
+  #   sasl_username   (string)
+  #   sasl_password   (string)
+  #
+  # Note: At the moment, only SASL PLAIN is supported.
   #
 
 }
