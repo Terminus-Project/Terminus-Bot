@@ -135,6 +135,8 @@ class Message
       next unless connection == @connection.name
       next if channels.empty?
 
+      channels = channels.split
+
       return true if channels.include? @destination
     end
 
