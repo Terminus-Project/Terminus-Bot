@@ -284,24 +284,29 @@ class IRC_Connection < EventMachine::Connection
         # TODO: SASL!
 
       when "multi-prefix"
-        # TODO: Store this, then use it in the Channels who reply handler.
-        raw "CAP REQ :multi-prefix"
         @pending_caps << cap
 
       end
 
     end
 
-    raw "CAP END" if @pending_caps.empty?
+    if @pending_caps.empty?
+      raw "CAP END"
+      return
+    end
+
+    raw "CAP REQ :#{@pending_caps.join(" ")}"
   end
 
   def on_cap_ack(msg)
-    cap = msg.raw_arr[4][1..-1].downcase
+    cap = msg.raw_arr[4][1..-1].downcase.split.each do |cap|
 
-    $log.info("IRC.on_cap_ack") { "Enabled CAP #{cap}" }
+      $log.info("IRC.on_cap_ack") { "Enabled CAP #{cap}" }
 
-    @caps << cap.gsub(/[^a-z]/, '_').to_sym
-    @pending_caps.delete(cap)
+      @caps << cap.gsub(/[^a-z]/, '_').to_sym
+      @pending_caps.delete(cap)
+
+    end
 
     raw "CAP END" if @pending_caps.empty?
   end
