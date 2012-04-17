@@ -51,6 +51,8 @@ class IRC_Connection < EventMachine::Connection
     $bot.events.create(self, "001",   :on_registered)
     $bot.events.create(self, "005",   :on_isupport)
 
+    $bot.events.create(self, "CAP",   :on_cap)
+
     @name = name
     @nick = nick
     @user = user
@@ -132,10 +134,10 @@ class IRC_Connection < EventMachine::Connection
     EM.add_timer(delay) { send_single_message }
   end
 
-  # TODO: Make room for SASL.
   def register
     raw "PASS #{@conf["password"]}" if @conf.has_key? "password"
 
+    raw "CAP LS"
     raw "NICK #{@nick}"
     raw "USER #{@user} 0 0 :#{@realname}"
   end
@@ -247,6 +249,27 @@ class IRC_Connection < EventMachine::Connection
     end
 
     close_connection_after_writing
+  end
+
+  # CAP LS reply
+  def on_cap(msg)
+    $log.debug("IRC.on_cap") { msg.raw_str }
+
+    msg.text.split.each do |cap|
+      case cap.downcase
+
+        # TODO: Support more!
+
+      when "sasl"
+        # TODO: SASL!
+
+      when "mutli-prefix"
+        # TODO: Store this, then use it in the Channels who reply handler.
+
+      end      
+    end
+
+    raw "CAP END" # TODO: Move this elsewhere!
   end
 
   # hidden host
