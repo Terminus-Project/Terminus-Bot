@@ -160,7 +160,7 @@ class Channel
 
     end
 
-    @connection.raw("WHO #{@name}") if who
+    @connection.raw("WHO #{@name}") if who and not @connection.caps.include? :multi_prefix
   end
 
   def op?(nick)
