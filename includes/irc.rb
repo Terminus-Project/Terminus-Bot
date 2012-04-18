@@ -38,6 +38,8 @@ class IRC_Connection < EventMachine::Connection
     $bot.events.create(self, "MODE",  :on_mode)
     $bot.events.create(self, "324",   :on_324)
 
+    $bot.events.create(self, "QUIT",  :on_quit)
+
     $bot.events.create(self, "396",   :on_396) # hidden host
 
     $bot.events.create(self, "TOPIC", :on_topic)
@@ -501,6 +503,16 @@ class IRC_Connection < EventMachine::Connection
     @isupport = Hash.new
 
     @registered = true
+  end
+
+  def on_quit(msg)
+    return unless msg.connection == self
+
+    # TODO: This is fucko. The Users class needs to hold channel users. We have
+    # too much duplicate data.
+    @channels.each_value do |c|
+      c.part(msg.nick)
+    end
   end
 
   def on_nick(msg)
