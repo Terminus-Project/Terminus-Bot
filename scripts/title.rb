@@ -37,8 +37,13 @@ def on_message(msg)
   i = 0
   max = get_config("max", 3).to_i
 
+  matches = []
+
   URI.extract(msg.text, ["http","https"]) { |match|
     return if i >= max
+
+    next if matches.include? match
+    matches << match
 
     match = URI(match)
 
