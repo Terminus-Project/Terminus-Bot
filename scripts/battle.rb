@@ -80,9 +80,9 @@ end
 def start_battle(msg)
   @active[msg.destination] = Hash.new
 
-  msg.reply("\02#{msg.nick}\02 has started a battle!")
-  msg.reply("To attack other players, use \02/me attacks TARGET with ITEM\02")
-  msg.reply("You may check the health of active players by using the \02HEALTH\02 command.")
+  msg.reply("\02#{msg.nick}\02 has started a battle!", false)
+  msg.reply("To attack other players, use \02/me attacks TARGET with ITEM\02", false)
+  msg.reply("You may check the health of active players by using the \02HEALTH\02 command.", false)
 end
 
 
