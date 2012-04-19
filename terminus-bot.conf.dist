@@ -381,6 +381,17 @@ regex = {
 }
 
 
+# Last.fm script.
+lastfm = {
+  
+  # REQUIRED
+  # lastfm.com API key. Without this, the bot cannot perform any look-ups!
+  # acquire at: http://www.last.fm/api
+  #apikey = 
+
+}
+
+
 # Script to play IdleRPG
 idlerpg = {
 
