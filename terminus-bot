@@ -36,6 +36,10 @@ puts VERSION
 puts "<http://terminus-bot.net/>"
 puts "Released under AGPL3."
 
+unless Dir.exists? "var"
+  Dir.mkdir "var"
+end
+
 if File.exists? PID_FILE
   begin
     pid = File.read(PID_FILE).to_i
