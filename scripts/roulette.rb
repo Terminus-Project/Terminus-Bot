@@ -25,22 +25,18 @@ def initialize
 end
 
 def cmd_roulette(msg, params)
+  return if msg.private? or msg.silent?
 
   if rand(6) == 0
-
-    msg.reply("Bang!")
-
-    unless msg.private?
-      # TODO: Only kick if we are channel ops.
+    if msg.connection.channels[msg.destination].half_op? msg.connection.nick
       msg.raw("KICK #{msg.destination} #{msg.nick} :Bang!")
-
-      # Only send the ACTION in channels since it is considered a
-      # CTCP reply in NOTICEs.
-      msg.reply("\01ACTION chambers another round and spins the cylinder.\01", false)
+    else
+      msg.reply("Bang!")
     end
 
-  else
+    msg.reply("\01ACTION chambers another round and spins the cylinder.\01", false)
 
+  else
     msg.reply("\01ACTION spins the cylinder after #{msg.nick} pulled the trigger on an empty chamber.\01", false)
 
   end
