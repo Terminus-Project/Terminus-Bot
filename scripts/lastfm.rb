@@ -81,7 +81,7 @@ def cmd_np(msg, params)
     return
   end
 
-  if track.attributes.get_attribute("nowplaying").value != "true"
+  if track.attributes.get_attribute("nowplaying") == nil
     msg.reply("No music is currently playing.")
     return
   end
