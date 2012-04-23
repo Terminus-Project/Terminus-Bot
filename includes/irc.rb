@@ -163,7 +163,7 @@ class IRC_Connection < EventMachine::Connection
     $bot.lines_out += 1
     $bot.bytes_out += data.length + 2
 
-    $log.debug("IRC.send_data") { "Sent: #{data}" }
+    $log.debug("IRC.send_data") { "#{@name}: Sent: #{data}" }
   end
 
   def receive_data(data)
@@ -180,7 +180,7 @@ class IRC_Connection < EventMachine::Connection
 
     $bot.ignores.each do |ignore|
       if msg.origin.wildcard_match(ignore)
-        $log.debug("IRC.receive_line") { "Ignoring message from #{msg.origin}" }
+        $log.debug("IRC.receive_line") { "#{@name}: Ignoring message from #{msg.origin}" }
         return
       end
     end
@@ -215,7 +215,7 @@ class IRC_Connection < EventMachine::Connection
 
     str.delete! "\r\n"
 
-    $log.debug("IRC.raw") { "Queued #{str}" }
+    $log.debug("IRC.raw") { "#{@name}: Queued #{str}" }
 
     $bot.events.run(:raw_out, Message.new(self, str, true))
 
