@@ -106,6 +106,12 @@ end
 def attack_player(msg, target, weapon)
   original = target
   target = msg.connection.canonize target
+
+  unless msg.connection.channels[msg.destination].users.has_key? target
+    msg.reply("There is no such user in the channel.")
+    return
+  end
+
   current = get_health(msg, target)
   my_health = get_health(msg, msg.connection.canonize(msg.nick))
 
