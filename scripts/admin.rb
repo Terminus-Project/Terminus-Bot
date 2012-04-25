@@ -61,10 +61,10 @@ def cmd_reconnect(msg, params)
 end
 
 def cmd_rehash(msg, params)
-  Bot.config.read_config
+  Bot::Config.read_config
   msg.reply("Done reloading configuration.")
 
-  Bot.start_connections
+  #Bot.start_connections
 end
 
 def cmd_nick(msg, params)
