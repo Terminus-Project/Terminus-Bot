@@ -107,7 +107,7 @@ module Bot
       count = 0
 
       scripts = @scripts.select {|s| s.wildcard_match(script_mask)}
-      privileged = Bot::Config[:flags][:privileged].split(/,\s*/) rescue []
+      privileged = Bot::Config[:flags][:privileged].keys rescue []
 
       $log.debug("script_flags.set_flags") { "#{server_mask} #{channel_mask} #{script_mask} #{flag}" }
       $log.debug("script_flags.set_flags") { "#{scripts.length} matching scripts" }
@@ -120,7 +120,7 @@ module Bot
 
           scripts.each do |script|
 
-            next if privileged.include? script and flag == -1
+            next if privileged.include? script.to_sym and flag == -1
 
             if channel_scripts[script] != flag
               channel_scripts[script] = flag
