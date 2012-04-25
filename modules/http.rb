@@ -31,14 +31,14 @@ module Bot
     case response
 
     when Net::HTTPSuccess
-      return [:response => response, :hostname => uri.hostname, :redirected => redirected]
+      return :response => response, :hostname => uri.hostname, :redirected => redirected
 
     when Net::HTTPRedirection
       location = URI(response['location'])
 
       $log.debug("Bot.http_get") { "Redirection: #{uri} -> #{location} (#{limit})" }
 
-      return get_page(location, limit - 1, true)
+      return http_get(location, limit - 1, true)
 
     else
       return nil
