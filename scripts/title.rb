@@ -26,6 +26,8 @@ require "htmlentities"
 require 'rexml/document'
 
 def initialize
+  raise "http script requires the http module" unless defined? Bot.http_get
+
   register_script("Fetches titles for URLs spoken in channels.")
 
   register_event(:PRIVMSG, :on_message)
