@@ -42,6 +42,9 @@ module Bot
       $log.level = Logger::INFO
     end
 
+    # Don't print warnings to STDERR.
+    $-v = nil
+
     trap("INT")  { self.quit("Interrupted by host system. Exiting!") }
     trap("TERM") { self.quit("Terminated by host system. Exiting!") }
     trap("KILL") { exit }
