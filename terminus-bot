@@ -28,7 +28,14 @@ require 'logger'
 require 'eventmachine'
 
 $log = Logger.new(STDOUT)
+
+# TODO: Parse more options, such as --help, and do it correctly.
+
 $log.level = Logger::INFO
+
+if ARGV.length == 1
+  $log.level = Logger::DEBUG if ARGV.shift == "-v"
+end
 
 Dir.chdir(File.dirname(__FILE__))
 
