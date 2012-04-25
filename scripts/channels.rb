@@ -30,11 +30,32 @@ def initialize
   #register_event(:PING,  :leave_channels)
   register_event(:PING,  :join_channels)
 
+  @canonized = Hash.new(false)
+
   # TODO: All channel names in here need to use proper casemapping.
   # TODO: Handle 405?
 end
 
+# TODO: Remove this? It is just here to canonize channel names on updated bots
+# and shouldn't be needed once everyone has run it once (unless people start
+# tinkering with data.db).
+def canonize_channels(msg)
+  return if @canonized[msg.connection.name]
+  @canonized[msg.connection.name] = true
+
+  channels = get_data(msg.connection.name, {})
+  temp = {}
+
+  channels.each_pair do |channel, key|
+    temp[msg.connection.canonize(channel)] = key
+  end
+
+  store_data(msg.connection.name, temp)
+end
+
 def join_channels(msg)
+  canonize_channels(msg) # See comment above.
+
   chans, keys = [], []
   channels = get_data(msg.connection.name, Hash.new)
 
@@ -63,9 +84,10 @@ def on_join(msg)
   return unless msg.me?
 
   channels = get_data(msg.connection.name, Hash.new)
+  channel  = msg.connection.canonize(msg.destination)
 
   # Are we configured to be in this channel?
-  return if channels.has_key? msg.destination.downcase
+  return if channels.has_key? channel
  
   $log.debug("channels.on_join") { "Parting channel #{msg.destination} since we are not configured to be in it." }
 
@@ -91,7 +113,7 @@ end
 def cmd_join(msg, params)
   arr = params[0].split(/\s+/, 2)
 
-  name = arr[0].downcase
+  name = msg.connection.canonize(arr[0])
   key = arr.length == 2 ? arr[1] : ""
 
   unless name.start_with? "#" or name.start_with? "&"
@@ -109,7 +131,7 @@ def cmd_join(msg, params)
 end
 
 def cmd_part(msg, params)
-  name = params[0].downcase
+  name = msg.connection.canonize(params[0])
   channels = get_data(msg.connection.name, Hash.new)
 
   unless channels.has_key? name

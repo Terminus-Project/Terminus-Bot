@@ -61,9 +61,9 @@ module Bot
     def on_join(msg)
       return unless msg.connection == @connection
 
-      unless has_key? msg.destination
-        self[msg.destination] = Channel.new(msg.destination, @connection)
-        Bot::Flags.add_channel(@connection.name.to_s, msg.destination)
+      unless has_key? msg.destination_canon
+        self[msg.destination_canon] = Channel.new(msg.destination_canon, @connection)
+        Bot::Flags.add_channel(@connection.name.to_s, msg.destination_canon)
       end
 
       if msg.me?
@@ -71,60 +71,62 @@ module Bot
         msg.raw("WHO #{msg.destination}")
       end
 
-      self[msg.destination].join(ChannelUser.new(msg.nick_canon, msg.user, msg.host, []))
+      self[msg.destination_canon].join(ChannelUser.new(msg.nick_canon, msg.user, msg.host, []))
     end
 
     def on_part(msg)
       return unless msg.connection == @connection
 
-      return unless has_key? msg.destination
+      return unless has_key? msg.destination_canon
 
       if msg.me?
-        return delete(msg.destination)
+        return delete(msg.destination_canon)
       end
 
-      self[msg.destination].part(msg.nick_canon)
+      self[msg.destination_canon].part(msg.nick_canon)
     end
 
     def on_kick(msg)
       return unless msg.connection == @connection
 
-      return unless has_key? msg.destination
+      return unless has_key? msg.destination_canon
 
-      self[msg.destination].part(@connection.canonize msg.raw_arr[3])
+      self[msg.destination_canon].part(@connection.canonize msg.raw_arr[3])
     end
 
     def on_mode(msg)
       return unless msg.connection == @connection
 
-      return unless has_key? msg.destination
+      return unless has_key? msg.destination_canon
 
-      self[msg.destination].mode_change(msg.raw_arr[3..-1])
+      self[msg.destination_canon].mode_change(msg.raw_arr[3..-1])
     end
 
     def on_modes_on_join(msg)
       return unless msg.connection == @connection
+      canon_name = @connection.canonize(msg.raw_arr[3])
 
-      return unless has_key? msg.raw_arr[3]
+      return unless has_key? canon_name
 
-      self[msg.raw_arr[3]].mode_change(msg.raw_arr[4..-1])
+      self[canon_name].mode_change(msg.raw_arr[4..-1])
     end
 
 
     def on_topic(msg)
       return unless msg.connection == @connection
 
-      return unless has_key? msg.destination
+      return unless has_key? msg.destination_canon
 
-      self[msg.destination].topic(msg.text)
+      self[msg.destination_canon].topic(msg.text)
     end
 
     def on_topic_on_join(msg)
       return unless msg.connection == @connection
+      canon_name = @connection.canonize(msg.raw_arr[3])
 
-      return unless has_key? msg.raw_arr[3]
+      return unless has_key? canon_name
 
-      self[msg.raw_arr[3]].topic(msg.text)
+      self[canon_name].topic(msg.text)
     end
 
 
