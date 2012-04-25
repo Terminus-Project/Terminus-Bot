@@ -514,6 +514,8 @@ end
 def read_database
   return unless File.exists? MARKOV_FILE
 
+  $log.info("Markov.read_database") { "Reading the Markov database. If the database is large, this will take a while." }
+
   fi = File.open(MARKOV_FILE, "r")
 
   while line = fi.gets
