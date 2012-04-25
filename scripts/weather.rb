@@ -22,7 +22,7 @@ require 'rexml/document'
 require 'htmlentities'
 
 def initialize
-  raise "weather script requires the http module" unless defined? Bot.http_get
+  raise "weather script requires the http_client module" unless defined? Bot.http_get
 
   register_script("Weather information look-ups via Weather Underground (wunderground.com).")
 

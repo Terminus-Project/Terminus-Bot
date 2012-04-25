@@ -20,7 +20,7 @@ require 'net/http'
 require "uri"
 
 module Bot
-  def self.http_get(uri, limit = Config[:modules][:http][:redirects], redirected = false)
+  def self.http_get(uri, limit = Config[:modules][:http_client][:redirects], redirected = false)
     return nil if limit == 0
 
     response = Net::HTTP.start(uri.host, uri.port,

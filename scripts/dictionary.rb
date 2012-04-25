@@ -24,7 +24,7 @@ require 'htmlentities'
 URL='http://api-pub.dictionary.com/v001'
 
 def initialize
-  raise "dictionary script requires the http module" unless defined? Bot.http_get
+  raise "dictionary script requires the http_client module" unless defined? Bot.http_get
 
   register_script("Dictionary.com look-ups.")
 

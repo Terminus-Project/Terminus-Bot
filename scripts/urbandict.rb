@@ -23,7 +23,7 @@ require "strscan"
 require "htmlentities"
 
 def initialize
-  raise "urbandict script requires the http module" unless defined? Bot.http_get
+  raise "urbandict script requires the http_client module" unless defined? Bot.http_get
 
   register_script("Look up words on UrbanDictionary.com.")
   register_command("ud",       :cmd_lookup,   0,  0, nil, "Fetch the definition of a word from UrbanDictionary.com. If no parameter is given, fetch a random definition.")
