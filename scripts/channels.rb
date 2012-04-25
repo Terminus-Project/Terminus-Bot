@@ -27,7 +27,7 @@ def initialize
 
   register_event(:"001",   :join_channels)
   register_event(:JOIN,  :on_join)
-  #register_event(:PING,  :leave_channels)
+  register_event(:PING,  :leave_channels)
   register_event(:PING,  :join_channels)
 
   @canonized = Hash.new(false)
@@ -106,7 +106,7 @@ end
 def leave_channels(msg)
   channels = get_data(msg.connection.name, Hash.new)
 
-  msg.channels.each_key do |chan|
+  msg.connection.channels.each_key do |chan|
     next if channels.has_key? chan
 
     msg.raw("PART #{chan} :I am not configured to be in this channel.") 
