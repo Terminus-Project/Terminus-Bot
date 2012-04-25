@@ -497,6 +497,8 @@ end
 def write_database
   fi = File.open(MARKOV_FILE, "w")
 
+  $log.info("Markov.write_database") { "If the database is large, this will take a while." }
+
   @nodes.each do |word, node|
     fi << word << "\t"
 
@@ -514,7 +516,7 @@ end
 def read_database
   return unless File.exists? MARKOV_FILE
 
-  $log.info("Markov.read_database") { "Reading the Markov database. If the database is large, this will take a while." }
+  $log.info("Markov.read_database") { "If the database is large, this will take a while." }
 
   fi = File.open(MARKOV_FILE, "r")
 
