@@ -176,6 +176,13 @@ modules = {
 
   caps
   ignores
+
+  http = {
+    # REQUIRED
+    # Maximum number of redirections to follow. This should be 10 or less. Setting
+    # it too high may cause the bot to hang. It should probably be at least 3.
+    redirects = 10
+  }
 }
 
 
