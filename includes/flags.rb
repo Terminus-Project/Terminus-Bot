@@ -38,7 +38,7 @@ module Bot
       self[server] ||= Hash.new
     end
 
-
+    # When adding a channel, the name MUST be canonized.
     def add_channel(server, channel)
       self[server][channel] ||= Hash.new
     end

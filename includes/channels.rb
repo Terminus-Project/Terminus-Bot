@@ -44,17 +44,18 @@ module Bot
 
     def on_who_reply(msg)
       return unless msg.connection == @connection
+      canon_name = @connection.canonize(msg.raw_arr[3])
 
-      unless has_key? msg.raw_arr[3]
-        self[msg.raw_arr[3]] = Channel.new(msg.raw_arr[3], @connection)
+      unless has_key? canon_name
+        self[canon_name] = Channel.new(canon_name, @connection)
       end
 
-      self[msg.raw_arr[3]].join(ChannelUser.new(@connection.canonize(msg.raw_arr[7]),
+      self[canon_name].join(ChannelUser.new(@connection.canonize(msg.raw_arr[7]),
                                                      msg.raw_arr[4],
                                                      msg.raw_arr[5],
                                                      []))
 
-      self[msg.raw_arr[3]].who_modes(msg.raw_arr[7], msg.raw_arr[8])
+      self[canon_name].who_modes(msg.raw_arr[7], msg.raw_arr[8])
     end
 
 
