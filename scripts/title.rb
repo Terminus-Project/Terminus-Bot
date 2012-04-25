@@ -83,12 +83,12 @@ def get_youtube(msg, uri)
   vid = URI.escape(vid)
   api = URI("https://gdata.youtube.com/feeds/api/videos/#{vid}?v=2")
 
-  response = get_page(api)
+  response = Bot.http_get(api)
 
   return false if response == nil
 
   # TODO: YouTube apparently does some things with JSON. Use that if possible!
-  root = REXML::Document.new(response[0].body.force_encoding('UTF-8')).root
+  root = REXML::Document.new(response[:response].body.force_encoding('UTF-8')).root
 
   return false unless root.get_elements("error").empty?
 
@@ -115,11 +115,11 @@ def get_title(msg, uri)
   begin
     $log.info('title.get_title') { "Getting title for #{uri}" }
 
-    response = get_page(uri)
+    response = Bot.http_get(uri)
 
     return if response == nil
 
-    page = StringScanner.new(response[0].body.force_encoding('UTF-8'))
+    page = StringScanner.new(response[:response].body.force_encoding('UTF-8'))
 
     page.skip_until(/<title[^>]*>/ix)
     title = page.scan_until(/<\/title[^>]*>/ix)
@@ -132,9 +132,9 @@ def get_title(msg, uri)
     title = title[0..len].strip.gsub(/[[[:cntrl:]]\s]+/, " ")
     title = HTMLEntities.new.decode(title)
 
-    msg.reply("\02Title on #{response[1]}#{" (redirected)" if response[2]}:\02 " + title, false)
+    msg.reply("\02Title on #{response[:hostname]}#{" (redirected)" if response[:redirected]}:\02 " + title, false)
   rescue => e
-    $log.error('title.get_title') { "Error getting title for #{uri}: #{e}" }
+    $log.error('title.get_title') { "Error getting title for #{uri}: #{e} #{e.backtrace.join("\n")}" }
     return
   end
 end
@@ -150,14 +150,14 @@ def get_twitter(msg, uri)
   id = URI.escape($1)
   api = URI("https://api.twitter.com/1/statuses/show.xml?id=#{id}")
 
-  response = get_page(api)
+  response = Bot.http_get(api)
 
   return false if response == nil
 
   # Since we're already using REXML for YouTube, we may as well use it here too.
   # (However, see the TODO about that.)
   
-  root = REXML::Document.new(response[0].body.force_encoding('UTF-8')).root
+  root = REXML::Document.new(response[:response].body.force_encoding('UTF-8')).root
 
   return false unless root.get_elements("error").empty?
 
@@ -169,32 +169,3 @@ def get_twitter(msg, uri)
   return true
 end
 
-def get_page(uri, limit = get_config(:redirects, 10), redirected = false)
-  return nil if limit == 0
-
-  response = Net::HTTP.start(uri.host, uri.port,
-    :use_ssl => uri.scheme == "https",
-    :verify_mode => OpenSSL::SSL::VERIFY_NONE) do |http|
-
-    http.request Net::HTTP::Get.new(uri.request_uri)
-  end
-
-  case response
-
-  when Net::HTTPSuccess
-    return [response, uri.hostname, redirected]
-
-  when Net::HTTPRedirection
-    location = URI(response['location'])
-
-    $log.debug("title.get_page") { "Redirection: #{uri} -> #{location} (#{limit})" }
-
-    return get_page(location, limit - 1, true)
-
-  else
-    return nil
-
-  end
-
-
-end
