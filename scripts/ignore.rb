@@ -24,6 +24,8 @@ def initialize
   register_command("ignores",  :cmd_ignores,  0,  4, nil, "List all active ignores.")
   register_command("ignore",   :cmd_ignore,   1,  4, nil, "Ignore the given hostmask.")
   register_command("unignore", :cmd_unignore, 1,  4, nil, "Remove the given ignore.")
+
+  raise "ignores script requires the ignores module" unless defined? Ignores
 end
 
 def cmd_ignores(msg, params)
