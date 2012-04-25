@@ -68,7 +68,6 @@ module Bot
       @disconnecting = true
 
       flush_queue
-      close_connection_after_writing
     end
 
     def reconnect(lost_connection = false)
@@ -88,8 +87,8 @@ module Bot
 
     def destroy
       unless @disconnecting
+        raw "QUIT"
         flush_queue
-        close_connection_after_writing
       end
 
       unless @caps == nil
