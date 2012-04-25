@@ -183,6 +183,14 @@ modules = {
     # it too high may cause the bot to hang. It should probably be at least 3.
     redirects = 10
   }
+
+  #buffer = {
+  #  # REQUIRED
+  #  # The number of message to keep in the buffer. A larger value here will
+  #  # result in more memory usage, but will allow scripts which use this module
+  #  # to make use of more data.
+  #  max_size = 100
+  #}
 }
 
 
