@@ -32,11 +32,11 @@ def initialize
 end
 
 def api_call(msg, opt = {})
-  api_key = get_config("apikey", nil)
+  api_key = get_config(:apikey, nil)
 
   if api_key == nil
     msg.reply("A Last.fm API key must be set in the bot's configuration for this command to work.")
-    return  
+    return nil
   end
 
   url = "#{URL}?api_key=" << URI.escape(api_key)

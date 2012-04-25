@@ -27,14 +27,18 @@ require 'thread'
 require 'logger'
 require 'eventmachine'
 
+$log = Logger.new(STDOUT)
+$log.level = Logger::DEBUG
+
 Dir.chdir(File.dirname(__FILE__))
 
-VERSION = "Terminus-Bot v0.6"
+VERSION  = "Terminus-Bot v0.7"
 PID_FILE = "var/terminus-bot.pid"
+LICENSE  = "APLG3"
 
-puts VERSION
-puts "<http://terminus-bot.net/>"
-puts "Released under AGPL3."
+$log.info('preload') { VERSION }
+$log.info('preload') { "<http://terminus-bot.net/>" }
+$log.info('preload') { "Released under #{LICENSE}." }
 
 unless Dir.exists? "var"
   Dir.mkdir "var"
@@ -44,52 +48,63 @@ if File.exists? PID_FILE
   begin
     pid = File.read(PID_FILE).to_i
 
-    puts "Found PID file with: #{pid}"
+    $log.debug('preload') { "Found PID file with: #{pid}" }
 
     if Process.kill(0, pid)
-      puts "Already running as #{pid}"
+      $log.fatal('preload') { "Already running as #{pid}" }
       exit
     end
   rescue
     # We're good to go. I think.
   end
 
-  puts "PID file appears to be stale. Deleting."
+  $log.warn('preload') { "PID file appears to be stale. Deleting." }
   File.delete(PID_FILE)
 end
 
 
-puts "Loading core files..."
+$log.info("preload") { "Loading core files." }
 
-$log = Logger.new(STDOUT)
-$log.level = Logger::FATAL
+def load_includes
 
-def load_files(dir)
-  begin
-     Dir["#{File.dirname(__FILE__)}/#{dir}/**/*.rb"].each { |f| load(f) }
-  rescue => e
-    $log.fatal('preload') { "Failed loading files in #{dir}: #{e}" }
-    exit -1
-  end
+  # These have to be first.
+  load "includes/flags.rb"
+  #load "includes/database.rb"
+
+  load "includes/config.rb"
+  load "includes/events.rb"
+
+  load "includes/string.rb"
+  load "includes/time.rb"
+
+  load "includes/users.rb"
+  load "includes/ircconnection.rb"
+  load "includes/message.rb"
+  load "includes/channels.rb"
+  load "includes/commands.rb"
+
+  # These have to be last (in this order).
+  load "includes/modules.rb"
+  load "includes/scripts.rb"
+  load "includes/core.rb"
+
 end
 
-# Load all the includes.
-load_files "includes"
+
+load_includes
 
 # TODO: Verify configuration and check for database corruption.
 
 # Launch!
 pid = fork do
   EM.run do
-    Bot.new
+    Bot.run
   end
 end
 
-puts "Terminus-Bot started as #{pid}"
+# Bot.run changes $log to something else, so just puts this.
+puts "Terminus-Bot started as #{pid}. Writing to #{PID_FILE}"
 
 File.open(PID_FILE, "w") {|f| f.puts pid}
-
-puts "PID written to #{PID_FILE}"
-
 Process.detach pid
 

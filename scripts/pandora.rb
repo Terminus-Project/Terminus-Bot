@@ -33,7 +33,7 @@ def initialize
 
   register_command("pandora", :pandora, 1, 0, :half_op, "Enable or disable Pandorabot interaction. Parameters: ON or OFF.")
 
-  register_event("PRIVMSG", :on_message)
+  register_event(:PRIVMSG, :on_message)
 end
 
 def pandora(msg, params)
@@ -45,12 +45,12 @@ def pandora(msg, params)
   case params[0].upcase
   when "ON"
 
-    store_data(msg.connection.name + "/" + msg.destination, true)
+    store_data([msg.connection.name, msg.destination], true)
     msg.reply("Pandorabot interaction enabled.")
 
   when "OFF"
 
-    store_data(msg.connection.name + "/" + msg.destination, false)
+    store_data([msg.connection.name, msg.destination], false)
     msg.reply("Pandorabot interaction disabled.")
 
   else
@@ -59,33 +59,31 @@ def pandora(msg, params)
 end
 
 def on_message(msg)
-  return unless get_data(msg.connection.name + "/" + msg.destination, false)
+  return unless get_data([msg.connection.name, msg.destination], false)
 
   first = (msg.text.split)[0]
   first = first[0..first.length-2].upcase
 
   return unless first == msg.connection.nick.upcase
 
-  botid = get_config("botid", "")
+  botid = get_config(:botid, "")
   if botid.empty?
     msg.reply("Bot ID is not set in the configuration. Pandora will not function.")
     return
   end
 
   EM.defer(proc { 
-    get_reply(botid, msg.text[msg.connection.nick.length+2..msg.text.length], msg)
+    get_reply(botid, msg.text[msg.connection.nick.length+2..msg.text.length].chomp, msg)
   })
 end
 
 def get_reply(botid, str, msg)
-  str = msg.text[msg.connection.nick.length+2..msg.text.length].chomp
-
   return if str.empty?
 
   begin
     $log.info('pandora.get_reply') { "Getting relpy with #{botid} for message: #{str}" }
 
-    custid = msg.connection.name + "/" + msg.destination
+    custid = msg.connection.name.to_s + "/" + msg.destination
 
     response = Net::HTTP.post_form(URI.parse(PANDORA_URL),
                                     :custid => custid,

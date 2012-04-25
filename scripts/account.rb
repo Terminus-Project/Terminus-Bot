@@ -65,9 +65,10 @@ def cmd_identify(msg, params)
   msg.connection.users[msg.nick_canon].account = params[0]
 
   level = stored[:level]
+  name = params[0].to_sym
 
-  if $bot.config["admins"].has_key? params[0]
-    level = $bot.config["admins"][params[0]]
+  if Config[:admins].has_key? name
+    level = Config[:admins][name]
 
     $log.info("account.cmd_identify") { "#{msg.origin} identifying with override level #{level}" }
   end
@@ -161,7 +162,7 @@ def cmd_level(msg, params)
 
   # if they are logged in, update the live data too
 
-  $bot.connections.each do |name, conn|
+  Connections.each do |name, conn|
     conn.users.each do |nick, user|
       if user.account == params[0]
         user.level = level

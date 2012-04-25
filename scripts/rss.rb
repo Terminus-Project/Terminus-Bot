@@ -27,6 +27,10 @@ def initialize
 
   register_command("rss", :cmd_rss,  1,  0, :half_op, "Manage the RSS/ATOM feeds for the current channel. Parameters: LIST|CHECK|CLEAR|ADD uri|DEL uri")
 
+  register_event(:em_started, :on_em_started)
+end
+
+def on_em_started
   EM.add_periodic_timer(1800) { check_feeds }
 end
 
@@ -113,8 +117,8 @@ def check_feeds
     network = key[0]
     channel = key[1]
 
-    next unless $bot.connections.has_key? network
-    next unless $bot.connections[network].channels.has_key? channel
+    next unless Bot::Connections.has_key? network
+    next unless Bot::Connections[network].channels.has_key? channel
 
     val.each do |feed|
       rss = get_feed(feed[0])
@@ -125,7 +129,7 @@ def check_feeds
 
       feed_title = sanitize(atom ? rss.title.to_s : rss.channel.title.to_s)
 
-      items = rss.items[0..get_config("max", 3).to_i-1].reverse
+      items = rss.items[0..get_config(:max, 3).to_i-1].reverse
 
       items.each do |item|
 
@@ -137,7 +141,7 @@ def check_feeds
 
           link = sanitize(atom ? item.links.select {|l| l.rel == "alternate"}[0].href.to_s : item.link.to_s)
 
-          $bot.connections[network].raw("PRIVMSG #{channel} :\02[#{feed_title}]\02 #{title} :: #{link}")
+          Bot::Connections[network].raw("PRIVMSG #{channel} :\02[#{feed_title}]\02 #{title} :: #{link}")
 
         end
 

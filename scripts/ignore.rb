@@ -27,12 +27,12 @@ def initialize
 end
 
 def cmd_ignores(msg, params)
-  if $bot.ignores.empty?
+  if Ignores.empty?
     msg.reply("There are no active ignores.")
     return
   end
 
-  msg.reply($bot.ignores.join(", "))
+  msg.reply(Ignores.join(", "))
 end
 
 def cmd_ignore(msg, params)
@@ -40,12 +40,12 @@ def cmd_ignore(msg, params)
 
   mask << "!*@*"  unless mask =~ /[!@*]/
  
-  if $bot.ignores.include? params[0]
+  if Ignores.include? params[0]
     msg.reply("Already ignoring #{mask}")
     return
   end
 
-  $bot.ignores << mask
+  Ignores << mask
 
   msg.reply("Ignore added: #{mask}")
 end
@@ -55,12 +55,12 @@ def cmd_unignore(msg, params)
 
   mask << "!*@*"  unless mask =~ /[!@*]/
 
-  unless $bot.ignores.include? mask
+  unless Ignores.include? mask
     msg.reply("No such ignore.")
     return
   end
 
-  $bot.ignores.delete mask
+  Ignores.delete mask
 
   msg.reply("Ignore removed: #{mask}")
 end

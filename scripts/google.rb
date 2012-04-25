@@ -73,7 +73,7 @@ def getResult(query, type)
   http      = Net::HTTP.new(uri.host, uri.port)
   request   = Net::HTTP::Get.new(uri.request_uri)
 
-  request.initialize_http_header({"User-Agent" => get_config("useragent", "terminus-bot.net")})
+  request.initialize_http_header({"User-Agent" => get_config(:useragent, "terminus-bot.net")})
   http.use_ssl = true
 
   response  = http.request(request)
@@ -85,7 +85,7 @@ def getResult(query, type)
   response = JSON.parse(response.body)
 
   results = Array.new
-  limit = get_config("resultlimit", 3).to_i
+  limit = get_config(:resultlimit, 3).to_i
 
   response["responseData"]["results"].each_with_index do |result, num|
 

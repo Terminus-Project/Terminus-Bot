@@ -25,5 +25,5 @@ def initialize
 end
 
 def cmd_networks(msg, params)
-  msg.reply($bot.connections.values.join(", "))
+  msg.reply(Bot::Connections.values.join(", "))
 end

@@ -25,7 +25,7 @@ def initialize
   register_command("health", :cmd_health, 0, 0, nil,      "View the health of all active players in this channel.")
   register_command("heal",   :cmd_heal,   1, 0, :half_op, "Heal players to maximum health. If no nick is given, all players are reset. Parameters: nick")
 
-  register_event("PRIVMSG", :on_privmsg)
+  register_event(:PRIVMSG, :on_privmsg)
   
   @active = Hash.new
 end
@@ -89,7 +89,7 @@ end
 def get_health(msg, target)
   return @active[msg.destination][target] if @active[msg.destination].include? target
 
-  return get_config("start_health", 100)
+  return get_config(:start_health, 100)
 end
 
 
@@ -99,7 +99,7 @@ end
 
 
 def heal_player(msg, target)
-  set_health(msg, target, get_config("start_health", 100))
+  set_health(msg, target, get_config(:start_health, 100))
 end
 
 
@@ -125,9 +125,9 @@ def attack_player(msg, target, weapon)
     return
   end
 
-  damage = get_config("min_dmg", 5).to_i + rand(get_config("max_dmg", 25).to_i - get_config("min_dmg", 5).to_i)
-
-  if rand(100) <= get_config("absorb", 5).to_i
+  damage = get_config(:min_dmg, 5).to_i + rand(get_config(:max_dmg, 25).to_i - get_config(:min_dmg, 5).to_i)
+                                                           
+  if rand(100) <= get_config(:absorb, 5).to_i
     damage = damage * -1
   end
 
@@ -136,7 +136,7 @@ def attack_player(msg, target, weapon)
 
   set_health(msg, target, new)
 
-  if rand(100) < get_config("miss", 10).to_i
+  if rand(100) < get_config(:miss, 10).to_i
     msg.reply("#{original} dodges #{msg.nick}'s #{weapon}.", false)
     return
   end

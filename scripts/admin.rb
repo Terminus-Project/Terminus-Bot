@@ -28,7 +28,7 @@ def initialize
   register_command("rehash",   :cmd_rehash,   0,  8, nil, "Reload the configuration file.")
   register_command("nick",     :cmd_nick,     1,  7, nil, "Change the bot's nick for this connection.")
 
-  register_command("includes", :cmd_includes, 0,  9, nil, "Reload core files with stopping the bot. Warning: may produce undefined behavior.")
+  #register_command("includes", :cmd_includes, 0,  9, nil, "Reload core files with stopping the bot. Warning: may produce undefined behavior.")
   register_command("reload",   :cmd_reload,   1,  9, nil, "Reload one or more scripts.")
   register_command("unload",   :cmd_unload,   1,  9, nil, "Unload one or more scripts.")
   register_command("load",     :cmd_load,     1,  9, nil, "Load the named script.")
@@ -45,24 +45,24 @@ def cmd_eval(msg, params)
 end
 
 def cmd_quit(msg, params)
-  EM.next_tick { params.empty? ? $bot.quit : $bot.quit(params[0]) }
+  EM.next_tick { params.empty? ? Bot.quit : Bot.quit(params[0]) }
 end
 
 def cmd_reconnect(msg, params)
-  unless $bot.connections.has_key? params[0]
+  unless Bot.connections.has_key? params[0]
     msg.reply("No such connection.")
     return
   end
 
-  $bot.connections[params[0]].reconnect
+  Bot.connections[params[0]].reconnect
   msg.reply("Reconnecting.")
 end
 
 def cmd_rehash(msg, params)
-  $bot.config.read_config
+  Bot.config.read_config
   msg.reply("Done reloading configuration.")
 
-  $bot.start_connections
+  Bot.start_connections
 end
 
 def cmd_nick(msg, params)
@@ -72,7 +72,7 @@ def cmd_nick(msg, params)
 end
 
 def cmd_includes(msg, params)
-  load_files("includes")
+  load_includes
   msg.reply("Core files reloaded.")
 end
 
@@ -83,7 +83,7 @@ def cmd_reload(msg, params)
     arr.each do |script|
 
       begin
-        $bot.scripts.reload(script)
+        Bot::Scripts.reload(script)
         buf << script
 
       rescue => e
@@ -105,7 +105,7 @@ def cmd_unload(msg, params)
     arr.each do |script|
 
       begin
-        $bot.scripts.unload(script)
+        Bot::Scripts.unload(script)
         buf << script
 
       rescue => e
@@ -123,7 +123,7 @@ end
 def cmd_load(msg, params)
   op = proc {
     begin
-      $bot.scripts.load_file("scripts/#{params[0]}.rb")
+      Bot::Scripts.load_file("scripts/#{params[0]}.rb")
       msg.reply("Loaded script \02#{params[0]}\02")
     rescue => e
       msg.reply("Failed to load \02#{params[0]}\02: #{e}")

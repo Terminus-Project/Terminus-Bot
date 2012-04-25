@@ -1,7 +1,6 @@
-
 #
 # Terminus-Bot: An IRC bot to solve all of the problems with IRC bots.
-# Copyright (C) 2012 Terminus-Bot Development Team
+# Copyright (C) 2011 Terminus-Bot Development Team
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -17,13 +16,22 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 
-def initialize
-  register_script("Show bot uptime and usage information.")
+module Bot
+  if Config.has_key? :modules
 
-  register_command("uptime", :cmd_uptime,  0,  0, nil, "Show how long the bot has been active.")
-end
+    Config[:modules].each_key do |name|
+      file_name = "modules/#{name}.rb"
 
-def cmd_uptime(msg, params)
-  since = File.ctime(PID_FILE).to_duration_s
-  msg.reply("I was started #{since} ago. \02In:\02 #{Bot.lines_in} lines (#{sprintf("%.4f", Bot.bytes_in / 1024.0)} KiB) \02Out:\02 #{Bot.lines_out} lines (#{sprintf("%.4f", Bot.bytes_out / 1024.0)} KiB)")
+      $log.debug("Modules") { "Loading #{name} (#{file_name})" }
+
+      if File.exists? file_name
+        load file_name
+      else
+        $log.fatal("Modules") { "Attempted to load nonexistent module: #{name}" }
+        exit -1
+      end
+
+    end
+
+  end
 end

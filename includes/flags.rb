@@ -17,101 +17,130 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 
-class Script_Flags < Hash
+module Bot
+  class Script_Flags < Hash
 
-  def initialize
-    @scripts = []
+    # TODO: Use IRCConnection#canonize in here.
 
-    # This is here because YAML doesn't know how to initialize us with it after
-    # pulling the flags table back out of the database.
-    # TODO: Correctly deal with rehashing since this likely won't pick up on it.
-    @default_flag = $bot.config['flags']['default'] rescue true
+    def initialize
+      @scripts = []
 
-    super
-  end
+      # This is here because YAML doesn't know how to initialize us with it after
+      # pulling the flags table back out of the database.
+      # TODO: Correctly deal with rehashing since this likely won't pick up on it.
+      @default_flag = Bot::Config[:flags][:default] rescue true
 
-
-  def add_server(server)
-    self[server] ||= Hash.new
-  end
-
-
-  def add_channel(server, channel)
-    self[server][channel] ||= Hash.new
-  end
-
-
-  # New script loaded. Add it if we don't already have it.
-  def add_script(name)
-    return if @scripts.include? name
-
-    @scripts << name
-  end
-
-
-  # Return true if the script is enabled on the given server/channel. Otherwise,
-  # return false.
-  def enabled?(server, channel, script)
-    flag = self[server][channel][script] rescue 0
-    
-    case flag
-    when -1
-      return false
-    when 1
-      return true
+      super
     end
 
-    @default_flag
-  end
+
+    def add_server(server)
+      self[server] ||= Hash.new
+    end
 
 
-  # Enable all matching scripts for all matching servers and channels (by
-  # wildcard match).
-  def enable(server_mask, channel_mask, script_mask)
-    set_flags(server_mask, channel_mask, script_mask, 1)
-  end
+    def add_channel(server, channel)
+      self[server][channel] ||= Hash.new
+    end
 
 
-  # Disable all matching scripts for all matching servers and channels (by
-  # wildcard match).
-  def disable(server_mask, channel_mask, script_mask)
-    set_flags(server_mask, channel_mask, script_mask, -1)
-  end
- 
+    # New script loaded. Add it if we don't already have it.
+    def add_script(name)
+      return if @scripts.include? name
 
-  # Do the hard work for enabling or disabling script flags. The last parameter
-  # is the value which will be used for the flag.
-  #
-  # Returns the number of changed flags.
-  def set_flags(server_mask, channel_mask, script_mask, flag)
-    count = 0
+      $log.debug("Flags.add_script") { name }
 
-    scripts = @scripts.select {|s| s.wildcard_match(script_mask)}
-    privileged = $bot.config['flags']['privileged'].split(/,\s*/) rescue []
+      @scripts << name
+    end
 
-    $log.debug("script_flags.set_flags") { "#{server_mask} #{channel_mask} #{script_mask} #{flag}" }
-    $log.debug("script_flags.set_flags") { "#{scripts.length} matching scripts" }
 
-    self.each_pair do |server, channels|
-      next unless server.wildcard_match(server_mask)
+    # Determine whether the given event should be sent or not, based on
+    # the event itself and on the contents of the message
+    def permit_message?(owner, msg)
+      return true unless owner.is_a? Script
 
-      channels.each_pair do |channel, channel_scripts|
-        next unless channel.wildcard_match(channel_mask)
+      # Always answer private messages!
+      return true if msg.private?
 
-        scripts.each do |script|
-          
-          next if privileged.include? script and flag == -1
+      server  = msg.connection.name.to_s
+      channel = msg.destination
+      name    = owner.my_short_name
 
-          if channel_scripts[script] != flag
-            channel_scripts[script] = flag
-            count += 1
+      enabled?(server, channel, name)
+    end
+
+    # Return true if the script is enabled on the given server/channel. Otherwise,
+    # return false.
+    def enabled?(server, channel, script)
+      flag = self[server][channel][script] rescue 0
+
+      case flag
+      when -1
+        return false
+      when 1
+        return true
+      end
+
+      @default_flag
+    end
+
+
+    # Enable all matching scripts for all matching servers and channels (by
+    # wildcard match).
+    def enable(server_mask, channel_mask, script_mask)
+      set_flags(server_mask, channel_mask, script_mask, 1)
+    end
+
+
+    # Disable all matching scripts for all matching servers and channels (by
+    # wildcard match).
+    def disable(server_mask, channel_mask, script_mask)
+      set_flags(server_mask, channel_mask, script_mask, -1)
+    end
+
+
+    # Do the hard work for enabling or disabling script flags. The last parameter
+    # is the value which will be used for the flag.
+    #
+    # Returns the number of changed flags.
+    def set_flags(server_mask, channel_mask, script_mask, flag)
+      count = 0
+
+      scripts = @scripts.select {|s| s.wildcard_match(script_mask)}
+      privileged = Bot::Config[:flags][:privileged].split(/,\s*/) rescue []
+
+      $log.debug("script_flags.set_flags") { "#{server_mask} #{channel_mask} #{script_mask} #{flag}" }
+      $log.debug("script_flags.set_flags") { "#{scripts.length} matching scripts" }
+
+      self.each_pair do |server, channels|
+        next unless server.wildcard_match(server_mask)
+
+        channels.each_pair do |channel, channel_scripts|
+          next unless channel.wildcard_match(channel_mask)
+
+          scripts.each do |script|
+
+            next if privileged.include? script and flag == -1
+
+            if channel_scripts[script] != flag
+              channel_scripts[script] = flag
+              count += 1
+            end
+
           end
-
         end
       end
-    end
 
-    count
+      count
+    end
+  end
+
+  load "includes/database.rb"
+
+  if DB.has_key? :flags
+    Flags = DB[:flags]
+  else
+    Flags = Script_Flags.new
+    DB[:flags] = Flags
   end
 end
-

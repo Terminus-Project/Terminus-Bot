@@ -23,7 +23,7 @@ def initialize
 
   register_command("ping", :cmd_ping,  0,  0, nil, "Measure the time it takes for the bot to receive a reply to a CTCP PING from your client.")
 
-  register_event("NOTICE", :on_notice)
+  register_event(:NOTICE, :on_notice)
 
   @pending = Hash.new
 end

@@ -40,7 +40,7 @@ def initialize
 end
 
 def api_call(msg, opt = {})
-  api_key = get_config("apikey", nil)
+  api_key = get_config(:apikey, nil)
 
   if api_key == nil
     msg.reply("A dictionary.com API key must be set in the bot's configuration for this command to work.")
@@ -62,7 +62,7 @@ end
 
 def get_definition(msg, word, root, definitions)
   coder = HTMLEntities.new
-  max = get_config("max", 1).to_i
+  max = get_config(:max, 1).to_i
   results = Array.new
 
   root.elements.each do |entry|

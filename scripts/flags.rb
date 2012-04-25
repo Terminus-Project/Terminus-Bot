@@ -31,14 +31,14 @@ end
 
 
 def cmd_enable(msg, params)
-  enabled = $bot.flags.enable(params[0], params[1], params[2])
+  enabled = Bot::Flags.enable(params[0], params[1], params[2])
 
   msg.reply("Enabled \02#{enabled}\02.")
 end
 
 
 def cmd_disable(msg, params)
-  enabled = $bot.flags.disable(params[0], params[1], params[2])
+  enabled = Bot::Flags.disable(params[0], params[1], params[2])
 
   msg.reply("Disabled \02#{enabled}\02.")
 end
@@ -47,7 +47,7 @@ end
 def cmd_flags(msg, params)
   enabled, disabled, default = [], [], []
 
-  $bot.flags.each_pair do |server, channels|
+  Bot::Flags.each_pair do |server, channels|
     next unless server.wildcard_match(params[0])
 
     channels.each_pair do |channel, scripts|
@@ -74,6 +74,7 @@ def cmd_flags(msg, params)
   default.uniq!
 
   buf = ""
+
   buf << "\02Enabled (#{enabled.length}):\02 #{enabled.join(", ")}" unless enabled.empty?
   buf << " \02Disabled (#{disabled.length}):\02 #{disabled.join(", ")}" unless disabled.empty?
   buf << " \02Default (#{default.length}):\02 #{default.join(", ")}" unless default.empty?

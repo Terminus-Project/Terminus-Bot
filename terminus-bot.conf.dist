@@ -159,8 +159,23 @@ servers = {
   #   sasl_timeout    (number)
   #
   # Note: At the moment, only SASL PLAIN is supported.
+  #       To use SASL, please ensure the caps module is loaded.
   #
 
+}
+
+
+# Bot modules
+modules = {
+  # List modules that should be loaded, one per line. Modules are loaded during
+  # start-up and cannot be unloaded. For a list of available modules, look in
+  # the modules directory.
+  #
+  # Some scripts depend on some modules being loaded. Some bot features, such
+  # as SASL, may depend on modules as well.
+
+  caps
+  ignores
 }
 
 
@@ -188,12 +203,16 @@ flags = {
   # To prevent accidental deactivation of important scripts, you can
   # list scripts here that will never be deactivated by the flags script.
   #
+  # Scripts should be listed one per line.
+  #
   # The only script included by default is the channels script. Without that
   # script, the bot's behavior when joining or parting channels may be
   # unpredicable.
   # 
   # Default: channels
-  privileged = channels
+  privileged = {
+    channels
+  }
 
   # Default flag value. Must be a boolean.
   #

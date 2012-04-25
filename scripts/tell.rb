@@ -20,7 +20,7 @@
 def initialize
   register_script("Leave messages for inactive users.")
 
-  register_event("PRIVMSG", :on_privmsg)
+  register_event(:PRIVMSG, :on_privmsg)
 
   register_command("tell",  :cmd_tell,  2,  0, nil, "Have me tell the given user something the next time they speak. Parameters: nick message")
 end
@@ -45,7 +45,7 @@ def cmd_tell(msg, params)
   dest = msg.connection.canonize params[0]
   
   if tells.has_key? dest
-    if tells[dest].length > get_config("max", 5).to_i
+    if tells[dest].length > get_config(:max, 5).to_i
       msg.reply("No more tells can be left for that nick.")
       return
     end

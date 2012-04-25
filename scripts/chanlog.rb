@@ -17,25 +17,26 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 
-CHANLOG_DIR = DATA_DIR + "chanlog/"
+CHANLOG_DIR = "var/terminus-bot/chanlog/"
 
 def initialize
   register_script("Logs channel activity to disk.")
 
-  register_event("PRIVMSG", :on_privmsg)
-  register_event(:raw_out,  :on_raw_out)
+  register_event(:PRIVMSG, :on_privmsg)
+  register_event(:raw_out, :on_raw_out)
 
-  register_event("NOTICE",  :on_notice)
-  register_event("TOPIC",   :on_topic)
+  register_event(:NOTICE,  :on_notice)
+  register_event(:TOPIC,   :on_topic)
 
-  register_event("KICK",    :on_kick)
-  register_event("PART",    :on_part)
-  register_event("JOIN",    :on_join)
-  register_event("QUIT",    :on_quit)
+  register_event(:KICK,    :on_kick)
+  register_event(:PART,    :on_part)
+  register_event(:JOIN,    :on_join)
+  register_event(:QUIT,    :on_quit)
 
-  register_event("NICK",    :on_nick)
-  register_event("MODE",    :on_mode)
+  register_event(:NICK,    :on_nick)
+  register_event(:MODE,    :on_mode)
 
+  register_event(:em_started, :on_em_started)
 
 
   unless Dir.exists? CHANLOG_DIR
@@ -43,12 +44,14 @@ def initialize
   end
 
   @loggers = Hash.new
+end
 
+def on_em_started
   # If we're being loaded on a bot that's already running, we're not going
   # to see the JOIN events we need to start the loggers. So we have to do
   # it the hard way, just in case.
 
-  $bot.connections.each do |name, connection|
+  Bot::Connections.each do |name, connection|
     connection.channels.each_key do |channel|
       new_logger(connection.name, channel)
     end
@@ -105,7 +108,7 @@ end
 # Event callbacks
 
 def on_raw_out(msg)
-  return unless msg.type == "PRIVMSG"
+  return unless msg.type == :PRIVMSG
 
   on_privmsg(msg)
 end

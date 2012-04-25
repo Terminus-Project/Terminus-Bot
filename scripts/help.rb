@@ -33,12 +33,12 @@ def cmd_help(msg, params)
 
   name = params[0].downcase
 
-  unless $bot.commands.has_key? name
+  unless Bot::Commands.has_key? name
     msg.reply("There is no help available for that command.")
     return
   end
 
-  command = $bot.commands[name]
+  command = Bot::Commands[name]
 
   level = msg.connection.users.get_level(msg)
 
@@ -55,7 +55,7 @@ def list_commands(msg)
 
   level = msg.connection.users.get_level(msg)
 
-  $bot.commands.sort_by {|n, c| n}.each do |name, command|
+  Bot::Commands.sort_by {|n, c| n}.each do |name, command|
     buf << command.cmd unless command.level > level
   end
 
@@ -69,7 +69,7 @@ def cmd_script(msg, params)
     return
   end
 
-  script = $bot.script_info.select {|s| s.name.downcase == params[0].downcase }[0]
+  script = Bot::Scripts.script_info.select {|s| s.name.downcase == params[0].downcase }[0]
 
   if script == nil
     msg.reply("There is no information available on that script.")
@@ -81,7 +81,7 @@ end
 def list_scripts(msg)
   buf = Array.new
 
-  $bot.script_info.each do |script|
+  Bot::Scripts.script_info.each do |script|
     buf << script.name
   end
 

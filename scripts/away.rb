@@ -23,9 +23,9 @@ def initialize
 
   register_command("away", :cmd_away,  1, 0, :half_op, "Enable or disable away status announcements for the current channel. Parameters: ON|OFF")
 
-  register_event("PRIVMSG", :on_privmsg)
-  register_event("301",     :on_away)
-  register_event("318",     :on_whois_end)
+  register_event(:PRIVMSG, :on_privmsg)
+  register_event(:"301",   :on_away)
+  register_event(:"318",   :on_whois_end)
 
   @pending = Hash.new
 end
@@ -33,7 +33,7 @@ end
 # Chop up an incoming message and see if it contains a nick that is
 # in the channel. If it does, check for away status.
 def on_privmsg(msg)
-  return if msg.private? or msg.silent? or not get_data(msg.connection.name + "." + msg.destination, false)
+  return if msg.private? or msg.silent? or not get_data([msg.connection.name, msg.destination], false)
 
   chan = msg.connection.channels[msg.destination]
 
@@ -89,12 +89,12 @@ def cmd_away(msg, params)
   case params[0].downcase
 
   when "on"
-    store_data(msg.connection.name + "." + msg.destination, true)
+    store_data([msg.connection.name, msg.destination], true)
 
     msg.reply("Away status announcement enabled for \02#{msg.destination}\02.")
 
   when "off"
-    store_data(msg.connection.name + "." + msg.destination, false)
+    store_data([msg.connection.name, msg.destination], false)
 
     msg.reply("Away status announcement disabled for \02#{msg.destination}\02.")
 

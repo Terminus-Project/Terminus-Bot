@@ -1,8 +1,6 @@
-
-
 #
 # Terminus-Bot: An IRC bot to solve all of the problems with IRC bots.
-# Copyright (C) 2012 Terminus-Bot Development Team
+# Copyright (C) 2011 Terminus-Bot Development Team
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -18,62 +16,13 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 
+module Bot
+  Connections = {}
 
-DATA_DIR = "var/terminus-bot/"
-
-class Bot
-
-  attr_accessor :connections, :lines_out, :lines_in, :bytes_out, :bytes_in, :ignores
-  attr_reader :config, :events, :database, :commands, :script_info, :scripts, :flags
-
-  Command = Struct.new(:owner, :cmd, :func, :argc, :level, :chan_level, :help)
-  Script_Info = Struct.new(:name, :description)
-
-  # This starts the whole thing.
-  def initialize
-
-    # Dirty? A bit. TODO: Get rid of this. Maybe.
-    $bot = self
-
-    # Gets rid of some junk that was being put int STDERR. Not sure if this is
-    # still necessary, but I'd rather not remove it.
-    $-v = nil
-
-    @connections = Hash.new       # IRC objects. Keys are configured names.
-
-    @config = Configuration.new   # Configuration. Extends Hash.
-
-    @database = Database.new      # Scripts can store data here.
-
-    @commands = Hash.new          # An hash table of Commands (see the above Struct).
-                                  # These are fired like events.
-    
-    @script_info = Array.new      # Name and description for scripts (see above Struct).
-
-    @events = Events.new          # We're event-driven. See includes/event.rb
-
-    @flags = Script_Flags.new     # Table of booleans to enable or disable scripts per-channel.
-
-    # We need to do this now so that the database can be populated when 
-    # @scripts is initialized.
-    unless @database.has_key? :flags
-      @database[:flags] = @flags
-    else
-      @flags = @database[:flags]
-    end
-
-    @scripts = Scripts.new        # For those things in the scripts dir.
-
-    @ignores = Array.new          # Array of ignored hostmasks.
-
-    @lines_out = 0                # Lines of text received by the bot.
-    @lines_in = 0                 # Lines of text sent by the bot.
-    @bytes_out = 0                # Bytes received by the bot.
-    @bytes_in = 0                 # Bytes sent by the bot.
-
-    logsize = @config['core']['logsize'] rescue 1024000 
-    logcount = @config['core']['logcount'] rescue 5
-    loglevel = @config['core']['loglevel'].upcase rescue "INFO"
+  def self.run
+    logsize  = Config[:core][:logsize]         rescue 1024000 
+    logcount = Config[:core][:logcount]        rescue 5
+    loglevel = Config[:core][:loglevel].upcase rescue "INFO"
 
     $log.close
     $log = Logger.new('var/terminus-bot.log', logcount, logsize);
@@ -93,238 +42,59 @@ class Bot
       $log.level = Logger::INFO
     end
 
-
-    # The only event we care about in the core.
-    @events.create(self, "PRIVMSG", :run_commands)
-
-
-    # Plug the database into things.
-    unless @database.has_key? :ignores
-      @database[:ignores] = @ignores
-    else
-      @ignores = @database[:ignores]
-    end
-
-
-    # Since we made it this far, go ahead and be ready for signals.
-    trap("INT")  { quit("Interrupted by host system. Exiting!") }
-    trap("TERM") { quit("Terminated by host system. Exiting!") }
+    trap("INT")  { self.quit("Interrupted by host system. Exiting!") }
+    trap("TERM") { self.quit("Terminated by host system. Exiting!") }
     trap("KILL") { exit }
-    
-    trap("HUP")  { $bot.config.read_config } # Rehash on HUP!
-    
-    # Try to exit cleanly if we have to.
-    at_exit { quit }
 
-    Dir.mkdir("var") unless Dir.exists? "var"
-    Dir.mkdir(DATA_DIR) unless Dir.exists? DATA_DIR
+    at_exit { self.clean_up }
 
     EM.error_handler { |e|
       $log.error("EM.error_handler") { e.to_s }
-      $log.error("EM.error_handler") { e.backtrace }
+      $log.error("EM.error_handler") { e.backtrace.join("\n") }
     }
 
-    # Begin connecting
-    start_connections
-  end
+    Events.dispatch(:em_started)
 
-  # Iterate through configured connections and connect to servers we should
-  # connect to. Also disconnect from servers that aren't configured (for
-  # rehashing).
-  def start_connections
+    # TODO: Make this a config variable?
+    EM.add_periodic_timer(300) { DB.write_database }
 
-    # Keep a list of configured servers for later.
-    servers = Array.new
+    bind = Config[:core][:bind]
 
-    @config['servers'].each_pair do |server_name, server_config|
-      $log.debug("Bot.start_connections") { "Working on server config for #{server_name}" }
-
-      servers << server_name
-
-      if @connections.has_key? server_name
-        $log.info("Bot.start_connections") { "Skipping existing connection #{server_name}" }
+    Config[:servers].each_pair do |name, config|
+      if Connections.has_key? name
+        $log.warn("Bot.run") { "Skipping duplicate connection: #{name}" }
         next
       end
 
-      if config["core"]["bind"] != nil
-        EM.bind_connect(config["core"]["bind"], rand(64511)+1024,
-                        server_config["address"], server_config["port"], IRC_Connection,
-                        server_name, server_config,
-                        config['core']['bind'], config['core']['nick'],
-                        config['core']['user'], config['core']['realname'])
+      $log.debug("Bot.run") { "New connection: #{name}" }
+      $log.debug("Bot.run") { config.to_s }
+
+      unless bind == nil or bind.empty?
+        EM.bind_connect(bind, config[:address], config[:port], IRCConnection, name)
       else
-        EM.connect(server_config["address"], server_config["port"], IRC_Connection,
-                   server_name, server_config,
-                   config['core']['bind'], config['core']['nick'],
-                   config['core']['user'], config['core']['realname'])
+        EM.connect(config[:address], config[:port], IRCConnection, name)
       end
-
-    end
-
-    # Iterate through servers and remove @connections that should't be there
-    # anymore (useful for rehashing away connections).
-    @connections.each do |name, connection|
-      next if servers.include? name
-
-      connection.disconnect
-      @connections.delete(name)
+      
     end
   end
 
-  # Fired on PRIVMSGs.
-  # If we have a matching command in @commands, try to run it.
-  def run_commands(msg)
-    return if msg.silent?
+  def self.quit(message = "Terminus-Bot: Terminating")
+    $log.debug("Bot.quit") { "Sending disconnection requests." }
 
-    return unless msg.text =~ /\A#{msg.private? ?
-      "(#{@config['core']['prefix']})?" :
-      "(#{@config['core']['prefix']})"}([^ ]+)(.*)\Z/
-
-    return unless @commands.has_key? $2
-
-    command = @commands[$2]
-
-    level = msg.connection.users.get_level(msg)
-
-    if command.level > level
-      msg.reply("Level \02#{command.level}\02 authorization required. (Current level: #{level})")
-      return
+    Connections.each_value do |connection|
+      connection.disconnect(message)
+      connection.detach if connection.connected
     end
 
-
-    case command.chan_level
-
-    when :voice
-      unless msg.voice?
-        msg.reply("You must be voiced or better to use this command.")
-        return
-      end
-
-    when :half_op
-      unless msg.half_op?
-        msg.reply("You must be half-op or better to use this command.")
-        return
-      end
-
-    when :op
-      unless msg.op?
-        msg.reply("You must be a channel op to use this command.")
-        return
-      end
-
-    end
-
-    # Split command parameters. If the command requires no parameters, put
-    # everything in params[0].
-    params = $3.strip.split(" ", command.argc.zero? ? 1 : command.argc)
-
-    if params.length < command.argc
-      msg.reply("This command requires at least \02#{command.argc}\02 parameters.")
-      return
-    end
-
-    $log.debug("Bot.run_commands") { "Match for command #{$2} in #{command.owner}" }
-
-    begin
-      command.owner.send(command.func, msg, params) if permit_message?(command.owner, msg)
-    rescue => e
-      $log.error("Bot.run_commands") { "Problem running command #{$2} in #{command.owner}: #{e}" }
-      $log.debug("Bot.run_commands") { "Problem running command #{$2} in #{command.owner}: #{e.backtrace}" }
-      msg.reply("There was a problem running your command: #{e}")
-    end
-
+    exit
   end
 
-  # Determine whether the given event should be sent or not, based on
-  # the event itself and on the contents of the message
-  def permit_message?(owner, msg)
-    return true unless owner.is_a? Script
 
-    # Always answer private messages!
-    return true if msg.private?
+  def self.clean_up
+    $log.debug("Bot.clean_up") { "Terminating event loop and deleting PID file." }
 
-    server  = msg.connection.name
-    channel = msg.destination
-    name    = owner.my_short_name
-
-    @flags.enabled?(server, channel, name)
-  end
-
-  # Send QUITs and do any other work that needs to be done before exiting.
-  def quit(str = "Terminus-Bot: Terminating")
-    @connections.each_value do |connection|
-      connection.disconnect(str)
-    end
-
-    @scripts.die
-
-    try_exit
-  end
-
-  # Keep running until we've cleanly closed all connections.
-  def try_exit
-    $log.debug("Bot.try_exit") { "Waiting for all connections to close (#{EM.connection_count})..." }
-
-    # TODO: This shit doesn't work. The bot never exits gracefully because
-    # close_connection_after_writing gets called after the event loop is
-    # stopped. Somehow. !?!?!?!
-
-    if EM.connection_count != 0
-      EM.add_timer(1) { try_exit }
-      return
-    end
-    
-    EM.stop_event_loop
-
-    $log.debug("Bot.quit") { "Removing PID file #{PID_FILE}" }
-    File.delete(PID_FILE) if File.exists? PID_FILE
-  end
-
-  # Register a command. See the Commands struct for the args.
-  def register_command(owner, cmd, func, argc, level, chan_level, help)
-    $log.debug("Bot.register_command") { "Registering command." }
-
-    throw "Duplicate command registration: #{cmd}" if @commands.has_key? cmd
-
-    @commands[cmd] = Command.new(owner, cmd, func, argc, level, chan_level, help)
-  end
-
-  # Register a script. See the Script_Info struct for args.
-  def register_script(*args)
-    $log.debug("Bot.register_script") { "Registering script." }
-
-    script = Script_Info.new(*args)
-
-    @script_info << script
-    @flags.add_script(script.name)
-    
-    @script_info.sort_by! {|s| s.name}
-  end
-
-  # Remove a script from @scripts (by name).
-  def unregister_script(name)
-    $log.debug("Bot.unregister_script") { "Unregistering script #{name}" }
-    @script_info.delete_if {|s| s.name == name}
-  end
-
-  # Unregister a specific command. This doesn't check for ownership
-  # and removes all matching commands by name.
-  def unregister_command(cmd)
-    $log.debug("Bot.unregister_command") { "Unregistering command #{cmd}" }
-    @commands.delete(cmd)
-  end
-
-  # Unregister all commands owned by the given class.
-  def unregister_commands(owner)
-    $log.debug("Bot.unregister_commands") { "Unregistering all commands for #{owner.class.name}" }
-    @commands.delete_if {|n, c| c.owner == owner}
-  end
-
-  # Unregister all events owned by the given class.
-  def unregister_events(owner)
-    $log.debug("Bot.unregister_events") { "Unregistering all events for #{owner.class.name}" }
-    @events.delete_events_for(owner)
+    EM.stop_event_loop if EM.reactor_running?
+    File.delete(PID_FILE)
   end
 
 end
-

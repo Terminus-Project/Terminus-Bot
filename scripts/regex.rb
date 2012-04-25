@@ -20,8 +20,8 @@
 def initialize
   register_script("Show corrected text with s/regex/replacement/ is used and allow searching with g/regex/.")
 
-  register_event("PRIVMSG", :on_privmsg)
-  register_event("PART",    :on_part)
+  register_event(:PRIVMSG, :on_privmsg)
+  register_event(:PART,    :on_part)
 
   @messages = Hash.new
 end

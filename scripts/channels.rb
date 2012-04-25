@@ -25,10 +25,10 @@ def initialize
   register_command("part",      :cmd_part,      1,  5,  nil, "Part a channel.")
   register_command("cycle",     :cmd_cycle,     1,  5,  nil, "Part and then join a channel.")
 
-  register_event("001",   :join_channels)
-  register_event("JOIN",  :on_join)
-  #register_event("PING",  :leave_channels)
-  register_event("PING",  :join_channels)
+  register_event(:"001",   :join_channels)
+  register_event(:JOIN,  :on_join)
+  #register_event(:PING,  :leave_channels)
+  register_event(:PING,  :join_channels)
 
   # TODO: All channel names in here need to use proper casemapping.
   # TODO: Handle 405?

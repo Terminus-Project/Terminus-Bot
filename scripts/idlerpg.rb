@@ -27,11 +27,11 @@ def initialize
 
   register_command("idlerpg", :cmd_idlerpg, 0, 0, nil, "Get information about this network's IdleRPG. Parameters: [player]")
 
-  register_event("JOIN", :on_join)
+  register_event(:JOIN, :on_join)
 end
 
 def cmd_idlerpg(msg, params)
-  config = get_config(msg.connection.name)
+  config = get_config(msg.connection.name.to_sym)
 
   if config == nil
     msg.reply("I am not configured for this network's IdleRPG.")
@@ -40,7 +40,7 @@ def cmd_idlerpg(msg, params)
 
   name = params.empty? ? msg.nick : params[0]
 
-  unless config.has_key? "xml_url"
+  unless config.has_key? :xml_url
     msg.reply("I don't know where to get player info on this network.")
     return
   end
@@ -56,7 +56,7 @@ def cmd_idlerpg(msg, params)
 end
 
 def get_player_info(player, config)
-  url = "#{config["xml_url"]}#{URI.escape(player)}"
+  url = "#{config[:xml_url]}#{URI.escape(player)}"
 
   body = Net::HTTP.get URI.parse(url)
   root = (REXML::Document.new(body)).root
@@ -82,16 +82,16 @@ def get_player_info(player, config)
 end
 
 def on_join(msg)
-  config = get_config(msg.connection.name)
+  config = get_config(msg.connection.name.to_sym)
 
   return if config == nil
 
-  return unless config["channel"].downcase == msg.destination.downcase
+  return unless config[:channel].downcase == msg.destination.downcase
 
-  return unless config.has_key? "login_command" and config.has_key? "nick"
+  return unless config.has_key? :login_command and config.has_key? :nick
 
-  return if not msg.me? or not msg.nick != config["nick"]
+  return if not msg.me? or not msg.nick != config[:nick]
 
-  msg.send_privmsg(config["nick"], config["login_command"])
+  msg.send_privmsg(config[:nick], config[:login_command])
 end
 

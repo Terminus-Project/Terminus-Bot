@@ -49,7 +49,7 @@ def do_lookup(url, msg)
   page = StringScanner.new(get_page(URI.parse(url)).body.force_encoding('UTF-8'))
   defs = Array.new
   count = 0
-  max = get_config("max", 1).to_i
+  max = get_config(:max, 1).to_i
 
   page.skip_until(/class=.word.>/i)
   word = page.scan_until(/<\/td>/i)

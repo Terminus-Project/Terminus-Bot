@@ -21,7 +21,7 @@
 def initialize
   register_script("Reply to server pings.")
 
-  register_event("PING", :pong)
+  register_event(:PING, :pong)
 end
 
 def pong(msg)

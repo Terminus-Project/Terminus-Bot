@@ -17,14 +17,16 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 
+# TODO: Re-implement this whole crappy script.
+
 def initialize
   register_script("Relay chat between two or more channels on one or more networks.")
 
-  register_event("PRIVMSG", :on_privmsg)
-  register_event("JOIN",    :on_join)
-  register_event("PART",    :on_part)
-  register_event("KICK",    :on_kick)
-  register_event("QUIT",    :on_quit)
+  register_event(:PRIVMSG, :on_privmsg)
+  register_event(:JOIN,    :on_join)
+  register_event(:PART,    :on_part)
+  register_event(:KICK,    :on_kick)
+  register_event(:QUIT,    :on_quit)
 
   register_command("relay",  :cmd_relay,  5,  7, nil, "Manage channel relays. Parameters: ON|OFF source-network source-channel target-network target-channel")
   register_command("relays", :cmd_relays, 0,  7, nil, "List active channel relays.")
@@ -95,17 +97,17 @@ def on_privmsg(msg)
     if msg.text =~ /\01ACTION (.+)\01/
 
       if relay[0] == network and relay[1] == channel
-        $bot.connections[relay[2]].raw("PRIVMSG #{relay[3]} :\02[#{network}] * #{msg.nick}\02 #{$1}")
+        Bot::Connections[relay[2]].raw("PRIVMSG #{relay[3]} :\02[#{network}] * #{msg.nick}\02 #{$1}")
       else
-        $bot.connections[relay[0]].raw("PRIVMSG #{relay[1]} :\02[#{network}] * #{msg.nick}\02 #{$1}")
+        Bot::Connections[relay[0]].raw("PRIVMSG #{relay[1]} :\02[#{network}] * #{msg.nick}\02 #{$1}")
       end
 
     else
 
       if relay[0] == network and relay[1] == channel
-        $bot.connections[relay[2]].raw("PRIVMSG #{relay[3]} :[\02#{network}] <#{msg.nick}\02> #{msg.text}")
+        Bot::Connections[relay[2]].raw("PRIVMSG #{relay[3]} :[\02#{network}] <#{msg.nick}\02> #{msg.text}")
       else
-        $bot.connections[relay[0]].raw("PRIVMSG #{relay[1]} :[\02#{network}] <#{msg.nick}\02> #{msg.text}")
+        Bot::Connections[relay[0]].raw("PRIVMSG #{relay[1]} :[\02#{network}] <#{msg.nick}\02> #{msg.text}")
       end
 
     end
@@ -124,9 +126,9 @@ def on_join(msg)
 
   matches.each do |relay|
     if relay[0] == network and relay[1] == channel
-      $bot.connections[relay[2]].raw("PRIVMSG #{relay[3]} :\02[#{network}]\02 --> \02#{msg.nick}\02 has joined \02#{channel}\02")
+      Bot::Connections[relay[2]].raw("PRIVMSG #{relay[3]} :\02[#{network}]\02 --> \02#{msg.nick}\02 has joined \02#{channel}\02")
     else
-      $bot.connections[relay[0]].raw("PRIVMSG #{relay[1]} :\02[#{network}]\02 --> \02#{msg.nick}\02 has joined \02#{channel}\02")
+      Bot::Connections[relay[0]].raw("PRIVMSG #{relay[1]} :\02[#{network}]\02 --> \02#{msg.nick}\02 has joined \02#{channel}\02")
     end
   end
 end
@@ -143,9 +145,9 @@ def on_part(msg)
 
   matches.each do |relay|
     if relay[0] == network and relay[1] == channel
-      $bot.connections[relay[2]].raw("PRIVMSG #{relay[3]} :\02[#{network}]\02 <-- \02#{msg.nick}\02 has left \02#{channel}\02")
+      Bot::Connections[relay[2]].raw("PRIVMSG #{relay[3]} :\02[#{network}]\02 <-- \02#{msg.nick}\02 has left \02#{channel}\02")
     else
-      $bot.connections[relay[0]].raw("PRIVMSG #{relay[1]} :\02[#{network}]\02 <-- \02#{msg.nick}\02 has left \02#{channel}\02")
+      Bot::Connections[relay[0]].raw("PRIVMSG #{relay[1]} :\02[#{network}]\02 <-- \02#{msg.nick}\02 has left \02#{channel}\02")
     end
   end
 end
@@ -162,9 +164,9 @@ def on_kick(msg)
 
   matches.each do |relay|
     if relay[0] == network and relay[1] == channel
-      $bot.connections[relay[2]].raw("PRIVMSG #{relay[3]} :\02[#{network}]\02 <-- \02#{msg.raw_arr[3]}\02 has been kicked from \02#{channel}\02 by \02#{msg.nick}\02 (#{msg.text})")
+      Bot::Connections[relay[2]].raw("PRIVMSG #{relay[3]} :\02[#{network}]\02 <-- \02#{msg.raw_arr[3]}\02 has been kicked from \02#{channel}\02 by \02#{msg.nick}\02 (#{msg.text})")
     else
-      $bot.connections[relay[0]].raw("PRIVMSG #{relay[1]} :\02[#{network}]\02 <-- \02#{msg.raw_arr[3]}\02 has been kicked from \02#{channel}\02 by \02#{msg.nick}\02 (#{msg.text})")
+      Bot::Connections[relay[0]].raw("PRIVMSG #{relay[1]} :\02[#{network}]\02 <-- \02#{msg.raw_arr[3]}\02 has been kicked from \02#{channel}\02 by \02#{msg.nick}\02 (#{msg.text})")
     end
   end
 end
@@ -188,9 +190,9 @@ def on_quit(msg)
 
   matches.each do |relay|
     if relay[0] == network and relay[1] == channel
-      $bot.connections[relay[2]].raw("PRIVMSG #{relay[3]} :\02[#{network}]\02 <-- \02#{msg.nick}\02 has quit (#{msg.text})")
+      Bot::Connections[relay[2]].raw("PRIVMSG #{relay[3]} :\02[#{network}]\02 <-- \02#{msg.nick}\02 has quit (#{msg.text})")
     else
-      $bot.connections[relay[0]].raw("PRIVMSG #{relay[1]} :\02[#{network}]\02 <-- \02#{msg.nick}\02 has quit (#{msg.text})")
+      Bot::Connections[relay[0]].raw("PRIVMSG #{relay[1]} :\02[#{network}]\02 <-- \02#{msg.nick}\02 has quit (#{msg.text})")
     end
   end
 end
@@ -223,22 +225,22 @@ def relay_exists?(source_network, source_channel, target_network, target_channel
 end
 
 def relay_points_exist?(msg, source_network, source_channel, target_network, target_channel)
-  unless $bot.connections.has_key? source_network
+  unless Bot::Connections.has_key? source_network
     msg.reply("Source network \02#{source_network}\02 does not exist.")
     return false
   end
 
-  unless $bot.connections.has_key? target_network
+  unless Bot::Connections.has_key? target_network
     msg.reply("Target network \02#{target_network}\02 does not exist.")
     return false
   end
 
-  unless $bot.connections[source_network].channels.has_key? source_channel
+  unless Bot::Connections[source_network].channels.has_key? source_channel
     msg.reply("Source channel \02#{source_channel}\02 does not exist.")
     return false
   end
 
-  unless $bot.connections[target_network].channels.has_key? target_channel
+  unless Bot::Connections[target_network].channels.has_key? target_channel
     msg.reply("Target channel \02#{target_channel}\02 does not exist.")
     return false
   end

@@ -37,7 +37,7 @@ MARKOV_FILE = DATA_DIR + "markov.db"
 def initialize
   register_script("Markov chain implementation that generates somewhat readable text.")
 
-  register_event("PRIVMSG", :on_privmsg)
+  register_event(:PRIVMSG, :on_privmsg)
 
   register_command("markov", :cmd_markov, 1, 10, nil, "Manage the Markov script. Parameters: ON|OFF|FREQUENCY percentage|CLEAR|LOAD filename|INFO|WRITE|NODE node|DELETE node")
   register_command("chain",  :cmd_chain,  0,  0, nil, "Generate a random Markov chain. Parameters: [word [word]]")
@@ -82,7 +82,7 @@ end
 
 def cmd_markov(msg, params)
   arr = params[0].split
-  here = msg.connection.name + "." + msg.destination
+  here = [msg.connection.name, msg.destination]
 
   case arr.shift.upcase
 
@@ -252,7 +252,7 @@ def on_privmsg(msg)
 
   return if msg.silent?
 
-  return unless get_data(msg.connection.name + "." + msg.destination, false)
+  return unless get_data([msg.connection.name, msg.destination], false)
 
   return unless rand(100) <= get_data(:freq, 0)
 

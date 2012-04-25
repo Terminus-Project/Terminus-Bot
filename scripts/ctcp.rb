@@ -21,7 +21,7 @@
 def initialize
   register_script("Reply to some CTCP requests.")
 
-  register_event("PRIVMSG", :on_privmsg)
+  register_event(:PRIVMSG, :on_privmsg)
 end
 
 def on_privmsg(msg)

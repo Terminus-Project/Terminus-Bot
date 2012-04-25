@@ -28,14 +28,14 @@ require 'rexml/document'
 def initialize
   register_script("Fetches titles for URLs spoken in channels.")
 
-  register_event("PRIVMSG", :on_message)
+  register_event(:PRIVMSG, :on_message)
 end
 
 def on_message(msg)
   return if msg.silent? or msg.private?
 
   i = 0
-  max = get_config("max", 3).to_i
+  max = get_config(:max, 3).to_i
 
   matches = []
 
@@ -169,7 +169,7 @@ def get_twitter(msg, uri)
   return true
 end
 
-def get_page(uri, limit = get_config("redirects", 10), redirected = false)
+def get_page(uri, limit = get_config(:redirects, 10), redirected = false)
   return nil if limit == 0
 
   response = Net::HTTP.start(uri.host, uri.port,
