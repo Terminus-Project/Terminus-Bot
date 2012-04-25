@@ -49,12 +49,14 @@ def cmd_quit(msg, params)
 end
 
 def cmd_reconnect(msg, params)
-  unless Bot.connections.has_key? params[0]
+  name = params[0].to_sym
+
+  unless Bot::Connections.has_key? name
     msg.reply("No such connection.")
     return
   end
 
-  Bot.connections[params[0]].reconnect
+  Bot::Connections[name].reconnect
   msg.reply("Reconnecting.")
 end
 
