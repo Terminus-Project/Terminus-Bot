@@ -25,6 +25,6 @@ def initialize
 end
 
 def pong(msg)
-  msg.raw("PONG :#{msg.text}")
+  msg.connection.raw_fast("PONG :#{msg.text}")
 end
 

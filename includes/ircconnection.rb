@@ -167,6 +167,21 @@ module Bot
       str
     end
 
+    # Send a message immediately, bypassing the queue and throttling.
+    # This isn't guaranteed to send the message this instant, since it will
+    # still end up in EventMachine's outgoing queue.
+    def raw_fast(str)
+      return if @disconnecting
+
+      str.delete! "\r\n"
+      $log.debug("IRCConnection.raw_fast #{@name}") { "Sending: #{str}" }
+      Events.dispatch(:raw_out, Message.new(self, str, true))
+
+      send_data(str)
+
+      str
+    end
+
     def send_data(data)
       super "#{data}\n"
 
