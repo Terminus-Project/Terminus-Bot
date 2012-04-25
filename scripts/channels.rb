@@ -40,6 +40,8 @@ end
 # and shouldn't be needed once everyone has run it once (unless people start
 # tinkering with data.db).
 def canonize_channels(msg)
+  return false if msg.connection.support("CASEMAPPING", false) == false
+
   return if @canonized[msg.connection.name]
   @canonized[msg.connection.name] = true
 
@@ -51,10 +53,16 @@ def canonize_channels(msg)
   end
 
   store_data(msg.connection.name, temp)
+
+  true
 end
 
 def join_channels(msg)
-  canonize_channels(msg) # See comment above.
+  # See the TODO in the comment above #canonize_channels for why this is here.
+  unless canonize_channels(msg)
+    EM.add_timer(1) { self.join_channels(msg) }
+    return
+  end
 
   chans, keys = [], []
   channels = get_data(msg.connection.name, Hash.new)
