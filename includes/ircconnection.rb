@@ -21,12 +21,11 @@ module Bot
   class IRCConnection < EventMachine::Connection
     require 'timeout'
 
-    attr_reader :connected, :config, :name, :channels, :users, :client_host, :caps, :nick, :user, :realname
+    attr_reader :config, :name, :channels, :users, :client_host, :caps, :nick, :user, :realname
 
     def initialize(name)
       Bot::Connections[name] = self
 
-      @connected     = false
       @disconnecting = false
       @reconnecting  = false
       @send_queue    = Queue.new
@@ -106,7 +105,6 @@ module Bot
       @users      = UserManager.new(self)
       @channels   = Channels.new(self)
       @registered = false
-      @connected  = true
 
       @disconnecting, @reconnecting = false, false
 
@@ -123,8 +121,6 @@ module Bot
 
     def unbind
       return if @disconnecting or @reconnecting
-
-      @connected = false
 
       reconnect(true)
     end
