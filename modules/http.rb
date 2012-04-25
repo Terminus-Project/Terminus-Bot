@@ -16,6 +16,9 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 
+require 'net/http'
+require "uri"
+
 module Bot
   def self.http_get(uri, limit = Config[:modules][:http][:redirects], redirected = false)
     return nil if limit == 0
