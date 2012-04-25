@@ -273,7 +273,7 @@ module Bot
     # nickname canonizer, using the rule specified by CASEMAPPING
     def canonize(nick)
 
-      case support("CASEMAPPING").downcase
+      case support("CASEMAPPING", "rfc1459").downcase
 
       when "ascii"
         nick.upcase
@@ -285,7 +285,7 @@ module Bot
         nick.upcase.tr("|{}", "\\\\[]")
 
       else
-        nick
+        nick.upcase.tr("|{}^", "\\\\[]~")
 
       end
 
