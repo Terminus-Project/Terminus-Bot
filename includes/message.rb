@@ -195,6 +195,11 @@ module Bot
       @nick_canon ||= @connection.canonize @nick
     end
 
+    # Apply CASEMAPPING to the destination and return it.
+    def destination_canon
+      @destination_canon ||= @connection.canonize @destination
+    end
+
     # Return true if this message doesn't appear to have been sent in a
     # channel.
     def private?
