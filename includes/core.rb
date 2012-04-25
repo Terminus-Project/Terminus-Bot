@@ -88,6 +88,8 @@ module Bot
       connection.disconnect(message)
     end
 
+    Scripts.die
+
     try_exit
   end
 
