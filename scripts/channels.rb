@@ -42,7 +42,7 @@ def join_channels(msg)
     next if msg.connection.channels.has_key? channel
 
     chans << channel
-    keys << key.empty? ? "x" : key
+    keys << (key.empty? ? "x" : key)
 
     # TODO: determine a sane maximum for this
     if chans.length == 4
@@ -53,9 +53,6 @@ def join_channels(msg)
   end
 
   msg.raw("JOIN #{chans.join(",")} #{keys.join(",")}") unless chans.empty?
-
-  # Just in case uniq! got rid of dupes
-  store_data(msg.connection.name, channels)
 end
 
 def on_join(msg)
