@@ -28,7 +28,7 @@ require 'logger'
 require 'eventmachine'
 
 $log = Logger.new(STDOUT)
-$log.level = Logger::DEBUG
+$log.level = Logger::INFO
 
 Dir.chdir(File.dirname(__FILE__))
 
