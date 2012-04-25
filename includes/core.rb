@@ -86,12 +86,21 @@ module Bot
 
     Connections.each_value do |connection|
       connection.disconnect(message)
-      connection.detach if connection.connected
     end
 
-    exit
+    try_exit
   end
 
+  def self.try_exit
+    count = EM.connection_count
+
+    unless count.zero?
+      $log.debug("Bot.try_exit") { "Waiting for connections to close (#{count} remaining)." }
+      EM.add_timer(0.1) { self.try_exit }
+    else
+      exit
+    end
+  end
 
   def self.clean_up
     $log.debug("Bot.clean_up") { "Terminating event loop and deleting PID file." }
