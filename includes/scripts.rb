@@ -35,7 +35,7 @@ module Bot
 
     # Load all the scripts in the scripts directory.
     def load_scripts
-      $log.info("Scripts.initilize") { "Loading scripts." }
+      $log.info("ScriptManager.initilize") { "Loading scripts." }
 
       noload = Config[:core][:noload]
 
@@ -48,7 +48,7 @@ module Bot
           next if noload.include? file.match("scripts/(.+).rb")[1]
         end
 
-        $log.debug("Scripts.initilize") { "Loading #{file}" }
+        $log.debug("ScriptManager.initilize") { "Loading #{file}" }
         load_file(file)
 
       end
@@ -68,7 +68,7 @@ module Bot
 
       name = filename.match("scripts/(.+).rb")[1]
 
-      $log.debug("Scripts.load_file") { "Script file name: #{filename}" }
+      $log.debug("ScriptManager.load_file") { "Script file name: #{filename}" }
 
       script = "class Script_#{name} < Script \n #{IO.read(filename)} \n end \n Script_#{name}.new"
 
@@ -79,7 +79,7 @@ module Bot
       begin
         @scripts[name] = eval(script, nil, filename, 0)
       rescue Exception => e
-        $log.error("Scripts.load_file") { "Problem loading script #{name}. Clearing data and aborting..." }
+        $log.error("ScriptManager.load_file") { "Problem loading script #{name}. Clearing data and aborting..." }
 
         if @scripts.has_key? name
 
@@ -130,7 +130,7 @@ module Bot
     end
 
     def register_script(*args)
-      $log.debug("ScriptFactory.register_script") { "Registering script: #{args.to_s}" }
+      $log.debug("ScriptManager.register_script") { "Registering script: #{args.to_s}" }
 
       script = Script_Info.new(*args)
 
@@ -141,7 +141,7 @@ module Bot
     end
 
     def unregister_script(name)
-      $log.debug("ScriptFactory.register_script") { "Unregistering script: #{name}" }
+      $log.debug("ScriptManager.register_script") { "Unregistering script: #{name}" }
       @script_info.delete_if {|s| s.name == name}
     end
   end
