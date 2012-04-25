@@ -63,7 +63,7 @@ module Bot
       return true if msg.private?
 
       server  = msg.connection.name.to_s
-      channel = msg.destination
+      channel = msg.destination_canon
       name    = owner.my_short_name
 
       enabled?(server, channel, name)

@@ -31,14 +31,14 @@ end
 
 
 def cmd_enable(msg, params)
-  enabled = Bot::Flags.enable(params[0], params[1], params[2])
+  enabled = Bot::Flags.enable(params[0], msg.connection.canonize(params[1]), params[2])
 
   msg.reply("Enabled \02#{enabled}\02.")
 end
 
 
 def cmd_disable(msg, params)
-  enabled = Bot::Flags.disable(params[0], params[1], params[2])
+  enabled = Bot::Flags.disable(params[0], msg.connection.canonize(params[1]), params[2])
 
   msg.reply("Disabled \02#{enabled}\02.")
 end

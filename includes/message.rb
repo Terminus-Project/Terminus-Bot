@@ -125,27 +125,6 @@ module Bot
       @connection.raw(*args)
     end
 
-    # Return true if this channel is listed in the silent setting.
-    def silent?
-      return false if self.private?
-
-      silenced = Bot::Config['core']['silent']
-
-      return false if silenced == nil
-      return false if silenced.empty?
-
-      silenced.each_pair do |connection, channels|
-        next unless connection == @connection.name
-        next if channels.empty?
-
-        channels = channels.split
-
-        return true if channels.include? @destination
-      end
-
-      false
-    end
-
     # Attempt to truncate messages in such a way that the maximum
     # amount of space possible is used. This assumes the server will
     # send a full 512 bytes to a client with exactly 1459 format.
@@ -210,17 +189,17 @@ module Bot
 
     def op?
       return true if private?
-      @connection.channels[@destination].op? @nick
+      @connection.channels[destination_canon].op? @nick
     end
 
     def half_op?
       return true if private?
-      @connection.channels[@destination].half_op? @nick
+      @connection.channels[destination_canon].half_op? @nick
     end
 
     def voice?
       return true if private?
-      @connection.channels[@destination].voice? @nick
+      @connection.channels[destination_canon].voice? @nick
     end
 
 
@@ -238,9 +217,9 @@ module Bot
         next unless connection == @connection.name
         next if channels.empty?
 
-        channels = channels.split
+        channels = @connection.canonize(channels).split
 
-        return true if channels.include? @destination
+        return true if channels.include? destination_canon
       end
     end
 
