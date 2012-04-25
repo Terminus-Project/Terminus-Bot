@@ -19,13 +19,13 @@
 #
 
 
-require "net/http"
-require "uri"
 require "json"
 
 WIKI_API_URL = "https://en.wikipedia.org/w/api.php?action=query&format=json"
 
 def initialize
+  raise "wiki script requires the http module" unless defined? Bot.http_get
+
   register_script("Perform Wikipedia look-ups.")
 
   register_command("wiki", :cmd_wiki, 1, 0, nil, "Provide a link to the given Wikipedia page, corrected for redirects.")
@@ -36,19 +36,14 @@ def cmd_wiki(msg, params)
 
   uri = URI("#{WIKI_API_URL}&srsearch=#{URI.escape(params[0])}&limit=1&list=search")
 
-  http    = Net::HTTP.new(uri.host, uri.port)
-  request = Net::HTTP::Get.new(uri.request_uri)
+  response = Bot.http_get(uri)
 
-  http.use_ssl = true
-
-  response = http.request(request)
-
-  if response.code != "200"
-    msg.reply("There was a problem with the search. Response code was #{response.code}.")
+  if response == nil
+    msg.reply("There was a problem with the search.")
     return
   end
 
-  response = JSON.parse(response.body.force_encoding("UTF-8"))
+  response = JSON.parse(response[:response].body.force_encoding("UTF-8"))
 
   if response["query"]["search"].empty?
     msg.reply("No results.")

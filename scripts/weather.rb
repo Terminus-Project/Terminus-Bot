@@ -18,12 +18,12 @@
 #
 #
 
-require "uri"
-require 'net/http'
 require 'rexml/document'
 require 'htmlentities'
 
 def initialize
+  raise "weather script requires the http module" unless defined? Bot.http_get
+
   register_script("Weather information look-ups via Weather Underground (wunderground.com).")
 
   register_command("weather",   :weather,  1,  0, nil, "View current conditions for the specified location.")
@@ -34,8 +34,14 @@ end
 def weather(msg, params)
   url = "http://api.wunderground.com/auto/wui/geo/WXCurrentObXML/index.xml?query=#{URI.escape(params.join)}"
 
-  body = Net::HTTP.get URI.parse(url)
-  root = (REXML::Document.new(body)).root
+  response = Bot.http_get(URI(url))
+
+  if response == nil
+    msg.reply("There was a problem performing the looking up the weather for that location. Please try again later.")
+    return
+  end
+
+  root = (REXML::Document.new(response[:response].body)).root
 
   weather = root.elements["//weather"].text rescue nil
 
@@ -73,8 +79,14 @@ end
 def temp(msg, params)
   url = "http://api.wunderground.com/auto/wui/geo/WXCurrentObXML/index.xml?query=#{URI.escape(params.join)}"
 
-  body = Net::HTTP.get URI.parse(url)
-  root = (REXML::Document.new(body)).root
+  response = Bot.http_get(URI(url))
+
+  if response == nil
+    msg.reply("There was a problem performing the looking up the weather for that location. Please try again later.")
+    return
+  end
+
+  root = (REXML::Document.new(response[:response].body)).root
 
   weather = root.elements["//weather"].text rescue nil
 
@@ -96,8 +108,14 @@ end
 def forecast(msg, params)
   url = "http://api.wunderground.com/auto/wui/geo/ForecastXML/index.xml?query=#{URI.escape(params[0])}"
 
-  body = Net::HTTP.get URI.parse(url)
-  root = (REXML::Document.new(body)).root.elements["//txt_forecast"]
+  response = Bot.http_get(URI(url))
+
+  if response == nil
+    msg.reply("There was a problem performing the looking up the weather for that location. Please try again later.")
+    return
+  end
+
+  root = (REXML::Document.new(response[:response].body)).root.elements["//txt_forecast"]
 
   date = root.elements["date"].text rescue nil
 

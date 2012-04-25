@@ -19,12 +19,12 @@
 #
 
 
-require "net/http"
-require "uri"
 require "strscan"
 require "htmlentities"
 
 def initialize
+  raise "urbandict script requires the http module" unless defined? Bot.http_get
+
   register_script("Look up words on UrbanDictionary.com.")
   register_command("ud",       :cmd_lookup,   0,  0, nil, "Fetch the definition of a word from UrbanDictionary.com. If no parameter is given, fetch a random definition.")
 
@@ -46,7 +46,14 @@ end
 def do_lookup(url, msg)
   $log.debug('urbandict.do_lookup') { url }
 
-  page = StringScanner.new(get_page(URI.parse(url)).body.force_encoding('UTF-8'))
+  response = Bot.http_get(URI(url))
+
+  if response == nil
+    msg.reply("There was a problem looking up the definition for that word.")
+    return
+  end
+
+  page = StringScanner.new(response[:response].body.force_encoding('UTF-8'))
   defs = Array.new
   count = 0
   max = get_config(:max, 1).to_i
@@ -71,30 +78,6 @@ def do_lookup(url, msg)
     msg.reply("I was not able to find any definitions for that word.")
   else
     msg.reply(defs, false)
-  end
-end
-
-def get_page(uri, limit = 3)
-  return nil if limit == 0
-
-  response = Net::HTTP.start(uri.host, uri.port,
-    :use_ssl => uri.scheme == "https",
-    :verify_mode => OpenSSL::SSL::VERIFY_NONE) do |http|
-
-    http.request Net::HTTP::Get.new(uri.request_uri)
-  end
-
-  case response
-
-  when Net::HTTPSuccess
-    return response
-
-  when Net::HTTPRedirection
-    return get_page(URI(response['location']), limit - 1)
-
-  else
-    return nil
-
   end
 end
 

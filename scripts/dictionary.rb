@@ -18,14 +18,14 @@
 #
 
 
-require "uri"
-require 'net/http'
 require 'rexml/document'
 require 'htmlentities'
 
 URL='http://api-pub.dictionary.com/v001'
 
 def initialize
+  raise "dictionary script requires the http module" unless defined? Bot.http_get
+
   register_script("Dictionary.com look-ups.")
 
   register_command("define",    :cmd_define,    1,  0, nil, "Look up some of the possible definitions of the given word.")
@@ -47,6 +47,7 @@ def api_call(msg, opt = {})
     return  
   end
 
+  # TODO: Build this as a URI object, not a string.
   url = "#{URL}?vid=" << URI.escape(api_key)
 
   opt.each do |k, v|
@@ -55,9 +56,11 @@ def api_call(msg, opt = {})
 
   $log.debug("dictionary.api_call") { url }
 
-  body = Net::HTTP.get URI.parse(url)
+  response = Bot.http_get(URI(url))
 
-  return (REXML::Document.new(body)).root
+  return nil if response == nil
+
+  return (REXML::Document.new(response[:response].body)).root
 end
 
 def get_definition(msg, word, root, definitions)

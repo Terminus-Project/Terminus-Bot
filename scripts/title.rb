@@ -19,8 +19,6 @@
 #
 
 
-require "net/http"
-require "uri"
 require "strscan"
 require "htmlentities"
 require 'rexml/document'
