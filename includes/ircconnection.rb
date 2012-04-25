@@ -247,6 +247,15 @@ module Bot
       raw "NICK #{@nick}"
     end
 
+    def on_nick(msg)
+      return unless msg.connection == self
+
+      if msg.me?
+        @nick = msg.text
+        return
+      end
+    end
+
     def on_isupport(msg)
       return if msg.connection != self
 
