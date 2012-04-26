@@ -46,13 +46,11 @@ module Bot
 
       noload = Config[:core][:noload]
 
-      noload = noload.split unless noload == nil
-
       Dir.glob("scripts/*.rb").each do |file|
 
         unless noload == nil
           # I realize we are pulling the name out twice. Deal with it.
-          next if noload.include? file.match("scripts/(.+).rb")[1]
+          next if noload.keys.include? file.match("scripts/(.+).rb")[1].to_sym
         end
 
         $log.debug("ScriptManager.initilize") { "Loading #{file}" }

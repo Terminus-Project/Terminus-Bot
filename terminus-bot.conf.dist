@@ -123,8 +123,12 @@ core = {
   # OPTIONAL
   # Scripts in this list will not be loaded during start, but can still be loaded
   # manually. Script names should be the same as the file name without an
-  # extension.
-  noload = 
+  # extension.List one script per line.
+  #
+  # The defaults included here are developer modules (lograw).
+  noload = {
+    lograw
+  }
 
 
   # REQUIRED
