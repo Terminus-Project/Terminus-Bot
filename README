@@ -12,7 +12,7 @@ For assistance:
 
 About the bot:
 
-Terminus-Bot is an IRC bot written in Ruby licensed under AGPLv3. Its purpose is to completely avoid the problems of other bots.
+Terminus-Bot is an IRC bot written in Ruby under the MIT license. Its purpose is to completely avoid the problems of other bots.
 
 The authors of the project are long-time IRC bot users and know how things can go badly or be confusing. Hopefully, we can address all of the problems we have encountered, as well as all of those everyone else tells us about.
 
