@@ -28,7 +28,7 @@ require "htmlentities"
 require 'rexml/document'
 
 def initialize
-  raise "http script requires the http_client module" unless defined? Bot.http_get
+  raise "http script requires the http_client module" unless defined? MODULE_LOADED_HTTP
 
   register_script("Fetches titles for URLs spoken in channels.")
 

@@ -41,7 +41,7 @@ module Bot
       @buf           = BufferedTokenizer.new
       @client_host   = ""
       
-      @caps = ClientCapabilities.new(self) if defined? ClientCapabilities
+      @caps = ClientCapabilities.new(self) if defined? MODULE_LOADED_CLIENT_CAPABILITIES
 
       @name = name
       @name.freeze
@@ -237,7 +237,7 @@ module Bot
 
     def register
       raw "PASS #{@config[:password]}" if @config.has_key? :password
-      raw "CAP LS" if defined? ClientCapabilities
+      raw "CAP LS" if defined? MODULE_LOADED_CLIENT_CAPABILITIES
 
       raw "NICK #{@nick}"
       raw "USER #{@user} 0 0 :#{@realname}"

@@ -28,7 +28,7 @@ require "json"
 WIKI_API_URL = "https://en.wikipedia.org/w/api.php?action=query&format=json"
 
 def initialize
-  raise "wiki script requires the http_client module" unless defined? Bot.http_get
+  raise "wiki script requires the http_client module" unless defined? MODULE_LOADED_HTTP
 
   register_script("Perform Wikipedia look-ups.")
 

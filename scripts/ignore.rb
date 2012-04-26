@@ -24,7 +24,7 @@
 #
 
 def initialize
-  raise "ignores script requires the ignores module" unless defined? Ignores
+  raise "ignores script requires the ignores module" unless defined? MODULE_LOADED_IGNORES
 
   register_script("Manipulate the bot's hostmask-based ignore list.")
 

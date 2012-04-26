@@ -29,7 +29,7 @@ require 'htmlentities'
 URL='https://ws.audioscrobbler.com/2.0/'
 
 def initialize
-  raise "lastfm script requires the http_client module" unless defined? Bot.http_get
+  raise "lastfm script requires the http_client module" unless defined? MODULE_LOADED_HTTP
 
   register_script("Last.fm interface.")
 
