@@ -199,11 +199,11 @@ module Bot
 
 
     def my_name 
-      self.class.name.split("::").last
+      @my_name ||= self.class.name.split("::").last
     end
 
     def my_short_name 
-      self.class.name.split("_").last
+      @my_short_name ||= self.class.name.split("_").last
     end
 
 
