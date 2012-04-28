@@ -45,7 +45,7 @@ def cmd_battle(msg, params)
 
   when "START"
 
-    if @active.has_key? msg.destination
+    if @active.has_key? msg.destination_canon
       msg.reply("There is already an active battle in \02#{msg.destination}\02")
       return
     end
@@ -54,23 +54,23 @@ def cmd_battle(msg, params)
 
   when "STOP"
 
-    unless @active.has_key? msg.destination
+    unless @active.has_key? msg.destination_canon
       msg.reply("There is no active battle in \02#{msg.destination}\02")
       return
     end
 
-    @active.delete(msg.destination)
+    @active.delete(msg.destination_canon)
 
     msg.reply("The battle in \02#{msg.destination}\02 has been ended by \02#{msg.nick}\02", false)
 
   when "RESTART"
 
-    unless @active.has_key? msg.destination
+    unless @active.has_key? msg.destination_canon
       msg.reply("There is no active battle in \02#{msg.destination}\02")
       return
     end
 
-    @active[msg.destination] = Hash.new
+    @active[msg.destination_canon] = Hash.new
 
     msg.reply("The battle in \02#{msg.destination}\02 has been restarted by \02#{msg.nick}\02.", false)
 
@@ -83,7 +83,7 @@ end
 
 
 def start_battle(msg)
-  @active[msg.destination] = Hash.new
+  @active[msg.destination_canon] = Hash.new
 
   msg.reply("\02#{msg.nick}\02 has started a battle!", false)
   msg.reply("To attack other players, use \02/me attacks TARGET with ITEM\02", false)
@@ -92,14 +92,14 @@ end
 
 
 def get_health(msg, target)
-  return @active[msg.destination][target] if @active[msg.destination].include? target
+  return @active[msg.destination_canon][target] if @active[msg.destination_canon].include? target
 
   return get_config(:start_health, 100)
 end
 
 
 def set_health(msg, target, health)
-  @active[msg.destination][target] = health
+  @active[msg.destination_canon][target] = health
 end
 
 
@@ -112,7 +112,7 @@ def attack_player(msg, target, weapon)
   original = target
   target = msg.connection.canonize target
 
-  unless msg.connection.channels[msg.destination].users.has_key? target
+  unless msg.connection.channels[msg.destination_canon].users.has_key? target
     msg.reply("There is no such user in the channel.")
     return
   end
@@ -173,14 +173,14 @@ end
 
 def cmd_health(msg, params)
 
-  unless @active.has_key? msg.destination
+  unless @active.has_key? msg.destination_canon
     msg.reply("There is no active battle in \02#{msg.destination}\02")
     return
   end
 
-  msg.send_notice(msg.nick, "There are currently \02#{@active[msg.destination].keys.length}\02 players in \02#{msg.destination}\02:")
+  msg.send_notice(msg.nick, "There are currently \02#{@active[msg.destination_canon].keys.length}\02 players in \02#{msg.destination}\02:")
 
-  @active[msg.destination].each do |player, health|
+  @active[msg.destination_canon].each do |player, health|
     msg.send_notice(msg.nick, "\02#{sprintf("%31.31s", player)}\02 #{health} HP")
   end
 
@@ -190,14 +190,14 @@ end
 
 def cmd_heal(msg, params)
 
-  unless @active.has_key? msg.destination
+  unless @active.has_key? msg.destination_canon
     msg.reply("There is no active battle in \02#{msg.destination}\02")
     return
   end
 
   target = msg.connection.canonize params[0]
 
-  unless @active[msg.destination].include? target
+  unless @active[msg.destination_canon].include? target
     msg.reply("There is no player #{params[0]} that can be healed.")
     return
   end
@@ -208,7 +208,7 @@ def cmd_heal(msg, params)
 end
 
 def on_privmsg(msg)
-  return if msg.private? or msg.silent? or not @active.has_key? msg.destination
+  return if msg.private? or msg.silent? or not @active.has_key? msg.destination_canon
 
   if msg.text =~ /\01ACTION (atta|hit)[^ ]+ (.*?) with (.*)\01/i
     attack_player(msg, $2, $3)
