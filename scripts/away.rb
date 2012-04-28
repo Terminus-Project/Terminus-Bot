@@ -40,15 +40,17 @@ end
 def on_privmsg(msg)
   return if msg.private? or msg.silent? or not get_data([msg.connection.name, msg.destination], false)
 
-  chan = msg.connection.channels[msg.destination]
+  chan = msg.connection.channels[msg.destination_canon]
 
   # TODO: This is going to fail for nicks that end with punctuation. Do it a
   # different way.
   msg.text.split(" ").each do |word|
     word.sub!(/[[:punct:]]*\Z/, "")
 
-    if chan.get_user(word)
-      check_away(msg, word)
+    nick = msg.connection.canonize(word)
+
+    if chan.users.has_key? nick
+      check_away(msg, nick)
     end
   end
 end
