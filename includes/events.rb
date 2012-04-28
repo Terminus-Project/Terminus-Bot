@@ -48,9 +48,12 @@ module Bot
         begin
           unless msg == nil
             next unless Bot::Flags.permit_message?(event.owner, msg)
+
+            event.owner.send(event.func, msg)
+          else
+            event.owner.send(event.func)
           end
 
-          event.owner.send(event.func, msg)
         rescue => e
           $log.error("events.run") { "Error running event #{name}: #{e}" }
           $log.debug("events.run") { "Backtrace for #{name}: #{e.backtrace}" }
