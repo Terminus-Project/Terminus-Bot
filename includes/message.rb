@@ -192,7 +192,7 @@ module Bot
     def private?
       return true if @destination == nil
 
-      not @connection.support("CHANTYPES", "#&").include? @destination.chr
+      @private ||= not @connection.support("CHANTYPES", "#&").include? @destination.chr
     end
 
     def op?
