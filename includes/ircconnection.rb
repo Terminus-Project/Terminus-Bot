@@ -317,7 +317,7 @@ module Bot
     def support(param, default = nil)
       param.upcase!
 
-      @isupport.has_hey?(param) ? @isupport[param] : default
+      @isupport.has_key?(param) ? @isupport[param] : default
     end
 
     def to_s
