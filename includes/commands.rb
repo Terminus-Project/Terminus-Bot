@@ -43,13 +43,14 @@ module Bot
 
         command = self[$2]
 
+        return unless Bot::Flags.permit_message?(command.owner, msg)
+
         level = msg.connection.users.get_level(msg)
 
         if command.level > level
           msg.reply("Level \02#{command.level}\02 authorization required. (Current level: #{level})")
           return
         end
-
 
         case command.chan_level
 
@@ -86,7 +87,7 @@ module Bot
         $log.debug("CommandManager.on_privmsg") { "Match for command #{$2} in #{command.owner}" }
 
         begin
-          command.owner.send(command.func, msg, params) if Bot::Flags.permit_message?(command.owner, msg)
+          command.owner.send(command.func, msg, params)
         rescue => e
           $log.error("CommandManager.on_privmsg") { "Problem running command #{$2} in #{command.owner}: #{e}" }
           $log.debug("CommandManager.on_privmsg") { e.backtrace }
