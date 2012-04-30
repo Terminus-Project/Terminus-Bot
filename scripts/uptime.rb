@@ -31,5 +31,6 @@ end
 
 def cmd_uptime(msg, params)
   since = File.ctime(PID_FILE).to_duration_s
-  msg.reply("I was started #{since} ago. \02In:\02 #{Bot.lines_in} lines (#{sprintf("%.4f", Bot.bytes_in / 1024.0)} KiB) \02Out:\02 #{Bot.lines_out} lines (#{sprintf("%.4f", Bot.bytes_out / 1024.0)} KiB)")
+  #msg.reply("I was started #{since} ago. \02In:\02 #{Bot.lines_in} lines (#{sprintf("%.4f", Bot.bytes_in / 1024.0)} KiB) \02Out:\02 #{Bot.lines_out} lines (#{sprintf("%.4f", Bot.bytes_out / 1024.0)} KiB)")
+  msg.reply("I was started #{since} ago.")
 end
