@@ -111,11 +111,7 @@ load_includes
 # TODO: Verify configuration and check for database corruption.
 
 # Launch!
-pid = fork do
-  EM.run do
-    Bot.run
-  end
-end
+pid = EM.fork_reactor { Bot.run }
 
 # Bot.run changes $log to something else, so just puts this.
 puts "Terminus-Bot started as #{pid}. Writing to #{PID_FILE}"
