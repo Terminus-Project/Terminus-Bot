@@ -99,8 +99,6 @@ Commands:
 * NICK - Change the bot's nick for the current connection.
 * QUIT - Kill the bot.
 * RECONNECT - Reconnect the specified connection.
-* RAW - Send raw text over the IRC connection.
-* EVAL - Run raw Ruby code.
 
 ### Away
 
@@ -222,6 +220,12 @@ Commands:
 
 * DNS - Perform a DNS look-up.
 * RDNS - Perform a reverse DNS look-up.
+
+### Eval
+
+Commands:
+
+* EVAL - Run raw Ruby code.
 
 ### Factoids
 
@@ -416,6 +420,12 @@ PING from your client.
 
 Reply to server PINGs. Without this script loaded, the bot will frequently
 disconnect due to ping timeouts.
+
+### Raw
+
+Commands:
+
+* RAW - Send raw text over the IRC connection.
 
 ### Regex
 
