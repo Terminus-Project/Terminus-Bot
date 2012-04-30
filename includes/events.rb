@@ -26,7 +26,7 @@
 module Bot
   Event = Struct.new(:name, :func, :owner)
 
-  class EventFactory < Hash
+  class EventManager < Hash
 
     # Create a new event. The key in the hash table is the event name
     # which is used to run the event. The value is an array which will store
@@ -70,6 +70,6 @@ module Bot
 
   end
 
-  Events = EventFactory.new
+  Events = EventManager.new
 
 end
