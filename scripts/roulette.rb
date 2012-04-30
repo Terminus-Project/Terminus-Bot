@@ -33,7 +33,7 @@ def cmd_roulette(msg, params)
   return if msg.private? or msg.silent?
 
   if rand(6) == 0
-    if msg.connection.channels[msg.destination].half_op? msg.connection.nick
+    if msg.connection.channels[msg.destination_canon].half_op? msg.connection.nick
       msg.raw("KICK #{msg.destination} #{msg.nick} :Bang!")
     else
       msg.reply("Bang!")
