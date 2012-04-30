@@ -62,7 +62,7 @@ def cmd_ping(msg, params)
     end
   end
 
-  msg.send_privmsg(msg.nick, "\01PING\01")
+  msg.connection.raw_fast("PRIVMSG #{msg.nick} :\01PING\01")
 
   # Get a fresh time for slightly increased accuracy.
   @pending[msg.connection.name][msg.nick] = Time.now.to_f
