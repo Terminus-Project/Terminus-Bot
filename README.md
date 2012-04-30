@@ -16,15 +16,15 @@ have encountered, as well as all of those everyone else tells us about.
 * Linux
 * Ruby 1.9.3
 * gems (mandatory)
-    eventmachine
-    psych (included psych has UTF-8 bugs)
+    * eventmachine
+    * psych (included psych has UTF-8 bugs)
 * gems (for some scripts)
-    htmlentities
-    json
-    psych 1.2.2
-    dnsruby
+    * htmlentities
+    * json
+    * psych 1.2.2
+    * dnsruby
 * Script Dependencies
-    netutils: ping, ping6, mtr
+    * netutils: ping, ping6, mtr
 
 # How to use Terminus-Bot
 
