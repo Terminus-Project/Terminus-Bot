@@ -26,8 +26,8 @@
 def initialize()
   register_script("Provide on-protocol help for bot scripts and commands.")
 
-  register_command("help", :cmd_help,         0,  0, nil, "Show help for the given command, or a list of all commands. Parameters: [command]")
-  register_command("script", :cmd_script,     0,  0, nil, "Show a description of the given script, or a list of all scripts. Parameters: [script]")
+  register_command("help", :cmd_help,         0,  0, nil, "Show help for the given command or a list of all commands. Parameters: [command]")
+  register_command("script", :cmd_script,     0,  0, nil, "Show a description of the given script or a list of all scripts. Parameters: [script]")
 end
 
 def cmd_help(msg, params)

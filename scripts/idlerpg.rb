@@ -31,7 +31,7 @@ require 'htmlentities'
 def initialize
   register_script("Play IdleRPG.")
 
-  register_command("idlerpg", :cmd_idlerpg, 0, 0, nil, "Get information about this network's IdleRPG. Parameters: [player]")
+  register_command("idlerpg", :cmd_idlerpg, 0, 0, nil, "Get information about players on this network's IdleRPG game. Parameters: [player]")
 
   register_event(:JOIN, :on_join)
 end

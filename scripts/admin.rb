@@ -28,7 +28,7 @@ def initialize
 
   register_command("eval",     :cmd_eval,     1, 10, nil, "Run raw Ruby code.")
   register_command("quit",     :cmd_quit,     0, 10, nil, "Kill the bot.")
-  register_command("reconnect",:cmd_reconnect,1, 10, nil, "Reconnect the named connection.")
+  register_command("reconnect",:cmd_reconnect,1, 10, nil, "Reconnect the specified connection.")
 
   register_command("rehash",   :cmd_rehash,   0,  8, nil, "Reload the configuration file.")
   register_command("nick",     :cmd_nick,     1,  7, nil, "Change the bot's nick for this connection.")
@@ -36,7 +36,7 @@ def initialize
   #register_command("includes", :cmd_includes, 0,  9, nil, "Reload core files with stopping the bot. Warning: may produce undefined behavior.")
   register_command("reload",   :cmd_reload,   1,  9, nil, "Reload one or more scripts.")
   register_command("unload",   :cmd_unload,   1,  9, nil, "Unload one or more scripts.")
-  register_command("load",     :cmd_load,     1,  9, nil, "Load the named script.")
+  register_command("load",     :cmd_load,     1,  9, nil, "Load the specified script.")
 
   register_command("raw",      :cmd_raw,      1,  9, nil, "Send raw text over the IRC connection.")
 end

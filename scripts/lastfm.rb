@@ -33,7 +33,7 @@ def initialize
 
   register_script("Last.fm interface.")
 
-  register_command("np",    :cmd_np,    1,  0, nil, "Show the most recent track for the given Last.fm user.")
+  register_command("np",    :cmd_np,    1,  0, nil, "Show the currently playing track for the given Last.fm user.")
 end
 
 def api_call(msg, opt = {})

@@ -33,15 +33,15 @@ def initialize
 
   register_script("Dictionary.com look-ups.")
 
-  register_command("define",    :cmd_define,    1,  0, nil, "Look up some of the possible definitions of the given word.")
-  register_command("spell",     :cmd_spell,     1,  0, nil, "Suggest correct or alternate spellings of the given word.")
-  register_command("slang",     :cmd_slang,     1,  0, nil, "Look up possible meanings of the given slang word.")
+  register_command("define",    :cmd_define,    1,  0, nil, "Look up some of the possible definitions of a word.")
+  register_command("spell",     :cmd_spell,     1,  0, nil, "Suggest correct or alternate spellings of a word.")
+  register_command("slang",     :cmd_slang,     1,  0, nil, "Look up possible meanings of a slang word.")
   #register_command("example",   :cmd_example,   1,  0, nil, "Find usage examples for the given word.")
   #register_command("thesaurus", :cmd_thesaurus, 1,  0, nil, "Look up synonyms and antonyms of the given word.")
   #register_command("synonyms",  :cmd_synonyms,  1,  0, nil, "Find synonyms for the given word.")
-  register_command("etymology", :cmd_etymology, 1,  0, nil, "Look up the etymology of a word on Dictionary.com")
-  register_command("wotd",      :cmd_wotd,      0,  0, nil, "Fetch the Word of the Day on Dictionary.com")
-  register_command("randword",  :cmd_random,    0,  0, nil, "Fetch a random word from Dictionary.com.")
+  register_command("etymology", :cmd_etymology, 1,  0, nil, "Look up the etymology of a word.")
+  register_command("wotd",      :cmd_wotd,      0,  0, nil, "Fetch the Word of the Day on dictionary.com")
+  register_command("randword",  :cmd_random,    0,  0, nil, "Look up the definition of a random word.")
 end
 
 def api_call(msg, opt = {})

@@ -26,9 +26,9 @@
 def initialize
   register_script("Encode and decode strings using various basic ciphers")
 
-  register_command("ciphers", :cmd_ciphers, 0,  0, nil, "List ciphers")
-  register_command("encode",  :cmd_encode,  3,  0, nil, "Encode something using a particular cipher and key. Parameters: cipher key message")
-  register_command("decode",  :cmd_decode,  3,  0, nil, "Decode something using a particular cipher and key. Parameters: cipher key message")
+  register_command("ciphers", :cmd_ciphers, 0,  0, nil, "List the available cphers.")
+  register_command("encode",  :cmd_encode,  3,  0, nil, "Encode some text using a particular cipher and key. Parameters: cipher key message")
+  register_command("decode",  :cmd_decode,  3,  0, nil, "Decode some text using a particular cipher and key. Parameters: cipher key message")
 
   # TODO: When aliases are added to core, kill this.
   register_command("rot13",   :cmd_rot13,   0,  0, nil, "Alias for encode/decode rot 13.")

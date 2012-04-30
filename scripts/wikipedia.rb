@@ -32,7 +32,7 @@ def initialize
 
   register_script("Perform Wikipedia look-ups.")
 
-  register_command("wiki", :cmd_wiki, 1, 0, nil, "Provide a link to the given Wikipedia page, corrected for redirects.")
+  register_command("wiki", :cmd_wiki, 1, 0, nil, "Search Wikipedia for the given text.")
 end
 
 def cmd_wiki(msg, params)
