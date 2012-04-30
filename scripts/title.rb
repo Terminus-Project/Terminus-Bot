@@ -72,7 +72,7 @@ def get_youtube(msg, uri)
 
   link, vid = "", ""
 
-  if uri.host == 'youtu.be'
+  if uri.host == 'youtu.be' or uri.host == 'www.youtu.be'
     vid = uri.path[1..uri.path.length-1].split("&")[0]
   else
     query = uri.query.split("&").select {|a| a.start_with? "v="}[0]
