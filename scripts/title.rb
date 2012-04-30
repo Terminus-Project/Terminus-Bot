@@ -92,7 +92,7 @@ def get_youtube(msg, uri)
   return false if response == nil
 
   # TODO: YouTube apparently does some things with JSON. Use that if possible!
-  root = REXML::Document.new(response[:response].body.force_encoding('UTF-8')).root
+  root = REXML::Document.new(response[:response].body.force_encoding('ASCII-8BIT')).root
 
   return false unless root.get_elements("error").empty?
 
@@ -123,7 +123,7 @@ def get_title(msg, uri)
 
     return if response == nil
 
-    page = StringScanner.new(response[:response].body.force_encoding('UTF-8'))
+    page = StringScanner.new(response[:response].body.force_encoding('ASCII-8BIT'))
 
     page.skip_until(/<title[^>]*>/ix)
     title = page.scan_until(/<\/title[^>]*>/ix)
@@ -161,7 +161,7 @@ def get_twitter(msg, uri)
   # Since we're already using REXML for YouTube, we may as well use it here too.
   # (However, see the TODO about that.)
   
-  root = REXML::Document.new(response[:response].body.force_encoding('UTF-8')).root
+  root = REXML::Document.new(response[:response].body.force_encoding('ASCII-8BIT')).root
 
   return false unless root.get_elements("error").empty?
 
