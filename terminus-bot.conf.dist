@@ -128,6 +128,8 @@ core = {
   # The defaults included here are developer modules (lograw).
   noload = {
     lograw
+    eval
+    raw
   }
 
 

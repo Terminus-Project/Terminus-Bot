@@ -26,7 +26,6 @@
 def initialize
   register_script("Bot administration script.")
 
-  register_command("eval",     :cmd_eval,     1, 10, nil, "Run raw Ruby code.")
   register_command("quit",     :cmd_quit,     0, 10, nil, "Kill the bot.")
   register_command("reconnect",:cmd_reconnect,1, 10, nil, "Reconnect the specified connection.")
 
@@ -37,16 +36,6 @@ def initialize
   register_command("reload",   :cmd_reload,   1,  9, nil, "Reload one or more scripts.")
   register_command("unload",   :cmd_unload,   1,  9, nil, "Unload one or more scripts.")
   register_command("load",     :cmd_load,     1,  9, nil, "Load the specified script.")
-
-  register_command("raw",      :cmd_raw,      1,  9, nil, "Send raw text over the IRC connection.")
-end
-
-def cmd_eval(msg, params)
-  begin
-    msg.reply(eval(params[0]).to_s)
-  rescue Exception => e
-    msg.reply(e.to_s)
-  end
 end
 
 def cmd_quit(msg, params)
@@ -140,6 +129,3 @@ def cmd_load(msg, params)
   EM.defer(op)
 end
 
-def cmd_raw(msg, params)
-  msg.reply(msg.raw(params[0]))
-end
