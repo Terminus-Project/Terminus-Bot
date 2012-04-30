@@ -25,6 +25,7 @@
 # SOFTWARE.
 #
 
+# Don't comment this out. No, really.
 unless RUBY_VERSION.start_with? "1.9"
   puts "Ruby version 1.9 is required."
   exit -1
