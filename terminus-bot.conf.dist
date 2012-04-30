@@ -155,6 +155,8 @@ servers = {
   # }
   #
   # Optional settings include:
+  #   timeout         (number: seconds of inactivity before connection is
+  #                    closed; 0 disables the timeout. Must be > 0.)
   #   password        (string)
   #   ssl             (boolean)
   #   sasl_username   (string)

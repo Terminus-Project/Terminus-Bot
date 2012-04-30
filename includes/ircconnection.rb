@@ -60,6 +60,9 @@ module Bot
 
       Flags.add_server(name.to_s)
 
+      timeout = @config[:timeout] rescue 0
+      set_comm_inactivity_timeout(timeout)
+
       $log.debug("IRCConnection.initialize #{name}") { "Starting message sender." }
 
       send_single_message
