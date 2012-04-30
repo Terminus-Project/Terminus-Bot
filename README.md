@@ -1,11 +1,6 @@
- _______                  _                        ____        _
-|__   __|                (_)                      |  _ \      | |
-   | | ___ _ __ _ __ ___  _ _ __  _   _ ___ ______| |_) | ___ | |_
-   | |/ _ \ '__| '_ ` _ \| | '_ \| | | / __|______|  _ < / _ \| __|
-   | |  __/ |  | | | | | | | | | | |_| \__ \      | |_) | (_) | |_
-   |_|\___|_|  |_| |_| |_|_|_| |_|\__,_|___/      |____/ \___/ \__|
+# Terminus-Bot
 
-  irc.staticbox.net #Terminus-Bot         http://terminus-bot.net/
+irc.staticbox.net #Terminus-Bot         http://terminus-bot.net/
 
 # About the Bot
 
