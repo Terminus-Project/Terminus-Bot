@@ -37,7 +37,7 @@ module Bot
 
     # Read the config file named by FILE_NAME.
     def read_config
-      throw "No Config File" unless File.exists? FILE_NAME
+      raise "No Config File" unless File.exists? FILE_NAME
 
       $log.info("Configuration.read_config") { "Loading the configuration file." } 
 
@@ -56,7 +56,7 @@ module Bot
         next if line[0] == "#" or line.empty?
 
         if line == "}"
-          throw "Unexpected } on line #{line_number}" if parents.empty?
+          raise "Unexpected } on line #{line_number}" if parents.empty?
 
           current = parents.pop
 
