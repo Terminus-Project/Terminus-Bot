@@ -63,10 +63,6 @@ module Bot
       timeout = @config[:timeout] rescue 0
       set_comm_inactivity_timeout(timeout)
 
-      $log.debug("IRCConnection.initialize #{name}") { "Starting message sender." }
-
-      send_single_message
-
       $log.debug("IRCConnection.initialize #{name}") { "Done preparing connection." }
     end
 
@@ -126,11 +122,14 @@ module Bot
         start_tls(:verify_peer => false)
       end
 
+      send_single_message
       register
     end
 
     def unbind
       return if @disconnecting or @reconnecting
+
+      EM.cancel_timer(@timer)
 
       reconnect(true)
     end
@@ -232,9 +231,7 @@ module Bot
         end
       end
 
-      EM.add_timer(delay) do
-        send_single_message
-      end
+      @timer = EM.add_timer(delay) { send_single_message }
     end
 
 
