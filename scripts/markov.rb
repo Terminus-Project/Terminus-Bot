@@ -532,7 +532,7 @@ def read_database
   fi = File.open(MARKOV_FILE, "r")
 
   while line = fi.gets
-    arr = line.force_encoding('UTF-8').split("\t")
+    arr = line.force_encoding('UTF-8').chomp.split("\t")
 
     word = arr.shift
 
@@ -542,11 +542,11 @@ def read_database
 
     until arr.empty?
       linked = arr.shift
-      score  = arr.shift
+      score  = arr.shift.to_i
 
       @nodes[linked] ||= Node.new(linked, Hash.new)
 
-      links[linked] = Link.new(@nodes[word], @nodes[linked], score.to_i)
+      links[linked] = Link.new(@nodes[word], @nodes[linked], score)
     end
 
   end
