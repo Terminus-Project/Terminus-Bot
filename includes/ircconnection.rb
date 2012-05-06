@@ -152,10 +152,8 @@ module Bot
 
       begin
 
-        Timeout::timeout(Bot::Config[:core][:timeout]) do
-          Events.dispatch(:raw,     msg)
-          Events.dispatch(msg.type, msg)
-        end
+        Events.dispatch(:raw,     msg)
+        Events.dispatch(msg.type, msg)
 
       rescue Exception => e
         $log.error("IRC.receive_line") { "#{@name}: Uncaught error in message handler: #{e}" }
