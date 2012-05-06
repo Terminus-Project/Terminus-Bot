@@ -70,6 +70,7 @@ def cmd_chain(msg, params)
       return
     end
 
+    # TODO: Kill this defer call.
     op = proc { create_chain(params.shift.downcase, false) }
     cb = proc { |chain| 
       if chain.empty?
@@ -143,6 +144,7 @@ def cmd_markov(msg, params)
 
     msg.reply("Loading file(s). This may take a while.")
 
+    # TODO: Kill this defer call.
     op = proc {
       read_files(msg, arr)
       msg.reply("Files loaded!") 
@@ -168,6 +170,7 @@ def cmd_markov(msg, params)
 
   when "WRITE"
 
+    # TODO: Kill this defer call.
     op = proc {
       begin
         write_database
@@ -288,7 +291,7 @@ def random_chain
     tries += 1
   end while chain.empty?
 
-  return chain
+  chain
 end
 
 
@@ -311,6 +314,7 @@ end
 def parse_line(str)
   last_word = ""
 
+  # TODO: This is wrong. Fix it.
   str.scan(/[\w'-]+[[:punct:]]?\s+[\w'-]+[[:punct:]]?/).each do |word|
     word.downcase!
 
@@ -413,7 +417,6 @@ def create_chain(word = @nodes.keys.sample, random = true)
   return "" if buf.empty?
 
   chain = buf.join(" ")
-  chain.capitalize!
 
   # Remove terminating punctuation from the first word.
   chain.sub!(/\A(\w+)[!?.]?/, '\1')
@@ -427,13 +430,13 @@ def create_chain(word = @nodes.keys.sample, random = true)
 
   if not chain =~ /[!?.]\Z/
     if chain =~ /[[:punct:]]\Z/
-      chain[chain.length-1] = "."
+      chain[-1] = "."
     else
       chain << "."
     end
   end
 
-  return chain
+  chain.capitalize!
 end
 
 
@@ -481,8 +484,7 @@ def load_weechat_log(filename)
 end
 
 def read_files(msg, arr)
-  while arr.length > 0
-    file = arr.pop
+  while file = arr.shift
 
     unless File.exists? file
       msg.reply("File #{file} does not exist. Skipping.")
@@ -500,22 +502,26 @@ end
 
 
 def write_database
-  fi = File.open(MARKOV_FILE, "w")
-
   $log.info("Markov.write_database") { "If the database is large, this will take a while." }
 
+  temp = "%s.tmp" % MARKOV_FILE
+  fi = File.open(temp, "w")
+
   @nodes.each do |word, node|
-    fi << word << "\t"
+    fi << "%s\t" % word
 
     node.links.each do |n, l|
-      fi << l.target.word << "\t"
-      fi << l.score.to_s << "\t"
+      fi << "%s\t%d\t" % [l.target.word, l.score]
     end
 
     fi << "\n"
   end
 
   fi.close
+
+  File.rename(temp, MARKOV_FILE)
+
+  $log.info("Markov.write_database") { "Done writing database." }
 end
 
 def read_database
@@ -530,15 +536,15 @@ def read_database
 
     word = arr.shift
 
-    @nodes[word] = Node.new(word, Hash.new) unless @nodes.has_key? word
+    @nodes[word] ||= Node.new(word, Hash.new)
 
     links = @nodes[word].links
 
-    arr.each do |link|
+    until arr.empty?
       linked = arr.shift
       score  = arr.shift
 
-      @nodes[linked] = Node.new(linked, Hash.new) unless @nodes.has_key? linked
+      @nodes[linked] ||= Node.new(linked, Hash.new)
 
       links[linked] = Link.new(@nodes[word], @nodes[linked], score.to_i)
     end
@@ -546,4 +552,6 @@ def read_database
   end
 
   fi.close
+
+  $log.info("Markov.read_database") { "Done loading database." }
 end
