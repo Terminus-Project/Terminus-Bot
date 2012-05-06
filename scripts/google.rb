@@ -40,88 +40,82 @@ def initialize
 end
 
 def cmd_g(msg, params)
-  msg.reply(getResult(params[0], "web"))
+  get_result(params[0], :web) {|r| msg.reply(r)}
 end
 
 def cmd_gimage(msg, params)
-  msg.reply(getResult(params[0], "images"))
+  get_result(params[0], :images) {|r| msg.reply(r)}
 end
 
 def cmd_gvideo(msg, params)
-  msg.reply(getResult(params[0], "video"))
+  get_result(params[0], :video) {|r| msg.reply(r)}
 end
 
 def cmd_gpatent(msg, params)
-  msg.reply(getResult(params[0], "patent"))
+  get_result(params[0], :patent) {|r| msg.reply(r)}
 end
 
 def cmd_gbook(msg, params)
-  msg.reply(getResult(params[0], "books"))
+  get_result(params[0], :books) {|r| msg.reply(r)}
 end
 
 def cmd_gnews(msg, params)
-  msg.reply(getResult(params[0], "news"))
+  get_result(params[0], :news) {|r| msg.reply(r)}
 end
 
 def cmd_gblog(msg, params)
-  msg.reply(getResult(params[0], "blogs"))
+  get_result(params[0], :blogs) {|r| msg.reply(r)}
 end
 
-
-def getResult(query, type)
+# TODO: Use http_client module rather than net/http.
+def get_result(query, type)
   $log.debug('google') { "Searching #{type} for #{query}" }
 
-  query = URI.escape(query)
+  uri = URI("https://ajax.googleapis.com/ajax/services/search/#{type}")
+  query_hash = {:v => "1.0", :q => query}
 
-  uri = URI("https://ajax.googleapis.com/ajax/services/search/#{type}?v=1.0&q=#{query}")
+  Bot.http_get(uri, query_hash) do |response|
 
-  http      = Net::HTTP.new(uri.host, uri.port)
-  request   = Net::HTTP::Get.new(uri.request_uri)
+    unless response.status == 200
+      yield "There was a problem with the search. Sorry! Response code: #{response.status}."
+    end
 
-  request.initialize_http_header({"User-Agent" => get_config(:useragent, "terminus-bot.net")})
-  http.use_ssl = true
+    response = JSON.parse(response.content)
 
-  response  = http.request(request)
+    results = []
+    limit = get_config(:resultlimit, 3).to_i
 
-  if response.code != "200"
-    return "There was a problem with the search. Sorry! Response code was #{response.code}."
-  end
-  
-  response = JSON.parse(response.body)
+    response["responseData"]["results"].each_with_index do |result, num|
 
-  results = Array.new
-  limit = get_config(:resultlimit, 3).to_i
+      break if num >= limit
 
-  response["responseData"]["results"].each_with_index do |result, num|
+      case type
 
-    break if num >= limit
-
-    case type
-
-      when "web"
+      when :web
         results << "\02#{result["titleNoFormatting"]}\02 - #{result["url"]}"
 
-      when "images"
+      when :images
         results << "\02#{result["titleNoFormatting"]}\02 - #{result["url"]}"
 
-      when "books"
+      when :books
         results << "\02#{result["titleNoFormatting"]}\02 by #{result["authors"]} - #{URI.unescape(result["url"])} - #{result["bookId"]} - Published: #{result["publishedYear"]} - #{result["pageCount"]} Pages"
 
-      when "news"
+      when :news
         results << "\02#{result["titleNoFormatting"]}\02 - #{URI.unescape(result["url"])}"
 
-      when "blogs"
+      when :blogs
         results << "\02#{result["titleNoFormatting"]}\02 by #{result["author"]} - #{result["postUrl"]} - Published #{result["publishedDate"]}"
 
-      when "patent"
+      when :patent
         results << "\02#{result["titleNoFormatting"]}\02 - #{URI.unescape(result["url"])} - assigned to #{result["assignee"]} - #{result["patentNumber"]} (#{result["patentStatus"]}) - Applied for on: #{result["applicationDate"]}"
 
-      when "video"
+      when :video
         results << "\02#{result["titleNoFormatting"]}\02 - #{result["url"]}"
+
+      end
 
     end
 
+    yield (results.empty? ? "No results." : results)
   end
-
-  results.empty? ? "No results." : results
 end

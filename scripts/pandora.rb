@@ -76,40 +76,38 @@ def on_message(msg)
     return
   end
 
-  EM.defer(proc { 
-    get_reply(botid, msg.text[msg.connection.nick.length+2..msg.text.length].chomp, msg)
-  })
+  get_reply(botid, msg.text[msg.connection.nick.length+2..msg.text.length].chomp, msg)
 end
 
 def get_reply(botid, str, msg)
   return if str.empty?
 
-  begin
-    $log.info('pandora.get_reply') { "Getting relpy with #{botid} for message: #{str}" }
+  custid = msg.connection.name.to_s + "/" + msg.destination
 
-    custid = msg.connection.name.to_s + "/" + msg.destination
+  uri = URI(PANDORA_URL)
+  query_hash = {:custid => custid, :botid => botid, :input => str}
 
-    response = Net::HTTP.post_form(URI.parse(PANDORA_URL),
-                                    :custid => custid,
-                                    :botid => botid,
-                                    :input => str)
+  Bot.http_post(uri, query_hash) do |response|
+    begin
+      $log.info('pandora.get_reply') { "Getting relpy with #{botid} for message: #{str}" }
 
-    response = response.body.gsub(/\n/, "").scan(/that>(.+)<\/that/)[0]
+      response = response.content.gsub(/\n/, "").scan(/that>(.+)<\/that/)[0]
 
-    if response == nil
-      msg.reply("Pandora gave me an empty reply.")
-      return
+      if response == nil
+        msg.reply("Pandora gave me an empty reply.")
+        raise "empty pandora reply"
+      end
+
+      if response.kind_of? Array
+        response = response.join(" ")
+      end
+
+      response = HTMLEntities.new.decode(response.force_encoding('UTF-8'))
+
+      msg.reply(response.gsub(/<[^>]+>/, "").gsub(/\s+/, " "))
+    rescue => e
+      $log.error('pandora.get_reply') { "Error getting reply: #{e}" }
+      msg.reply("Error getting reply from Pandora: #{e}")
     end
-
-    if response.kind_of? Array
-      response = response.join(" ")
-    end
-
-    response = HTMLEntities.new.decode(response.force_encoding('UTF-8'))
-
-    msg.reply(response.gsub(/<[^>]+>/, "").gsub(/\s+/, " "))
-  rescue => e
-    $log.error('pandora.get_reply') { "Error getting reply: #{e}" }
-    msg.reply("Error getting reply from Pandora: #{e}")
   end
 end

@@ -26,7 +26,7 @@
 require 'rexml/document'
 require 'htmlentities'
 
-URL='https://ws.audioscrobbler.com/2.0/'
+URL='http://ws.audioscrobbler.com/2.0/'
 
 def initialize
   raise "lastfm script requires the http_client module" unless defined? MODULE_LOADED_HTTP
@@ -41,50 +41,44 @@ def api_call(msg, opt = {})
 
   if api_key == nil
     msg.reply("A Last.fm API key must be set in the bot's configuration for this command to work.")
-    return nil
+    yield nil
+    return
   end
 
-  # TODO: Build this as a URI object, not a string.
-  url = "#{URL}?api_key=" << URI.escape(api_key)
+  opt[:api_key] = api_key
+    
+  Bot.http_get(URI(URL), opt) do |response|
+    # TODO: Figure out why we never get here.
 
-  opt.each do |k, v|
-    url << "&" << k.to_s << "=" << URI.escape(v.to_s)
+    unless response.status == 200
+      msg.reply("There was a problem retrieving information.")
+    else
+      yield REXML::Document.new(response.content.force_encoding('ASCII-8BIT'))
+    end
   end
-
-  $log.debug("lastfm.api_call") { url }
-
-  response = Bot.http_get(URI(url))
-
-  if response == nil
-    msg.reply("There was a problem retrieving information. (Response code: #{response.code})")
-    return nil
-  end
-
-  REXML::Document.new(response[:response].body.force_encoding('UTF-8'))
 end
 
 
 def cmd_np(msg, params)
-  root = api_call(msg, :user => params[0], :method => "user.getrecenttracks", :limit => 1)
+  api_call(msg, :user => params[0], :method => "user.getrecenttracks", :limit => "1") do |root|
+    raise "API call failed" if root == nil
 
-  return if root == nil
+    track = root.elements["//track"]
 
-  track = root.elements["//track"]
+    if track == nil
+      msg.reply("No such user.")
+      next
+    end
 
-  if track == nil
-    msg.reply("No such user.")
-    return
+    if track.attributes.get_attribute("nowplaying") == nil
+      msg.reply("No music is currently playing.")
+      next
+    end
+
+    name = track.elements["//name"].text
+    artist = track.elements["//artist"].text
+
+    msg.reply("\02#{params[0]} is listening to:\02 #{artist} - #{name}", false)
   end
-
-  if track.attributes.get_attribute("nowplaying") == nil
-    msg.reply("No music is currently playing.")
-    return
-  end
-
-  name = track.elements["//name"].text
-  artist = track.elements["//artist"].text
-
-  msg.reply("\02#{params[0]} is listening to:\02 #{artist} - #{name}", false)
-
 end
 

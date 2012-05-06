@@ -24,7 +24,6 @@
 #
 
 require 'rss'
-require 'open-uri'
 require 'htmlentities'
 
 
@@ -54,7 +53,7 @@ def cmd_rss(msg, params)
   case action
     when "LIST"
 
-      feeds = get_data([msg.connection.name, msg.destination], Array.new)
+      feeds = get_data([msg.connection.name, msg.destination_canon], Array.new)
 
       msg.send_notice(msg.nick, "There are \02#{feeds.length}\02 feeds for #{msg.destination}")
 
@@ -66,7 +65,7 @@ def cmd_rss(msg, params)
 
     when "CLEAR"
 
-      delete_data([msg.connection.name, msg.destination])
+      delete_data([msg.connection.name, msg.destination_canon])
 
       msg.reply("The feed list has been cleared.")
 
@@ -77,17 +76,17 @@ def cmd_rss(msg, params)
         return
       end
 
-      feeds = get_data([msg.connection.name, msg.destination], Array.new)
+      feeds = get_data([msg.connection.name, msg.destination_canon], Array.new)
 
       feeds << [arg, ""]
 
-      store_data([msg.connection.name, msg.destination], feeds)
+      store_data([msg.connection.name, msg.destination_canon], feeds)
 
       msg.reply("Feed added to the list for \02#{msg.destination}\02.")
 
     when "DEL"
 
-      feeds = get_data([msg.connection.name, msg.destination], Array.new)
+      feeds = get_data([msg.connection.name, msg.destination_canon], Array.new)
 
       feed = feeds.select {|f| f[0] == arg}[0]
 
@@ -98,7 +97,7 @@ def cmd_rss(msg, params)
 
       feeds.delete(feed)
 
-      store_data([msg.connection.name, msg.destination], feeds)
+      store_data([msg.connection.name, msg.destination_canon], feeds)
 
       msg.reply("Feed deleted from the list for \02#{msg.destination}\02.")
 
@@ -127,45 +126,46 @@ def check_feeds
     next unless Bot::Connections[network].channels.has_key? channel
 
     val.each do |feed|
-      rss = get_feed(feed[0])
       next if feed == nil
+  
+      $log.debug("rss.check_feeds") { "Checking %s for %s on %s" % [feed, channel, network] }
 
-      send = false
-      atom = rss.kind_of? RSS::Atom::Feed
+      Bot.http_get(URI(feed[0])) do |response|
+        next unless response.status == 200
 
-      feed_title = sanitize(atom ? rss.title.to_s : rss.channel.title.to_s)
+        rss = RSS::Parser.parse(response.content)
 
-      items = rss.items[0..get_config(:max, 3).to_i-1].reverse
+        send = false
+        atom = rss.kind_of? RSS::Atom::Feed
 
-      items.each do |item|
+        feed_title = sanitize(atom ? rss.title.to_s : rss.channel.title.to_s)
 
-        if item.title == feed[1]
-          send = true
+        items = rss.items[0..get_config(:max, 3).to_i-1].reverse
 
-        elsif send or feed[1].empty?
-          title = sanitize(item.title.to_s)
+        items.each do |item|
 
-          link = sanitize(atom ? item.links.select {|l| l.rel == "alternate"}[0].href.to_s : item.link.to_s)
+          if item.title == feed[1]
+            send = true
 
-          Bot::Connections[network].raw("PRIVMSG #{channel} :\02[#{feed_title}]\02 #{title} :: #{link}")
+          elsif send or feed[1].empty?
+            title = sanitize(item.title.to_s)
+
+            link = sanitize(atom ? item.links.select {|l| l.rel == "alternate"}[0].href.to_s : item.link.to_s)
+
+            Bot::Connections[network].raw("PRIVMSG #{channel} :\02[#{feed_title}]\02 #{title} :: #{link}")
+
+          end
 
         end
 
+        # update the last read title
+
+        feed[1] = items.last.title.to_s
       end
-
-      # update the last read title
-
-      feed[1] = items.last.title.to_s
     end
   end
 
   $log.debug("rss.check_feeds") { "Done checking feeds." }
-end
-
-def get_feed(uri)
-  open(uri) do |rss|
-    return RSS::Parser.parse(rss)
-  end
 end
 
 def sanitize(str)

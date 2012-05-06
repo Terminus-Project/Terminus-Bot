@@ -189,6 +189,16 @@ modules = {
   #  # result in more memory usage, but will allow scripts which use this module
   #  # to make use of more data.
   #  max_size = 100
+  #
+  #  # OPTIONAL
+  #  # The user agent to send to web servers when making requests.
+  #  # default: Terminus-Bot (http://terminus-bot.net/)
+  #  #user_agent = Terminus-Bot (http://terminus-bot.net/)
+  #
+  #  # OPTIONAL
+  #  # The number of seconds before closing an inactive HTTP socket.
+  #  # default: 5
+  #  #timeout = 5
   #}
 }
 

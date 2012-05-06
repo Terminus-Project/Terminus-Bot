@@ -52,20 +52,12 @@ def api_call(msg, opt = {})
     return  
   end
 
-  # TODO: Build this as a URI object, not a string.
-  url = "#{URL}?vid=" << URI.escape(api_key)
+  opt[:vid] = api_key
 
-  opt.each do |k, v|
-    url << "&" << k.to_s << "=" << URI.escape(v.to_s)
+  Bot.http_get(URI(URL), opt) do |response, uri, redirected|
+    yield nil unless response.status == 200
+    yield (REXML::Document.new(response.content)).root
   end
-
-  $log.debug("dictionary.api_call") { url }
-
-  response = Bot.http_get(URI(url))
-
-  return nil if response == nil
-
-  return (REXML::Document.new(response[:response].body)).root
 end
 
 def get_definition(msg, word, root, definitions)
@@ -104,115 +96,120 @@ def get_definition(msg, word, root, definitions)
 
   if results.empty?
     msg.reply("No results")
-    return
+  else
+    msg.reply(results)
   end
-    
-  msg.reply(results)
 end
 
 def cmd_define(msg, params)
-  root = api_call(msg, :q => params[0], :type => :define)
+  api_call(msg, :q => params[0], :type => :define) do |root|
 
-  definitions = root.elements["//dictionary"].attributes["totalresults"].to_i rescue 0
+    definitions = root.elements["//dictionary"].attributes["totalresults"].to_i rescue 0
 
-  if definitions == 0
-    msg.reply("No results")
-    return
+    if definitions == 0
+      msg.reply("No results")
+    else
+      get_definition(msg, params[0], root, definitions)
+    end
+
   end
-
-  get_definition(msg, params[0], root, definitions)
 end
 
 def cmd_spell(msg, params)
-  root = api_call(msg, :q => params[0], :type => :spelling)
+  api_call(msg, :q => params[0], :type => :spelling) do |root|
 
-  buf = Array.new
-  coder = HTMLEntities.new
+    buf = Array.new
+    coder = HTMLEntities.new
 
-  buf << coder.decode(root.elements["//spelling/bestmatch/dictionary"].text) rescue ""
+    buf << coder.decode(root.elements["//spelling/bestmatch/dictionary"].text) rescue ""
 
-  root.elements["//spelling/suggestions/dictionaryitems"].elements.each do |e|
-    buf << coder.decode(e.text)
-  end
+    root.elements["//spelling/suggestions/dictionaryitems"].elements.each do |e|
+      buf << coder.decode(e.text)
+    end
 
-  if buf.empty?
-    msg.reply("No results")
-  else
-    msg.reply("Best match: \02#{buf.shift}\02#{buf.empty? ? "" : " (Other matches: #{buf[0..10].join(", ")})"}" )
+    if buf.empty?
+      msg.reply("No results")
+    else
+      msg.reply("Best match: \02#{buf.shift}\02#{buf.empty? ? "" : " (Other matches: #{buf[0..10].join(", ")})"}" )
+    end
   end
 end
 
 def cmd_etymology(msg, params)
-  root = api_call(msg, :site => :etymology, :q => params[0])
-  coder = HTMLEntities.new
+  api_call(msg, :site => :etymology, :q => params[0]) do |root|
+    coder = HTMLEntities.new
 
-  if ((root.elements['/results'].attributes['id'].to_s == "nothingfound") rescue false)
-    msg.reply("No results")
-    return
+    if ((root.elements['/results'].attributes['id'].to_s == "nothingfound") rescue false)
+      msg.reply("No results")
+    else
+      root = root.elements['/etymology']
+
+      buf = "\02#{coder.decode(root.elements['date'].text)}\02: "
+      buf << coder.decode(root.text).gsub(/<\/?(b|i)>/, "\02").gsub(/<.>/, '').gsub(/\s+/, " ")
+
+      msg.reply(buf)
+    end
   end
-
-  root = root.elements['/etymology']
-
-  buf = "\02#{coder.decode(root.elements['date'].text)}\02: "
-  buf << coder.decode(root.text).gsub(/<\/?(b|i)>/, "\02").gsub(/<.>/, '').gsub(/\s+/, " ")
-
-  msg.reply(buf)
 end
 
-def cmd_thesaurus(msg, params)
-  root = api_call(msg, :type => :define, :site => :thesaurus, :q => params[0])
-end
+#def cmd_thesaurus(msg, params)
+#  api_call(msg, :type => :define, :site => :thesaurus, :q => params[0]) do |root|
+#  end
+#end
 
 def cmd_slang(msg, params)
-  root = api_call(msg, :type => :define, :site => :slang, :q => params[0])
-  coder = HTMLEntities.new
+  api_call(msg, :type => :define, :site => :slang, :q => params[0]) do |root|
+    coder = HTMLEntities.new
 
-  definitions = root.elements["//slang"].attributes["totalresults"].to_i rescue 0
+    definitions = root.elements["//slang"].attributes["totalresults"].to_i rescue 0
 
-  if definitions == 0
-    msg.reply("No results")
-    return
+    if definitions == 0
+      msg.reply("No results")
+    else
+      get_definition(msg, params[0], root, definitions)
+    end
+
   end
-
-  get_definition(msg, params[0], root, definitions)
 end
 
-def cmd_example(msg, params)
-  root = api_call(msg, :type => :example, :q => params[0])
-end
+#def cmd_example(msg, params)
+#  api_call(msg, :type => :example, :q => params[0]) do |root|
+#  end
+#end
 
 def cmd_wotd(msg, params)
-  root = api_call(msg, :type => :wotd)
-  coder = HTMLEntities.new
+  api_call(msg, :type => :wotd) do |root|
+    coder = HTMLEntities.new
 
-  root = root.elements['/wordoftheday/entry']
+    root = root.elements['/wordoftheday/entry']
 
-  buf = "\02#{coder.decode(root.elements['word'].text)} "
-  buf << "(#{coder.decode(root.elements['partofspeech'].text)}):\02 "
-  buf << coder.decode(root.elements['shortdefinition'].text)
+    buf = "\02#{coder.decode(root.elements['word'].text)} "
+    buf << "(#{coder.decode(root.elements['partofspeech'].text)}):\02 "
+    buf << coder.decode(root.elements['shortdefinition'].text)
 
-  msg.reply(buf)
+    msg.reply(buf)
+  end
 end
 
-def cmd_synonyms(msg, params)
-end
+#def cmd_synonyms(msg, params)
+#end
 
 def cmd_random(msg, param)
-  root = api_call(msg, :type => :random)
+  api_call(msg, :type => :random) do |root|
+    buf = Array.new
+    coder = HTMLEntities.new
 
-  buf = Array.new
-  coder = HTMLEntities.new
+    word = coder.decode(root.elements["//dictionary/random_entry"].text)
+    root = api_call(msg, :q => word, :type => :define)
 
-  word = coder.decode(root.elements["//dictionary/random_entry"].text)
-  root = api_call(msg, :q => word, :type => :define)
+    definitions = root.elements["//dictionary"].attributes["totalresults"].to_i rescue 0
 
-  definitions = root.elements["//dictionary"].attributes["totalresults"].to_i rescue 0
+    if definitions == 0
+      msg.reply("No results")
+    else
+      get_definition(msg, word, root, definitions)
+    end
 
-  if definitions == 0
-    msg.reply("No results")
-    return
   end
-
-  get_definition(msg, word, root, definitions)
 end
 
