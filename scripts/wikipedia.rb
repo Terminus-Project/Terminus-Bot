@@ -25,7 +25,7 @@
 
 require "json"
 
-WIKI_API_URL = "https://en.wikipedia.org/w/api.php?action=query&format=json"
+WIKI_API_URL = "http://en.wikipedia.org/w/api.php"
 
 def initialize
   raise "wiki script requires the http_client module" unless defined? MODULE_LOADED_HTTP
@@ -38,31 +38,30 @@ end
 def cmd_wiki(msg, params)
   $log.info('wikipedia.cmd_wiki') { "Getting Wikipedia page for #{params[0]}" }
 
-  uri = URI("#{WIKI_API_URL}&srsearch=#{URI.escape(params[0])}&limit=1&list=search")
+  Bot.http_get(URI(WIKI_API_URL), :action=> :query, :format => :json, :srsearch => params[0], :limit => 1, :list => :search) do |response|
 
-  response = Bot.http_get(uri)
+    unless response.status == 200
+      msg.reply("There was a problem with the search.")
+      next
+    end
 
-  if response == nil
-    msg.reply("There was a problem with the search.")
-    return
+    response = JSON.parse(response.content.force_encoding("UTF-8"))
+
+    if response["query"]["search"].empty?
+      msg.reply("No results.")
+      next
+    end
+
+    data = response["query"]["search"][0]
+
+    link_title = data["title"].gsub(/\s/, "_")
+
+    # .gsub ALL THE THINGS!
+    snippet = data["snippet"].gsub(/<[^>]+>/, '').gsub(/\s+/, ' ').gsub(/\s([[:punct:]]+)\s/, '\1 ')
+
+    buf = "\02#{data["title"]}:\02 #{snippet}"
+    buf << " https://en.wikipedia.org/wiki/#{URI.escape(link_title)}"
+
+    msg.reply(buf, false)
   end
-
-  response = JSON.parse(response[:response].body.force_encoding("UTF-8"))
-
-  if response["query"]["search"].empty?
-    msg.reply("No results.")
-    return
-  end
-
-  data = response["query"]["search"][0]
-
-  link_title = data["title"].gsub(/\s/, "_")
-
-  # .gsub ALL THE THINGS!
-  snippet = data["snippet"].gsub(/<[^>]+>/, '').gsub(/\s+/, ' ').gsub(/\s([[:punct:]]+)\s/, '\1 ')
-
-  buf = "\02#{data["title"]}:\02 #{snippet}"
-  buf << " https://en.wikipedia.org/wiki/#{URI.escape(link_title)}"
-
-  msg.reply(buf, false)
 end

@@ -87,59 +87,59 @@ def get_youtube(msg, uri)
   vid = URI.escape(vid)
   api = URI("https://gdata.youtube.com/feeds/api/videos/#{vid}?v=2")
 
-  response = Bot.http_get(api)
+  Bot.http_get(api) do |response|
+    next unless response.status == 200
 
-  return false if response == nil
+    # TODO: YouTube apparently does some things with JSON. Use that if possible!
+    root = REXML::Document.new(response.content.force_encoding('ASCII-8BIT')).root
 
-  # TODO: YouTube apparently does some things with JSON. Use that if possible!
-  root = REXML::Document.new(response[:response].body.force_encoding('ASCII-8BIT')).root
+    next unless root.get_elements("error").empty?
 
-  return false unless root.get_elements("error").empty?
+    title    = root.get_elements("title").first.text.to_s
+    author   = root.get_elements("author/name").first.text.to_s
+    views    = root.get_elements("yt:statistics").first.attribute("viewCount").to_s
 
-  title    = root.get_elements("title").first.text.to_s
-  author   = root.get_elements("author/name").first.text.to_s
-  views    = root.get_elements("yt:statistics").first.attribute("viewCount").to_s
+    rating   = root.get_elements("yt:rating").first
 
-  rating   = root.get_elements("yt:rating").first
+    likes, dislikes = 0, 0
 
-  likes, dislikes = 0, 0
+    unless rating == nil
+      likes    = rating.attribute("numLikes").to_s
+      dislikes = rating.attribute("numDislikes").to_s
+    end
 
-  unless rating == nil
-    likes    = rating.attribute("numLikes").to_s
-    dislikes = rating.attribute("numDislikes").to_s
+    msg.reply("\02YouTube Video\02 #{title} \02Uploaded By:\02 #{author} \02Views:\02 #{views} \02Likes:\02 #{likes} \02Dislikes:\02 #{dislikes}#{link}", false)
+
   end
   
-  msg.reply("\02YouTube Video\02 #{title} \02Uploaded By:\02 #{author} \02Views:\02 #{views} \02Likes:\02 #{likes} \02Dislikes:\02 #{dislikes}#{link}", false)
-
-  return true
+  true
 end
 
 
 def get_title(msg, uri)
-  begin
-    $log.info('title.get_title') { "Getting title for #{uri}" }
+  $log.info('title.get_title') { "Getting title for #{uri}" }
 
-    response = Bot.http_get(uri)
+  Bot.http_get(uri) do |response, uri, redirected|
+    begin
+      next unless response.status == 200
 
-    return if response == nil
+      page = StringScanner.new(response.content.force_encoding('ASCII-8BIT'))
 
-    page = StringScanner.new(response[:response].body.force_encoding('ASCII-8BIT'))
+      page.skip_until(/<title[^>]*>/ix)
+      title = page.scan_until(/<\/title[^>]*>/ix)
 
-    page.skip_until(/<title[^>]*>/ix)
-    title = page.scan_until(/<\/title[^>]*>/ix)
+      next if title == nil
 
-    return if title == nil
+      len = title.length - 9
+      next if len <= 0
 
-    len = title.length - 9
-    return if len <= 0
+      title = title[0..len].strip.gsub(/[[[:cntrl:]]\s]+/, " ")
+      title = HTMLEntities.new.decode(title)
 
-    title = title[0..len].strip.gsub(/[[[:cntrl:]]\s]+/, " ")
-    title = HTMLEntities.new.decode(title)
-
-    msg.reply("\02Title on #{response[:hostname]}#{" (redirected)" if response[:redirected]}:\02 " + title, false)
-  rescue => e
-    $log.error('title.get_title') { "Error getting title for #{uri}: #{e} #{e.backtrace.join("\n")}" }
-    return
+      msg.reply("\02Title on #{uri.host}#{" (redirected)" if redirected}:\02 " + title, false)
+    rescue => e
+      $log.error('title.get_title') { "Error getting title for #{uri}: #{e} #{e.backtrace.join("\n")}" }
+    end
   end
 end
 
@@ -154,22 +154,22 @@ def get_twitter(msg, uri)
   id = URI.escape($1)
   api = URI("https://api.twitter.com/1/statuses/show.xml?id=#{id}")
 
-  response = Bot.http_get(api)
+  Bot.http_get(api) do |response|
+    next unless response == 200
 
-  return false if response == nil
+    # Since we're already using REXML for YouTube, we may as well use it here too.
+    # (However, see the TODO about that.)
 
-  # Since we're already using REXML for YouTube, we may as well use it here too.
-  # (However, see the TODO about that.)
-  
-  root = REXML::Document.new(response[:response].body.force_encoding('ASCII-8BIT')).root
+    root = REXML::Document.new(response.content.force_encoding('ASCII-8BIT')).root
 
-  return false unless root.get_elements("error").empty?
+    next unless root.get_elements("error").empty?
 
-  text     = root.get_elements("text").first.text.to_s.gsub(/[\r\n[[:cntrl:]]]/, '')
-  author   = root.get_elements("user/screen_name").first.text.to_s
-  
-  msg.reply("\02<@#{author}>\02 #{text}", false)
+    text     = root.get_elements("text").first.text.to_s.gsub(/[\r\n[[:cntrl:]]]/, '')
+    author   = root.get_elements("user/screen_name").first.text.to_s
 
-  return true
+    msg.reply("\02<@#{author}>\02 #{text}", false)
+  end
+
+  true
 end
 

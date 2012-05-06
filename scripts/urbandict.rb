@@ -50,38 +50,40 @@ end
 def do_lookup(url, msg)
   $log.debug('urbandict.do_lookup') { url }
 
-  response = Bot.http_get(URI(url))
+  Bot.http_get(URI(url)) do |response, uri, redirected|
 
-  if response == nil
-    msg.reply("There was a problem looking up the definition for that word.")
-    return
-  end
+    unless response.status == 200
+      msg.reply("There was a problem looking up the definition for that word.")
+      break
+    end
 
-  page = StringScanner.new(response[:response].body.force_encoding('UTF-8'))
-  defs = Array.new
-  count = 0
-  max = get_config(:max, 1).to_i
+    page = StringScanner.new(response.content.force_encoding('ASCII-8BIT'))
+    defs = Array.new
+    count = 0
+    max = get_config(:max, 1).to_i
 
-  page.skip_until(/class=.word.>/i)
-  word = page.scan_until(/<\/td>/i)
-  word = clean_result(word[0..word.length-7])
+    page.skip_until(/class=.word.>/i)
+    word = page.scan_until(/<\/td>/i)
+    word = clean_result(word[0..word.length-7])
 
-  while page.skip_until(/<div class="definition">/i) != nil and count < max
-    count += 1
+    while page.skip_until(/<div class="definition">/i) != nil and count < max
+      count += 1
 
-    d = page.scan_until(/<\/div>/i)
+      d = page.scan_until(/<\/div>/i)
 
-    d = clean_result(d[0..d.length - 7]) rescue "I wasn't able to parse this definition."
+      d = clean_result(d[0..d.length - 7]) rescue "I wasn't able to parse this definition."
 
-    d = HTMLEntities.new.decode(d)
+      d = HTMLEntities.new.decode(d)
 
-    defs << "\02[#{word}]\02 #{d}"
-  end
-  
-  if count == 0
-    msg.reply("I was not able to find any definitions for that word.")
-  else
-    msg.reply(defs, false)
+      defs << "\02[#{word}]\02 #{d}"
+    end
+
+    if count == 0
+      msg.reply("I was not able to find any definitions for that word.")
+    else
+      msg.reply(defs, false)
+    end
+
   end
 end
 
