@@ -175,7 +175,7 @@ def cmd_level(msg, params)
     end
   end
 
-  msg.reply("Aurthorization level for \02#{params[0]}\02 changed to \02#{level}\02.")
+  msg.reply("Authorization level for \02#{params[0]}\02 changed to \02#{level}\02.")
   $log.info("account.cmd_level") { "#{msg.origin} changed authorization level for #{params[0]} to #{level}" }
 end
 
