@@ -76,8 +76,7 @@ module Bot
 
     # TODO: Let callers add headers.
     headers = [
-      "User-agent: %s" % ua,
-      "Content-Type: application/x-www-form-urlencoded"
+      "User-agent: %s" % ua
     ]
 
     conn = EM::Protocols::HttpClient2.connect(:host => uri.host,
