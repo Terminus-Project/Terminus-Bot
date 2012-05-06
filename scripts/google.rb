@@ -117,7 +117,7 @@ def getResult(query, type)
         results << "\02#{result["titleNoFormatting"]}\02 - #{URI.unescape(result["url"])} - assigned to #{result["assignee"]} - #{result["patentNumber"]} (#{result["patentStatus"]}) - Applied for on: #{result["applicationDate"]}"
 
       when "video"
-        results << "\02#{result["titleNoFormatting"]}\02 - #{result["playUrl"]}"
+        results << "\02#{result["titleNoFormatting"]}\02 - #{result["url"]}"
 
     end
 
