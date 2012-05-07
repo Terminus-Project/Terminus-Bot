@@ -494,6 +494,11 @@ def read_database
 
     word = arr.shift
 
+    if word == nil or word.empty?
+      $log.warn("Markov.read_database") { "Skipping invalid database entry." }
+      next
+    end
+
     @nodes[word] ||= Node.new(word, Hash.new)
 
     links = @nodes[word].links
@@ -501,6 +506,11 @@ def read_database
     until arr.empty?
       linked = arr.shift
       score  = arr.shift.to_i
+
+      if score == 0 or linked == nil or linked.empty?
+        $log.warn("Markov.read_database") { "Skipping invalid database entry." }
+        next
+      end
  
       @nodes[linked] ||= Node.new(linked, Hash.new)
 
