@@ -23,9 +23,8 @@
 # SOFTWARE.
 #
 
-# If we're generating chains with random words, how
-# many times do we try before giving up?
-MAX_TRIES = 100
+# TODO: Fix the node implementation. We should be able to use an arbitrary
+#       number of words for each node, and they should be stored separately.
 
 # Each word is a node. Each node contains a hash table of links to other nodes.
 # A link is created each time one word follows another.
@@ -70,19 +69,13 @@ def cmd_chain(msg, params)
       return
     end
 
-    # TODO: Kill this defer call.
-    op = proc { create_chain(params.shift.downcase, false) }
-    cb = proc { |chain| 
-      if chain.empty?
-        msg.reply("I was not able to create a chain with that seed.")
-      else
-        msg.reply(chain, false)
-      end
-    }
-
-    EM.defer(op, cb)
+    build_chain(params[0].dup) do |chain|
+      msg.reply(chain, false)
+    end
   else
-    msg.reply(random_chain, false)
+    build_chain do |chain|
+      msg.reply(chain, false)
+    end
   end
 end
 
@@ -264,49 +257,28 @@ def on_privmsg(msg)
 
   return unless rand(100) <= get_data(:freq, 0)
 
-  chain = create_chain(msg.stripped.split.sample.downcase)
+  build_chain(msg.stripped.split.sample.downcase, false) do |chain|
+    next if chain.empty?
 
-  return if chain.empty?
+    if chain =~ /\A\w+s\s/
+      chain[0] = chain[0].downcase
 
-  if chain =~ /\A\w+s\s/
-    chain[0] = chain[0].downcase
-
-    msg.reply("\01ACTION #{chain}\01", false)
-  else
-    msg.reply(chain, false)
+      msg.reply("\01ACTION #{chain}\01", false)
+    else
+      msg.reply(chain, false)
+    end
   end
 end
 
 
 # Markov Stuff
 
-def random_chain
-  tries = 0
-  chain = ""
-
-  begin
-    return nil if tries >= MAX_TRIES
-
-    chain = create_chain
-    tries += 1
-  end while chain.empty?
-
-  chain
-end
-
-
-# Add a word pair to our data set.
-#
-# Create a link between nodes if one doesn't exist. If it does, just increment
-# the link score by 1.
+# Add a word pair to our data set or increment a link score.
 def add_pair(foo, bar)
   links = @nodes[foo].links
 
-  unless links.has_key? bar
-    links[bar] = Link.new(@nodes[foo], @nodes[bar], 1)
-  else
-    links[bar].score += 1
-  end
+  links[bar] ||= Link.new(@nodes[foo], @nodes[bar], 1)
+  links[bar].score += 1
 end
 
 
@@ -330,95 +302,21 @@ def parse_line(str)
 end
 
 
-# Get one word which could reasonably follow the given word based on the link
-# scores in our data set.
-def get_word(word)
-  return nil unless @nodes.has_key? word
+def build_chain(word = @nodes.keys.sample.dup, requested = true)
+  word = find_pair_with_word(word) unless word.include? " "
 
-  # Get the top 20 most likely words.
-  choices = @nodes[word].links.sort_by {|n, l| l.score }.shift(20)
+  return if word == nil and not requested
 
-  # Then return one of them, or nil if we don't have anything.
-  return choices.empty? ? nil : choices.sample[0]
-end
+  word.gsub!(/[!?.]/, '')
 
+  chain = chainer(word)
 
-def create_chain(word = @nodes.keys.sample, random = true)
-  buf = Array.new
-  first = word.clone
-
-  # If we were just given one word, let's find something that follows it.
-  unless word.include? " "
-
-    potentials = Array.new
-
-    @nodes.keys.each do |key|
-      if key.start_with? "#{word} " or key.end_with? " #{word}"
-
-        potentials << key
-
-      end
-    end
-
-    return "" if potentials.empty?
-
-    first = potentials.sample.clone
-    return "" if first == nil
-
-    first = first.sub(/[!?.]/, '')
-    word = first
-
+  if chain.empty?
+    yield "I was not able to create a chain with that seed."
+    return
   end
 
-  $log.debug("markov.create_chain") { "Creating chain with seed: #{first}" }
-
-  buf << word
-  done = false
-
-  25.times do
-    word = get_word(word)
-
-    tries = 0
-
-    while word == nil
-      if buf.empty?
-
-        # We've popped off all our words! Looks like we can't build a chain
-        # this word.
-        return ""
-
-      elsif buf.length == 1 and not random and tries < MAX_TRIES
-
-        # We were asked for a chain starting with this word, so keep trying.
-        word = get_word(first)
-        tries += 1
-
-      else
-
-        # We couldn't make a chain with the last word. Try again with the
-        # one before.
-        word = get_word(buf.pop)
-
-      end
-    end
-
-    word.split.each do |w|
-      buf << w
-
-      if w =~ /[?!.]\Z/
-        done = true
-        break
-      end
-    end
-
-    break if done
-  end
-  
-  return "" if buf.empty?
-
-  chain = buf.join(" ")
-
-  # Remove terminating punctuation from the first word.
+    # Remove terminating punctuation from the first word.
   chain.sub!(/\A(\w+)[!?.]?/, '\1')
 
   # Capitalize "i"
@@ -436,7 +334,65 @@ def create_chain(word = @nodes.keys.sample, random = true)
     end
   end
 
-  chain.capitalize!
+  yield chain.capitalize!
+end
+
+def find_pair_with_word(word)
+  potentials = @nodes.keys.select do |key|
+    key.start_with? "#{word} " or key.end_with? " #{word}"
+  end
+
+  potentials.empty? ? nil : potentials.sample.dup
+end
+
+# Get one word which could reasonably follow the given word based on the link
+# scores in our data set.
+def get_word(word)
+  return nil unless @nodes.has_key? word
+
+  # Get the top 20 most likely words.
+  choices = @nodes[word].links.sort_by {|n, l| l.score }.shift(20)
+
+  # Then return one of them, or nil if we don't have anything.
+  choices.empty? ? nil : choices.sample[0]
+end
+
+def chainer(word, random = true, depth = 0)
+  return "" if depth == 25
+
+  buf, done = "", false
+  result = get_word word
+
+  if result == nil
+    if depth.zero?
+      return word.dup
+    else
+      return ""
+    end
+  end
+
+  result.split.each_with_index do |w, i|
+    buf << w
+
+    if w =~ /[?!.]\Z/
+      done = true
+      break
+    end
+
+    buf << " " if i.zero?
+  end
+
+  unless done
+    unless (next_word = chainer(buf, random, depth + 1)).empty?
+      buf << " " << next_word
+    end
+  end
+
+  if depth.zero?
+    "#{word} #{buf}"
+  else
+    buf
+  end
 end
 
 
@@ -501,6 +457,8 @@ def read_files(msg, arr)
 end
 
 
+# TODO: Speed these up. Somehow.
+
 def write_database
   $log.info("Markov.write_database") { "If the database is large, this will take a while." }
 
@@ -543,7 +501,7 @@ def read_database
     until arr.empty?
       linked = arr.shift
       score  = arr.shift.to_i
-
+ 
       @nodes[linked] ||= Node.new(linked, Hash.new)
 
       links[linked] = Link.new(@nodes[word], @nodes[linked], score)
