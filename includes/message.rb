@@ -98,8 +98,6 @@ module Bot
 
     # Reply to a message. If an array is given, send each reply separately.
     def reply(str, prefix = true)
-      return if silent?
-
       if str.kind_of? Array
         str.each do |this_str|
           send_reply(this_str, prefix)
@@ -210,27 +208,6 @@ module Bot
     def voice?
       return true if private?
       @connection.channels[destination_canon].voice? @nick
-    end
-
-
-    # Return true if this channel is listed in the silent setting.
-    def silent?
-      return false
-      return false if self.private?
-
-      silenced = Bot::Config[:core][:silent]
-
-      return false if silenced == nil
-      return false if silenced.empty?
-
-      silenced.each_pair do |connection, channels|
-        next unless connection == @connection.name
-        next if channels.empty?
-
-        channels = @connection.canonize(channels).split
-
-        return true if channels.include? destination_canon
-      end
     end
 
   end

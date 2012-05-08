@@ -30,7 +30,7 @@ def initialize
 end
 
 def cmd_roulette(msg, params)
-  return if msg.private? or msg.silent?
+  return if msg.private?
 
   if rand(6) == 0
     if msg.connection.channels[msg.destination_canon].half_op? msg.connection.nick

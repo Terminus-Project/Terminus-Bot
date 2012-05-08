@@ -38,7 +38,7 @@ end
 # Chop up an incoming message and see if it contains a nick that is
 # in the channel. If it does, check for away status.
 def on_privmsg(msg)
-  return if msg.private? or msg.silent? or not get_data([msg.connection.name, msg.destination], false)
+  return if msg.private? or not get_data([msg.connection.name, msg.destination], false)
 
   chan = msg.connection.channels[msg.destination_canon]
 

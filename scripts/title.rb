@@ -36,7 +36,7 @@ def initialize
 end
 
 def on_message(msg)
-  return if msg.silent? or msg.private?
+  return if msg.private?
 
   i = 0
   max = get_config(:max, 3).to_i

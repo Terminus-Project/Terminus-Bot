@@ -40,7 +40,7 @@ def on_part(msg)
 end
 
 def on_privmsg(msg)
-  return if msg.private? or msg.silent?
+  return if msg.private?
 
   if msg.text =~ /\Ag\/(.+)\/(.*)\Z/
     return unless @messages.has_key? msg.connection.name

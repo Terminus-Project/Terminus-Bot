@@ -208,7 +208,7 @@ def cmd_heal(msg, params)
 end
 
 def on_privmsg(msg)
-  return if msg.private? or msg.silent? or not @active.has_key? msg.destination_canon
+  return if msg.private? or not @active.has_key? msg.destination_canon
 
   if msg.text =~ /\01ACTION (atta|hit)[^ ]+ (.*?) with (.*)\01/i
     attack_player(msg, $2, $3)

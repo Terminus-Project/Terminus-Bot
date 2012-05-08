@@ -251,8 +251,6 @@ def on_privmsg(msg)
     parse_line(msg.stripped)
   end
 
-  return if msg.silent?
-
   return unless get_data([msg.connection.name, msg.destination], false)
 
   return unless rand(100) <= get_data(:freq, 0)

@@ -33,8 +33,6 @@ module Bot
     end
 
     def on_privmsg(msg)
-      return if msg.silent?
-
       prefix = Regexp.escape(Bot::Config[:core][:prefix])
 
       return unless msg.text =~ /\A#{msg.private? ? "(#{prefix})?" : "(#{prefix})"}([^ ]+)(.*)\Z/
