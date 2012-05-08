@@ -69,7 +69,7 @@ def cmd_chain(msg, params)
       return
     end
 
-    build_chain(params[0].dup) do |chain|
+    build_chain(params[0].dup.downcase) do |chain|
       msg.reply(chain, false)
     end
   else
