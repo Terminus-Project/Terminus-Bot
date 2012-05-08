@@ -125,8 +125,6 @@ module Bot
       else
         send_notice(@nick, str)
       end
-
-      @connection.raw(str)
     end
 
     def raw(*args)
