@@ -121,9 +121,11 @@ module Bot
       #       Just don't try to send it all in multiple messages without
       #       the user asking for it!
       unless self.private?
-        str = "PRIVMSG #{@destination} :#{prefix ? "#{@nick}: " : ""}#{truncate(str, @destination)}"
+        str = "#{@nick}: #{str}" if prefix
+
+        send_privmsg(@destination, str)
       else
-        str = "NOTICE #{@nick} :#{truncate(str, @nick, true)}"
+        send_notice(@nick, str)
       end
 
       @connection.raw(str)
