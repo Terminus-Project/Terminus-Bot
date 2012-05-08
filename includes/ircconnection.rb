@@ -290,22 +290,22 @@ module Bot
     end
 
 
-    # nickname canonizer, using the rule specified by CASEMAPPING
-    def canonize(nick)
+    # string canonizer, using the rule specified by CASEMAPPING
+    def canonize(str)
 
       case support("CASEMAPPING", "rfc1459").downcase
 
       when "ascii"
-        nick.upcase
+        str.upcase
 
       when "rfc1459", nil
-        nick.upcase.tr("|{}^", "\\\\[]~")
+        str.upcase.tr("|{}^", "\\\\[]~")
 
       when "strict-rfc1459"
-        nick.upcase.tr("|{}", "\\\\[]")
+        str.upcase.tr("|{}", "\\\\[]")
 
       else
-        nick.upcase.tr("|{}^", "\\\\[]~")
+        str.upcase.tr("|{}^", "\\\\[]~")
 
       end
 
