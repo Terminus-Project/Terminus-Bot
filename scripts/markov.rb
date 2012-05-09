@@ -320,8 +320,11 @@ def build_chain(word = @nodes.keys.sample.dup, requested = true)
   unless word.include? " "
     arr = @words[word]
     
-    if (arr == nil or arr.empty?) and requested
-      yield "I was not able to create a chain with that seed."
+    if (arr == nil or arr.empty?)
+      if requested
+        yield "I was not able to create a chain with that seed."
+      end
+
       return
     end
 
@@ -358,14 +361,6 @@ def build_chain(word = @nodes.keys.sample.dup, requested = true)
   end
 
   yield chain.capitalize!
-end
-
-def find_pair_with_word(word)
-  potentials = @nodes.keys.select do |key|
-    key.start_with? "#{word} " or key.end_with? " #{word}"
-  end
-
-  potentials.empty? ? nil : potentials.sample.dup
 end
 
 # Get one word which could reasonably follow the given word based on the link
