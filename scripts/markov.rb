@@ -47,6 +47,7 @@ def initialize
   register_command("chain",  :cmd_chain,  0,  0, nil, "Generate a random Markov chain. Parameters: [word [word]]")
 
   @nodes = Hash.new
+  @words = Hash.new
 
   read_database
 end
@@ -271,12 +272,27 @@ end
 
 # Markov Stuff
 
-# Add a word pair to our data set or increment a link score.
-def add_pair(foo, bar)
+
+def add_pair(foo, bar, score = 0)
   links = @nodes[foo].links
 
-  links[bar] ||= Link.new(@nodes[foo], @nodes[bar], 1)
-  links[bar].score += 1
+  if score.zero?
+    links[bar] ||= Link.new(@nodes[foo], @nodes[bar], 1)
+    links[bar].score += 1
+  else
+    links[bar] ||= Link.new(@nodes[foo], @nodes[bar], score)
+    links[bar].score = score
+  end
+
+  foo.split.each do|w| 
+    @words[w] ||= []
+    @words[w] << @nodes[foo]
+  end
+
+  bar.split.each do |w|
+    @words[w] ||= []
+    @words[w] << @nodes[bar]
+  end
 end
 
 
@@ -301,7 +317,16 @@ end
 
 
 def build_chain(word = @nodes.keys.sample.dup, requested = true)
-  word = find_pair_with_word(word) unless word.include? " "
+  unless word.include? " "
+    arr = @words[word]
+    
+    if (arr == nil or arr.empty?) and requested
+      yield "I was not able to create a chain with that seed."
+      return
+    end
+
+    word = arr.sample.word
+  end
 
   return if word == nil and not requested
 
@@ -453,7 +478,7 @@ def read_files(msg, arr)
       
   end
 end
-
+  
 
 # TODO: Speed these up. Somehow.
 
@@ -513,6 +538,16 @@ def read_database
       @nodes[linked] ||= Node.new(linked, Hash.new)
 
       links[linked] = Link.new(@nodes[word], @nodes[linked], score)
+
+      word.split.each do|w| 
+        @words[w] ||= []
+        @words[w] << @nodes[word]
+      end
+
+      linked.split.each do|w| 
+        @words[w] ||= []
+        @words[w] << @nodes[linked]
+      end
     end
 
   end
