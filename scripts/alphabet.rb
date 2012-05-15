@@ -24,9 +24,10 @@
 #
 
 def initialize
-  register_script("Convert text to the NATO phonetic alphabet.")
+  register_script("Convert text to various alphabets")
 
   register_command("nato", :cmd_nato,  1,  0, nil, "Convert text to the NATO phonetic alphabet.")
+  register_command("morse", :cmd_morse, 1, 0, nil, "Convert text to Morse code.")
 end
 
 def cmd_nato(msg, params)
@@ -36,4 +37,30 @@ def cmd_nato(msg, params)
     "Whiskey", "Xray", "Yankee", "Zulu"]
   
   msg.reply(params[0].upcase.chars.map {|c| nato.select {|n| n.start_with? c }[0].to_s + " " if c =~ /[A-Z]/}.join)
+end
+
+def cmd_morse(msg, params)
+  morse = [
+    "",       "",       "",       "",       "",       "",       "",       "",  
+    "",       "",       "",       "",       "",       "",       "",       "",  
+    "",       "",       "",       "",       "",       "",       "",       "",  
+    "",       "",       "",       "",       "",       "",       "",       "",  
+
+    "  ",     "",       "",       "",       "",       "",       "",       "",  
+    "",       "",       "",       "",       "",       "",       "",       "",  
+    "-----",  ".----",  "..---",  "...--",  "....-",  ".....",  "-....",  "--...",
+    "---..",  "----.",  "",       "",       "",       "",       "",       "",  
+
+    "",       ".-",     "-...",   "-.-.",   "-..",    ".",      "..-.",   "--.",  
+    "....",   "..",     ".---",   "-.-",    ".-..",   "--",     "-.",     "---",  
+    ".--.",   "--.-",   ".-.",    "...",    "-",      "..-",    "...-",   ".--",  
+    "-..-",   "-.--",   "--..",   "",       "",       "",       "",       "",  
+
+    "",       ".-",     "-...",   "-.-.",   "-..",    ".",      "..-.",   "--.",  
+    "....",   "..",     ".---",   "-.-",    ".-..",   "--",     "-.",     "---",  
+    ".--.",   "--.-",   ".-.",    "...",    "-",      "..-",    "...-",   ".--",  
+    "-..-",   "-.--",   "--..",   "",       "",       "",       "",       "",  
+  ]
+
+  msg.reply(params[0].chars.map { |c| morse[c.ord] if c.ord < 128 }.join(" "))
 end
