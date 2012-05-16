@@ -190,7 +190,7 @@ def cmd_markov(msg, params)
     links = 0
 
     if arr.length == 2
-      input = arr.join(" ")
+      input = arr.join(" ").downcase
 
       unless @nodes.has_key? input
         msg.reply("No such node.")
@@ -200,13 +200,8 @@ def cmd_markov(msg, params)
       links = @nodes[input].links.length
     else
 
-      input = arr.shift
-
-      @nodes.each_pair do |word, node|
-        if word.start_with? "#{input} " or word.end_with? " #{input}"
-          links += node.links.length
-        end
-      end
+      arr = @words[arr.shift.downcase]
+      arr.each {|n| links += n.links.length}
 
     end
 
