@@ -315,7 +315,7 @@ def build_chain(word = @nodes.keys.sample.dup, requested = true)
   unless word.include? " "
     arr = @words[word]
     
-    if (arr == nil or arr.empty?)
+    if arr == nil or arr.empty?
       if requested
         yield "I was not able to create a chain with that seed."
       end
