@@ -42,34 +42,7 @@ def initialize
   # TODO: Handle 405?
 end
 
-# TODO: Remove this? It is just here to canonize channel names on updated bots
-# and shouldn't be needed once everyone has run it once (unless people start
-# tinkering with data.db).
-def canonize_channels(msg)
-  return false if msg.connection.support("CASEMAPPING", false) == false
-
-  return if @canonized[msg.connection.name]
-  @canonized[msg.connection.name] = true
-
-  channels = get_data(msg.connection.name, {})
-  temp = {}
-
-  channels.each_pair do |channel, key|
-    temp[msg.connection.canonize(channel)] = key
-  end
-
-  store_data(msg.connection.name, temp)
-
-  true
-end
-
 def join_channels(msg)
-  # See the TODO in the comment above #canonize_channels for why this is here.
-  unless canonize_channels(msg)
-    EM.add_timer(1) { self.join_channels(msg) }
-    return
-  end
-
   chans, keys = [], []
   channels = get_data(msg.connection.name, Hash.new)
 
