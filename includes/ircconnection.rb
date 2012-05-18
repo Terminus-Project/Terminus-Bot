@@ -83,6 +83,8 @@ module Bot
         $log.warn("IRCConnection.reconnect #{@name}") { "Lost connection." }
       end
 
+      @reconnecting = true
+
       EM.add_timer(Bot::Config[:core][:reconwait]) do
         $log.warn("IRCConnection.reconnect #{@name}") { "Attempting to reconnect." }
 
