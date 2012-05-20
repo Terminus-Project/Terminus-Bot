@@ -243,7 +243,8 @@ def on_privmsg(msg)
     parse_line(msg.strip($1))
   elsif msg.text.include? "\01"
     return
-  else
+  elsif not msg.text =~ /^.chain /
+    # NOTE: Choose a better regex
     parse_line(msg.stripped)
   end
 
