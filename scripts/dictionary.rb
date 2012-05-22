@@ -200,14 +200,15 @@ def cmd_random(msg, param)
     coder = HTMLEntities.new
 
     word = coder.decode(root.elements["//dictionary/random_entry"].text)
-    root = api_call(msg, :q => word, :type => :define)
 
-    definitions = root.elements["//dictionary"].attributes["totalresults"].to_i rescue 0
+    api_call(msg, :q => word, :type => :define) do |root|
+      definitions = root.elements["//dictionary"].attributes["totalresults"].to_i rescue 0
 
-    if definitions == 0
-      msg.reply("No results")
-    else
-      get_definition(msg, word, root, definitions)
+      if definitions == 0
+        msg.reply("No results")
+      else
+        get_definition(msg, word, root, definitions)
+      end
     end
 
   end
