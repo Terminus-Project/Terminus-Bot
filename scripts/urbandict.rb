@@ -57,7 +57,7 @@ def do_lookup(url, msg)
       break
     end
 
-    page = StringScanner.new(response.content.force_encoding('ASCII-8BIT'))
+    page = StringScanner.new(response.content.force_encoding('UTF-8'))
     defs = Array.new
     count = 0
     max = get_config(:max, 1).to_i
