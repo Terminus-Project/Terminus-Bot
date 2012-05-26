@@ -49,6 +49,16 @@ def cmd_tell(msg, params)
   tells = get_data(msg.connection.name, Hash.new)
 
   dest = msg.connection.canonize params[0]
+
+  if msg.connection.support('CHANTYPES', '#&').include? dest.chr
+    msg.reply("You cannot leave tells for channels.")
+    return
+  end
+
+  if dest == msg.connection.canonize(msg.connection.nick)
+    msg.reply("You cannot leave tells for me.")
+    return
+  end
   
   if tells.has_key? dest
     if tells[dest].length > get_config(:max, 5).to_i
