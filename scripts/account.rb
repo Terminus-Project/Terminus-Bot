@@ -23,6 +23,9 @@
 # SOFTWARE.
 #
 
+# TODO: Use less terrible password encryption. Add code to convert password on
+#       login.
+
 require 'digest'
 
 def initialize()

@@ -35,11 +35,13 @@ module Bot
     def on_privmsg(msg)
       prefix = Regexp.escape(Bot::Config[:core][:prefix])
 
-      return unless msg.text =~ /\A#{msg.private? ? "(#{prefix})?" : "(#{prefix})"}([^ ]+)(.*)\Z/
+      return unless msg.text =~ /\A#{msg.private? ? "(#{prefix})?" : "(#{prefix})"}([^ ]+)(.*)\Z/i
 
-      return unless has_key? $2
+      cmd_str = $2.downcase
 
-      command = self[$2]
+      return unless has_key? cmd_str
+
+      command = self[cmd_str]
 
       return unless Bot::Flags.permit_message?(command.owner, msg)
 
@@ -82,12 +84,12 @@ module Bot
         return
       end
 
-      $log.debug("CommandManager.on_privmsg") { "Match for command #{$2} in #{command.owner}" }
+      $log.debug("CommandManager.on_privmsg") { "Match for command #{cmd_str} in #{command.owner}" }
 
       begin
         command.owner.send(command.func, msg, params)
       rescue => e
-        $log.error("CommandManager.on_privmsg") { "Problem running command #{$2} in #{command.owner}: #{e}" }
+        $log.error("CommandManager.on_privmsg") { "Problem running command #{cmd_str} in #{command.owner}: #{e}" }
         $log.debug("CommandManager.on_privmsg") { e.backtrace }
 
         msg.reply("There was a problem running your command: #{e}")
@@ -95,6 +97,8 @@ module Bot
     end
 
     def create(owner, cmd, func, argc, level, chan_level, help)
+      cmd.downcase!
+
       if has_key? cmd
         raise "attempted to register duplicate command #{cmd} for #{owner.class.name}"
       end
@@ -105,6 +109,8 @@ module Bot
     end
 
     def delete(cmd)
+      cmd.downcase!
+
       raise "attemped to delete non-existent command #{cmd}" unless has_key? cmd
 
       $log.debug("CommandManager.delete") { "Deleting command: #{cmd}" }
