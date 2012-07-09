@@ -54,7 +54,7 @@ def do_lookup(url, msg)
 
     unless response.status == 200
       msg.reply("There was a problem looking up the definition for that word.")
-      break
+      next
     end
 
     page = StringScanner.new(response.content.force_encoding('UTF-8'))
