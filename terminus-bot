@@ -79,33 +79,33 @@ end
 
 $log.info("preload") { "Loading core files." }
 
-def load_includes
+def load_lib
 
   # These have to be first.
-  load "includes/flags.rb"
-  #load "includes/database.rb"
+  load "lib/flags.rb"
+  #load "lib/database.rb"
 
-  load "includes/config.rb"
-  load "includes/events.rb"
+  load "lib/config.rb"
+  load "lib/events.rb"
 
-  load "includes/string.rb"
-  load "includes/time.rb"
+  load "lib/string.rb"
+  load "lib/time.rb"
 
-  load "includes/users.rb"
-  load "includes/ircconnection.rb"
-  load "includes/message.rb"
-  load "includes/channels.rb"
-  load "includes/commands.rb"
+  load "lib/users.rb"
+  load "lib/ircconnection.rb"
+  load "lib/message.rb"
+  load "lib/channels.rb"
+  load "lib/commands.rb"
 
   # These have to be last (in this order).
-  load "includes/modules.rb"
-  load "includes/scripts.rb"
-  load "includes/core.rb"
+  load "lib/modules.rb"
+  load "lib/scripts.rb"
+  load "lib/core.rb"
 
 end
 
 
-load_includes
+load_lib
 
 # TODO: Verify configuration and check for database corruption.
 

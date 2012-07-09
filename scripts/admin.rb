@@ -32,7 +32,7 @@ def initialize
   register_command("rehash",   :cmd_rehash,   0,  8, nil, "Reload the configuration file.")
   register_command("nick",     :cmd_nick,     1,  7, nil, "Change the bot's nick for this connection.")
 
-  #register_command("includes", :cmd_includes, 0,  9, nil, "Reload core files with stopping the bot. Warning: may produce undefined behavior.")
+  #register_command("lib", :cmd_lib, 0,  9, nil, "Reload core files with stopping the bot. Warning: may produce undefined behavior.")
   register_command("reload",   :cmd_reload,   1,  9, nil, "Reload one or more scripts.")
   register_command("unload",   :cmd_unload,   1,  9, nil, "Unload one or more scripts.")
   register_command("load",     :cmd_load,     1,  9, nil, "Load the specified script.")
@@ -67,8 +67,8 @@ def cmd_nick(msg, params)
   msg.reply("Nick changed to #{params[0]}")
 end
 
-def cmd_includes(msg, params)
-  load_includes
+def cmd_lib(msg, params)
+  load_lib
   msg.reply("Core files reloaded.")
 end
 

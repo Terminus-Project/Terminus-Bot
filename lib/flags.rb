@@ -141,7 +141,7 @@ module Bot
     end
   end
 
-  load "includes/database.rb"
+  load "lib/database.rb"
 
   if DB.has_key? :flags
     Flags = DB[:flags]
