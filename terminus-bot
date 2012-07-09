@@ -51,6 +51,11 @@ OptionParser.new do |opts|
     $opts[:verbose] = true
   end
 
+  $opts[:fork] = true
+  opts.on("-f", "--no-fork", "Don't run in the background") do |v|
+    $opts[:fork] = false
+  end
+
   opts.on_tail("-h", "--help", "Show this message") do
     puts opts
     exit
@@ -125,6 +130,12 @@ load_lib
 # TODO: Verify configuration and check for database corruption.
 
 # Launch!
+
+unless $opts[:fork]
+  EM.run { Bot.run }
+  exit
+end
+ 
 pid = EM.fork_reactor { Bot.run }
 
 # Bot.run changes $log to something else, so just puts this.
