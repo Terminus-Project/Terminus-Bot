@@ -37,61 +37,61 @@ module Bot
 
       return unless msg.text =~ /\A#{msg.private? ? "(#{prefix})?" : "(#{prefix})"}([^ ]+)(.*)\Z/
 
-        return unless has_key? $2
+      return unless has_key? $2
 
-        command = self[$2]
+      command = self[$2]
 
-        return unless Bot::Flags.permit_message?(command.owner, msg)
+      return unless Bot::Flags.permit_message?(command.owner, msg)
 
-        level = msg.connection.users.get_level(msg)
+      level = msg.connection.users.get_level(msg)
 
-        if command.level > level
-          msg.reply("Level \02#{command.level}\02 authorization required. (Current level: #{level})")
+      if command.level > level
+        msg.reply("Level \02#{command.level}\02 authorization required. (Current level: #{level})")
+        return
+      end
+
+      case command.chan_level
+
+      when :voice
+        unless msg.voice?
+          msg.reply("You must be voiced or better to use this command.")
           return
         end
 
-        case command.chan_level
-
-        when :voice
-          unless msg.voice?
-            msg.reply("You must be voiced or better to use this command.")
-            return
-          end
-
-        when :half_op
-          unless msg.half_op?
-            msg.reply("You must be half-op or better to use this command.")
-            return
-          end
-
-        when :op
-          unless msg.op?
-            msg.reply("You must be a channel op to use this command.")
-            return
-          end
-
-        end
-
-        # Split command parameters. If the command requires no parameters, put
-        # everything in params[0].
-        params = $3.strip.split(" ", command.argc.zero? ? 1 : command.argc)
-
-        if params.length < command.argc
-          # TODO: Show syntax.
-          msg.reply("This command requires at least \02#{command.argc}\02 parameters.")
+      when :half_op
+        unless msg.half_op?
+          msg.reply("You must be half-op or better to use this command.")
           return
         end
 
-        $log.debug("CommandManager.on_privmsg") { "Match for command #{$2} in #{command.owner}" }
-
-        begin
-          command.owner.send(command.func, msg, params)
-        rescue => e
-          $log.error("CommandManager.on_privmsg") { "Problem running command #{$2} in #{command.owner}: #{e}" }
-          $log.debug("CommandManager.on_privmsg") { e.backtrace }
-
-          msg.reply("There was a problem running your command: #{e}")
+      when :op
+        unless msg.op?
+          msg.reply("You must be a channel op to use this command.")
+          return
         end
+
+      end
+
+      # Split command parameters. If the command requires no parameters, put
+      # everything in params[0].
+      params = $3.strip.split(" ", command.argc.zero? ? 1 : command.argc)
+
+      if params.length < command.argc
+        # TODO: Show syntax.
+        msg.reply("This command requires at least \02#{command.argc}\02 parameters.")
+        return
+      end
+
+      $log.debug("CommandManager.on_privmsg") { "Match for command #{$2} in #{command.owner}" }
+
+      begin
+        command.owner.send(command.func, msg, params)
+      rescue => e
+        $log.error("CommandManager.on_privmsg") { "Problem running command #{$2} in #{command.owner}: #{e}" }
+        $log.debug("CommandManager.on_privmsg") { e.backtrace }
+
+        msg.reply("There was a problem running your command: #{e}")
+      end
     end
 
     def create(owner, cmd, func, argc, level, chan_level, help)

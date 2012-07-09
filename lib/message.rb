@@ -194,18 +194,15 @@ module Bot
     end
 
     def op?
-      return true if private?
-      @connection.channels[destination_canon].op? @nick
+      private? or @connection.channels[destination_canon].op?(@nick)
     end
 
     def half_op?
-      return true if private?
-      @connection.channels[destination_canon].half_op? @nick
+      private? or @connection.channels[destination_canon].half_op?(@nick)
     end
 
     def voice?
-      return true if private?
-      @connection.channels[destination_canon].voice? @nick
+      private? or @connection.channels[destination_canon].voice?(@nick)
     end
 
   end

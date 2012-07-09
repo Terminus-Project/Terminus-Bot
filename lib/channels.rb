@@ -324,9 +324,7 @@ module Bot
 
       # This is here for one IRCD that supports it. It shouldn't conflict with
       # anything else though.
-      return true if @users[nick].modes.include? "y"
-
-      false
+      @users[nick].modes.include? "y"
     end
 
     def half_op?(nick)
@@ -336,9 +334,7 @@ module Bot
 
       return true if op? nick
 
-      return false unless @users[nick].modes.include? "h"
-
-      true
+      @users[nick].modes.include? "h"
     end
 
     def voice?(nick)
@@ -348,9 +344,7 @@ module Bot
 
       return true if op? nick or half_op? nick
 
-      return false unless @users[nick].modes.include? "v"
-
-      true
+      @users[nick].modes.include? "v"
     end
 
     # Store the topic.

@@ -43,7 +43,7 @@ module Bot
 
       fi = File.open(FILE_NAME, 'r')
 
-      root, parents, line_number = {}, [], 0
+      parents, line_number = [], 0
 
       current = self
 
@@ -104,10 +104,10 @@ module Bot
           elsif value =~ /\A\d+\.\d+\Z/
             value = value.to_f
 
-          elsif value.casecmp("true") == 0
+          elsif value.casecmp("true").zero?
             value = true
 
-          elsif value.casecmp("false") == 0
+          elsif value.casecmp("false").zero?
             value = false
 
           end

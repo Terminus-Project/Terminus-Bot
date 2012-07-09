@@ -32,7 +32,7 @@ module Bot
     # which is used to run the event. The value is an array which will store
     # the multiple events that run are run when the event name is called.
     def create(owner, name, func)
-      self[name] ||= Array.new
+      self[name] ||= []
 
       $log.debug("events.create") { "Created event #{name}" }
       self[name] << Event.new(name, func, owner)

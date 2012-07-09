@@ -41,12 +41,12 @@ module Bot
 
 
     def add_server(server)
-      self[server] ||= Hash.new
+      self[server] ||= {}
     end
 
     # When adding a channel, the name MUST be canonized.
     def add_channel(server, channel)
-      self[server][channel] ||= Hash.new
+      self[server][channel] ||= {}
     end
 
 
