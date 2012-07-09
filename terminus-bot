@@ -51,6 +51,11 @@ OptionParser.new do |opts|
     $opts[:verbose] = true
   end
 
+  $opts[:config_file] = "terminus-bot.conf"
+  opts.on("-c", "--config FILE", "Use another config file (default: terminus-bot.conf") do |v|
+    $opts[:config_file] = v
+  end
+
   $opts[:fork] = true
   opts.on("-f", "--no-fork", "Don't run in the background") do |v|
     $opts[:fork] = false

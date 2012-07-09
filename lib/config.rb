@@ -27,8 +27,6 @@ module Bot
 
   class Configuration < Hash
 
-    FILE_NAME = "terminus-bot.conf"
-
     # Create a new configuration object.
     # Read the configuration file now.
     def initialize
@@ -37,11 +35,13 @@ module Bot
 
     # Read the config file named by FILE_NAME.
     def read_config
-      raise "No Config File" unless File.exists? FILE_NAME
+      file_name = $opts[:config_file]
+
+      raise "No Config File" unless File.exists? file_name
 
       $log.info("Configuration.read_config") { "Loading the configuration file." } 
 
-      fi = File.open(FILE_NAME, 'r')
+      fi = File.open(file_name, 'r')
 
       parents, line_number = [], 0
 
