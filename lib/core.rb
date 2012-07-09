@@ -31,8 +31,10 @@ module Bot
     logcount = Config[:core][:logcount]        rescue 5
     loglevel = Config[:core][:loglevel].upcase rescue "INFO"
 
-    $log.close
-    $log = Logger.new('var/terminus-bot.log', logcount, logsize);
+    if $opts[:fork]
+      $log.close
+      $log = Logger.new('var/terminus-bot.log', logcount, logsize);
+    end
 
     case loglevel
     when "FATAL"
