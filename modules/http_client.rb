@@ -32,8 +32,8 @@ module EventMachine
 
         def send_request
           headers = [
-            "%s %s HTTP/%s" % [@args[:verb], @args[:uri], @args[:version] || "1.1"],
-            "Host: %s" % @args[:host_header] || "_",
+            "#{@args[:verb]} #{@args[:uri]} HTTP/#{@args[:version] or "1.1"}",
+            "Host: #{@args[:host_header] or "_"}"
           ]
 
           headers.concat(@args[:headers]) unless @args[:headers] == nil
@@ -83,7 +83,7 @@ module Bot
                                               :port => uri.port,
                                               :ssl => (uri.scheme == "https"))
 
-    conn.comm_inactivity_timeout = Config[:modules][:http_client][:timeout] || 5
+    conn.comm_inactivity_timeout = Config[:modules][:http_client][:timeout] or 5
 
     path = uri.path
     path << "?%s" % uri.query unless uri.query == nil
