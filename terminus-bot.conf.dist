@@ -175,6 +175,8 @@ modules = {
     redirects = 10
   }
 
+  # Note: Don't uncomment this for now. The module is unfinished and will
+  # actually prevent the bot from starting,
   #buffer = {
   #  # REQUIRED
   #  # The number of message to keep in the buffer. A larger value here will
