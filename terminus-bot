@@ -30,33 +30,48 @@ unless RUBY_VERSION.start_with? "1.9"
   abort "Ruby version 1.9 is required."
 end
 
+VERSION  = "Terminus-Bot v0.7"
+PID_FILE = "var/terminus-bot.pid"
+LICENSE  = "MIT"
+
+# Load the rest later. This will make --help much lighter.
+require 'optparse'
+
+$opts = {}
+
+OptionParser.new do |opts|
+  opts.banner = "Usage: #{$0} [options]"
+
+  opts.separator ""
+  opts.separator "Options:"
+  opts.separator ""
+
+  $opts[:verbose] = false
+  opts.on("-v", "--verbose", "Output a lot of info while starting") do |v|
+    $opts[:verbose] = true
+  end
+
+  opts.on_tail("-h", "--help", "Show this message") do
+    puts opts
+    exit
+  end
+
+end.parse!
+
 require 'thread'
 require 'logger'
 require 'eventmachine'
 
 $log = Logger.new(STDOUT)
-
-# TODO: Parse more options, such as --help, and do it correctly.
-
-$log.level = Logger::INFO
-
-if ARGV.length == 1
-  $log.level = Logger::DEBUG if ARGV.shift == "-v"
-end
-
-Dir.chdir(File.dirname(__FILE__))
-
-VERSION  = "Terminus-Bot v0.7"
-PID_FILE = "var/terminus-bot.pid"
-LICENSE  = "MIT"
+$log.level = $opts[:verbose] ? Logger::DEBUG : Logger::INFO
 
 $log.info('preload') { VERSION }
 $log.info('preload') { "<http://terminus-bot.net/>" }
 $log.info('preload') { "Released under #{LICENSE}." }
 
-unless Dir.exists? "var"
-  Dir.mkdir "var"
-end
+
+Dir.chdir(File.dirname(__FILE__))
+Dir.mkdir "var" unless Dir.exists? "var"
 
 if File.exists? PID_FILE
   begin
