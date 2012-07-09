@@ -70,6 +70,6 @@ module Bot
 
   end
 
-  Events = EventManager.new
+  Events ||= EventManager.new
 
 end

@@ -120,5 +120,5 @@ module Bot
 
   end
 
-  Commands = CommandManager.new
+  Commands ||= CommandManager.new
 end

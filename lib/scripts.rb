@@ -276,7 +276,9 @@ module Bot
     end
   end
 
-  Scripts = ScriptManager.new
-  Scripts.load_scripts
+  unless defined? Scripts
+    Scripts = ScriptManager.new
+    Scripts.load_scripts
+  end
 
 end

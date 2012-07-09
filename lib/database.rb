@@ -96,5 +96,5 @@ module Bot
     end
   end
 
-  DB = Database.new
+  DB ||= Database.new
 end

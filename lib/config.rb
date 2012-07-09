@@ -128,5 +128,5 @@ module Bot
 
   end
 
-  Config = Configuration.new
+  Config ||= Configuration.new
 end

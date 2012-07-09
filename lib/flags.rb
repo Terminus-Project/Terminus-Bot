@@ -143,10 +143,12 @@ module Bot
 
   load "lib/database.rb"
 
-  if DB.has_key? :flags
-    Flags = DB[:flags]
-  else
-    Flags = Script_Flags.new
-    DB[:flags] = Flags
+  unless defined? Flags
+    if DB.has_key? :flags
+      Flags = DB[:flags]
+    else
+      Flags = Script_Flags.new
+      DB[:flags] = Flags
+    end
   end
 end
