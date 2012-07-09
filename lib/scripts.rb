@@ -75,7 +75,11 @@ module Bot
 
       $log.debug("ScriptManager.load_file") { "Script file name: #{filename}" }
 
-      script = "class Script_#{name} < Script \n #{IO.read(filename)} \n end \n Script_#{name}.new"
+      script = [
+        "class Script_#{name} < Script",
+        IO.read(filename),
+        "end",
+        "Script_#{name}.new"].join("\n")
 
       if @scripts.has_key? name
         raise "Attempted to load script that is already loaded."
@@ -227,7 +231,7 @@ module Bot
     # Check if the database has a Hash table for this plugin. If not,
     # create an empty one.
     def init_data
-      Bot::DB[my_name] ||= Hash.new
+      Bot::DB[my_name] ||= {}
     end
 
     # Get the value stored for the given key in the database for this
@@ -236,11 +240,7 @@ module Bot
     def get_data(key, default = nil)
       init_data
 
-      if Bot::DB[my_name].has_key? key
-        return Bot::DB[my_name][key]
-      end
-
-      default
+      Bot::DB[my_name][key] or default
     end
 
     # Get all of the data for this script.
@@ -268,9 +268,7 @@ module Bot
     def delete_data(key)
       init_data
 
-      if Bot::DB[my_name].has_key? key
-        Bot::DB[my_name].delete(key)
-      end
+      Bot::DB[my_name].delete(key)
     end
 
     def to_str
