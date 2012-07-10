@@ -46,10 +46,10 @@ module Bot
       @name = name
       @name.freeze
 
-      @nick     = Bot::Config[:core][:nick]
-      @user     = Bot::Config[:core][:user]
-      @realname = Bot::Config[:core][:realname]
-      @config   = Bot::Config[:servers][name]
+      @nick     = Bot::Conf[:core][:nick]
+      @user     = Bot::Conf[:core][:user]
+      @realname = Bot::Conf[:core][:realname]
+      @config   = Bot::Conf[:servers][name]
 
       $log.debug("IRCConnection.initialize #{name}") { "#{@config[:address]}:#{@config[:port]} #{@nick}!#{@user}@ #{@realname}" }
 
@@ -85,7 +85,7 @@ module Bot
 
       @reconnecting = true
 
-      EM.add_timer(Bot::Config[:core][:reconwait]) do
+      EM.add_timer(Bot::Conf[:core][:reconwait]) do
         $log.warn("IRCConnection.reconnect #{@name}") { "Attempting to reconnect." }
 
         super(@config[:address], @config[:port])
@@ -116,7 +116,7 @@ module Bot
 
       @disconnecting, @reconnecting = false, false
 
-      bind = Bot::Config[:core][:bind]
+      bind = Bot::Conf[:core][:bind]
       @client_host = bind == nil ? "" : bind
 
       if @config[:ssl]
@@ -205,7 +205,7 @@ module Bot
 
     def send_single_message
       now = Time.now.to_i
-      delay = Bot::Config[:core][:throttle]
+      delay = Bot::Conf[:core][:throttle]
 
       unless @send_queue.empty? or @reconnecting
         str = @send_queue.pop
@@ -253,10 +253,10 @@ module Bot
     def on_nick_in_use(msg)
       return if @registered or msg.connection != self
 
-      if @nick == Bot::Config[:core][:nick]
+      if @nick == Bot::Conf[:core][:nick]
 
-        if Bot::Config[:core].has_key? :altnick
-          raw "NICK #{Bot::Config[:core][:altnick]}"
+        if Bot::Conf[:core].has_key? :altnick
+          raw "NICK #{Bot::Conf[:core][:altnick]}"
         else
           raw "NICK TerminusBot"
         end

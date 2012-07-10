@@ -30,7 +30,7 @@ def initialize
 end
 
 def on_privmsg(msg)
-  return unless msg.text.start_with?("#{Bot::Config[:core][:prefix]} ") and msg.text.end_with? "?"
+  return unless msg.text.start_with?("#{Bot::Conf[:core][:prefix]} ") and msg.text.end_with? "?"
   
   choices = msg.text.split(/,? +or +|, */i)
 
@@ -40,7 +40,7 @@ def on_privmsg(msg)
   end
 
   # chop off the prefix and space
-  choices[0] = choices[0][Bot::Config[:core][:prefix].length+1..choices[0].length-1]
+  choices[0] = choices[0][Bot::Conf[:core][:prefix].length+1..choices[0].length-1]
 
   #chop off the question mark
   choices[choices.length-1] = choices.last[0..choices.last.length-2]

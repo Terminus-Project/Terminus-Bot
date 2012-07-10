@@ -27,9 +27,9 @@ module Bot
   Connections = {}
 
   def self.run
-    logsize  = Bot::Config[:core][:logsize]         rescue 1024000 
-    logcount = Bot::Config[:core][:logcount]        rescue 5
-    loglevel = Bot::Config[:core][:loglevel].upcase rescue "INFO"
+    logsize  = Bot::Conf[:core][:logsize]         rescue 1024000 
+    logcount = Bot::Conf[:core][:logcount]        rescue 5
+    loglevel = Bot::Conf[:core][:loglevel].upcase rescue "INFO"
 
     if $opts[:fork]
       $log.close
@@ -70,9 +70,9 @@ module Bot
     # TODO: Make this a config variable?
     EM.add_periodic_timer(300) { DB.write_database }
 
-    bind = Bot::Config[:core][:bind]
+    bind = Bot::Conf[:core][:bind]
 
-    Bot::Config[:servers].each_pair do |name, config|
+    Bot::Conf[:servers].each_pair do |name, config|
       if Connections.has_key? name
         $log.warn("Bot.run") { "Skipping duplicate connection: #{name}" }
         next

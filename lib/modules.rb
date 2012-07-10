@@ -24,9 +24,9 @@
 #
 
 module Bot
-  if Bot::Config.has_key? :modules
+  if Conf.has_key? :modules
 
-    Bot::Config[:modules].each_key do |name|
+    Conf[:modules].each_key do |name|
       file_name = "modules/#{name}.rb"
 
       $log.debug("Modules") { "Loading #{name} (#{file_name})" }

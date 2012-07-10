@@ -34,7 +34,7 @@ module Bot
       # This is here because YAML doesn't know how to initialize us with it after
       # pulling the flags table back out of the database.
       # TODO: Correctly deal with rehashing since this likely won't pick up on it.
-      @default_flag = Bot::Config[:flags][:default] rescue true
+      @default_flag = Bot::Conf[:flags][:default] rescue true
 
       super
     end
@@ -113,7 +113,7 @@ module Bot
       count = 0
 
       scripts = @scripts.select {|s| s.wildcard_match(script_mask)}
-      privileged = Bot::Config[:flags][:privileged].keys rescue []
+      privileged = Bot::Conf[:flags][:privileged].keys rescue []
 
       $log.debug("script_flags.set_flags") { "#{server_mask} #{channel_mask} #{script_mask} #{flag}" }
       $log.debug("script_flags.set_flags") { "#{scripts.length} matching scripts" }

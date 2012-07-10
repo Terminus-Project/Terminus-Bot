@@ -44,7 +44,7 @@ module Bot
     def load_scripts
       $log.info("ScriptManager.initilize") { "Loading scripts." }
 
-      noload = Bot::Config[:core][:noload]
+      noload = Bot::Conf[:core][:noload]
 
       Dir.glob("scripts/*.rb").each do |file|
 
@@ -219,9 +219,9 @@ module Bot
     def get_config(key, default = nil)
       name_key = my_short_name.to_sym
 
-      if Bot::Config.has_key? name_key
-        if Bot::Config[name_key].has_key? key
-          return Bot::Config[name_key][key]
+      if Bot::Conf.has_key? name_key
+        if Bot::Conf[name_key].has_key? key
+          return Bot::Conf[name_key][key]
         end
       end
 
