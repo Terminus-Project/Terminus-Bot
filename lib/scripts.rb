@@ -44,7 +44,7 @@ module Bot
     def load_scripts
       $log.info("ScriptManager.initilize") { "Loading scripts." }
 
-      noload = Config[:core][:noload]
+      noload = Bot::Config[:core][:noload]
 
       Dir.glob("scripts/*.rb").each do |file|
 

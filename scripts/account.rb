@@ -75,8 +75,8 @@ def cmd_identify(msg, params)
   level = stored[:level]
   name = params[0].to_sym
 
-  if Config[:admins].has_key? name
-    level = Config[:admins][name]
+  if Bot::Config[:admins].has_key? name
+    level = Bot::Config[:admins][name]
 
     $log.info("account.cmd_identify") { "#{msg.origin} identifying with override level #{level}" }
   end
