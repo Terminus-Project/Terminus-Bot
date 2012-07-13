@@ -67,12 +67,12 @@ module Bot
   end
 
   # Should not be called directly.
-  def self.http_request(uri, get, limit = Config[:modules][:http_client][:redirects], redirected = false, &block)
+  def self.http_request(uri, get, limit = Conf[:modules][:http_client][:redirects], redirected = false, &block)
     return nil if limit == 0
 
     $log.debug("Bot.http_request") { uri }
 
-    ua = Config[:modules][:http_client][:user_agent] || "Terminus-Bot (http://terminus-bot.net/)"
+    ua = Conf[:modules][:http_client][:user_agent] || "Terminus-Bot (http://terminus-bot.net/)"
 
     # TODO: Let callers add headers.
     headers = [
@@ -83,7 +83,7 @@ module Bot
                                               :port => uri.port,
                                               :ssl => (uri.scheme == "https"))
 
-    conn.comm_inactivity_timeout = Config[:modules][:http_client][:timeout] or 5
+    conn.comm_inactivity_timeout = Conf[:modules][:http_client][:timeout] or 5
 
     path = uri.path
     path << "?%s" % uri.query unless uri.query == nil
