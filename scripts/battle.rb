@@ -139,12 +139,12 @@ def attack_player(msg, target, weapon)
   new = current - damage
   new = 0 if new < 0
 
-  set_health(msg, target, new)
-
   if rand(100) < get_config(:miss, 10).to_i
     msg.reply("#{original} dodges #{msg.nick}'s #{weapon}.", false)
     return
   end
+
+  set_health(msg, target, new)
 
   if damage > 0
     msg.reply("#{msg.nick}'s #{weapon} hits #{original} for \02#{damage} damage\02.", false)
