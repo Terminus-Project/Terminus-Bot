@@ -35,7 +35,7 @@ class Time
     t = []
 
     [60, 60, 24, 7].each do |n|
-      secs, q = secs.divmod(n)
+      secs, q = secs.divmod n
       t << q
     end
 
@@ -66,7 +66,7 @@ class Time
 
     pieces[-1] = "and " << pieces[-1] unless pieces.length <= 1
  
-    pieces.join("#{"," unless pieces.length == 2} ")
+    pieces.join "#{"," unless pieces.length == 2} "
   end
 
   def to_fuzzy_duration_s

@@ -24,7 +24,7 @@
 #
 
 module Bot
-  Script_Info = Struct.new(:name, :description)
+  Script_Info = Struct.new :name, :description
 
   class ScriptManager
 
@@ -54,7 +54,7 @@ module Bot
         end
 
         $log.debug("ScriptManager.initilize") { "Loading #{file}" }
-        load_file(file)
+        load_file file
 
       end
     end
@@ -66,7 +66,7 @@ module Bot
 
     # Load the given script by file name. The relative path should be included.
     # Scripts are expected to be in the scripts dir.
-    def load_file(filename)
+    def load_file filename
       unless File.exists? filename
         raise "File #{filename} does not exist."
       end
@@ -79,14 +79,14 @@ module Bot
         "class Script_#{name} < Script",
         IO.read(filename),
         "end",
-        "Script_#{name}.new"].join("\n")
+        "Script_#{name}.new"].join "\n"
 
       if @scripts.has_key? name
         raise "Attempted to load script that is already loaded."
       end
 
       begin
-        @scripts[name] = eval(script, nil, filename, 0)
+        @scripts[name] = eval script, nil, filename, 0
       rescue Exception => e
         $log.error("ScriptManager.load_file") { "Problem loading script #{name}. Clearing data and aborting..." }
 
@@ -96,7 +96,7 @@ module Bot
           @scripts[name].unregister_commands
           @scripts[name].unregister_events
 
-          @scripts.delete(name)
+          @scripts.delete name
 
         end
 
@@ -106,7 +106,7 @@ module Bot
 
     # Unload and then load a script. The name given is the script's short name
     # (script/short_name.rb).
-    def reload(name)
+    def reload name
       raise "Cannot reload: No such script #{name}" unless @scripts.has_key? name
 
       filename = "scripts/#{name}.rb"
@@ -119,14 +119,14 @@ module Bot
       @scripts[name].unregister_commands
       @scripts[name].unregister_events
 
-      @scripts.delete(name)
+      @scripts.delete name
 
-      load_file(filename)
+      load_file filename
     end
 
     # Unload a script. The name given is the script's short name
     # (scripts/short_name.rb).
-    def unload(name)
+    def unload name
       raise "Cannot unload: No such script #{name}" unless @scripts.has_key? name
 
       @scripts[name].die if @scripts[name].respond_to? "die"
@@ -135,21 +135,21 @@ module Bot
       @scripts[name].unregister_commands
       @scripts[name].unregister_events
 
-      @scripts.delete(name)
+      @scripts.delete name
     end
 
-    def register_script(*args)
+    def register_script *args
       $log.debug("ScriptManager.register_script") { "Registering script: #{args.to_s}" }
 
-      script = Script_Info.new(*args)
+      script = Script_Info.new *args
 
       @script_info << script
-      Bot::Flags.add_script(script.name)
+      Bot::Flags.add_script script.name
 
       @script_info.sort_by! {|s| s.name}
     end
 
-    def unregister_script(name)
+    def unregister_script name
       $log.debug("ScriptManager.register_script") { "Unregistering script: #{name}" }
       @script_info.delete_if {|s| s.name == name}
     end
@@ -171,31 +171,31 @@ module Bot
     # Pass along some register commands with self or our class name attached
     # as needed. This just makes code in the scripts a little shorter.
 
-    def register_event(*args)
-      Bot::Events.create(self, *args)
+    def register_event *args
+      Bot::Events.create self, *args
     end
 
-    def register_command(*args)
-      Bot::Commands.create(self, *args)
+    def register_command *args
+      Bot::Commands.create self, *args
     end
 
-    def register_script(*args)
-      Bot::Scripts.register_script(my_short_name, *args)
+    def register_script *args
+      Bot::Scripts.register_script my_short_name, *args
     end
 
 
     # Shortcuts for unregister stuff. Makes teardown easier in die methods.
 
     def unregister_commands
-      Bot::Commands.delete_for(self)
+      Bot::Commands.delete_for self
     end
 
     def unregister_events
-      Bot::Events.delete_for(self)
+      Bot::Events.delete_for self
     end
 
     def unregister_script
-      Bot::Scripts.unregister_script(my_short_name)
+      Bot::Scripts.unregister_script my_short_name
     end
 
 
@@ -216,7 +216,7 @@ module Bot
     # version of Terminus-Bot is read-only, unlike the YAML-based config
     # in the previous version. If you want to store data, you want to use
     # the database. See functions below for that!
-    def get_config(key, default = nil)
+    def get_config key, default = nil
       name_key = my_short_name.to_sym
 
       if Bot::Conf.has_key? name_key
@@ -237,7 +237,7 @@ module Bot
     # Get the value stored for the given key in the database for this
     # script. The optional default value is what is returned if not value
     # exists for the given key.
-    def get_data(key, default = nil)
+    def get_data key, default = nil
       init_data
 
       Bot::DB[my_name][key] or default
@@ -251,24 +251,24 @@ module Bot
     end
 
     # Store the given value in the database if one isn't already set.
-    def default_data(key, value)
+    def default_data key, value
       init_data
 
       Bot::DB[my_name][key] ||= value
     end
 
     # Store a value in the database under the given key.
-    def store_data(key, value)
+    def store_data key, value
       init_data
 
       Bot::DB[my_name][key] = value
     end
 
     # Delete data under the given key, if it exists.
-    def delete_data(key)
+    def delete_data key
       init_data
 
-      Bot::DB[my_name].delete(key)
+      Bot::DB[my_name].delete key
     end
 
     def to_str

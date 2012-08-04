@@ -30,7 +30,7 @@ module Bot
 
     attr_reader :config, :name, :channels, :users, :client_host, :caps, :nick, :user, :realname
 
-    def initialize(name)
+    def initialize name
       Bot::Connections[name] = self
 
       @disconnecting = false
@@ -41,7 +41,7 @@ module Bot
       @buf           = BufferedTokenizer.new
       @client_host   = ""
       
-      @caps = ClientCapabilities.new(self) if defined? MODULE_LOADED_CLIENT_CAPABILITIES
+      @caps = ClientCapabilities.new self if defined? MODULE_LOADED_CLIENT_CAPABILITIES
 
       @name = name
       @name.freeze
@@ -53,21 +53,21 @@ module Bot
 
       $log.debug("IRCConnection.initialize #{name}") { "#{@config[:address]}:#{@config[:port]} #{@nick}!#{@user}@ #{@realname}" }
 
-      Events.create(self, :NICK,  :on_nick)
-      Events.create(self, :"433", :on_nick_in_use)
-      Events.create(self, :"001", :on_registered)
-      Events.create(self, :"005", :on_isupport)
+      Events.create self, :NICK,  :on_nick
+      Events.create self, :"433", :on_nick_in_use
+      Events.create self, :"001", :on_registered
+      Events.create self, :"005", :on_isupport
 
-      Flags.add_server(name.to_s)
+      Flags.add_server name.to_s
 
       timeout = @config[:timeout] rescue 0
-      set_comm_inactivity_timeout(timeout)
+      set_comm_inactivity_timeout timeout
 
       $log.debug("IRCConnection.initialize #{name}") { "Done preparing connection." }
     end
 
 
-    def disconnect(quit_message = "Terminus-Bot: Terminating")
+    def disconnect quit_message = "Terminus-Bot: Terminating"
       raw "QUIT :#{quit_message}"
 
       @disconnecting = true
@@ -75,7 +75,7 @@ module Bot
       flush_queue
     end
 
-    def reconnect(lost_connection = false)
+    def reconnect lost_connection = false
       unless lost_connection
         raw "QUIT :Reconnecting"
         flush_queue
@@ -88,7 +88,7 @@ module Bot
       EM.add_timer(Bot::Conf[:core][:reconwait]) do
         $log.warn("IRCConnection.reconnect #{@name}") { "Attempting to reconnect." }
 
-        super(@config[:address], @config[:port])
+        super @config[:address], @config[:port]
       end
     end
 
@@ -103,15 +103,15 @@ module Bot
         @caps = nil
       end
 
-      Events.delete_for(self)
+      Events.delete_for self
     end
 
 
     def connection_completed
       $log.info("IRCConnection.post_init #{@name}") { "Connection established." }
 
-      @users      = UserManager.new(self)
-      @channels   = Channels.new(self)
+      @users      = UserManager.new self
+      @channels   = Channels.new self
       @registered = false
 
       @disconnecting, @reconnecting = false, false
@@ -121,7 +121,7 @@ module Bot
 
       if @config[:ssl]
         # TODO: Support more options here via the config file.
-        start_tls(:verify_peer => false)
+        start_tls :verify_peer => false
       end
 
       send_single_message
@@ -131,22 +131,22 @@ module Bot
     def unbind
       return if @disconnecting or @reconnecting
 
-      EM.cancel_timer(@timer)
+      EM.cancel_timer @timer
 
-      reconnect(true)
+      reconnect true
     end
 
-    def receive_data(data)
+    def receive_data data
       @buf.extract(data).each do |line|
         receive_line line.chomp
       end
     end
 
-    def receive_line(line)
-      msg = Message.new(self, line.clone)
+    def receive_line line
+      msg = Message.new self, line.clone
 
       Bot::Ignores.each do |ignore|
-        if msg.origin.wildcard_match(ignore)
+        if msg.origin.wildcard_match ignore
           $log.debug("IRCConnection.receive_line #{@name}") { "Ignoring message from #{msg.origin}" }
           return
         end
@@ -154,8 +154,8 @@ module Bot
 
       begin
 
-        Events.dispatch(:raw,     msg)
-        Events.dispatch(msg.type, msg)
+        Events.dispatch :raw,     msg
+        Events.dispatch msg.type, msg
 
       rescue Exception => e
         $log.error("IRC.receive_line") { "#{@name}: Uncaught error in message handler: #{e}" }
@@ -164,7 +164,7 @@ module Bot
     end
 
 
-    def raw(str)
+    def raw str
       return if @disconnecting
 
       str.delete! "\r\n"
@@ -179,19 +179,19 @@ module Bot
     # Send a message immediately, bypassing the queue and throttling.
     # This isn't guaranteed to send the message this instant, since it will
     # still end up in EventMachine's outgoing queue.
-    def raw_fast(str)
+    def raw_fast str
       return if @disconnecting
 
       str.delete! "\r\n"
       $log.debug("IRCConnection.raw_fast #{@name}") { "Sending: #{str}" }
       Events.dispatch(:raw_out, Message.new(self, str, true))
 
-      send_data(str)
+      send_data str
 
       str
     end
 
-    def send_data(data)
+    def send_data data
       super "#{data}\n"
 
       $log.debug("IRCConnection.send_data #{@name}") { data }
@@ -244,13 +244,13 @@ module Bot
     end
 
 
-    def on_registered(msg)
+    def on_registered msg
       return unless msg.connection == self
 
       @isupport, @registered = {}, true
     end
 
-    def on_nick_in_use(msg)
+    def on_nick_in_use msg
       return if @registered or msg.connection != self
 
       if @nick == Bot::Conf[:core][:nick]
@@ -269,7 +269,7 @@ module Bot
       raw "NICK #{@nick}"
     end
 
-    def on_nick(msg)
+    def on_nick msg
       return unless msg.connection == self
 
       if msg.me?
@@ -278,7 +278,7 @@ module Bot
       end
     end
 
-    def on_isupport(msg)
+    def on_isupport msg
       return if msg.connection != self
 
       # Limit iteration to everything between the nick and ":are supported
@@ -293,7 +293,7 @@ module Bot
 
 
     # string canonizer, using the rule specified by CASEMAPPING
-    def canonize(str)
+    def canonize str
 
       case support("CASEMAPPING", "rfc1459").downcase
 
@@ -314,7 +314,7 @@ module Bot
     end
 
     # retrieve ISUPPORT values or default to a value we don't have
-    def support(param, default = nil)
+    def support param, default = nil
       param.upcase!
 
       @isupport.has_key?(param) ? @isupport[param] : default

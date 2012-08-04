@@ -26,7 +26,7 @@
 
 class String
 
-  def wildcard_match(s)
+  def wildcard_match s
  
     # TODO: This probably needs to obey CASEMAPPING since it will be used for
     # hostname matching and probably nothing else. --Kabaka
@@ -36,11 +36,11 @@ class String
     # produce unexpected results.
     #
     # If it isn't obvious, this escapes [ and ]. So many backslashes!
-    s.gsub!(/([\[\]])/, '\\\\\1')
+    s.gsub! /([\[\]])/, '\\\\\1'
 
     # Wildcard matches can be done with fnmatch, a globbing function. This
     # doesn't touch the filesystem.
-    File.fnmatch(s, self)
+    File.fnmatch s, self
 
   end
 

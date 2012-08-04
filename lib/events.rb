@@ -24,14 +24,14 @@
 #
 
 module Bot
-  Event = Struct.new(:name, :func, :owner)
+  Event = Struct.new :name, :func, :owner
 
   class EventManager < Hash
 
     # Create a new event. The key in the hash table is the event name
     # which is used to run the event. The value is an array which will store
     # the multiple events that run are run when the event name is called.
-    def create(owner, name, func)
+    def create owner, name, func
       self[name] ||= []
 
       $log.debug("events.create") { "Created event #{name}" }
@@ -39,7 +39,7 @@ module Bot
     end
 
     # Run all the events with the given name.
-    def dispatch(name, msg = nil)
+    def dispatch name, msg = nil
       return unless self.has_key? name
 
       $log.debug("events.run") { name }
@@ -47,11 +47,11 @@ module Bot
       self[name].each do |event|
         begin
           unless msg == nil
-            next unless Bot::Flags.permit_message?(event.owner, msg)
+            next unless Bot::Flags.permit_message? event.owner, msg
 
-            event.owner.send(event.func, msg)
+            event.owner.send event.func, msg
           else
-            event.owner.send(event.func)
+            event.owner.send event.func
           end
 
         rescue => e
@@ -62,7 +62,7 @@ module Bot
     end
 
     # Delete all the events owned by the given class.
-    def delete_for(owner)
+    def delete_for owner
       self.each do |n, a|
         a.delete_if {|e| e.owner == owner}
       end

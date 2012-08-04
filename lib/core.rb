@@ -33,7 +33,7 @@ module Bot
 
     if $opts[:fork]
       $log.close
-      $log = Logger.new('var/terminus-bot.log', logcount, logsize);
+      $log = Logger.new 'var/terminus-bot.log', logcount, logsize
     end
 
     case loglevel
@@ -54,18 +54,18 @@ module Bot
     # Don't print warnings to STDERR.
     $-v = nil
 
-    trap("INT")  { self.quit("Interrupted by host system. Exiting!") }
-    trap("TERM") { self.quit("Terminated by host system. Exiting!") }
+    trap("INT")  { self.quit "Interrupted by host system. Exiting!" }
+    trap("TERM") { self.quit "Terminated by host system. Exiting!" }
     trap("KILL") { exit }
 
     at_exit { self.clean_up }
 
     EM.error_handler { |e|
       $log.error("EM.error_handler") { e.to_s }
-      $log.error("EM.error_handler") { e.backtrace.join("\n") }
+      $log.error("EM.error_handler") { e.backtrace.join "\n" }
     }
 
-    Events.dispatch(:em_started)
+    Events.dispatch :em_started
 
     # TODO: Make this a config variable?
     EM.add_periodic_timer(300) { DB.write_database }
@@ -82,19 +82,19 @@ module Bot
       $log.debug("Bot.run") { config.to_s }
 
       unless bind == nil or bind.empty?
-        EM.bind_connect(bind, config[:address], config[:port], IRCConnection, name)
+        EM.bind_connect bind, config[:address], config[:port], IRCConnection, name
       else
-        EM.connect(config[:address], config[:port], IRCConnection, name)
+        EM.connect config[:address], config[:port], IRCConnection, name
       end
       
     end
   end
 
-  def self.quit(message = "Terminus-Bot: Terminating")
+  def self.quit message = "Terminus-Bot: Terminating"
     $log.debug("Bot.quit") { "Sending disconnection requests." }
 
     Connections.each_value do |connection|
-      connection.disconnect(message)
+      connection.disconnect message
     end
 
     Scripts.die
@@ -117,7 +117,7 @@ module Bot
     $log.debug("Bot.clean_up") { "Terminating event loop and deleting PID file." }
 
     EM.stop_event_loop if EM.reactor_running?
-    File.delete(PID_FILE)
+    File.delete PID_FILE
   end
 
 end

@@ -28,33 +28,33 @@ module Bot
 
   class Channels < Hash
 
-    def initialize(connection)
+    def initialize connection
       @connection = connection
 
-      Bot::Events.create(self, :JOIN,  :on_join)
-      Bot::Events.create(self, :PART,  :on_part)
-      Bot::Events.create(self, :KICK,  :on_kick)
-      Bot::Events.create(self, :MODE,  :on_mode)
-      Bot::Events.create(self, :"324", :on_modes_on_join)
+      Bot::Events.create self, :JOIN,  :on_join
+      Bot::Events.create self, :PART,  :on_part
+      Bot::Events.create self, :KICK,  :on_kick
+      Bot::Events.create self, :MODE,  :on_mode
+      Bot::Events.create self, :"324", :on_modes_on_join
 
-      Bot::Events.create(self, :QUIT,  :on_quit)
+      Bot::Events.create self, :QUIT,  :on_quit
 
-      Bot::Events.create(self, :TOPIC, :on_topic)
-      Bot::Events.create(self, :"332", :on_topic_on_join) # topic on join
+      Bot::Events.create self, :TOPIC, :on_topic
+      Bot::Events.create self, :"332", :on_topic_on_join # topic on join
 
-      Bot::Events.create(self, :"352", :on_who_reply) # who reply
-      Bot::Events.create(self, :NAMES, :on_names)
+      Bot::Events.create self, :"352", :on_who_reply # who reply
+      Bot::Events.create self, :NAMES, :on_names
 
-      Bot::Events.create(self, :NICK,  :on_nick)
+      Bot::Events.create self, :NICK,  :on_nick
     end
 
 
-    def on_who_reply(msg)
+    def on_who_reply msg
       return unless msg.connection == @connection
-      canon_name = @connection.canonize(msg.raw_arr[3])
+      canon_name = @connection.canonize msg.raw_arr[3]
 
       unless has_key? canon_name
-        self[canon_name] = Channel.new(canon_name, @connection)
+        self[canon_name] = Channel.new canon_name, @connection
       end
 
       self[canon_name].join(ChannelUser.new(@connection.canonize(msg.raw_arr[7]),
@@ -62,93 +62,93 @@ module Bot
                                                      msg.raw_arr[5],
                                                      []))
 
-      self[canon_name].who_modes(msg.raw_arr[7], msg.raw_arr[8])
+      self[canon_name].who_modes msg.raw_arr[7], msg.raw_arr[8]
     end
 
 
-    def on_join(msg)
+    def on_join msg
       return unless msg.connection == @connection
 
       unless has_key? msg.destination_canon
-        self[msg.destination_canon] = Channel.new(msg.destination_canon, @connection)
-        Bot::Flags.add_channel(@connection.name.to_s, msg.destination_canon)
+        self[msg.destination_canon] = Channel.new msg.destination_canon, @connection
+        Bot::Flags.add_channel @connection.name.to_s, msg.destination_canon
       end
 
       if msg.me?
-        msg.raw("MODE #{msg.destination}")
-        msg.raw("WHO #{msg.destination}")
+        msg.raw "MODE #{msg.destination}"
+        msg.raw "WHO #{msg.destination}"
       end
 
       self[msg.destination_canon].join(ChannelUser.new(msg.nick_canon, msg.user, msg.host, []))
     end
 
-    def on_part(msg)
+    def on_part msg
       return unless msg.connection == @connection
 
       return unless has_key? msg.destination_canon
 
       if msg.me?
-        return delete(msg.destination_canon)
+        return delete msg.destination_canon
       end
 
-      self[msg.destination_canon].part(msg.nick_canon)
+      self[msg.destination_canon].part msg.nick_canon
     end
 
-    def on_kick(msg)
+    def on_kick msg
       return unless msg.connection == @connection
 
       return unless has_key? msg.destination_canon
 
-      self[msg.destination_canon].part(@connection.canonize msg.raw_arr[3])
+      self[msg.destination_canon].part @connection.canonize msg.raw_arr[3]
     end
 
-    def on_mode(msg)
+    def on_mode msg
       return unless msg.connection == @connection
 
       return unless has_key? msg.destination_canon
 
-      self[msg.destination_canon].mode_change(msg.raw_arr[3..-1])
+      self[msg.destination_canon].mode_change msg.raw_arr[3..-1]
     end
 
-    def on_modes_on_join(msg)
+    def on_modes_on_join msg
       return unless msg.connection == @connection
-      canon_name = @connection.canonize(msg.raw_arr[3])
+      canon_name = @connection.canonize msg.raw_arr[3]
 
       return unless has_key? canon_name
 
-      self[canon_name].mode_change(msg.raw_arr[4..-1])
+      self[canon_name].mode_change msg.raw_arr[4..-1]
     end
 
 
-    def on_topic(msg)
+    def on_topic msg
       return unless msg.connection == @connection
 
       return unless has_key? msg.destination_canon
 
-      self[msg.destination_canon].topic(msg.text)
+      self[msg.destination_canon].topic msg.text
     end
 
-    def on_topic_on_join(msg)
+    def on_topic_on_join msg
       return unless msg.connection == @connection
-      canon_name = @connection.canonize(msg.raw_arr[3])
+      canon_name = @connection.canonize msg.raw_arr[3]
 
       return unless has_key? canon_name
 
-      self[canon_name].topic(msg.text)
+      self[canon_name].topic msg.text
     end
 
 
-    def on_quit(msg)
+    def on_quit msg
       return unless msg.connection == @connection
 
       # TODO: This is fucko. The Users class needs to hold channel users. We have
       # too much duplicate data.
       each_value do |c|
-        c.part(msg.nick)
+        c.part msg.nick
       end
     end
 
-    def on_nick(msg)
+    def on_nick msg
       return unless msg.connection == @connection
 
       if msg.me?
@@ -159,7 +159,7 @@ module Bot
       # TODO: This is fucko. The Users class needs to hold channel users. We have
       # too much duplicate data.
       each_value do |c|
-        c.change_nick(msg)
+        c.change_nick msg
       end
     end
 
@@ -167,7 +167,7 @@ module Bot
   end
 
   # TODO: Track channel users in the user objects rather than here.
-  ChannelUser = Struct.new(:nick, :user, :host, :modes)
+  ChannelUser = Struct.new :nick, :user, :host, :modes
 
   class Channel
 
@@ -175,7 +175,7 @@ module Bot
 
     # Create the channel object. Since all we know when we join is the name,
     # that's all we're going to store here.
-    def initialize(name, connection)
+    def initialize name, connection
       @name, @connection = name, connection
       @name.freeze
 
@@ -234,7 +234,7 @@ module Bot
           else
 
             if chanmodes[3].include? mode or chanmodes[2].include? mode
-              @modes.delete(mode)
+              @modes.delete mode
             else
               with_params << mode
             end
@@ -277,14 +277,14 @@ module Bot
         $log.debug("Channel.mode_change") { "#{plus ? "+" : "-"}#{key} => #{param}" }
 
         if @prefixes.has_value? key
-          param = @connection.canonize(param)
+          param = @connection.canonize param
 
           if plus
             $log.debug("Channel.mode_change") { "Adding #{key} to #{param}" }
             @users[param].modes |= [key]
           else
             $log.debug("Channel.mode_change") { "Removing #{key} from #{param}" }
-            @users[param].modes.delete(key)
+            @users[param].modes.delete key
 
             who = true
           end
@@ -295,16 +295,16 @@ module Bot
           if plus
             @lists[key] |= [param]
           else
-            @lists[key].delete(param)
+            @lists[key].delete param
 
-            @lists.delete(key) if @lists[key].empty?
+            @lists.delete key if @lists[key].empty?
           end
 
         else
           if plus
             @modes[key] = param
           else
-            @modes.delete(key)
+            @modes.delete key
           end
         end
 
@@ -313,8 +313,8 @@ module Bot
       @connection.raw("WHO #{@name}") if who and not @connection.caps.include? :multi_prefix
     end
 
-    def op?(nick)
-      nick = @connection.canonize(nick)
+    def op? nick
+      nick = @connection.canonize nick
 
       return false unless @users.has_key? nick
 
@@ -327,8 +327,8 @@ module Bot
       @users[nick].modes.include? "y"
     end
 
-    def half_op?(nick)
-      nick = @connection.canonize(nick)
+    def half_op? nick
+      nick = @connection.canonize nick
 
       return false unless @users.has_key? nick
 
@@ -337,8 +337,8 @@ module Bot
       @users[nick].modes.include? "h"
     end
 
-    def voice?(nick)
-      nick = @connection.canonize(nick)
+    def voice? nick
+      nick = @connection.canonize nick
 
       return false unless @users.has_key? nick
 
@@ -348,55 +348,55 @@ module Bot
     end
 
     # Store the topic.
-    def topic(str)
+    def topic str
       @topic = str
     end
 
     # Add a user to our channel's user list.
-    def join(user)
+    def join user
       $log.debug("Channel.join") { "#{user.nick} joined #{@name}" }
 
-      @users[@connection.canonize(user.nick)] = user
+      @users[@connection.canonize user.nick] = user
     end
 
     # Remove a user from our channel's user list.
-    def part(nick)
+    def part nick
       $log.debug("Channel.part") { "#{nick} parted #{@name}" }
 
-      @users.delete(@connection.canonize(nick))
+      @users.delete @connection.canonize(nick)
     end
 
     # Retrieve the channel user object for the named user, or return nil
     # if none exists.
-    def get_user(nick)
-      nick = @connection.canonize(nick)
+    def get_user nick
+      nick = @connection.canonize nick
 
       @users.has_key?(nick) ? @users[nick] : nil
     end
 
     # Someone changed nicks. Make the necessary updates.
-    def change_nick(msg)
+    def change_nick msg
       return unless @users.has_key? msg.nick_canon
 
       $log.debug("Channel.change_nick") { "Renaming user #{msg.nick} on #{@name}" }
 
-      changed_nick_canon = msg.connection.canonize(msg.text)
+      changed_nick_canon = msg.connection.canonize msg.text
 
       # Apparently structs don't let you change values. So just make a
       # new user.
-      changed_user = ChannelUser.new(changed_nick_canon,
+      changed_user = ChannelUser.new changed_nick_canon,
                                      @users[msg.nick_canon].user,
                                      @users[msg.nick_canon].host,
-                                     @users[msg.nick_canon].modes)
+                                     @users[msg.nick_canon].modes
 
-      @users.delete(msg.nick_canon)
+      @users.delete msg.nick_canon
       @users[changed_nick_canon] = changed_user
     end
 
-    def who_modes(nick, info)
+    def who_modes nick, info
       $log.debug("Channel.who_modes") { "#{nick} => #{info}" }
 
-      nick = @connection.canonize(nick)
+      nick = @connection.canonize nick
 
       info.each_char do |c|
 

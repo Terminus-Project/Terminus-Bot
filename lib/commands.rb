@@ -24,16 +24,16 @@
 #
 
 module Bot
-  Command = Struct.new(:owner, :cmd, :func, :argc, :level, :chan_level, :help)
+  Command = Struct.new :owner, :cmd, :func, :argc, :level, :chan_level, :help
 
   class CommandManager < Hash
 
     def initialize
-      Bot::Events.create(self, :PRIVMSG, :on_privmsg)
+      Bot::Events.create self, :PRIVMSG, :on_privmsg
     end
 
-    def on_privmsg(msg)
-      prefix = Regexp.escape(Bot::Conf[:core][:prefix])
+    def on_privmsg msg
+      prefix = Regexp.escape Bot::Conf[:core][:prefix]
 
       return unless msg.text =~ /\A#{msg.private? ? "(#{prefix})?" : "(#{prefix})"}([^ ]+)(.*)\Z/i
 
@@ -43,12 +43,12 @@ module Bot
 
       command = self[cmd_str]
 
-      return unless Bot::Flags.permit_message?(command.owner, msg)
+      return unless Bot::Flags.permit_message? command.owner, msg
 
-      level = msg.connection.users.get_level(msg)
+      level = msg.connection.users.get_level msg
 
       if command.level > level
-        msg.reply("Level \02#{command.level}\02 authorization required. (Current level: #{level})")
+        msg.reply "Level \02#{command.level}\02 authorization required. (Current level: #{level})"
         return
       end
 
@@ -56,19 +56,19 @@ module Bot
 
       when :voice
         unless msg.voice?
-          msg.reply("You must be voiced or better to use this command.")
+          msg.reply "You must be voiced or better to use this command."
           return
         end
 
       when :half_op
         unless msg.half_op?
-          msg.reply("You must be half-op or better to use this command.")
+          msg.reply "You must be half-op or better to use this command."
           return
         end
 
       when :op
         unless msg.op?
-          msg.reply("You must be a channel op to use this command.")
+          msg.reply "You must be a channel op to use this command."
           return
         end
 
@@ -87,7 +87,7 @@ module Bot
       $log.debug("CommandManager.on_privmsg") { "Match for command #{cmd_str} in #{command.owner}" }
 
       begin
-        command.owner.send(command.func, msg, params)
+        command.owner.send command.func, msg, params
       rescue => e
         $log.error("CommandManager.on_privmsg") { "Problem running command #{cmd_str} in #{command.owner}: #{e}" }
         $log.debug("CommandManager.on_privmsg") { e.backtrace }
@@ -96,7 +96,7 @@ module Bot
       end
     end
 
-    def create(owner, cmd, func, argc, level, chan_level, help)
+    def create owner, cmd, func, argc, level, chan_level, help
       cmd.downcase!
 
       if has_key? cmd
@@ -105,20 +105,20 @@ module Bot
 
       $log.debug("CommandManager.create") { "Creating command: #{cmd}" }
 
-      self[cmd] = Command.new(owner, cmd, func, argc, level, chan_level, help)
+      self[cmd] = Command.new owner, cmd, func, argc, level, chan_level, help
     end
 
-    def delete(cmd)
+    def delete cmd
       cmd.downcase!
 
       raise "attemped to delete non-existent command #{cmd}" unless has_key? cmd
 
       $log.debug("CommandManager.delete") { "Deleting command: #{cmd}" }
 
-      super(cmd)
+      super cmd
     end
 
-    def delete_for(owner)
+    def delete_for owner
       $log.debug("CommandManager.delete_for") { "Unregistering all commands for #{owner.class.name}" }
 
       delete_if {|n,c| c.owner == owner}

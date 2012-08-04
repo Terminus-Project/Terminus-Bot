@@ -30,17 +30,17 @@ module Bot
 
     require 'base64'
 
-    def initialize(parent)
+    def initialize parent
       @parent = parent
 
       # SASL
-      Events.create(self, :CAP,          :on_cap)
-      Events.create(self, :AUTHENTICATE, :on_authenticate)
-      Events.create(self, :"904",        :on_sasl_fail)
-      Events.create(self, :"905",        :on_sasl_fail)
-      Events.create(self, :"900",        :on_sasl_success)
-      Events.create(self, :"906",        :on_sasl_abort)
-      Events.create(self, :"907",        :on_sasl_abort)
+      Events.create self, :CAP,          :on_cap
+      Events.create self, :AUTHENTICATE, :on_authenticate
+      Events.create self, :"904",        :on_sasl_fail
+      Events.create self, :"905",        :on_sasl_fail
+      Events.create self, :"900",        :on_sasl_success
+      Events.create self, :"906",        :on_sasl_abort
+      Events.create self, :"907",        :on_sasl_abort
 
       @sasl_pending = true
     end
@@ -49,7 +49,7 @@ module Bot
       Events.delete_events_for self
     end
 
-    def on_cap(msg)
+    def on_cap msg
       return if @parent != msg.connection
 
       $log.debug("ClientCapabilities.on_cap #{@parent.name}") { msg.raw_str }
@@ -57,15 +57,15 @@ module Bot
       case msg.raw_arr[3]
 
       when "LS"
-        on_cap_ls(msg)
+        on_cap_ls msg
 
       when "ACK"
-        on_cap_ack(msg)
+        on_cap_ack msg
 
       end
     end
 
-    def on_cap_ls(msg)
+    def on_cap_ls msg
       return if @parent != msg.connection
 
       req = []
@@ -96,7 +96,7 @@ module Bot
       msg.raw "CAP REQ :#{req.join(" ")}"
     end
 
-    def on_cap_ack(msg)
+    def on_cap_ack msg
       return if @parent != msg.connection
 
       @sasl_pending = false
@@ -118,7 +118,7 @@ module Bot
     end
 
 
-    def on_authenticate(msg)
+    def on_authenticate msg
       return if @parent != msg.connection
 
       return unless @sasl_pending
@@ -127,7 +127,7 @@ module Bot
         username = msg.connection.config[:sasl_username]
         password = msg.connection.config[:sasl_password]
 
-        encoded = Base64.encode64("#{username}\0#{username}\0#{password}")
+        encoded = Base64.encode64 "#{username}\0#{username}\0#{password}"
 
         msg.raw "AUTHENTICATE #{encoded}"
 
@@ -138,7 +138,7 @@ module Bot
       end
     end
 
-    def begin_sasl(msg)
+    def begin_sasl msg
       if not @parent.config.has_key? :sasl_username or not @parent.config.has_key? :sasl_password
         $log.debug("ClientCapabilities.begin_sasl #{@parent.name}") { "Server supports SASL but we aren't configured to use it." }
         return false
@@ -149,7 +149,7 @@ module Bot
     end
 
 
-    def on_sasl_success(msg)
+    def on_sasl_success msg
       return if @parent != msg.connection
 
       @sasl_pending = false
@@ -157,7 +157,7 @@ module Bot
       msg.raw "CAP END"
     end
 
-    def on_sasl_fail(msg)
+    def on_sasl_fail msg
       return if @parent != msg.connection
 
       @sasl_pending = false
@@ -165,7 +165,7 @@ module Bot
       msg.raw "CAP END"
     end
 
-    def on_sasl_abort(msg)
+    def on_sasl_abort msg
       return if @parent != msg.connection
 
       @sasl_pending = false

@@ -41,7 +41,7 @@ module Bot
 
       $log.info("Configuration.read_config") { "Loading the configuration file." } 
 
-      fi = File.open(file_name, 'r')
+      fi = File.open file_name, 'r'
 
       parents, line_number = [], 0
 
@@ -67,7 +67,7 @@ module Bot
           key, value = line.strip, nil
 
         else
-          key, value = line.split("=", 2)
+          key, value = line.split "=", 2
 
           key.strip!
           value.strip!

@@ -40,18 +40,18 @@ module Bot
     end
 
 
-    def add_server(server)
+    def add_server server
       self[server] ||= {}
     end
 
     # When adding a channel, the name MUST be canonized.
-    def add_channel(server, channel)
+    def add_channel server, channel
       self[server][channel] ||= {}
     end
 
 
     # New script loaded. Add it if we don't already have it.
-    def add_script(name)
+    def add_script name
       return if @scripts.include? name
 
       $log.debug("Flags.add_script") { name }
@@ -62,7 +62,7 @@ module Bot
 
     # Determine whether the given event should be sent or not, based on
     # the event itself and on the contents of the message
-    def permit_message?(owner, msg)
+    def permit_message? owner, msg
       return true unless owner.is_a? Script
 
       # Always answer private messages!
@@ -72,12 +72,12 @@ module Bot
       channel = msg.destination_canon
       name    = owner.my_short_name
 
-      enabled?(server, channel, name)
+      enabled? server, channel, name
     end
 
     # Return true if the script is enabled on the given server/channel. Otherwise,
     # return false.
-    def enabled?(server, channel, script)
+    def enabled? server, channel, script
       flag = self[server][channel][script] rescue 0
 
       case flag
@@ -93,15 +93,15 @@ module Bot
 
     # Enable all matching scripts for all matching servers and channels (by
     # wildcard match).
-    def enable(server_mask, channel_mask, script_mask)
-      set_flags(server_mask, channel_mask, script_mask, 1)
+    def enable server_mask, channel_mask, script_mask
+      set_flags server_mask, channel_mask, script_mask, 1
     end
 
 
     # Disable all matching scripts for all matching servers and channels (by
     # wildcard match).
-    def disable(server_mask, channel_mask, script_mask)
-      set_flags(server_mask, channel_mask, script_mask, -1)
+    def disable server_mask, channel_mask, script_mask
+      set_flags server_mask, channel_mask, script_mask, -1
     end
 
 
@@ -109,7 +109,7 @@ module Bot
     # is the value which will be used for the flag.
     #
     # Returns the number of changed flags.
-    def set_flags(server_mask, channel_mask, script_mask, flag)
+    def set_flags server_mask, channel_mask, script_mask, flag
       count = 0
 
       scripts = @scripts.select {|s| s.wildcard_match(script_mask)}
@@ -119,10 +119,10 @@ module Bot
       $log.debug("script_flags.set_flags") { "#{scripts.length} matching scripts" }
 
       self.each_pair do |server, channels|
-        next unless server.wildcard_match(server_mask)
+        next unless server.wildcard_match server_mask
 
         channels.each_pair do |channel, channel_scripts|
-          next unless channel.wildcard_match(channel_mask)
+          next unless channel.wildcard_match channel_mask
 
           scripts.each do |script|
 

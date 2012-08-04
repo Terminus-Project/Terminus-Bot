@@ -30,8 +30,8 @@ module Bot
     attr_reader :origin, :destination, :type, :text, :raw_str, :raw_arr,
       :nick, :nick_canon, :user, :host, :connection
     
-    # Parse the str as an IRC message and fire appropriate events.
-    def initialize(connection, str, outgoing = false)
+    # Parse the str as an IRC message
+    def initialize connection, str, outgoing = false
       arr = str.split
 
       @raw_str, @raw_arr = str, arr
@@ -97,20 +97,20 @@ module Bot
     end
 
     # Reply to a message. If an array is given, send each reply separately.
-    def reply(str, prefix = true)
+    def reply str, prefix = true
       if str.kind_of? Array
         str.each do |this_str|
-          send_reply(this_str, prefix)
+          send_reply this_str, prefix
         end
       else
-        send_reply(str, prefix)
+        send_reply str, prefix
       end
     end
 
     # Actually send the reply. If prefix is true, prefix each message with the
     # triggering user's nick. If replying in private, never use a prefix, and
     # reply with NOTICE instead.
-    def send_reply(str, prefix)
+    def send_reply str, prefix
       if str.empty?
         str = "I tried to send you an empty message. Oops!"
       end
@@ -121,20 +121,20 @@ module Bot
       unless self.private?
         str = "#{@nick}: #{str}" if prefix
 
-        send_privmsg(@destination, str)
+        send_privmsg @destination, str
       else
-        send_notice(@nick, str)
+        send_notice @nick, str
       end
     end
 
-    def raw(*args)
-      @connection.raw(*args)
+    def raw *args
+      @connection.raw *args
     end
 
     # Attempt to truncate messages in such a way that the maximum
     # amount of space possible is used. This assumes the server will
     # send a full 512 bytes to a client with exactly 1459 format.
-    def truncate(message, destination, notice = false)
+    def truncate message, destination, notice = false
       prefix_length = @connection.nick.length +
         @connection.user.length +
         @connection.client_host.length +
@@ -151,12 +151,12 @@ module Bot
       message
     end
 
-    def send_privmsg(target, str)
-      raw("PRIVMSG #{target} :#{truncate(str, target)}")
+    def send_privmsg target, str
+      raw "PRIVMSG #{target} :#{truncate str, target}"
     end
 
-    def send_notice(target, str)
-      raw("NOTICE #{target} :#{truncate(str, target, true)}")
+    def send_notice target, str
+      raw "NOTICE #{target} :#{truncate str, target, true}"
     end
 
     # Return true if this message's origin appears to be the bot.
@@ -166,13 +166,13 @@ module Bot
 
 
     # Should not be called externally.
-    def strip(str)
-      str.gsub(/(\x0F|\x1D|\02|\03([0-9]{1,2}(,[0-9]{1,2})?)?)/, "")
+    def strip str
+      str.gsub /(\x0F|\x1D|\02|\03([0-9]{1,2}(,[0-9]{1,2})?)?)/, ""
     end
 
     # Return the message with formatting stripped.
     def stripped
-      @stripped ||= strip(@text)
+      @stripped ||= strip @text
     end
 
     # Apply CASEMAPPING to the nick and return it.
@@ -194,15 +194,15 @@ module Bot
     end
 
     def op?
-      private? or @connection.channels[destination_canon].op?(@nick)
+      private? or @connection.channels[destination_canon].op? @nick
     end
 
     def half_op?
-      private? or @connection.channels[destination_canon].half_op?(@nick)
+      private? or @connection.channels[destination_canon].half_op? @nick
     end
 
     def voice?
-      private? or @connection.channels[destination_canon].voice?(@nick)
+      private? or @connection.channels[destination_canon].voice? @nick
     end
 
   end

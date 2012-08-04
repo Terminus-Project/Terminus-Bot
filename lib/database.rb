@@ -60,38 +60,38 @@ module Bot
     # Write @data converted to YAML to FILENAME.
     def write_database
       # TODO: Use the path from FILENAME.
-      Dir.mkdir("var") unless Dir.exists? "var"
-      Dir.mkdir("var/terminus-bot") unless Dir.exists? "var/terminus-bot"
+      Dir.mkdir "var" unless Dir.exists? "var"
+      Dir.mkdir "var/terminus-bot" unless Dir.exists? "var/terminus-bot"
 
       temp = "#{FILENAME}.tmp"
 
       $log.debug("Database.write_database") { "Marshaling data and writing to #{FILENAME}" }
 
       File.open(temp, "w") { |f| f.write(@data.to_yaml)}
-      File.rename(temp, FILENAME)
+      File.rename temp, FILENAME
     end
 
     # Implement a few Hash methods.
     # TODO: Find a way for this class to extend Hash and still play nice with
     #       Psych#load. Right now, it fails because load might not produce a Hash.
 
-    def [](key)
+    def [] key
       @data[key]
     end
 
-    def []=(key, val)
+    def []= key, val
       @data[key] = val
     end
 
-    def delete(key)
-      @data.delete(key)
+    def delete key
+      @data.delete key
     end
 
     def to_s
       @data.to_s
     end
 
-    def has_key?(key)
+    def has_key? key
       @data.has_key? key
     end
   end

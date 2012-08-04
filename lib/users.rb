@@ -30,39 +30,39 @@ module Bot
 
     # Create our users object. These are per-connection, so we're passed
     # our parent.
-    def initialize(connection)
+    def initialize connection
       @connection = connection
 
       # Register events relevant to us.
-      Events.create(self, "JOIN",    :add_origin)
-      Events.create(self, "352",     :add_352) # WHO reply
-      Events.create(self, "PRIVMSG", :add_origin)
-      Events.create(self, "NICK",    :change_nick)
-      Events.create(self, "QUIT",    :quit)
-      Events.create(self, "PART",    :part)
+      Events.create self, "JOIN",    :add_origin
+      Events.create self, "352",     :add_352 # WHO reply
+      Events.create self, "PRIVMSG", :add_origin
+      Events.create self, "NICK",    :change_nick
+      Events.create self, "QUIT",    :quit
+      Events.create self, "PART",    :part
     end
 
     # User has quit the network. Forget about them.
-    def quit(msg)
+    def quit msg
       return unless msg.connection == @connection
 
-      delete_user(msg.nick_canon)
+      delete_user msg.nick_canon
     end
 
     # Check if the parting user no longer has any common channels with us.
     # If they don't, forget about them.
-    def part(msg)
+    def part msg
       msg.connection.channels.each_value do |chan|
         unless chan.get_user(msg.nick_canon) == nil
           return
         end
       end
 
-      delete_user(msg.nick_canon)
+      delete_user msg.nick_canon
     end
 
     # WHO reply
-    def add_352(msg)
+    def add_352 msg
       return if msg.connection != @connection
 
       add_user(msg.connection.canonize(msg.raw_arr[7]), msg.raw_arr[4], msg.raw_arr[5])
@@ -70,56 +70,56 @@ module Bot
 
     # Add the user in the origin (first word) position of a raw message
     # to our list. Users are here in PRIVMSG and others.
-    def add_origin(msg)
+    def add_origin msg
       return if msg.connection != @connection
 
       msg.origin =~ /(.+)!(.+)@(.+)/
 
-      add_user(msg.connection.canonize($1), $2, $3)
+      add_user msg.connection.canonize($1), $2, $3
     end
 
     # Actually add a nick!user@host to our list.
-    def add_user(nick, user, host)
+    def add_user nick, user, host
       return if has_key? nick
 
       $log.debug("Users.add_user") { "Adding user #{nick} on #{@connection.name}" }
 
-      self[nick] = User.new(@connection, nick, user, host, 0)
+      self[nick] = User.new @connection, nick, user, host, 0
     end
 
     # Someone changed nicks. Make the necessary updates.
-    def change_nick(msg)
+    def change_nick msg
       return if msg.connection != @connection
       return unless has_key? msg.nick_canon
 
       $log.debug("Users.add_user") { "Renaming user #{msg.nick} on #{@connection.name}" }
 
-      changed_nick_canon = msg.connection.canonize(msg.text)
+      changed_nick_canon = msg.connection.canonize msg.text
 
       # Apparently structs don't let you change values. So just make a
       # new user.
-      changed_user = User.new(@connection, changed_nick_canon,
+      changed_user = User.new @connection, changed_nick_canon,
                               self[msg.nick_canon].user,
                               self[msg.nick_canon].host,
                               self[msg.nick_canon].level,
-                              self[msg.nick_canon].account)
+                              self[msg.nick_canon].account
 
-      delete_user(msg.nick_canon)
+      delete_user msg.nick_canon
 
       self[changed_nick_canon] = changed_user
     end
 
     # Remove a user by nick.
-    def delete_user(nick)
+    def delete_user nick
       $log.debug("Users.add_user") { "Removing user #{nick} on #{@connection.name}" }
 
-      delete(nick)
+      delete nick
     end
 
     # Get the level of the user speaking in msg.
     # Used when checking permissions.
-    def get_level(msg)
-      add_origin(msg) unless has_key? msg.nick_canon
+    def get_level msg
+      add_origin msg unless has_key? msg.nick_canon
 
       return self[msg.nick_canon].level
     end

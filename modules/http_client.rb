@@ -52,22 +52,22 @@ module Bot
   MODULE_LOADED_HTTP  = true
   MODULE_VERSION_HTTP = 0.2
 
-  def self.http_get(uri, query_hash = nil, &block)
-    uri.query = hash_to_query(query_hash) unless query_hash == nil
-    http_request(uri, true, &block)
+  def self.http_get uri, query_hash = nil, &block
+    uri.query = hash_to_query query_hash unless query_hash == nil
+    http_request uri, true, &block
   end
 
-  def self.http_post(uri, query_hash = nil, &block)
-    uri.query = hash_to_query(query_hash) unless query_hash == nil
-    http_request(uri, false, &block)
+  def self.http_post uri, query_hash = nil, &block
+    uri.query = hash_to_query query_hash unless query_hash == nil
+    http_request uri, false, &block
   end
 
-  def self.hash_to_query(hash)
-    hash.map {|k,v| "#{CGI.escape(k.to_s)}=#{CGI.escape(v.to_s)}"}.join('&')
+  def self.hash_to_query hash
+    hash.map {|k,v| "#{CGI.escape k.to_s}=#{CGI.escape v.to_s}"}.join '&'
   end
 
   # Should not be called directly.
-  def self.http_request(uri, get, limit = Conf[:modules][:http_client][:redirects], redirected = false, &block)
+  def self.http_request uri, get, limit = Conf[:modules][:http_client][:redirects], redirected = false, &block
     return nil if limit == 0
 
     $log.debug("Bot.http_request") { uri }
@@ -79,9 +79,9 @@ module Bot
       "User-agent: %s" % ua
     ]
 
-    conn = EM::Protocols::HttpClient2.connect(:host => uri.host,
+    conn = EM::Protocols::HttpClient2.connect :host => uri.host,
                                               :port => uri.port,
-                                              :ssl => (uri.scheme == "https"))
+                                              :ssl => (uri.scheme == "https")
 
     conn.comm_inactivity_timeout = Conf[:modules][:http_client][:timeout] or 5
 
@@ -102,7 +102,7 @@ module Bot
 
         $log.debug("Bot.http_request") { "Redirection: #{uri} -> #{location} (#{limit})" }
 
-        http_request(location, get, limit - 1, true, &block)
+        http_request location, get, limit - 1, true, &block
 
       else
         block.call response, uri, redirected
