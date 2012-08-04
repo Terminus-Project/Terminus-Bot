@@ -418,6 +418,22 @@ regex = {
 }
 
 
+# Reverse Polish notation calculator script.
+rpn = {
+
+  # The maximum number of times the p (print top of stack) or f (print whole
+  # stack) operators may be used in a command. After the last print has been
+  # used, calculation will immediately and silently end.
+  #
+  # This should be kept very low, as higher values mean users can cause more
+  # spam.
+  #
+  # default: 3
+  #max_prints = 3
+
+}
+
+
 # Last.fm script.
 lastfm = {
   
