@@ -92,10 +92,10 @@ def get_result(query, type)
       case type
 
       when :web
-        results << "\02#{result["titleNoFormatting"]}\02 - #{result["url"]}"
+        results << "\02#{result["titleNoFormatting"]}\02 - #{URI.unescape(result["url"])}"
 
       when :images
-        results << "\02#{result["titleNoFormatting"]}\02 - #{result["url"]}"
+        results << "\02#{result["titleNoFormatting"]}\02 - #{URI.unescape(result["url"])}"
 
       when :books
         results << "\02#{result["titleNoFormatting"]}\02 by #{result["authors"]} - #{URI.unescape(result["url"])} - #{result["bookId"]} - Published: #{result["publishedYear"]} - #{result["pageCount"]} Pages"
@@ -104,7 +104,7 @@ def get_result(query, type)
         results << "\02#{result["titleNoFormatting"]}\02 - #{URI.unescape(result["url"])}"
 
       when :blogs
-        results << "\02#{result["titleNoFormatting"]}\02 by #{result["author"]} - #{result["postUrl"]} - Published #{result["publishedDate"]}"
+        results << "\02#{result["titleNoFormatting"]}\02 by #{result["author"]} - #{URI.unescape(result["postUrl"])} - Published #{result["publishedDate"]}"
 
       when :patent
         results << "\02#{result["titleNoFormatting"]}\02 - #{URI.unescape(result["url"])} - assigned to #{result["assignee"]} - #{result["patentNumber"]} (#{result["patentStatus"]}) - Applied for on: #{result["applicationDate"]}"
