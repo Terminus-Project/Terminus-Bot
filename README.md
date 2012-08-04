@@ -469,6 +469,20 @@ Commands:
 
 * ROULETTE - Pull the trigger. You have a 5/6 chance of surviving.
 
+### RPN
+
+Reverse Polish notation (postfix) calculator.
+
+Operators:
+
+* +, add - Add the two top stack values.
+* -, sub - Subtract the two top stack values.
+* \*, mul - Multiply the two top stack values.
+* \**, exp - Raise one top stack value to the power of the one below it.
+* %, mod - Perform modulus divsion on the two top stack values.
+* p - Print the top stack value.
+* f - Print the full stack.
+
 ### RSS
 
 Automatically check RSS and ATOM feeds and post updates to channels.
