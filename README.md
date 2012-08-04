@@ -473,7 +473,11 @@ Commands:
 
 Reverse Polish notation (postfix) calculator.
 
-Operators:
+Commands:
+
+* RPN - Perform calculations in Reverse Polish notation.
+
+Operators for RPN command:
 
 * +, add - Add the two top stack values.
 * -, sub - Subtract the two top stack values.
