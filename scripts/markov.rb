@@ -28,23 +28,23 @@
 
 # Each word is a node. Each node contains a hash table of links to other nodes.
 # A link is created each time one word follows another.
-Node = Struct.new(:word, :links)
+Node = Struct.new :word, :links
 
 # Links are used to associate two nodes. The score is the number of times one
 # word (represented by the target node) has followed the previous word (the
 # parent node).
-Link = Struct.new(:parent, :target, :score)
+Link = Struct.new :parent, :target, :score
 
 
 MARKOV_FILE = "var/terminus-bot/markov.db"
 
 def initialize
-  register_script("Markov chain implementation that generates somewhat readable text.")
+  register_script "Markov chain implementation that generates somewhat readable text."
 
-  register_event(:PRIVMSG, :on_privmsg)
+  register_event :PRIVMSG, :on_privmsg
 
-  register_command("markov", :cmd_markov, 1, 10, nil, "Manage the Markov script. Parameters: ON|OFF|FREQUENCY percentage|CLEAR|LOAD filename|INFO|WRITE|NODE node|DELETE node")
-  register_command("chain",  :cmd_chain,  0,  0, nil, "Generate a random Markov chain. Parameters: [word [word]]")
+  register_command "markov", :cmd_markov, 1, 10, nil, "Manage the Markov script. Parameters: ON|OFF|FREQUENCY percentage|CLEAR|LOAD filename|INFO|WRITE|NODE node|DELETE node"
+  register_command "chain",  :cmd_chain,  0,  0, nil, "Generate a random Markov chain. Parameters: [word [word]]"
 
   @nodes = Hash.new
   @words = Hash.new
@@ -56,31 +56,31 @@ def die
   write_database
 end
 
-def cmd_chain(msg, params)
+def cmd_chain msg, params
 
   if @nodes.empty?
-    msg.reply("My Markov database is empty, so I can't generate any chains.")
+    msg.reply "My Markov database is empty, so I can't generate any chains."
     return
   end
 
   if params.length == 1
 
     if params[0].count(" ") > 1
-      msg.reply("Chain seeds can contain two or less words.")
+      msg.reply "Chain seeds can contain two or less words."
       return
     end
 
     build_chain(params[0].dup.downcase) do |chain|
-      msg.reply(chain, false)
+      msg.reply chain, false
     end
   else
     build_chain do |chain|
-      msg.reply(chain, false)
+      msg.reply chain, false
     end
   end
 end
 
-def cmd_markov(msg, params)
+def cmd_markov msg, params
   arr = params[0].split
   here = [msg.connection.name, msg.destination]
 
@@ -88,63 +88,63 @@ def cmd_markov(msg, params)
 
   when "ON"
     if msg.private?
-      msg.reply("This command may only be used in channels.")
+      msg.reply "This command may only be used in channels."
       return
     end
 
-    store_data(here, true)
+    store_data here, true
 
-    msg.reply("Markov interaction enabled for this channel.")
+    msg.reply "Markov interaction enabled for this channel."
 
   when "OFF"
     if msg.private?
-      msg.reply("This command may only be used in channels.")
+      msg.reply "This command may only be used in channels."
       return
     end
 
-    store_data(here, false)
+    store_data here, false
 
-    msg.reply("Markov interaction disabled for this channel.")
+    msg.reply "Markov interaction disabled for this channel."
 
   when "FREQUENCY"
     unless arr.length == 1
-      msg.reply("Frequency: #{get_data(:freq, 0)}")
+      msg.reply "Frequency: #{get_data(:freq, 0)}"
       return
     end
 
     chance = arr[0].to_i
 
     if chance <= 0 or chance > 100
-      msg.reply("The frequency must be a positive whole number greater than 0 and less than or equal to 100.")
+      msg.reply "The frequency must be a positive whole number greater than 0 and less than or equal to 100."
       return
     end
 
-    store_data(:freq, chance)
+    store_data :freq, chance
 
-    msg.reply("Frequency changed to #{chance}")
+    msg.reply "Frequency changed to #{chance}"
 
   when "CLEAR"
 
     @nodes.clear
 
-    msg.reply("Working data set has been cleared.")
+    msg.reply "Working data set has been cleared."
 
   when "LOAD"
 
     if arr.empty?
-      msg.reply("Please provide a list of files with the LOAD action.")
+      msg.reply "Please provide a list of files with the LOAD action."
       return
     end
 
-    msg.reply("Loading file(s). This may take a while.")
+    msg.reply "Loading file(s). This may take a while."
 
     # TODO: Kill this defer call.
     op = proc {
-      read_files(msg, arr)
-      msg.reply("Files loaded!") 
+      read_files msg, arr
+      msg.reply "Files loaded!"
     }
 
-    EM.defer(op)
+    EM.defer op
 
   when "INFO"
 
@@ -169,21 +169,21 @@ def cmd_markov(msg, params)
       begin
         write_database
       rescue => e
-        msg.reply("Failed to write database: #{e}")
+        msg.reply "Failed to write database: #{e}"
 
         $log.error("markov.write_database") { e }
         $log.debug("markov.write_database") { e.backtrace }
       end
 
-      msg.reply("Database written.")
+      msg.reply "Database written."
     }
 
-    EM.defer(op)
+    EM.defer op
 
   when "NODE"
 
     if arr.empty? or arr.length > 2
-      msg.reply("Please provide one or two words.")
+      msg.reply "Please provide one or two words."
       return
     end
 
@@ -193,7 +193,7 @@ def cmd_markov(msg, params)
       input = arr.join(" ").downcase
 
       unless @nodes.has_key? input
-        msg.reply("No such node.")
+        msg.reply "No such node."
         return
       end
 
@@ -205,29 +205,29 @@ def cmd_markov(msg, params)
 
     end
 
-    msg.reply("\02Links:\02 #{links}")
+    msg.reply "\02Links:\02 #{links}"
 
   when "DELETE"
 
     if arr.length != 2
-      msg.reply("Please provide a two-word node.")
+      msg.reply "Please provide a two-word node."
       return
     end
 
-    input = arr.join(" ")
+    input = arr.join " "
 
     unless @nodes.has_key? input
-      msg.reply("No such node.")
+      msg.reply "No such node."
       return
     end
 
-    @nodes.delete(input)
+    @nodes.delete input
 
-    msg.reply("Markov node \02#{input}\02 deleted.")
+    msg.reply "Markov node \02#{input}\02 deleted."
 
   else
 
-    msg.reply("Unknown action. Parameters: ON|OFF|FREQUENCY percentage|CLEAR|LOAD filename|INFO|WRITE|NODE node|DELETE node")
+    msg.reply "Unknown action. Parameters: ON|OFF|FREQUENCY percentage|CLEAR|LOAD filename|INFO|WRITE|NODE node|DELETE node"
 
   end
 
@@ -236,19 +236,19 @@ end
 
 # Event Callbacks
 
-def on_privmsg(msg)
+def on_privmsg msg
   return if msg.private?
 
   if msg.text =~ /\01ACTION (.+)\01/
-    parse_line(msg.strip($1))
+    parse_line msg.strip($1)
   elsif msg.text.include? "\01"
     return
   elsif not msg.text =~ /^.chain /
     # NOTE: Choose a better regex
-    parse_line(msg.stripped)
+    parse_line msg.stripped
   end
 
-  return unless get_data([msg.connection.name, msg.destination], false)
+  return unless get_data [msg.connection.name, msg.destination], false
 
   return unless rand(100) <= get_data(:freq, 0)
 
@@ -258,9 +258,9 @@ def on_privmsg(msg)
     if chain =~ /\A\w+s\s/
       chain[0] = chain[0].downcase
 
-      msg.reply("\01ACTION #{chain}\01", false)
+      msg.reply "\01ACTION #{chain}\01", false
     else
-      msg.reply(chain, false)
+      msg.reply chain, false
     end
   end
 end
@@ -269,14 +269,14 @@ end
 # Markov Stuff
 
 
-def add_pair(foo, bar, score = 0)
+def add_pair foo, bar, score = 0
   links = @nodes[foo].links
 
   if score.zero?
-    links[bar] ||= Link.new(@nodes[foo], @nodes[bar], 1)
+    links[bar] ||= Link.new @nodes[foo], @nodes[bar], 1
     links[bar].score += 1
   else
-    links[bar] ||= Link.new(@nodes[foo], @nodes[bar], score)
+    links[bar] ||= Link.new @nodes[foo], @nodes[bar], score
     links[bar].score = score
   end
 
@@ -293,7 +293,7 @@ end
 
 
 # Process a line of text, adding usable words to the data set.
-def parse_line(str)
+def parse_line str
   last_word = ""
 
   # TODO: This is wrong. Fix it.
@@ -304,15 +304,15 @@ def parse_line(str)
     next if word.empty? or word.start_with? "http"
 
     # Add this to our nodes data set if it's not already there.
-    @nodes[word] = Node.new(word, Hash.new) unless @nodes.has_key? word
+    @nodes[word] = Node.new word, Hash.new unless @nodes.has_key? word
 
-    add_pair(last_word, word) unless last_word.empty?
+    add_pair last_word, word unless last_word.empty?
     last_word = word
   end
 end
 
 
-def build_chain(word = @nodes.keys.sample.dup, requested = true)
+def build_chain word = @nodes.keys.sample.dup, requested = true
   unless word.include? " "
     arr = @words[word]
     
@@ -329,9 +329,9 @@ def build_chain(word = @nodes.keys.sample.dup, requested = true)
 
   return if word == nil and not requested
 
-  word.gsub!(/[!?.]/, '')
+  word.gsub! /[!?.]/, ''
 
-  chain = chainer(word)
+  chain = chainer word
 
   if chain.empty?
     yield "I was not able to create a chain with that seed."
@@ -339,14 +339,14 @@ def build_chain(word = @nodes.keys.sample.dup, requested = true)
   end
 
     # Remove terminating punctuation from the first word.
-  chain.sub!(/\A(\w+)[!?.]?/, '\1')
+  chain.sub! /\A(\w+)[!?.]?/, '\1'
 
   # Capitalize "i"
-  chain.gsub!(/\si('.+)?\s/, ' I\1 ')
+  chain.gsub! /\si('.+)?\s/, ' I\1 '
 
   # Strip things that would need to be closed, like parens and quotation
   # marks.
-  chain.gsub!(/[()"\[\]{}]/, "")
+  chain.gsub! /[()"\[\]{}]/, ""
 
   if not chain =~ /[!?.]\Z/
     if chain =~ /[[:punct:]]\Z/
@@ -361,7 +361,7 @@ end
 
 # Get one word which could reasonably follow the given word based on the link
 # scores in our data set.
-def get_word(word)
+def get_word word
   return nil unless @nodes.has_key? word
 
   # Get the top 20 most likely words.
@@ -371,7 +371,7 @@ def get_word(word)
   choices.empty? ? nil : choices.sample[0]
 end
 
-def chainer(word, random = true, depth = 0)
+def chainer word, random = true, depth = 0
   return "" if depth == 25
 
   buf, done = "", false
@@ -411,7 +411,7 @@ end
 
 
 # Load a plain text file into our data set.
-def load_file(filename)
+def load_file filename
   File.open(filename, "r") do |fi|
     while line = fi.gets
 
@@ -419,7 +419,7 @@ def load_file(filename)
       # just catch them and skip the bad line
       # TODO: do this correctly
       begin
-        parse_line(line)
+        parse_line line
       rescue
         next
       end
@@ -431,7 +431,7 @@ end
 
 # Read a WeeChat log file into our data set. Only channel messages and actions
 # are used.
-def load_weechat_log(filename)
+def load_weechat_log filename
   File.open(filename, "r") do |fi|
     while line = fi.gets
 
@@ -443,7 +443,7 @@ def load_weechat_log(filename)
           text = $3
           next if $2 =~ /<?-->?/ or text == nil
 
-          parse_line(text)
+          parse_line text
         end
       rescue
         next
@@ -453,18 +453,18 @@ def load_weechat_log(filename)
   end
 end
 
-def read_files(msg, arr)
+def read_files msg, arr
   while file = arr.shift
 
     unless File.exists? file
-      msg.reply("File #{file} does not exist. Skipping.")
+      msg.reply "File #{file} does not exist. Skipping."
       next
     end
 
     if file =~ /\.weechatlog\Z/
-      load_weechat_log(file)
+      load_weechat_log file
     else
-      load_file(file)
+      load_file file
     end
       
   end
@@ -476,14 +476,14 @@ end
 def write_database
   $log.info("Markov.write_database") { "If the database is large, this will take a while." }
 
-  temp = "%s.tmp" % MARKOV_FILE
-  fi = File.open(temp, "w")
+  temp = "#{MARKOV_FILE}.tmp"
+  fi = File.open temp, "w"
 
   @nodes.each do |word, node|
-    fi << "%s\t" % word
+    fi << "#{word}\t"
 
     node.links.each do |n, l|
-      fi << "%s\t%d\t" % [l.target.word, l.score]
+      fi << "#{l.target.word}\t#{l.score}\t"
     end
 
     fi << "\n"
@@ -491,7 +491,7 @@ def write_database
 
   fi.close
 
-  File.rename(temp, MARKOV_FILE)
+  File.rename temp, MARKOV_FILE
 
   $log.info("Markov.write_database") { "Done writing database." }
 end
@@ -501,10 +501,10 @@ def read_database
 
   $log.info("Markov.read_database") { "If the database is large, this will take a while." }
 
-  fi = File.open(MARKOV_FILE, "r")
+  fi = File.open MARKOV_FILE, "r"
 
   while line = fi.gets
-    arr = line.force_encoding('UTF-8').chomp.split("\t")
+    arr = line.force_encoding('UTF-8').chomp.split "\t"
 
     word = arr.shift
 
@@ -526,9 +526,9 @@ def read_database
         next
       end
  
-      @nodes[linked] ||= Node.new(linked, Hash.new)
+      @nodes[linked] ||= Node.new linked, Hash.new
 
-      links[linked] = Link.new(@nodes[word], @nodes[linked], score)
+      links[linked] = Link.new @nodes[word], @nodes[linked], score
 
       word.split.each do|w| 
         @words[w] ||= []
@@ -547,3 +547,4 @@ def read_database
 
   $log.info("Markov.read_database") { "Done loading database." }
 end
+

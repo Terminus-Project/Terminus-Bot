@@ -24,22 +24,22 @@
 #
 
 def initialize
-  register_script("Convert text to various alphabets")
+  register_script "Convert text to various alphabets"
 
-  register_command("nato", :cmd_nato,  1,  0, nil, "Convert text to the NATO phonetic alphabet.")
-  register_command("morse", :cmd_morse, 1, 0, nil, "Convert text to Morse code.")
+  register_command "nato", :cmd_nato,  1,  0, nil, "Convert text to the NATO phonetic alphabet."
+  register_command "morse", :cmd_morse, 1, 0, nil, "Convert text to Morse code."
 end
 
-def cmd_nato(msg, params)
+def cmd_nato msg, params
   nato = ["Alpha", "Bravo", "Charlie", "Delta", "Echo", "Foxtrot", "Golf",
     "Hotel", "India", "Juliet", "Kilo", "Lima", "Mike", "November", "Oscar",
     "Papa", "Quebec", "Romeo", "Sierra", "Tango", "Uniform", "Victor",
     "Whiskey", "Xray", "Yankee", "Zulu"]
   
-  msg.reply(params[0].upcase.chars.map {|c| nato.select {|n| n.start_with? c }[0].to_s + " " if c =~ /[A-Z]/}.join)
+  msg.reply params[0].upcase.chars.map {|c| nato.select {|n| n.start_with? c }[0].to_s + " " if c =~ /[A-Z]/}.join
 end
 
-def cmd_morse(msg, params)
+def cmd_morse msg, params
   morse = [
     "",       "",       "",       "",       "",       "",       "",       "",  
     "",       "",       "",       "",       "",       "",       "",       "",  
@@ -62,5 +62,6 @@ def cmd_morse(msg, params)
     "-..-",   "-.--",   "--..",   "",       "",       "",       "",       "",  
   ]
 
-  msg.reply(params[0].chars.map { |c| morse[c.ord] if c.ord < 128 }.join(" "))
+  msg.reply params[0].chars.map { |c| morse[c.ord] if c.ord < 128 }.join(" ")
 end
+

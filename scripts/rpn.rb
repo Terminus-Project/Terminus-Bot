@@ -24,12 +24,12 @@
 #
 
 def initialize
-  register_script("RPN calculator script.")
+  register_script "RPN calculator script."
 
-  register_command("rpn", :rpn,  1,  0, nil, "Perform calculations using a Reverse Polish notation (postfix) calculator. Operations: add + sub - mul * exp ** div / f p")
+  register_command "rpn", :rpn,  1,  0, nil, "Perform calculations using a Reverse Polish notation (postfix) calculator. Operations: add + sub - mul * exp ** div / f p"
 end
 
-def rpn(msg, params)
+def rpn msg, params
   max_prints = get_config(:max_prints, 3).to_i
   stack, printed = [], false
 
@@ -51,12 +51,12 @@ def rpn(msg, params)
       s = '/'
 
     when 'f'
-      msg.reply(stack.join(', '))
+      msg.reply stack.join(', ')
       max_prints -= 1 and max_prints.zero? and return
       printed = true
       next
     when 'p'
-      msg.reply(stack.last.to_s)
+      msg.reply stack.last.to_s
       max_prints -= 1 and max_prints.zero? and return
       printed = true
       next
@@ -70,12 +70,12 @@ def rpn(msg, params)
       else
         Float(s)
       end
-    rescue => e
-      msg.reply("Syntax error at '#{s}'")
+    rescue
+      msg.reply "Syntax error at '#{s}'"
       return
     end
   end
 
-  msg.reply(stack.last.to_s) unless printed
+  msg.reply stack.last.to_s unless printed
 end
 

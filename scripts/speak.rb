@@ -24,16 +24,16 @@
 #
 
 def initialize
-  register_script("Provides SAY and ACT commands for making the bot speak in channel.")
+  register_script "Provides SAY and ACT commands for making the bot speak in channel."
 
-  register_command("say", :say,  1,  8, nil, "Speak the given text.")
-  register_command("act", :act,  1,  8, nil, "Act the given text (CTCP ACTION).")
+  register_command "say", :say,  1,  8, nil, "Speak the given text."
+  register_command "act", :act,  1,  8, nil, "Act the given text (CTCP ACTION)."
 end
 
-def say(msg, params)
-  msg.reply(params[0], false)
+def say msg, params
+  msg.reply params[0], false
 end
 
-def act(msg, params)
-  msg.reply("\01ACTION #{params[0]}\01", false)
+def act msg, params
+  msg.reply "\01ACTION #{params[0]}\01", false
 end

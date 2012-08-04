@@ -24,22 +24,22 @@
 #
 
 def initialize
-  register_script("Show corrected text with s/regex/replacement/ is used and allow searching with g/regex/.")
+  register_script "Show corrected text with s/regex/replacement/ is used and allow searching with g/regex/."
 
-  register_event(:PRIVMSG, :on_privmsg)
-  register_event(:PART,    :on_part)
+  register_event :PRIVMSG, :on_privmsg
+  register_event :PART,    :on_part
 
   @messages = Hash.new
 end
 
-def on_part(msg)
+def on_part msg
   return unless msg.me?
   return unless @messages.has_key? msg.connection.name
 
-  @messages[msg.connection.name].delete(msg.destination)
+  @messages[msg.connection.name].delete msg.destination
 end
 
-def on_privmsg(msg)
+def on_privmsg msg
   return if msg.private?
 
   if msg.text =~ /\Ag\/(.+)\/(.*)\Z/
@@ -54,12 +54,12 @@ def on_privmsg(msg)
 
     @messages[msg.connection.name][msg.destination].reverse.each do |message|
 
-      if search.match(message[1])
+      if search.match message[1]
 
         if message[2]
-          msg.reply("* #{message[0]} #{message[1]}", false)
+          msg.reply "* #{message[0]} #{message[1]}", false
         else
-          msg.reply("<#{message[0]}> #{message[1]}", false)
+          msg.reply "<#{message[0]}> #{message[1]}", false
         end
 
         return
@@ -77,17 +77,17 @@ def on_privmsg(msg)
 
     opts |= Regexp::IGNORECASE if flags.include? "i"
 
-    search = Regexp.new($1.gsub(/\s/, '\s'), opts)
+    search = Regexp.new $1.gsub(/\s/, '\s'), opts
 
     @messages[msg.connection.name][msg.destination].reverse.each do |message|
 
-      if search.match(message[1])
+      if search.match message[1]
         new_msg = (flags.include?("g") ? message[1].gsub(search, replace) : message[1].sub(search, replace) )
 
         if message[2]
-          msg.reply("* #{message[0]} #{new_msg}", false)
+          msg.reply "* #{message[0]} #{new_msg}", false
         else
-          msg.reply("<#{message[0]}> #{new_msg}", false)
+          msg.reply "<#{message[0]}> #{new_msg}", false
         end
 
         return
@@ -115,3 +115,4 @@ def on_privmsg(msg)
     @messages[msg.connection.name][msg.destination].shift
   end
 end
+

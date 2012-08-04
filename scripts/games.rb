@@ -24,17 +24,17 @@
 #
 
 def initialize
-  register_script("Provides several game commands.")
+  register_script "Provides several game commands."
 
-  register_command("dice",        :cmd_dice,       1,  0, nil, "Roll dice. Parameters: <count>d<sides>[+/-<modifier>]")
-  register_command("eightball",   :cmd_eightball,  0,  0, nil, "Shake the 8-ball.")
-  register_command("coin",        :cmd_coin,       0,  0, nil, "Flip a coin.")
+  register_command "dice",        :cmd_dice,       1,  0, nil, "Roll dice. Parameters: <count>d<sides>[+/-<modifier>]"
+  register_command "eightball",   :cmd_eightball,  0,  0, nil, "Shake the 8-ball."
+  register_command "coin",        :cmd_coin,       0,  0, nil, "Flip a coin."
 end
 
-def cmd_dice(msg, params)
+def cmd_dice msg, params
 
   unless params[0] =~ /\A([0-9]+)d([0-9]+)([+-][0-9]+)?\Z/
-    msg.reply("Syntax: <count>d<sides>[+/-<modfier>]")
+    msg.reply "Syntax: <count>d<sides>[+/-<modfier>]"
     return
   end
 
@@ -43,21 +43,21 @@ def cmd_dice(msg, params)
   mod   = $3.to_i
 
   if count > 100
-    msg.reply("You may only roll up to 100 dice.")
+    msg.reply "You may only roll up to 100 dice."
     return
   end
 
   if sides > 99
-    msg.reply("Dice may only have up to 99 sides.")
+    msg.reply "Dice may only have up to 99 sides."
     return
   end
 
   if count <= 0 or sides <= 0
-    msg.reply("The number of dice and their sides must be positive numbers larger than 0.")
+    msg.reply "The number of dice and their sides must be positive numbers larger than 0."
     return
   end
 
-  rolls  = Hash.new(0)
+  rolls  = Hash.new 0
   output = Array.new
   sum    = mod
 
@@ -68,11 +68,11 @@ def cmd_dice(msg, params)
     sum += r * c
   }
 
-  msg.reply("#{output.sort.join(", ")} #{"Modifier: #{mod}" unless mod.zero?} \02Sum: #{sum}\02")
+  msg.reply "#{output.sort.join(", ")} #{"Modifier: #{mod}" unless mod.zero?} \02Sum: #{sum}\02"
 end
 
-def cmd_eightball(msg, params)
-  msg.reply([ "Most likely" ,   "It is certain",
+def cmd_eightball msg, params
+  msg.reply [ "Most likely" ,   "It is certain",
     "As I see it, yes",         "Signs point to yes",
     "Outlook Good",             "It is decidedly so",
     "My sources say Yes ",      "Yes, Definetly",
@@ -82,9 +82,10 @@ def cmd_eightball(msg, params)
     "Don't count on it",        "Outlook not so good",
     "Concentrate and ask again","Cannot predict now",
     "Reply hazy, try again",    "Ask again later",
-    "Better not tell you now" ].sample)
+    "Better not tell you now" ].sample
 end
 
-def cmd_coin(msg, params)
-  msg.reply(["Heads", "Tails"].sample)
+def cmd_coin msg, params
+  msg.reply ["Heads", "Tails"].sample
 end
+

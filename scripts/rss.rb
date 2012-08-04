@@ -28,21 +28,21 @@ require 'htmlentities'
 
 
 def initialize
-  register_script("Periodically check RSS and ATOM feeds and post the new items to channels.")
+  register_script "Periodically check RSS and ATOM feeds and post the new items to channels."
 
-  register_command("rss", :cmd_rss,  1,  0, :half_op, "Manage the RSS/ATOM feeds for the current channel. Parameters: LIST|CHECK|CLEAR|ADD uri|DEL uri")
+  register_command "rss", :cmd_rss,  1,  0, :half_op, "Manage the RSS/ATOM feeds for the current channel. Parameters: LIST|CHECK|CLEAR|ADD uri|DEL uri"
 
-  register_event(:em_started, :on_em_started)
+  register_event :em_started, :on_em_started
 end
 
 def on_em_started
   EM.add_periodic_timer(1800) { check_feeds }
 end
 
-def cmd_rss(msg, params)
+def cmd_rss msg, params
 
   if msg.private?
-    msg.reply("This command may only be used in channels.")
+    msg.reply "This command may only be used in channels."
     return
   end
 
@@ -53,40 +53,40 @@ def cmd_rss(msg, params)
   case action
     when "LIST"
 
-      feeds = get_data([msg.connection.name, msg.destination_canon], Array.new)
+      feeds = get_data [msg.connection.name, msg.destination_canon], Array.new
 
-      msg.send_notice(msg.nick, "There are \02#{feeds.length}\02 feeds for #{msg.destination}")
+      msg.send_notice msg.nick, "There are \02#{feeds.length}\02 feeds for #{msg.destination}"
 
       feeds.each do |feed|
-        msg.send_notice(msg.nick, feed[0])
+        msg.send_notice msg.nick, feed[0]
       end
 
-      msg.send_notice(msg.nick, "End of list.")
+      msg.send_notice msg.nick, "End of list."
 
     when "CLEAR"
 
-      delete_data([msg.connection.name, msg.destination_canon])
+      delete_data [msg.connection.name, msg.destination_canon]
 
-      msg.reply("The feed list has been cleared.")
+      msg.reply "The feed list has been cleared."
 
     when "ADD"
       
       unless arg =~ /\Ahttps?:\/\/.+\..+/
-        msg.reply("That is not a URI I can handle. You must provide an HTTP URI.")
+        msg.reply "That is not a URI I can handle. You must provide an HTTP URI."
         return
       end
 
-      feeds = get_data([msg.connection.name, msg.destination_canon], Array.new)
+      feeds = get_data [msg.connection.name, msg.destination_canon], Array.new
 
       feeds << [arg, ""]
 
-      store_data([msg.connection.name, msg.destination_canon], feeds)
+      store_data [msg.connection.name, msg.destination_canon], feeds
 
-      msg.reply("Feed added to the list for \02#{msg.destination}\02.")
+      msg.reply "Feed added to the list for \02#{msg.destination}\02."
 
     when "DEL"
 
-      feeds = get_data([msg.connection.name, msg.destination_canon], Array.new)
+      feeds = get_data [msg.connection.name, msg.destination_canon], Array.new
 
       feed = feeds.select {|f| f[0] == arg}[0]
 
@@ -95,21 +95,21 @@ def cmd_rss(msg, params)
         return
       end
 
-      feeds.delete(feed)
+      feeds.delete feed
 
-      store_data([msg.connection.name, msg.destination_canon], feeds)
+      store_data [msg.connection.name, msg.destination_canon], feeds
 
-      msg.reply("Feed deleted from the list for \02#{msg.destination}\02.")
+      msg.reply "Feed deleted from the list for \02#{msg.destination}\02."
 
     when "CHECK"
 
-      msg.reply("Checking feeds...")
+      msg.reply "Checking feeds..."
 
       check_feeds
 
     else
 
-      msg.reply("Unknown action. Parameters: LIST|CHECK|CLEAR|ADD uri|DEL uri")
+      msg.reply "Unknown action. Parameters: LIST|CHECK|CLEAR|ADD uri|DEL uri"
   end
 
 end
@@ -152,7 +152,7 @@ def check_feeds
 
             link = sanitize(atom ? item.links.select {|l| l.rel == "alternate"}[0].href.to_s : item.link.to_s)
 
-            Bot::Connections[network].raw("PRIVMSG #{channel} :\02[#{feed_title}]\02 #{title} :: #{link}")
+            Bot::Connections[network].raw "PRIVMSG #{channel} :\02[#{feed_title}]\02 #{title} :: #{link}"
 
           end
 
@@ -169,5 +169,6 @@ def check_feeds
 end
 
 def sanitize(str)
-  return HTMLEntities.new.decode(str.gsub(/[\s]+/, " ").gsub(/<\/?[^>]+>/, ""))
+  return HTMLEntities.new.decode str.gsub(/[\s]+/, " ").gsub(/<\/?[^>]+>/, "")
 end
+

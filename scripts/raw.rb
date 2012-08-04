@@ -24,11 +24,11 @@
 #
 
 def initialize
-  register_script("Send raw text.")
+  register_script "Send raw text."
 
-  register_command("raw",      :cmd_raw,      1,  9, nil, "Send raw text over the IRC connection.")
+  register_command "raw", :cmd_raw, 1,  9, nil, "Send raw text over the IRC connection."
 end
 
-def cmd_raw(msg, params)
-  msg.reply(msg.raw(params[0]))
+def cmd_raw msg, params
+  msg.reply msg.raw(params[0])
 end

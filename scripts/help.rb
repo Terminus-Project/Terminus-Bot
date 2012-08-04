@@ -23,73 +23,73 @@
 # SOFTWARE.
 #
 
-def initialize()
-  register_script("Provide on-protocol help for bot scripts and commands.")
+def initialize
+  register_script "Provide on-protocol help for bot scripts and commands."
 
-  register_command("help", :cmd_help,         0,  0, nil, "Show help for the given command or a list of all commands. Parameters: [command]")
-  register_command("script", :cmd_script,     0,  0, nil, "Show a description of the given script or a list of all scripts. Parameters: [script]")
+  register_command "help",     :cmd_help, 0, 0, nil, "Show help for the given command or a list of all commands. Parameters: [command]"
+  register_command "script", :cmd_script, 0, 0, nil, "Show a description of the given script or a list of all scripts. Parameters: [script]"
 end
 
-def cmd_help(msg, params)
+def cmd_help msg, params
   if params.empty?
-    list_commands(msg)
+    list_commands msg
     return
   end
 
   name = params[0].downcase
 
   unless Bot::Commands.has_key? name
-    msg.reply("There is no help available for that command.")
+    msg.reply "There is no help available for that command."
     return
   end
 
   command = Bot::Commands[name]
 
-  level = msg.connection.users.get_level(msg)
+  level = msg.connection.users.get_level msg
 
   if command.level > level
-    msg.reply("You are not authorized to use that command, so you may not view its help.")
+    msg.reply "You are not authorized to use that command, so you may not view its help."
     return
   end
 
-  msg.reply(command.help)
+  msg.reply command.help
 end
 
-def list_commands(msg)
+def list_commands msg
   buf = Array.new
 
-  level = msg.connection.users.get_level(msg)
+  level = msg.connection.users.get_level msg
 
   Bot::Commands.sort_by {|n, c| n}.each do |name, command|
     buf << command.cmd unless command.level > level
   end
 
-  msg.reply(buf.join(", "))
+  msg.reply buf.join(", ")
 end
 
 
-def cmd_script(msg, params)
+def cmd_script msg, params
   if params.empty?
-    list_scripts(msg)
+    list_scripts msg
     return
   end
 
   script = Bot::Scripts.script_info.select {|s| s.name.downcase == params[0].downcase }[0]
 
   if script == nil
-    msg.reply("There is no information available on that script.")
+    msg.reply "There is no information available on that script."
   else
-    msg.reply(script.description)
+    msg.reply script.description
   end
 end
 
-def list_scripts(msg)
+def list_scripts msg
   buf = Array.new
 
   Bot::Scripts.script_info.each do |script|
     buf << script.name
   end
 
-  msg.reply(buf.join(", "))
+  msg.reply buf.join(", ")
 end
 

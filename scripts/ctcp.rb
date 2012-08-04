@@ -24,39 +24,40 @@
 #
 
 def initialize
-  register_script("Reply to some CTCP requests.")
+  register_script "Reply to some CTCP requests."
 
-  register_event(:PRIVMSG, :on_privmsg)
+  register_event :PRIVMSG, :on_privmsg
 end
 
-def on_privmsg(msg)
+def on_privmsg msg
   if msg.text =~ /\01([^\s]+) ?(.*)\01/
 
     case $1
 
       when "VERSION"
-        msg.send_notice(msg.nick, "\01VERSION #{VERSION}\01")
+        msg.send_notice msg.nick, "\01VERSION #{VERSION}\01"
       
       when "URL"
-        msg.send_notice(msg.nick, "\01URL http://terminus-bot.com/\01")
+        msg.send_notice msg.nick, "\01URL http://terminus-bot.com/\01"
 
       when "TIME"
         # implements rfc 822 section 5 as date-time
-        msg.send_notice(msg.nick, "\01TIME #{DateTime.now.strftime("%d %m %y %H:%M:%S %z")}\01")
+        msg.send_notice msg.nick, "\01TIME #{DateTime.now.strftime("%d %m %y %H:%M:%S %z")}\01"
       
       when "PING"
-        msg.send_notice(msg.nick, "\01PING #{$2}\01")
+        msg.send_notice msg.nick, "\01PING #{$2}\01"
       
       when "CLIENTINFO"
-        msg.send_notice(msg.nick, "\01CLIENTINFO VERSION PING URL TIME\01")
+        msg.send_notice msg.nick, "\01CLIENTINFO VERSION PING URL TIME\01"
       
       when "ACTION"
         # Don't do anything!
   
       else
-        msg.send_notice(msg.nick, "\01ERRMSG #{$1} QUERY UNKNOWN\01")
+        msg.send_notice msg.nick, "\01ERRMSG #{$1} QUERY UNKNOWN\01"
 
       end
 
   end
 end
+

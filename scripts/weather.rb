@@ -29,14 +29,14 @@ require 'htmlentities'
 def initialize
   raise "weather script requires the http_client module" unless defined? MODULE_LOADED_HTTP
 
-  register_script("Weather information look-ups via Weather Underground (wunderground.com).")
+  register_script "Weather information look-ups via Weather Underground (wunderground.com)."
 
-  register_command("weather",   :weather,  1,  0, nil, "View current conditions for the specified location.")
-  register_command("temp",      :temp,     1,  0, nil, "View current temperature for the specified location.")
-  register_command("forecast",  :forecast, 1,  0, nil, "View a short-term forecast for the specified location.")
+  register_command "weather",   :weather,  1,  0, nil, "View current conditions for the specified location."
+  register_command "temp",      :temp,     1,  0, nil, "View current temperature for the specified location."
+  register_command "forecast",  :forecast, 1,  0, nil, "View a short-term forecast for the specified location."
 end
 
-def weather(msg, params)
+def weather msg, params
   url = "http://api.wunderground.com/auto/wui/geo/WXCurrentObXML/index.xml?query=#{URI.escape(params.join)}"
 
   Bot.http_get(URI(url)) do |response|
@@ -51,7 +51,7 @@ def weather(msg, params)
     weather = root.elements["//weather"].text rescue nil
 
     if weather == nil
-      msg.reply("That does not appear to be a valid location. If it is, try being more specific, or specify the location in another way.")
+      msg.reply "That does not appear to be a valid location. If it is, try being more specific, or specify the location in another way."
       next
     end
 
@@ -78,18 +78,18 @@ def weather(msg, params)
     reply << "#{updatedTime}; "
     reply << "#{link}"
 
-    msg.reply(reply)
+    msg.reply reply
 
   end
 end
 
-def temp(msg, params)
+def temp msg, params
   url = "http://api.wunderground.com/auto/wui/geo/WXCurrentObXML/index.xml?query=#{URI.escape(params.join)}"
 
   Bot.http_get(URI(url)) do |response|
 
     unless response.status == 200
-      msg.reply("There was a problem performing the looking up the weather for that location. Please try again later.")
+      msg.reply "There was a problem performing the looking up the weather for that location. Please try again later."
       next
     end
 
@@ -109,11 +109,11 @@ def temp(msg, params)
     reply = "[\02#{credit}\02 for \02#{stationLocation}\02] "
     reply << "Temperature: \02#{temperature}\02"
 
-    msg.reply(reply)
+    msg.reply reply
   end
 end
 
-def forecast(msg, params)
+def forecast msg, params
   url = "http://api.wunderground.com/auto/wui/geo/ForecastXML/index.xml?query=#{URI.escape(params[0])}"
 
   Bot.http_get(URI(url)) do |response|
@@ -128,8 +128,8 @@ def forecast(msg, params)
     date = root.elements["date"].text rescue nil
 
     if date == nil
-      msg.reply("That does not appear to be a valid location. If it is, try being more specific, or specify the location in another way.")
-      nextn
+      msg.reply "That does not appear to be a valid location. If it is, try being more specific, or specify the location in another way."
+      next
     end
 
     reply = "[\02Forecast for #{params[0]}\02 as of \02#{date}\02] "
@@ -153,6 +153,7 @@ def forecast(msg, params)
       nextn
     end
 
-    msg.reply(reply)
+    msg.reply reply
   end
 end
+

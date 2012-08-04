@@ -30,12 +30,12 @@ require 'rexml/document'
 def initialize
   raise "http script requires the http_client module" unless defined? MODULE_LOADED_HTTP
 
-  register_script("Fetches titles for URLs spoken in channels.")
+  register_script "Fetches titles for URLs spoken in channels."
 
-  register_event(:PRIVMSG, :on_message)
+  register_event :PRIVMSG, :on_message
 end
 
-def on_message(msg)
+def on_message msg
   return if msg.private?
 
   i = 0
@@ -61,13 +61,13 @@ def on_message(msg)
       next if get_twitter(msg, match)
     end
     
-    get_title(msg, match)
+    get_title msg, match
 
     i += 1
   }
 end
 
-def get_youtube(msg, uri)
+def get_youtube msg, uri
   $log.info('title.get_title') { "Getting YouTube info for #{uri}" }
 
   link, vid = "", ""
@@ -84,7 +84,7 @@ def get_youtube(msg, uri)
     link = " - https://youtu.be/#{vid}"
   end
 
-  vid = URI.escape(vid)
+  vid = URI.escape vid
   api = URI("https://gdata.youtube.com/feeds/api/videos/#{vid}?v=2")
 
   Bot.http_get(api) do |response|
@@ -108,41 +108,41 @@ def get_youtube(msg, uri)
       dislikes = rating.attribute("numDislikes").to_s
     end
 
-    msg.reply("\02YouTube:\02 #{title} \02By:\02 #{author} \02Views:\02 #{views} \02Likes:\02 #{likes} \02Dislikes:\02 #{dislikes}#{link}", false)
+    msg.reply "\02YouTube:\02 #{title} \02By:\02 #{author} \02Views:\02 #{views} \02Likes:\02 #{likes} \02Dislikes:\02 #{dislikes}#{link}", false
 
   end
   
   true
 end
 
-def get_title(msg, uri)
+def get_title msg, uri
   $log.info('title.get_title') { "Getting title for #{uri}" }
 
   Bot.http_get(uri) do |response, uri, redirected|
     begin
       next unless response.status == 200
 
-      page = StringScanner.new(response.content.force_encoding('ASCII-8BIT'))
+      page = StringScanner.new response.content.force_encoding('ASCII-8BIT')
 
-      page.skip_until(/<title[^>]*>/ix)
-      title = page.scan_until(/<\/title[^>]*>/ix)
+      page.skip_until /<title[^>]*>/ix
+      title = page.scan_until /<\/title[^>]*>/ix
 
       next if title == nil
 
       len = title.length - 9
       next if len <= 0
 
-      title = title[0..len].strip.gsub(/[[[:cntrl:]]\s]+/, " ")
-      title = HTMLEntities.new.decode(title)
+      title = title[0..len].strip.gsub /[[[:cntrl:]]\s]+/, " "
+      title = HTMLEntities.new.decode title
 
-      msg.reply("\02Title on #{uri.host}#{" (redirected)" if redirected}:\02 " + title, false)
+      msg.reply "\02Title on #{uri.host}#{" (redirected)" if redirected}:\02 " + title, false
     rescue => e
       $log.error('title.get_title') { "Error getting title for #{uri}: #{e} #{e.backtrace.join("\n")}" }
     end
   end
 end
 
-def get_twitter(msg, uri)
+def get_twitter msg, uri
   $log.debug('title.get_twitter') { uri.to_s }
 
   # TODO: Get the latest status for a linked user.
@@ -150,7 +150,7 @@ def get_twitter(msg, uri)
     return false
   end
 
-  id = URI.escape($2)
+  id = URI.escape $2
   api = URI("https://api.twitter.com/1/statuses/show.xml?id=#{id}")
 
   Bot.http_get(api) do |response|
@@ -166,7 +166,7 @@ def get_twitter(msg, uri)
     text     = root.get_elements("text").first.text.to_s.gsub(/[\r\n[[:cntrl:]]]/, '')
     author   = root.get_elements("user/screen_name").first.text.to_s
 
-    msg.reply("\02<@#{author}>\02 #{text}", false)
+    msg.reply "\02<@#{author}>\02 #{text}", false
   end
 
   true

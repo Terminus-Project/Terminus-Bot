@@ -24,9 +24,9 @@
 #
 
 def initialize
-  register_script("Dump raw messages to debug log.")
+  register_script "Dump raw messages to debug log."
 
-  register_event(:raw, :on_raw)
+  register_event :raw, :on_raw
 end
 
 def on_raw(msg)

@@ -24,18 +24,18 @@
 #
 
 def initialize
-  register_script("Let the bot decide for you.")
+  register_script "Let the bot decide for you."
 
-  register_event(:PRIVMSG, :on_privmsg)
+  register_event :PRIVMSG, :on_privmsg
 end
 
-def on_privmsg(msg)
-  return unless msg.text.start_with?("#{Bot::Conf[:core][:prefix]} ") and msg.text.end_with? "?"
+def on_privmsg msg
+  return unless msg.text.start_with? "#{Bot::Conf[:core][:prefix]} " and msg.text.end_with? "?"
   
-  choices = msg.text.split(/,? +or +|, */i)
+  choices = msg.text.split /,? +or +|, */i
 
   if choices.length == 1
-    msg.reply(["Yes", "No"].sample)
+    msg.reply ["Yes", "No"].sample
     return
   end
 
@@ -45,5 +45,5 @@ def on_privmsg(msg)
   #chop off the question mark
   choices[choices.length-1] = choices.last[0..choices.last.length-2]
 
-  msg.reply(choices.sample)
+  msg.reply choices.sample
 end

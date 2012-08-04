@@ -29,42 +29,42 @@ require 'rexml/document'
 require 'htmlentities'
 
 def initialize
-  register_script("Play IdleRPG.")
+  register_script "Play IdleRPG."
 
-  register_command("idlerpg", :cmd_idlerpg, 0, 0, nil, "Get information about players on this network's IdleRPG game. Parameters: [player]")
+  register_command "idlerpg", :cmd_idlerpg, 0, 0, nil, "Get information about players on this network's IdleRPG game. Parameters: [player]"
 
-  register_event(:JOIN, :on_join)
+  register_event :JOIN, :on_join
 end
 
-def cmd_idlerpg(msg, params)
-  config = get_config(msg.connection.name.to_sym)
+def cmd_idlerpg msg, params
+  config = get_config msg.connection.name.to_sym
 
   if config == nil
-    msg.reply("I am not configured for this network's IdleRPG.")
+    msg.reply "I am not configured for this network's IdleRPG."
     return
   end
 
   name = params.empty? ? msg.nick : params[0]
 
   unless config.has_key? :xml_url
-    msg.reply("I don't know where to get player info on this network.")
+    msg.reply "I don't know where to get player info on this network."
     return
   end
 
-  info = get_player_info(name, config)
+  info = get_player_info name, config
 
   if info == nil
-    msg.reply("Player info not found.")
+    msg.reply "Player info not found."
     return
   end
 
-  msg.reply(info)
+  msg.reply info
 end
 
-def get_player_info(player, config)
+def get_player_info player, config
   url = "#{config[:xml_url]}#{URI.escape(player)}"
 
-  body = Net::HTTP.get URI.parse(url)
+  body = Net::HTTP.get URI.parse url
   root = (REXML::Document.new(body)).root
 
   return nil if root == nil
@@ -87,8 +87,8 @@ def get_player_info(player, config)
   buf << " \02Time Idled:\02 #{idled}"
 end
 
-def on_join(msg)
-  config = get_config(msg.connection.name.to_sym)
+def on_join msg
+  config = get_config msg.connection.name.to_sym
 
   return if config == nil
 
@@ -98,6 +98,6 @@ def on_join(msg)
 
   return if not msg.me? or not msg.nick != config[:nick]
 
-  msg.send_privmsg(config[:nick], config[:login_command])
+  msg.send_privmsg config[:nick], config[:login_command]
 end
 

@@ -24,39 +24,39 @@
 #
 
 def initialize
-  register_script("Network utility script, including ping and other tools.")
+  register_script "Network utility script, including ping and other tools."
 
-  register_command("icmp",   :cmd_icmp,  1,  0, nil, "Check if the given host is up and answering pings.")
-  register_command("mtr",    :cmd_mtr,   1,  0, nil, "Show data about the route to the given host.")
-  register_command("icmp6",  :cmd_icmp6, 1,  0, nil, "Check if the given IPv6 host is up and answering pings.")
-  register_command("mtr6",   :cmd_mtr6,  1,  0, nil, "Show data about the route to the given IPv6 host.")
+  register_command "icmp",   :cmd_icmp,  1,  0, nil, "Check if the given host is up and answering pings."
+  register_command "mtr",    :cmd_mtr,   1,  0, nil, "Show data about the route to the given host."
+  register_command "icmp6",  :cmd_icmp6, 1,  0, nil, "Check if the given IPv6 host is up and answering pings."
+  register_command "mtr6",   :cmd_mtr6,  1,  0, nil, "Show data about the route to the given IPv6 host."
 end
 
-def cmd_icmp(msg, params)
+def cmd_icmp msg, params
   host = params[0].chomp
 
-  if validate_host_name(host)
-    EM.defer(proc { do_ping(msg, host) })
+  if validate_host_name host
+    EM.defer(proc { do_ping msg, host })
   else
-    msg.reply("Invalid host name.")
+    msg.reply "Invalid host name."
   end
 end
 
-def cmd_icmp6(msg, params)
+def cmd_icmp6 msg, params
   host = params[0].chomp
 
-  if validate_host_name(host)
-    EM.defer(proc { do_ping(msg, host, true) })
+  if validate_host_name host
+    EM.defer(proc { do_ping msg, host, true })
   else
-    msg.reply("Invalid host name.")
+    msg.reply "Invalid host name."
   end
 end
 
-def do_ping(msg, host, v6 = false)
+def do_ping msg, host, v6 = false
   EM.system("ping#{v6 ? "6" : ""} -q -c 5 #{host}") do |o,s|
 
     if s.exitstatus == 2
-      msg.reply("Invalid host name.")
+      msg.reply "Invalid host name."
     elsif s.exitstatus == 0 or s.exitstatus == 1
       buf = Array.new
 
@@ -64,9 +64,9 @@ def do_ping(msg, host, v6 = false)
         buf << l.chomp if l =~ /^[0-9]+ packets transmitted/ or l.start_with? "rtt"
       end
 
-      msg.reply(buf.join(" :: "))
+      msg.reply buf.join(" :: ")
     else
-      msg.reply("There was an unknown problem pinging that host.")
+      msg.reply "There was an unknown problem pinging that host."
     end
 
   end
@@ -74,30 +74,30 @@ end
 
 
 
-def cmd_mtr(msg, params)
+def cmd_mtr msg, params
   host = params[0].chomp
 
   if validate_host_name(host)
-    EM.defer(proc { do_mtr(msg, host) })
+    EM.defer(proc { do_mtr msg, host })
   else
-    msg.reply("Invalid host name.")
+    msg.reply "Invalid host name."
   end
 end
 
-def cmd_mtr6(msg, params)
+def cmd_mtr6 msg, params
   host = params[0].chomp
 
-  if validate_host_name(host)
-    EM.defer(proc { do_mtr(msg, host, true) })
+  if validate_host_name host
+    EM.defer(proc { do_mtr msg, host, true })
   else
-    msg.reply("Invalid host name.")
+    msg.reply "Invalid host name."
   end
 end
 
-def do_mtr(msg, host, v6 = false)
+def do_mtr msg, host, v6 = false
   EM.system("mtr -#{v6 ? "6" : "4"} -c 1 -r #{host}") do |o,s|
     if s.exitstatus == 1
-      msg.reply("INvaliud host name.")
+      msg.reply "Invalid host name."
     else
       hops = 0
       up = 0
@@ -129,11 +129,12 @@ def do_mtr(msg, host, v6 = false)
         longest = time if time > longest
       end
 
-      msg.reply("\02Hops:\02 #{hops} \02Up:\02 #{up} \02Down:\02 #{hops-up} \02Average Reply Time (ms):\02 #{sprintf("%.1f", avg/hops)} \02Longest Reply Time (ms):\02 #{longest}")
+      msg.reply "\02Hops:\02 #{hops} \02Up:\02 #{up} \02Down:\02 #{hops-up} \02Average Reply Time (ms):\02 #{sprintf("%.1f", avg/hops)} \02Longest Reply Time (ms):\02 #{longest}"
     end
   end
 end
 
-def validate_host_name(host)
+def validate_host_name host
   host =~ /\A[^-][\w.:-]+\Z/
 end
+

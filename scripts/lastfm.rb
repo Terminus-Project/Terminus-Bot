@@ -26,21 +26,23 @@
 require 'rexml/document'
 require 'htmlentities'
 
-URL='http://ws.audioscrobbler.com/2.0/'
+URL = 'http://ws.audioscrobbler.com/2.0/'
+
+# TODO: Store account names on bot accounts and use those if available.
 
 def initialize
   raise "lastfm script requires the http_client module" unless defined? MODULE_LOADED_HTTP
 
-  register_script("Last.fm interface.")
+  register_script "Last.fm interface."
 
-  register_command("np",    :cmd_np,    1,  0, nil, "Show the currently playing track for the given Last.fm user.")
+  register_command "np", :cmd_np, 1,  0, nil, "Show the currently playing track for the given Last.fm user."
 end
 
-def api_call(msg, opt = {})
-  api_key = get_config(:apikey, nil)
+def api_call msg, opt = {}
+  api_key = get_config :apikey, nil
 
   if api_key == nil
-    msg.reply("A Last.fm API key must be set in the bot's configuration for this command to work.")
+    msg.reply "A Last.fm API key must be set in the bot's configuration for this command to work."
     yield nil
     return
   end
@@ -51,34 +53,34 @@ def api_call(msg, opt = {})
     # TODO: Figure out why we never get here.
 
     unless response.status == 200
-      msg.reply("There was a problem retrieving information.")
+      msg.reply "There was a problem retrieving information."
     else
-      yield REXML::Document.new(response.content.force_encoding('ASCII-8BIT'))
+      yield REXML::Document.new response.content.force_encoding('ASCII-8BIT')
     end
   end
 end
 
 
-def cmd_np(msg, params)
+def cmd_np msg, params
   api_call(msg, :user => params[0], :method => "user.getrecenttracks", :limit => "1") do |root|
     raise "API call failed" if root == nil
 
     track = root.elements["//track"]
 
     if track == nil
-      msg.reply("No such user.")
+      msg.reply "No such user."
       next
     end
 
     if track.attributes.get_attribute("nowplaying") == nil
-      msg.reply("No music is currently playing.")
+      msg.reply "No music is currently playing."
       next
     end
 
     name = track.elements["//name"].text
     artist = track.elements["//artist"].text
 
-    msg.reply("\02#{params[0]} is listening to:\02 #{artist} - #{name}", false)
+    msg.reply "\02#{params[0]} is listening to:\02 #{artist} - #{name}", false
   end
 end
 
