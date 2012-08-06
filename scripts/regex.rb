@@ -23,6 +23,8 @@
 # SOFTWARE.
 #
 
+require 'timeout'
+
 def initialize
   register_script "Show corrected text with s/regex/replacement/ is used and allow searching with g/regex/."
 
@@ -42,6 +44,15 @@ end
 def on_privmsg msg
   return if msg.private?
 
+  Timeout::timeout(get_config(:run_time, 2).to_i) do
+    do_regex_match msg
+    return
+  end
+
+  msg.reply "Your regular expression took too long to match."
+end
+
+def do_regex_match msg
   if msg.text =~ /\Ag\/(.+)\/(.*)\Z/
     return unless @messages.has_key? msg.connection.name
     return unless @messages[msg.connection.name].has_key? msg.destination

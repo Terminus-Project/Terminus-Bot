@@ -415,6 +415,13 @@ regex = {
   # default: 100
   #buffer = 100
 
+  # The maximum about of time (in seconds) that the regular expression script
+  # may spend attempting to match a regular expression. This is to mitigate
+  # denial of service attacks by cutting them off before the bot times out.
+  #
+  # default: 2
+  #run_time = 2
+
 }
 
 
