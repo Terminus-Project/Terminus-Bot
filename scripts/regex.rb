@@ -45,11 +45,10 @@ def on_privmsg msg
   return if msg.private?
 
   if msg.text =~ /\Ag\/(.+)\/(.*)\Z/
+    return unless @messages.has_key? msg.connection.name
+    return unless @messages[msg.connection.name].has_key? msg.destination
+
     Timeout::timeout(get_config(:run_time, 2).to_i) do
-
-      return unless @messages.has_key? msg.connection.name
-      return unless @messages[msg.connection.name].has_key? msg.destination
-
       search, flags, opts = $1, $2, Regexp::EXTENDED
 
       opts |= Regexp::IGNORECASE if flags.include? "i"
@@ -76,11 +75,10 @@ def on_privmsg msg
     end
 
   elsif msg.text =~ /\As\/(.+)\/(.*)\/(.*)\Z/
+    return unless @messages.has_key? msg.connection.name
+    return unless @messages[msg.connection.name].has_key? msg.destination
+
     Timeout::timeout(get_config(:run_time, 2).to_i) do
-
-      return unless @messages.has_key? msg.connection.name
-      return unless @messages[msg.connection.name].has_key? msg.destination
-
       replace, flags, opts = $2, $3, Regexp::EXTENDED
 
       opts |= Regexp::IGNORECASE if flags.include? "i"
