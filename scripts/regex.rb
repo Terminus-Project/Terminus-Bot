@@ -44,69 +44,68 @@ end
 def on_privmsg msg
   return if msg.private?
 
-  Timeout::timeout(get_config(:run_time, 2).to_i) do
-    do_regex_match msg
-    return
-  end
-
-  msg.reply "Your regular expression took too long to match."
-end
-
-def do_regex_match msg
   if msg.text =~ /\Ag\/(.+)\/(.*)\Z/
-    return unless @messages.has_key? msg.connection.name
-    return unless @messages[msg.connection.name].has_key? msg.destination
+    Timeout::timeout(get_config(:run_time, 2).to_i) do
 
-    search, flags, opts = $1, $2, Regexp::EXTENDED
+      return unless @messages.has_key? msg.connection.name
+      return unless @messages[msg.connection.name].has_key? msg.destination
 
-    opts |= Regexp::IGNORECASE if flags.include? "i"
+      search, flags, opts = $1, $2, Regexp::EXTENDED
 
-    search = Regexp.new($1.gsub(/\s/, '\s'), opts)
+      opts |= Regexp::IGNORECASE if flags.include? "i"
 
-    @messages[msg.connection.name][msg.destination].reverse.each do |message|
+      search = Regexp.new($1.gsub(/\s/, '\s'), opts)
 
-      if search.match message[1]
+      @messages[msg.connection.name][msg.destination].reverse.each do |message|
 
-        if message[2]
-          msg.reply "* #{message[0]} #{message[1]}", false
-        else
-          msg.reply "<#{message[0]}> #{message[1]}", false
+        if search.match message[1]
+
+          if message[2]
+            msg.reply "* #{message[0]} #{message[1]}", false
+          else
+            msg.reply "<#{message[0]}> #{message[1]}", false
+          end
+
+          return
         end
 
-        return
       end
 
-    end
+      return
 
-    return
+    end
 
   elsif msg.text =~ /\As\/(.+)\/(.*)\/(.*)\Z/
-    return unless @messages.has_key? msg.connection.name
-    return unless @messages[msg.connection.name].has_key? msg.destination
+    Timeout::timeout(get_config(:run_time, 2).to_i) do
 
-    replace, flags, opts = $2, $3, Regexp::EXTENDED
+      return unless @messages.has_key? msg.connection.name
+      return unless @messages[msg.connection.name].has_key? msg.destination
 
-    opts |= Regexp::IGNORECASE if flags.include? "i"
+      replace, flags, opts = $2, $3, Regexp::EXTENDED
 
-    search = Regexp.new $1.gsub(/\s/, '\s'), opts
+      opts |= Regexp::IGNORECASE if flags.include? "i"
 
-    @messages[msg.connection.name][msg.destination].reverse.each do |message|
+      search = Regexp.new $1.gsub(/\s/, '\s'), opts
 
-      if search.match message[1]
-        new_msg = (flags.include?("g") ? message[1].gsub(search, replace) : message[1].sub(search, replace) )
+      @messages[msg.connection.name][msg.destination].reverse.each do |message|
 
-        if message[2]
-          msg.reply "* #{message[0]} #{new_msg}", false
-        else
-          msg.reply "<#{message[0]}> #{new_msg}", false
+        if search.match message[1]
+          new_msg = (flags.include?("g") ? message[1].gsub(search, replace) : message[1].sub(search, replace) )
+
+          if message[2]
+            msg.reply "* #{message[0]} #{new_msg}", false
+          else
+            msg.reply "<#{message[0]}> #{new_msg}", false
+          end
+
+          return
         end
 
-        return
       end
 
-    end
+      return
 
-    return
+    end
 
   end
 
