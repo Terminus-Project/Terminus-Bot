@@ -26,38 +26,41 @@
 def initialize
   register_script "Network utility script, including ping and other tools."
 
-  register_command "icmp",   :cmd_icmp,  1,  0, nil, "Check if the given host is up and answering pings."
-  register_command "mtr",    :cmd_mtr,   1,  0, nil, "Show data about the route to the given host."
-  register_command "icmp6",  :cmd_icmp6, 1,  0, nil, "Check if the given IPv6 host is up and answering pings."
-  register_command "mtr6",   :cmd_mtr6,  1,  0, nil, "Show data about the route to the given IPv6 host."
+  register_command "icmp",  :cmd_icmp,  1,  0, nil, "Check if the given host is up and answering pings."
+  register_command "mtr",   :cmd_mtr,   1,  0, nil, "Show data about the route to the given host."
+  register_command "icmp6", :cmd_icmp6, 1,  0, nil, "Check if the given IPv6 host is up and answering pings."
+  register_command "mtr6",  :cmd_mtr6,  1,  0, nil, "Show data about the route to the given IPv6 host."
 end
 
 def cmd_icmp msg, params
   host = params[0].chomp
 
-  if validate_host_name host
-    EM.defer(proc { do_ping msg, host })
-  else
+  unless is_valid_host_name? host
     msg.reply "Invalid host name."
+    return
   end
+  
+  EM.defer(proc { do_ping msg, host })
 end
 
 def cmd_icmp6 msg, params
   host = params[0].chomp
 
-  if validate_host_name host
-    EM.defer(proc { do_ping msg, host, true })
-  else
+  unless is_valid_host_name? host
     msg.reply "Invalid host name."
+    return
   end
+
+  EM.defer(proc { do_ping msg, host, true })
 end
 
 def do_ping msg, host, v6 = false
-  EM.system("ping#{v6 ? "6" : ""} -q -c 5 #{host}") do |o,s|
+  EM.system("ping#{v6 ? "6" : ""} -q -c 5 #{host}") do |o, s|
 
-    if s.exitstatus == 2
-      msg.reply "Invalid host name."
-    elsif s.exitstatus == 0 or s.exitstatus == 1
+    case s.exitstatus
+    when 2
+      msg.reply "Could not ping that host due to network or DNS errors."
+    when 0
       buf = Array.new
 
       o.each_line do |l|
@@ -77,64 +80,72 @@ end
 def cmd_mtr msg, params
   host = params[0].chomp
 
-  if validate_host_name(host)
-    EM.defer(proc { do_mtr msg, host })
-  else
+  unless is_valid_host_name? host
     msg.reply "Invalid host name."
+    return
   end
+
+  EM.defer(proc { do_mtr msg, host })
 end
 
 def cmd_mtr6 msg, params
   host = params[0].chomp
 
-  if validate_host_name host
-    EM.defer(proc { do_mtr msg, host, true })
-  else
+  unless is_valid_host_name? host
     msg.reply "Invalid host name."
+    return
   end
+    
+  EM.defer(proc { do_mtr msg, host, true })
 end
 
 def do_mtr msg, host, v6 = false
-  EM.system("mtr -#{v6 ? "6" : "4"} -c 1 -r #{host}") do |o,s|
-    if s.exitstatus == 1
-      msg.reply "Invalid host name."
-    else
-      hops = 0
-      up = 0
-      avg = 0
-      longest = 0
+  EM.system("mtr -#{v6 ? "6" : "4"} -c 1 -r #{host} 2>/dev/null") do |o, s|
 
-      first = true
+    case s.exitstatus
+    when 1
+      msg.reply "Could not perform MTR for that host due to network or DNS errors."
+    when 0
+      hops, up, avg, longest = 0, 0, 0, 0
 
-      o.each_line do |l|
-
-        # first line is a header
-        if first
-          first = false
-          next
-        end
+      o.each_line.each_with_index do |l, i|
+        next if i.zero? # skip header
 
         hops += 1
 
         arr = l.split
 
-        if arr[2] == "0.0%"
-          up += 1
-        end
+        up += 1 if arr[2] == "0.0%"
 
         time = arr[5].to_f
-
         avg += time
 
         longest = time if time > longest
       end
 
-      msg.reply "\02Hops:\02 #{hops} \02Up:\02 #{up} \02Down:\02 #{hops-up} \02Average Reply Time (ms):\02 #{sprintf("%.1f", avg/hops)} \02Longest Reply Time (ms):\02 #{longest}"
+      if hops.zero?
+        msg.reply "Unable to perform MTR for this host."
+        next
+      end
+
+      output = [
+        "\02Hops:\02 #{hops}",
+        "\02Up:\02 #{up}",
+        "\02Down:\02 #{hops - up}",
+        "\02Average Reply Time (ms):\02 #{sprintf("%.1f", avg/hops)}",
+        "\02Longest Reply Time (ms):\02 #{longest}"
+      ].join(' ')
+
+      msg.reply output
+    else
+      msg.reply "Unable to perform MTR for this host."
     end
+
   end
 end
 
-def validate_host_name host
+# must return false if input is not safe for command line
+def is_valid_host_name? host
   host =~ /\A[^-][\w.:-]+\Z/
 end
 
