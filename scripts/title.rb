@@ -132,8 +132,8 @@ def get_title msg, uri
       len = title.length - 9
       next if len <= 0
 
-      title = title[0..len].strip.gsub /[[[:cntrl:]]\s]+/, " "
       title = HTMLEntities.new.decode title
+      title = title[0..len].strip.gsub /[[[:cntrl:]]\s]+/, " "
 
       msg.reply "\02Title on #{uri.host}#{" (redirected)" if redirected}:\02 " + title, false
     rescue => e
