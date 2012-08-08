@@ -55,7 +55,7 @@ def cmd_icmp6 msg, params
 end
 
 def do_ping msg, host, v6 = false
-  EM.system("ping#{v6 ? "6" : ""} -q -c 5 #{host}") do |o, s|
+  EM.system("ping#{v6 ? "6" : ""} -q -c 5 #{host} -w 5") do |o, s|
 
     case s.exitstatus
     when 2
