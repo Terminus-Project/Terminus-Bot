@@ -129,13 +129,16 @@ def get_title msg, uri
 
       next if title == nil
 
+      title = HTMLEntities.new.decode title
+
       len = title.length - 9
       next if len <= 0
 
-      title = HTMLEntities.new.decode title
-      title = title[0..len].strip.gsub /[[[:cntrl:]]\s]+/, " "
+      title = title[0..len].strip.gsub(/[[[:cntrl:]]\s]+/, " ").strip
 
-      msg.reply "\02Title on #{uri.host}#{" (redirected)" if redirected}:\02 " + title, false
+      next if title.empty?
+
+      msg.reply "\02Title on #{uri.host}#{" (redirected)" if redirected}:\02 #{title}", false
     rescue => e
       $log.error('title.get_title') { "Error getting title for #{uri}: #{e} #{e.backtrace.join("\n")}" }
     end
