@@ -84,6 +84,8 @@ module Bot
       end
 
       @reconnecting = true
+      Events.delete_for @channels
+      Events.delete_for @users
 
       EM.add_timer(Bot::Conf[:core][:reconwait]) do
         $log.warn("IRCConnection.reconnect #{@name}") { "Attempting to reconnect." }
