@@ -113,7 +113,7 @@ module Bot
         msg.raw "CAP END"
       else
         timeout = @parent.config.has_key?(:sasl_timeout) ? @parent.config[:sasl_timeout] : 15
-        EM.add_timer(timeout) { sasl_timeout if @sasl_pending }
+        EM.add_timer(timeout) { sasl_timeout msg if @sasl_pending }
       end
     end
 
@@ -146,6 +146,14 @@ module Bot
 
       @sasl_pending = true
       msg.raw "AUTHENTICATE PLAIN"
+    end
+
+    def sasl_timeout msg
+      return unless @sasl_pending
+
+      $log.warn("ClientCapabilities.sasl_timeout #{@parent.name}") { "SASL authentication timed out." }
+
+      on_sasl_abort msg
     end
 
 
