@@ -89,7 +89,8 @@ module Bot
 
       EM.add_timer(Bot::Conf[:core][:reconwait]) do
         $log.warn("IRCConnection.reconnect #{@name}") { "Attempting to reconnect." }
-
+      
+        @config = Bot::Conf[:servers][name]
         super @config[:address], @config[:port]
       end
     end
