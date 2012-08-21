@@ -24,7 +24,7 @@
 #
 
 module Bot
-  Connections = {}
+  Connections ||= {}
 
   def self.run
     logsize  = Bot::Conf[:core][:logsize]         rescue 1024000 
