@@ -36,19 +36,24 @@ module Bot
       $log = Logger.new 'var/terminus-bot.log', logcount, logsize
     end
 
-    case loglevel
-    when "FATAL"
-      $log.level = Logger::FATAL
-    when "ERROR"
-      $log.level = Logger::ERROR
-    when "WARN"
-      $log.level = Logger::WARN
-    when "INFO"
-      $log.level = Logger::INFO
-    when "DEBUG"
-      $log.level = Logger::DEBUG
-    else
-      $log.level = Logger::INFO
+
+    unless $opts[:verbose]
+
+      case loglevel
+      when "FATAL"
+        $log.level = Logger::FATAL
+      when "ERROR"
+        $log.level = Logger::ERROR
+      when "WARN"
+        $log.level = Logger::WARN
+      when "INFO"
+        $log.level = Logger::INFO
+      when "DEBUG"
+        $log.level = Logger::DEBUG
+      else
+        $log.level = Logger::INFO
+      end
+
     end
 
     # Don't print warnings to STDERR.
