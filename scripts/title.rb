@@ -81,7 +81,7 @@ def get_youtube msg, uri
 
     vid = query.split("=")[1]
 
-    link = " - https://youtu.be/#{vid}"
+    link = " - https://youtu.be/#{vid}" if get_config(:shorten_youtube, false)
   end
 
   vid = URI.escape vid

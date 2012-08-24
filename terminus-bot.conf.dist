@@ -313,6 +313,10 @@ title = {
   # default: 10
   #redirects = 10
 
+  # Post a shortened version of YouTube links which are not already short.
+  # default: false
+  #shorten_youtube = false
+
 }
 
 
