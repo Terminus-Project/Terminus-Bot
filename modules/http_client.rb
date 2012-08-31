@@ -99,6 +99,10 @@ module Bot
 
       when 300..399
         location = URI(response.headers['location'][0])
+        
+        if location.relative?
+          location = URI("#{uri.scheme}://#{uri.host}/#{location.path}")
+        end
 
         $log.debug("Bot.http_request") { "Redirection: #{uri} -> #{location} (#{limit})" }
 
