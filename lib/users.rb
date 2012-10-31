@@ -96,17 +96,13 @@ module Bot
 
       changed_nick_canon = msg.connection.canonize msg.text
 
-      # Apparently structs don't let you change values. So just make a
-      # new user.
-      changed_user = User.new @connection, changed_nick_canon,
-                              self[msg.nick_canon].user,
-                              self[msg.nick_canon].host,
-                              self[msg.nick_canon].level,
-                              self[msg.nick_canon].account
+      temp = self[msg.nick_canon]
 
-      delete_user msg.nick_canon
+      delete msg.nick_canon
 
-      self[changed_nick_canon] = changed_user
+      temp.nick = changed_nick_canon
+
+      self[changed_nick_canon] = temp
     end
 
     # Remove a user by nick.
