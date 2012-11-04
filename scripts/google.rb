@@ -23,6 +23,11 @@
 # SOFTWARE.
 #
 
+
+# TODO: https://developers.google.com/custom-search/v1/overview
+#       http://googlecode.blogspot.com/2010/11/introducing-google-apis-console-and-our.html
+
+
 require "uri"
 require "net/http"
 require "json"
