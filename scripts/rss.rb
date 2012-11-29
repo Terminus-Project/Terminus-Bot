@@ -36,7 +36,7 @@ def initialize
 end
 
 def on_em_started
-  EM.add_periodic_timer(1800) { check_feeds }
+  EM.add_periodic_timer(get_config(:interval, 1800)) { check_feeds }
 end
 
 def cmd_rss msg, params
