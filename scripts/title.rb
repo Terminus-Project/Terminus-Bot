@@ -26,6 +26,7 @@
 require "strscan"
 require "htmlentities"
 require 'rexml/document'
+require 'json'
 
 def initialize
   raise "http script requires the http_client module" unless defined? MODULE_LOADED_HTTP
@@ -59,6 +60,8 @@ def on_message msg
       next if get_youtube(msg, match)
     elsif match.host =~ /(www\.)?twitter.com/ and not match.path == nil
       next if get_twitter(msg, match)
+    elsif match.host =~ /(www\.)?fimfiction.net/ and match.path.start_with? "/story/"
+      next if get_fimfiction(msg, match)
     end
     
     get_title msg, match
@@ -157,7 +160,7 @@ def get_twitter msg, uri
   api = URI("https://api.twitter.com/1/statuses/show.xml?id=#{id}")
 
   Bot.http_get(api) do |response|
-    next unless response == 200
+    next unless response.status == 200
 
     # Since we're already using REXML for YouTube, we may as well use it here too.
     # (However, see the TODO about that.)
@@ -175,3 +178,25 @@ def get_twitter msg, uri
   true
 end
 
+def get_fimfiction msg, uri
+  $log.debug('title.get_fimfiction') { uri.to_s }
+
+  #  $ curl 'http://www.fimfiction.net/api/story.php?story=http://www.fimfiction.net/story/3927/Skittles'
+  #  {"story":{"id":3927,"title":"Skittles","url":"http:\/\/www.fimfiction.net\/story\/3927\/Skittles","short_description":"Pinkie Pie tastes the Rainbow","description":"Pinkie Pie explains to Twilight how she, with the help of Rainbow Dash, invented a new type of candy.\r\n\r\n(I finally decided to upload this from EqD.)","date_modified":1323145747,"image":"\/\/www.fimfiction-static.net\/images\/story_images\/3927_r.jpg","views":11508,"total_views":11508,"words":3479,"chapter_count":1,"comments":122,"author":{"id":"509","name":"MetalGearSamus"},"status":"Complete","content_rating_text":"Teen","content_rating":1,"categories":{"Romance":true,"Tragedy":false,"Sad":false,"Dark":false,"Comedy":true,"Random":true,"Crossover":false,"Adventure":false,"Slice of Life":false,"Alternate Universe":false,"Human":false},"likes":535,"dislikes":13,"chapters":[{"id":11264,"title":"Skittles","words":3479,"views":11508,"link":"http:\/\/www.fimfiction.net\/story\/3927\/1\/Skittles\/Skittles","date_modified":1352181526}]}}
+
+  arg = URI.escape uri.to_s
+  api = URI("http://www.fimfiction.net/api/story.php?story=#{arg}")
+
+  Bot.http_get(api) do |response|
+    begin
+    next unless response.status == 200
+
+    data = JSON.parse(response.content)["story"]
+    cats = data["categories"].select {|cat, value| value }.keys.join(', ')
+
+    msg.reply "\02#{data["title"]}\02 by \02#{data["author"]["name"]}\02 - #{data["short_description"]} - #{cats} (Status: #{data["status"]})", false
+    rescue Exception => e
+      $log.error('title.get_fimfiction') { e }
+    end
+  end
+end
