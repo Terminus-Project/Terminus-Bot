@@ -40,10 +40,14 @@ def on_em_started
 end
 
 def periodic_check just_started = false
-  check_feeds unless just_started
-
-  EM.add_timer(get_config(:interval, 1800)) do
-    periodic_check
+  begin
+    check_feeds unless just_started
+  rescue => e
+    $log.debug("rss.periodic_check") { "Error while checking feeds: #{e}" }
+  ensure
+    EM.add_timer(get_config(:interval, 1800)) do
+      periodic_check
+    end
   end
 end
 
