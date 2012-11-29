@@ -152,11 +152,18 @@ def get_twitter msg, uri
   $log.debug('title.get_twitter') { uri.to_s }
 
   # TODO: Get the latest status for a linked user.
-  unless uri.fragment =~ /status(es)?\/([0-9]+)/
-    return false
+  
+  if uri.fragment
+    match = uri.fragment.match(/status(es)?\/(?<id>[0-9]+)/)
   end
 
-  id = URI.escape $2
+  unless match
+    match = uri.path.match(/status\/(?<id>[0-9]+)/)
+
+    return false unless match
+  end
+
+  id = URI.escape match[:id]
   api = URI("https://api.twitter.com/1/statuses/show.xml?id=#{id}")
 
   Bot.http_get(api) do |response|
