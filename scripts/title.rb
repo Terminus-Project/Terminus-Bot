@@ -181,9 +181,6 @@ end
 def get_fimfiction msg, uri
   $log.debug('title.get_fimfiction') { uri.to_s }
 
-  #  $ curl 'http://www.fimfiction.net/api/story.php?story=http://www.fimfiction.net/story/3927/Skittles'
-  #  {"story":{"id":3927,"title":"Skittles","url":"http:\/\/www.fimfiction.net\/story\/3927\/Skittles","short_description":"Pinkie Pie tastes the Rainbow","description":"Pinkie Pie explains to Twilight how she, with the help of Rainbow Dash, invented a new type of candy.\r\n\r\n(I finally decided to upload this from EqD.)","date_modified":1323145747,"image":"\/\/www.fimfiction-static.net\/images\/story_images\/3927_r.jpg","views":11508,"total_views":11508,"words":3479,"chapter_count":1,"comments":122,"author":{"id":"509","name":"MetalGearSamus"},"status":"Complete","content_rating_text":"Teen","content_rating":1,"categories":{"Romance":true,"Tragedy":false,"Sad":false,"Dark":false,"Comedy":true,"Random":true,"Crossover":false,"Adventure":false,"Slice of Life":false,"Alternate Universe":false,"Human":false},"likes":535,"dislikes":13,"chapters":[{"id":11264,"title":"Skittles","words":3479,"views":11508,"link":"http:\/\/www.fimfiction.net\/story\/3927\/1\/Skittles\/Skittles","date_modified":1352181526}]}}
-
   arg = URI.escape uri.to_s
   api = URI("http://www.fimfiction.net/api/story.php?story=#{arg}")
 
