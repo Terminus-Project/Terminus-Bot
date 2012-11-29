@@ -148,6 +148,7 @@ servers = {
   #   sasl_password   (string)
   #   sasl_mechanism  (string: auto, plain, or dh-blowfish)
   #   sasl_timeout    (number)
+  #   umodes          (string: user modes to set on connect)
   #
   # Note: At the moment, only SASL PLAIN is supported.
   #       To use SASL, please ensure the caps module is loaded.

@@ -251,6 +251,8 @@ module Bot
       return unless msg.connection == self
 
       @isupport, @registered = {}, true
+
+      raw "MODE #{@nick} +#{@config[:umodes]}" if @config.has_key? :umodes
     end
 
     def on_nick_in_use msg
