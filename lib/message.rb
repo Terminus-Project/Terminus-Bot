@@ -54,13 +54,15 @@ module Bot
         @type = arr[0].to_sym
         @destination = arr[1]
 
-        @text = (str =~ /\A([^ ]+\s){1,2}:(.+)\Z/ ? $2 : "")
+        @text = (str =~ /^([^ ]+\s){1,2}:(.+)$/ ? $2 : "")
 
       else
+
         match = str.match INCOMING_REGEX
 
         unless match
           $log.error('message.initialize') { "Match error on: #{str}" }
+          return
         end
 
         @origin       = match[:prefix]
@@ -73,6 +75,7 @@ module Bot
 
         @text         = match[:text]
         @parameters   = match[:parameters]
+
       end
 
       @nick.freeze
