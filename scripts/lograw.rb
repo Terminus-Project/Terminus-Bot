@@ -30,6 +30,8 @@ def initialize
 end
 
 def on_raw(msg)
+  $log.debug("lograw.on_raw") { msg.raw_str }
+
   $log.debug("lograw.on_raw") { sprintf "O: %s  D: %s  TXT: %s  TYP: %s  NUH: %s!%s@%s  C: %s",
     msg.origin, msg.destination, msg.text, msg.type, msg.nick, msg.user, msg.host,
     msg.connection.name }

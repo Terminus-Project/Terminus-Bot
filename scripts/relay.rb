@@ -122,7 +122,7 @@ def on_privmsg msg
 end
 
 def on_join msg
-  return unless msg.text.start_with? "#"
+  return unless msg.destination.start_with? "#"
 
   network = msg.connection.name
   channel = msg.text

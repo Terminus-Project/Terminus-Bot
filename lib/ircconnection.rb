@@ -149,6 +149,8 @@ module Bot
       msg = Message.new self, line.clone
 
       Bot::Ignores.each do |ignore|
+        break unless msg.origin
+
         if msg.origin.wildcard_match ignore
           $log.debug("IRCConnection.receive_line #{@name}") { "Ignoring message from #{msg.origin}" }
           return

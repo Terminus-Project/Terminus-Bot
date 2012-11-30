@@ -27,8 +27,8 @@
 module Bot
   class Message
 
-    attr_reader :origin, :destination, :type, :text, :raw_str, :raw_arr,
-      :nick, :nick_canon, :user, :host, :connection
+    attr_reader :origin, :type, :text, :parameters,
+      :raw_str, :raw_arr, :nick, :nick_canon, :user, :host, :connection
     
     # Parse the str as an IRC message
     def initialize connection, str, outgoing = false
@@ -40,8 +40,6 @@ module Bot
       @raw_str.freeze
       @raw_arr.freeze
       @outgoing.freeze
-
-      # TODO: This whole thing can be done with just one regex!
 
       if outgoing
 
@@ -57,34 +55,22 @@ module Bot
         @text = (str =~ /\A([^ ]+\s){1,2}:(.+)\Z/ ? $2 : "")
 
       else
+        match = str.match(/^(:(?<prefix>((?<nick>[^!]+)!(?<user>[^@]+)@(?<host>[^ ]+)|[^ ]+)) )?((?<numeric>[0-9]{3})|(?<command>[^ ]+))( (?<destination>[^:][^ ]*))?( :(?<text>.*)| (?<parameters>.*))?$/)
 
-        if str[0] == ":"
-
-          # This will be almost all messages.
-          @origin = arr[0][1..arr[0].length-1]
-          @type = arr[1].to_sym
-          @destination = arr[2].gsub(/\A:?/, "") # Not always the destination. Oh well.
-
-          if @origin =~ /\A([^ ]+)!([^ ]+)@([^ ]+)/
-            @nick, @user, @host = $1, $2, $3
-          else
-            @nick, @user, @host = "", "", ""
-          end
-
-          # Grab the text portion, as in
-          # :origin PRIVMSG #dest :THIS TEXT
-
-          @text = (str =~ /\A:[^ ]+(\s[^ ]+){0,2}\s:(.+)\Z/ ? $2 : "")
-
-        else
-          # Server PINGs. Not much else.
-          @type = arr[0].to_sym
-          @origin, @destination = "", ""
-          @nick, @user, @host = "", "", ""
-
-          @text = (str =~ /.+:(.+)\Z/ ? $1 : "")
+        unless match
+          $log.error('message.initialize') { "Match error on: #{str}" }
         end
 
+        @origin       = match[:prefix]
+        @type         = (match[:command] || match[:numeric]).to_sym
+        @destination  = match[:destination]
+
+        @nick         = match[:nick]
+        @user         = match[:user]
+        @host         = match[:host]
+
+        @text         = match[:text]
+        @parameters   = match[:parameters]
       end
 
       @nick.freeze
@@ -182,7 +168,11 @@ module Bot
 
     # Apply CASEMAPPING to the destination and return it.
     def destination_canon
-      @destination_canon ||= @connection.canonize @destination
+      @destination_canon ||= @connection.canonize destination
+    end
+
+    def destination
+      @destination || @text
     end
 
     # Return true if this message doesn't appear to have been sent in a
