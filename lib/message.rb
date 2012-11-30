@@ -176,6 +176,7 @@ module Bot
       @destination_canon ||= @connection.canonize destination
     end
 
+    # some IRCDs like to put a colon in things like JOINs
     def destination
       @destination || @text
     end
