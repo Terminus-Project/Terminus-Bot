@@ -39,6 +39,7 @@ module Bot
       Events.create self, :"904",        :on_sasl_fail
       Events.create self, :"905",        :on_sasl_fail
       Events.create self, :"900",        :on_sasl_success
+      Events.create self, :"903",        :on_sasl_success
       Events.create self, :"906",        :on_sasl_abort
       Events.create self, :"907",        :on_sasl_abort
 
