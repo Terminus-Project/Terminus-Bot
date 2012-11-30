@@ -156,7 +156,6 @@ module Bot
     end
 
 
-    # Should not be called externally.
     def strip str
       str.gsub /(\x0F|\x1D|\02|\03([0-9]{1,2}(,[0-9]{1,2})?)?)/, ""
     end
@@ -165,6 +164,7 @@ module Bot
     def stripped
       @stripped ||= strip @text
     end
+
 
     # Apply CASEMAPPING to the nick and return it.
     def nick_canon
@@ -200,5 +200,6 @@ module Bot
       private? or @connection.channels[destination_canon].voice? @nick
     end
 
+    private :strip
   end
 end
