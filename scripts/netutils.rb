@@ -40,7 +40,8 @@ def cmd_icmp msg, params
     return
   end
   
-  EM.defer(proc { do_ping msg, host })
+  #EM.defer(proc { do_ping msg, host })
+  do_ping msg, host
 end
 
 def cmd_icmp6 msg, params
@@ -55,16 +56,18 @@ def cmd_icmp6 msg, params
 end
 
 def do_ping msg, host, v6 = false
-  EM.system("ping#{v6 ? "6" : ""} -q -c 5 #{host} -w 5") do |o, s|
+  EM.system("ping#{"6" if v6} -q -w 5 -c 5 #{host}") do |o, s|
 
     case s.exitstatus
     when 2
       msg.reply "Could not ping that host due to network or DNS errors."
     when 0
-      buf = Array.new
+      buf = []
 
       o.each_line do |l|
-        buf << l.chomp if l =~ /^[0-9]+ packets transmitted/ or l.start_with? "rtt"
+        if l =~ /^[0-9]+ packets transmitted/ or l.start_with? "rtt"
+          buf << l.chomp
+        end
       end
 
       msg.reply buf.join(" :: ")
