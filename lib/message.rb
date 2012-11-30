@@ -25,6 +25,8 @@
 
 
 module Bot
+  INCOMING_REGEX = /^(:(?<prefix>((?<nick>[^!]+)!(?<user>[^@]+)@(?<host>[^ ]+)|[^ ]+)) )?((?<numeric>[0-9]{3})|(?<command>[^ ]+))( (?<destination>[^:][^ ]*))?( :(?<text>.*)| (?<parameters>.*))?$/
+
   class Message
 
     attr_reader :origin, :type, :text, :parameters,
@@ -55,7 +57,7 @@ module Bot
         @text = (str =~ /\A([^ ]+\s){1,2}:(.+)\Z/ ? $2 : "")
 
       else
-        match = str.match(/^(:(?<prefix>((?<nick>[^!]+)!(?<user>[^@]+)@(?<host>[^ ]+)|[^ ]+)) )?((?<numeric>[0-9]{3})|(?<command>[^ ]+))( (?<destination>[^:][^ ]*))?( :(?<text>.*)| (?<parameters>.*))?$/)
+        match = str.match INCOMING_REGEX
 
         unless match
           $log.error('message.initialize') { "Match error on: #{str}" }
