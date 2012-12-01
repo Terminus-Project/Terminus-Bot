@@ -210,13 +210,23 @@ end
 def get_github msg, uri
   $log.debug('title.get_github') { uri.to_s }
 
-  match = uri.path.match(/^\/(?<owner>[^\/]+)\/(?<project>[^\/]+)\/(?<action>[^\/]+)\/(?<hash>[^\/]+)/)
+  match = uri.path.match(/^\/(?<owner>[^\/]+)\/(?<project>[^\/]+)(\/(?<action>[^\/]+)\/(?<hash>[^\/]+))?/)
 
   return false unless match
 
-  case match[:action]
-  when 'commit'
-    get_github_commit msg, match
+  if match[:action]
+
+    case match[:action]
+    when 'commit'
+      get_github_commit msg, match
+
+      return true
+    end
+
+  else
+    # XXX - this is going to be wrong sometimes, but I am getting too
+    #       tired to really care
+    get_github_repo msg, match
 
     return true
   end
@@ -328,5 +338,17 @@ def get_github_commit msg, match
     data = JSON.parse(response.content)
 
     msg.reply "\02#{match[:project]}\02: #{data["message"].lines.first} - by #{data["author"]["name"]} at #{Time.parse(data["author"]["date"]).to_s}", false
+  end
+end
+
+def get_github_repo msg, match
+  api = URI("https://api.github.com/repos/#{match[:owner]}/#{match[:project]}")
+
+  Bot.http_get(api) do |response|
+    next unless response.status == 200
+
+    data = JSON.parse(response.content)
+
+    msg.reply "\02#{match[:project]}\02 (#{data["language"]}): #{data["description"]} - by #{data["owner"]["login"]}", false
   end
 end
