@@ -64,6 +64,8 @@ def on_message msg
       next if get_reddit(msg, match)
     elsif match.host == 'fav.me' or match.host =~ /(.+)\.deviantart\.com/
       next if get_deviantart(msg, match)
+    elsif match.host =~ /(www\.)?github\.com/
+      next if get_github(msg, match)
     elsif match.host =~ /(www\.)?fimfiction\.net/ and match.path.start_with? "/story/"
       next if get_fimfiction(msg, match)
     end
@@ -205,6 +207,23 @@ def get_fimfiction msg, uri
   end
 end
 
+def get_github msg, uri
+  $log.debug('title.get_github') { uri.to_s }
+
+  match = uri.path.match(/^\/(?<owner>[^\/]+)\/(?<project>[^\/]+)\/(?<action>[^\/]+)\/(?<hash>[^\/]+)/)
+
+  return false unless match
+
+  case match[:action]
+  when 'commit'
+    get_github_commit msg, match
+
+    return true
+  end
+
+  false
+end
+
 def get_deviantart msg, uri
   $log.debug('title.get_deviantart') { uri.to_s }
 
@@ -294,5 +313,20 @@ def get_reddit_post msg, id
     data = JSON.parse(response.content, :max_nesting => 100).first["data"]["children"].first["data"]
 
     msg.reply "#{"[NSFW] " if data["over18"]}/r/#{data["subreddit"]}: \02#{data["title"]}\02 - \02#{data["score"]}\02 Karma - \02#{data["num_comments"]}\02 Comments", false
+  end
+end
+
+
+# get_github helpers
+
+def get_github_commit msg, match
+  api = URI("https://api.github.com/repos/#{match[:owner]}/#{match[:project]}/git/commits/#{match[:hash]}")
+
+  Bot.http_get(api) do |response|
+    next unless response.status == 200
+
+    data = JSON.parse(response.content)
+
+    msg.reply "\02#{match[:project]}\02: #{data["message"].lines.first} - by #{data["author"]["name"]} at #{Time.parse(data["author"]["date"]).to_s}", false
   end
 end
