@@ -58,11 +58,13 @@ def on_message msg
       next if get_youtube(msg, match)
     elsif match.host =~ /(www\.)?youtu\.be/ and not match.path == nil
       next if get_youtube(msg, match)
-    elsif match.host =~ /(www\.)?twitter.com/ and not match.path == nil
+    elsif match.host =~ /(www\.)?twitter\.com/ and not match.path == nil
       next if get_twitter(msg, match)
-    elsif match.host == 'fav.me' or match.host =~ /(.+)\.deviantart.com/
+    elsif match.host == 'redd.it' or match.host =~ /(www\.)?reddit\.com/
+      next if get_reddit(msg, match)
+    elsif match.host == 'fav.me' or match.host =~ /(.+)\.deviantart\.com/
       next if get_deviantart(msg, match)
-    elsif match.host =~ /(www\.)?fimfiction.net/ and match.path.start_with? "/story/"
+    elsif match.host =~ /(www\.)?fimfiction\.net/ and match.path.start_with? "/story/"
       next if get_fimfiction(msg, match)
     end
     
@@ -219,5 +221,78 @@ def get_deviantart msg, uri
     data = JSON.parse(response.content)
 
     msg.reply "#{data["provider_name"]}: \02#{data["title"]}\02 by \02#{data["author_name"]}\02 - #{data["category"]} - #{data["width"]}x#{data["height"]} #{data["type"]}", false
+  end
+end
+
+def get_reddit msg, uri
+  $log.debug('title.get_reddit') { uri.to_s }
+
+  if uri.host.end_with? 'reddit.com'
+    # might not be a post
+
+    match = uri.path.match(/\/(?<type>[^\/]+)\/(?<target>[^?\/]+)(\/comments\/(?<post_id>[^\/]+\/.+))?/)
+
+    case match[:type]
+    when 'u', 'user'
+      get_reddit_user msg, match[:target]
+
+      return true
+
+    when 'r'
+
+      if match[:post_id]
+        get_reddit_post msg, match[:post_id]
+      else
+        get_reddit_subreddit msg, match[:target]
+      end
+
+      return true
+
+    end
+  else
+    get_reddit_post msg, uri.path
+
+    return true
+  end
+
+  false
+end
+
+
+# get_reddit helpers
+
+def get_reddit_user msg, username
+  api = URI("http://www.reddit.com/user/#{URI.escape username}/about.json")
+
+  Bot.http_get(api) do |response|
+    next unless response.status == 200
+
+    data = JSON.parse(response.content)["data"]
+
+    msg.reply "\02#{data["name"]}\02 - \02#{data["link_karma"]}\02 Link Karma - \02#{data["comment_karma"]}\02 Comment Karma - Joined #{Time.at(data["created_utc"]).to_s}", false
+  end
+end
+
+def get_reddit_subreddit msg, name
+  api = URI("http://www.reddit.com/r/#{URI.escape name}/about.json")
+
+  Bot.http_get(api) do |response|
+    next unless response.status == 200
+
+    data = JSON.parse(response.content)["data"]
+
+    msg.reply "#{"[NSFW] " if data["over18"]}#{data["url"]}: \02#{data["title"]}\02 - \02#{data["subscribers"]}\02 subscribers - #{data["public_description"]}", false
+  end
+end
+
+def get_reddit_post msg, id
+  api = URI("http://www.reddit.com/comments/#{URI.escape id}.json")
+
+  Bot.http_get(api) do |response|
+    next unless response.status == 200
+
+    data = JSON.parse(response.content, :max_nesting => 100).first["data"]["children"].first["data"]
+
+    msg.reply "#{"[NSFW] " if data["over18"]}/r/#{data["subreddit"]}: \02#{data["title"]}\02 - \02#{data["score"]}\02 Karma - \02#{data["num_comments"]}\02 Comments", false
   end
 end
