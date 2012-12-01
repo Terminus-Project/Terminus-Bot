@@ -60,7 +60,7 @@ def on_message msg
       next if get_youtube(msg, match)
     elsif match.host =~ /(www\.)?twitter.com/ and not match.path == nil
       next if get_twitter(msg, match)
-    elsif match.host == 'fav.me'
+    elsif match.host == 'fav.me' or match.host =~ /(.+)\.deviantart.com/
       next if get_deviantart(msg, match)
     elsif match.host =~ /(www\.)?fimfiction.net/ and match.path.start_with? "/story/"
       next if get_fimfiction(msg, match)
@@ -205,6 +205,10 @@ end
 
 def get_deviantart msg, uri
   $log.debug('title.get_deviantart') { uri.to_s }
+
+  unless uri.path =~ /^\/art\/.+/
+    return false
+  end
 
   arg = URI.escape uri.to_s
   api = URI("https://backend.deviantart.com/oembed?url=#{arg}")
