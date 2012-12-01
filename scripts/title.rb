@@ -60,6 +60,8 @@ def on_message msg
       next if get_youtube(msg, match)
     elsif match.host =~ /(www\.)?twitter.com/ and not match.path == nil
       next if get_twitter(msg, match)
+    elsif match.host == 'fav.me'
+      next if get_deviantart(msg, match)
     elsif match.host =~ /(www\.)?fimfiction.net/ and match.path.start_with? "/story/"
       next if get_fimfiction(msg, match)
     end
@@ -192,15 +194,26 @@ def get_fimfiction msg, uri
   api = URI("http://www.fimfiction.net/api/story.php?story=#{arg}")
 
   Bot.http_get(api) do |response|
-    begin
     next unless response.status == 200
 
     data = JSON.parse(response.content)["story"]
     cats = data["categories"].select {|cat, value| value }.keys.join(', ')
 
     msg.reply "\02#{data["title"]}\02 by \02#{data["author"]["name"]}\02 - #{data["short_description"]} - #{cats} (Status: #{data["status"]})", false
-    rescue Exception => e
-      $log.error('title.get_fimfiction') { e }
-    end
+  end
+end
+
+def get_deviantart msg, uri
+  $log.debug('title.get_deviantart') { uri.to_s }
+
+  arg = URI.escape uri.to_s
+  api = URI("https://backend.deviantart.com/oembed?url=#{arg}")
+
+  Bot.http_get(api) do |response|
+    next unless response.status == 200
+
+    data = JSON.parse(response.content)
+
+    msg.reply "#{data["provider_name"]}: \02#{data["title"]}\02 by \02#{data["author_name"]}\02 - #{data["category"]} - #{data["width"]}x#{data["height"]} #{data["type"]}", false
   end
 end
