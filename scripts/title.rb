@@ -237,7 +237,7 @@ end
 def get_deviantart msg, uri
   $log.debug('title.get_deviantart') { uri.to_s }
 
-  unless uri.path =~ /^\/art\/.+/
+  unless uri.host == 'fav.me' or uri.path =~ /^\/art\/.+/
     return false
   end
 
