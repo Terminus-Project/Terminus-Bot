@@ -31,12 +31,11 @@ def initialize
   register_event :PRIVMSG, :on_privmsg
   register_event :PART,    :on_part
 
-  @messages = Hash.new
+  @messages = {}
 end
 
 def on_part msg
-  return unless msg.me?
-  return unless @messages.has_key? msg.connection.name
+  return unless @messages.has_key? msg.connection.name and msg.me?
 
   @messages[msg.connection.name].delete msg.destination
 end
@@ -47,6 +46,9 @@ def on_privmsg msg
   match = msg.text.match(/^(?<action>(s|g))\/(?<search>.+?)\/(?<replace>.*?)(\/(?<flags>.*))?$/)
 
   if match
+    return unless @messages.has_key? msg.connection.name
+    return unless @messages[msg.connection.name].has_key? msg.destination
+
     case match[:action]
     when "g"
       grep msg, match
@@ -57,10 +59,8 @@ def on_privmsg msg
     return
   end
 
-
-  @messages[msg.connection.name] ||= Hash.new
-  @messages[msg.connection.name][msg.destination] ||= Array.new
-
+  @messages[msg.connection.name] ||= {}
+  @messages[msg.connection.name][msg.destination] ||= []
 
   if msg.text =~ /\01ACTION (.+)\01/
     @messages[msg.connection.name][msg.destination] << [msg.nick, $1,       true]
@@ -69,17 +69,12 @@ def on_privmsg msg
   end
 
 
-  if @messages[msg.connection.name][msg.destination].length > get_config("buffer", 100)
+  if @messages[msg.connection.name][msg.destination].length > get_config(:buffer, 100).to_i
     @messages[msg.connection.name][msg.destination].shift
   end
 end
 
 def grep msg, match
-  $log.debug('Regex.on_privmsg') { 'GREP' }
-
-  return unless @messages.has_key? msg.connection.name
-  return unless @messages[msg.connection.name].has_key? msg.destination
-
   Timeout::timeout(get_config(:run_time, 2).to_i) do
     # match[:replace] is flags because whatever
     search, flags, opts = match[:search], match[:replace], Regexp::EXTENDED
@@ -102,52 +97,31 @@ def grep msg, match
       end
 
     end
-
-    return
-
   end
-
-
 end
 
 def substitute msg, match
-  $log.debug('Regex.on_privmsg') { 'SUBSTITUTE' }
-
-  return unless @messages.has_key? msg.connection.name
-  return unless @messages[msg.connection.name].has_key? msg.destination
-
   Timeout::timeout(get_config(:run_time, 2).to_i) do
-    begin
-      replace, flags, opts = match[:replace], match[:flags], Regexp::EXTENDED
+    replace, flags, opts = match[:replace], match[:flags], Regexp::EXTENDED
 
-      opts |= Regexp::IGNORECASE if flags and flags.include? "i"
+    opts |= Regexp::IGNORECASE if flags and flags.include? "i"
 
-      search = Regexp.new match[:search].gsub(/\s/, '\s'), opts
+    search = Regexp.new match[:search].gsub(/\s/, '\s'), opts
 
-      @messages[msg.connection.name][msg.destination].reverse.each do |message|
+    @messages[msg.connection.name][msg.destination].reverse.each do |message|
 
-        if search.match message[1]
-          new_msg = ((flags and flags.include?("g")) ? message[1].gsub(search, replace) : message[1].sub(search, replace) )
+      if search.match message[1]
+        new_msg = ((flags and flags.include?("g")) ? message[1].gsub(search, replace) : message[1].sub(search, replace) )
 
-          if message[2]
-            msg.reply "* #{message[0]} #{new_msg}", false
-          else
-            msg.reply "<#{message[0]}> #{new_msg}", false
-          end
-
-          return
+        if message[2]
+          msg.reply "* #{message[0]} #{new_msg}", false
+        else
+          msg.reply "<#{message[0]}> #{new_msg}", false
         end
 
+        return
       end
 
-      return
-    rescue Exception => e
-
-      $log.debug('Regex.on_privmsg') { e }
-
     end
-
   end
-
-
 end
