@@ -201,6 +201,6 @@ module Bot
       private? or @connection.channels[destination_canon].voice? @nick
     end
 
-    private :strip
+    #private :strip
   end
 end
