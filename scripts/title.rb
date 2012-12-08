@@ -68,6 +68,8 @@ def on_message msg
       next if get_github(msg, match)
     elsif match.host =~ /(www\.)?fimfiction\.net/ and match.path.start_with? "/story/"
       next if get_fimfiction(msg, match)
+    elsif match.host =~ /(.+\.)?derpiboo(ru.org|.ru)/
+      next if get_derpibooru(msg, match)
     end
     
     get_title msg, match
@@ -204,6 +206,26 @@ def get_fimfiction msg, uri
     cats = data["categories"].select {|cat, value| value }.keys.join(', ')
 
     msg.reply "\02#{data["title"]}\02 by \02#{data["author"]["name"]}\02 - #{data["short_description"]} - #{cats} (Status: #{data["status"]})", false
+  end
+end
+
+def get_derpibooru msg, uri
+  $log.debug('title.get_derpibooru') { uri.to_s }
+
+  match = uri.path.match(/^\/(?<id>[0-9]+)$/)
+
+  return false unless match
+
+  host_match = uri.host.match(/^(?<server>.+)\.derpiboo/)
+
+  api = URI("http://#{"#{host_match[:server]}." if host_match}derpiboo.ru/#{match[:id]}.json")
+
+  Bot.http_get(api) do |response|
+    next unless response.status == 200
+
+    data = JSON.parse(response.content)
+
+    msg.reply "Derpibooru: #{data["tags"]} - Uploaded by \02#{data["uploader"]}\02 - #{data["width"]}x#{data["height"]} #{data["original_format"]}", false
   end
 end
 
