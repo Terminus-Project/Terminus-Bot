@@ -44,67 +44,17 @@ end
 def on_privmsg msg
   return if msg.private?
 
-  if msg.text =~ /\Ag\/(.+)\/(.*)\Z/
-    return unless @messages.has_key? msg.connection.name
-    return unless @messages[msg.connection.name].has_key? msg.destination
+  match = msg.text.match(/^(?<action>(s|g))\/(?<search>.+?)\/(?<replace>.*?)(\/(?<flags>.*))?$/)
 
-    Timeout::timeout(get_config(:run_time, 2).to_i) do
-      search, flags, opts = $1, $2, Regexp::EXTENDED
-
-      opts |= Regexp::IGNORECASE if flags.include? "i"
-
-      search = Regexp.new($1.gsub(/\s/, '\s'), opts)
-
-      @messages[msg.connection.name][msg.destination].reverse.each do |message|
-
-        if search.match message[1]
-
-          if message[2]
-            msg.reply "* #{message[0]} #{message[1]}", false
-          else
-            msg.reply "<#{message[0]}> #{message[1]}", false
-          end
-
-          return
-        end
-
-      end
-
-      return
-
+  if match
+    case match[:action]
+    when "g"
+      grep msg, match
+    when "s"
+      substitute msg, match
     end
 
-  elsif msg.text =~ /\As\/(.+)\/(.*)\/(.*)\Z/
-    return unless @messages.has_key? msg.connection.name
-    return unless @messages[msg.connection.name].has_key? msg.destination
-
-    Timeout::timeout(get_config(:run_time, 2).to_i) do
-      replace, flags, opts = $2, $3, Regexp::EXTENDED
-
-      opts |= Regexp::IGNORECASE if flags.include? "i"
-
-      search = Regexp.new $1.gsub(/\s/, '\s'), opts
-
-      @messages[msg.connection.name][msg.destination].reverse.each do |message|
-
-        if search.match message[1]
-          new_msg = (flags.include?("g") ? message[1].gsub(search, replace) : message[1].sub(search, replace) )
-
-          if message[2]
-            msg.reply "* #{message[0]} #{new_msg}", false
-          else
-            msg.reply "<#{message[0]}> #{new_msg}", false
-          end
-
-          return
-        end
-
-      end
-
-      return
-
-    end
-
+    return
   end
 
 
@@ -124,3 +74,80 @@ def on_privmsg msg
   end
 end
 
+def grep msg, match
+  $log.debug('Regex.on_privmsg') { 'GREP' }
+
+  return unless @messages.has_key? msg.connection.name
+  return unless @messages[msg.connection.name].has_key? msg.destination
+
+  Timeout::timeout(get_config(:run_time, 2).to_i) do
+    # match[:replace] is flags because whatever
+    search, flags, opts = match[:search], match[:replace], Regexp::EXTENDED
+
+    opts |= Regexp::IGNORECASE if flags and flags.include? "i"
+
+    search = Regexp.new match[:search].gsub(/\s/, '\s'), opts
+
+    @messages[msg.connection.name][msg.destination].reverse.each do |message|
+
+      if search.match message[1]
+
+        if message[2]
+          msg.reply "* #{message[0]} #{message[1]}", false
+        else
+          msg.reply "<#{message[0]}> #{message[1]}", false
+        end
+
+        return
+      end
+
+    end
+
+    return
+
+  end
+
+
+end
+
+def substitute msg, match
+  $log.debug('Regex.on_privmsg') { 'SUBSTITUTE' }
+
+  return unless @messages.has_key? msg.connection.name
+  return unless @messages[msg.connection.name].has_key? msg.destination
+
+  Timeout::timeout(get_config(:run_time, 2).to_i) do
+    begin
+      replace, flags, opts = match[:replace], match[:flags], Regexp::EXTENDED
+
+      opts |= Regexp::IGNORECASE if flags and flags.include? "i"
+
+      search = Regexp.new match[:search].gsub(/\s/, '\s'), opts
+
+      @messages[msg.connection.name][msg.destination].reverse.each do |message|
+
+        if search.match message[1]
+          new_msg = ((flags and flags.include?("g")) ? message[1].gsub(search, replace) : message[1].sub(search, replace) )
+
+          if message[2]
+            msg.reply "* #{message[0]} #{new_msg}", false
+          else
+            msg.reply "<#{message[0]}> #{new_msg}", false
+          end
+
+          return
+        end
+
+      end
+
+      return
+    rescue Exception => e
+
+      $log.debug('Regex.on_privmsg') { e }
+
+    end
+
+  end
+
+
+end
