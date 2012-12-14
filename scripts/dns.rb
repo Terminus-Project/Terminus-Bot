@@ -25,15 +25,12 @@
 
 require 'dnsruby'
 
-def initialize
-  register_script "Perform DNS look-ups."
+register 'Perform DNS look-ups.'
 
-  register_command "dns",  :cmd_dns,   1,  0, nil, "Perform a DNS look-up. Parameters: [type] host_name"
-  register_command "rdns", :cmd_rdns,  1,  0, nil, "Perform a reverse DNS look-up."
-end
+command 'dns', 'Perform a DNS look-up. Parameters: [type] host_name' do
+  argc! 1
 
-def cmd_dns msg, params
-  arr = params[0].split
+  arr = @params.first.split
   type = "ANY"
 
   if arr.length > 1
@@ -50,30 +47,32 @@ def cmd_dns msg, params
     results = resolv.getresources addr, type
 
     if results.empty?
-      msg.reply "No results."
-      return
+      reply "No results."
+      next
     end
 
-    msg.reply (results.map {|r| r.rdata_to_string.gsub(/[[:cntrl:]]/, '') }).join(", ")
+    reply (results.map {|r| r.rdata_to_string.gsub(/[[:cntrl:]]/, '') }).join(", ")
   rescue => e
-    msg.reply "Look-up Failed: #{e.to_s.split("::")[1]}"
+    reply "Look-up Failed: #{e.to_s.split("::")[1]}"
   end
 end
 
-def cmd_rdns msg, params
+command 'rdns', 'Perform a reverse DNS look-up.' do
+  argc! 1
+
   resolv = Dnsruby::DNS.new
 
   begin
-    results = resolv.getnames params[0]
+    results = resolv.getnames @params.first
 
     if results.empty?
-      msg.reply "No results."
-      return
+      reply "No results."
+      next
     end
 
-    msg.reply (results.map {|r| r.to_s }).join(", ")
+    reply (results.map {|r| r.to_s }).join(", ")
   rescue => e
-    msg.reply "Look-up Failed: #{e.to_s.split("::")[1]}"
+    reply "Look-up Failed: #{e.to_s.split("::")[1]}"
   end
 end
 

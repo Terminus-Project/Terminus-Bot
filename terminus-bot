@@ -111,6 +111,7 @@ def load_lib
   #load "lib/database.rb"
 
   load "lib/config.rb"
+  load "lib/command.rb"
   load "lib/events.rb"
 
   load "lib/string.rb"

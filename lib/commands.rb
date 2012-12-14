@@ -24,107 +24,62 @@
 #
 
 module Bot
-  Command = Struct.new :owner, :cmd, :func, :argc, :level, :chan_level, :help
+  module Commands
 
-  class CommandManager < Hash
+    Bot::Events.create :PRIVMSG, self, :on_privmsg
 
-    def initialize
-      Bot::Events.create self, :PRIVMSG, :on_privmsg
-    end
+    COMMANDS ||= {}
 
-    def on_privmsg msg
+    def self.on_privmsg msg
       prefix = Regexp.escape Bot::Conf[:core][:prefix]
 
-      return unless msg.text =~ /\A#{msg.private? ? "(#{prefix})?" : "(#{prefix})"}([^ ]+)(.*)\Z/i
+      match = msg.text.match(/^(?<prefix>#{prefix})?(?<command>[^ ]+)( (?<params>.+))?/i)
 
-      cmd_str = $2.downcase
+      return unless msg.query? or match[:prefix]
 
-      return unless has_key? cmd_str
+      cmd_str = match[:command].downcase
 
-      command = self[cmd_str]
+      return unless COMMANDS.has_key? cmd_str
 
-      return unless Bot::Flags.permit_message? command.owner, msg
+      command = COMMANDS[cmd_str]
+
+      return unless Bot::Flags.permit_message? command[:owner], msg
 
       level = msg.connection.users.get_level msg
 
-      if command.level > level
-        msg.reply "Level \02#{command.level}\02 authorization required. (Current level: #{level})"
-        return
-      end
+      $log.debug("CommandManager.on_privmsg") { "Match for command #{cmd_str} in #{command[:owner]}" }
 
-      case command.chan_level
-
-      when :voice
-        unless msg.voice?
-          msg.reply "You must be voiced or better to use this command."
-          return
-        end
-
-      when :half_op
-        unless msg.half_op?
-          msg.reply "You must be half-op or better to use this command."
-          return
-        end
-
-      when :op
-        unless msg.op?
-          msg.reply "You must be a channel op to use this command."
-          return
-        end
-
-      end
-
-      # Split command parameters. If the command requires no parameters, put
-      # everything in params[0].
-      params = $3.strip.split(" ", command.argc.zero? ? 1 : command.argc)
-
-      if params.length < command.argc
-        # TODO: Show syntax.
-        msg.reply("This command requires at least \02#{command.argc}\02 parameters.")
-        return
-      end
-
-      $log.debug("CommandManager.on_privmsg") { "Match for command #{cmd_str} in #{command.owner}" }
-
-      begin
-        command.owner.send command.func, msg, params
-      rescue => e
-        $log.error("CommandManager.on_privmsg") { "Problem running command #{cmd_str} in #{command.owner}: #{e}" }
-        $log.debug("CommandManager.on_privmsg") { e.backtrace }
-
-        msg.reply("There was a problem running your command: #{e}")
-      end
+      Command.run command[:owner], msg, cmd_str, match[:params], &command[:block]
     end
 
-    def create owner, cmd, func, argc, level, chan_level, help
+    def self.create owner, cmd, help, &blk
       cmd.downcase!
 
-      if has_key? cmd
+      if COMMANDS.has_key? cmd
         raise "attempted to register duplicate command #{cmd} for #{owner.class.name}"
       end
 
       $log.debug("CommandManager.create") { "Creating command: #{cmd}" }
 
-      self[cmd] = Command.new owner, cmd, func, argc, level, chan_level, help
+      COMMANDS[cmd] = {:owner => owner, :block => blk, :help => help}
     end
 
-    def delete cmd
+    def self.delete cmd
       cmd.downcase!
 
       raise "attemped to delete non-existent command #{cmd}" unless has_key? cmd
 
       $log.debug("CommandManager.delete") { "Deleting command: #{cmd}" }
 
-      super cmd
+      COMMANDS.delete cmd
     end
 
-    def delete_for owner
+    def self.delete_for owner
       $log.debug("CommandManager.delete_for") { "Unregistering all commands for #{owner.class.name}" }
 
-      delete_if {|n,c| c.owner == owner}
+      COMMANDS.delete_if {|n,c| c[:owner] == owner}
     end
 
   end
 
-  Commands ||= CommandManager.new
 end

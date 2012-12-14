@@ -24,108 +24,138 @@
 #
 
 # TODO: Re-implement this whole crappy script.
+# TODO: No, really. Needs to be redone or removed.
 
-def initialize
-  register_script "Relay chat between two or more channels on one or more networks."
+register 'Relay chat between two or more channels on one or more networks.'
 
-  register_event :PRIVMSG, :on_privmsg
-  register_event :JOIN,    :on_join
-  register_event :PART,    :on_part
-  register_event :KICK,    :on_kick
-  register_event :QUIT,    :on_quit
+@@relays = get_data "relays", Array.new
 
-  register_command "relay",  :cmd_relay,  5,  7, nil, "Manage channel relays. Parameters: ON|OFF source-network source-channel target-network target-channel"
-  register_command "relays", :cmd_relays, 0,  7, nil, "List active channel relays."
+command 'relay', 'Manage channel relays. Parameters: ON|OFF source-network source-channel target-network target-channel' do
+  level! 7 and argc! 5
 
-  @relays = get_data "relays", Array.new
-end
-
-def cmd_relay msg, params
-  source_network = params[1]
-  source_channel = params[2]
-  target_network = params[3]
-  target_channel = params[4]
+  source_network = @params[1]
+  source_channel = @params[2]
+  target_network = @params[3]
+  target_channel = @params[4]
   
-  return unless relay_points_exist? msg, source_network, source_channel, target_network, target_channel
+  next unless relay_points_exist? source_network, source_channel, target_network, target_channel
 
-  if params[0].upcase == "ON"
+  case @params.first.upcase
+  when "ON"
 
     if relay_exists? source_network, source_channel, target_network, target_channel
-      msg.reply "That relay already exists."
-      return
+      raise "That relay already exists."
     end
 
-    @relays << [source_network, source_channel, target_network, target_channel]
-    store_data "relays", @relays
+    @@relays << [source_network, source_channel, target_network, target_channel]
+    store_data "relays", @@relays
 
-    msg.reply "Relay activated."
+    reply "Relay activated."
 
-  elsif params[0].upcase == "OFF"
+  when "OFF"
 
     relay = relay_exists? source_network, source_channel, target_network, target_channel
 
     unless relay
-      msg.reply "There is no matching relay."
-      return
+      raise "There is no matching relay."
     end
 
-    @relays.delete relay
-    store_data "relays", @relays
+    @@relays.delete relay
+    store_data "relays", @@relays
 
-    msg.reply "Relay deactivated."
+    reply "Relay deactivated."
 
   else
-    msg.reply "Unknown action. See \02HELP RELAY\02."
+    raise "Unknown action. See \02HELP RELAY\02."
 
   end
 
 end
 
-def cmd_relays msg, params
-  if @relays.empty?
-    msg.reply "There are no active relays."
+command 'relays', 'List active channel relays.' do
+  level! 7
+
+  if @@relays.empty?
+    reply "There are no active relays."
   else
-    msg.reply @relays.join(", ")
+    reply @@relays.join(", ")
   end
 end
 
-def on_privmsg msg
-  # XXX - replace all these with .private?
-  return unless msg.destination.start_with? "#"
+event :PRIVMSG do
+  next unless channel?
 
-  network = msg.connection.name
-  channel = msg.destination
+  network = @connection.name
+  channel = @msg.destination
 
   matches = get_relays network, channel
 
-  return if matches.empty?
+  next if matches.empty?
 
   matches.each do |relay|
-    if msg.text =~ /\01ACTION (.+)\01/
+    if @msg.text =~ /\01ACTION (.+)\01/
 
       if relay[0] == network and relay[1] == channel
-        Bot::Connections[relay[2]].raw "PRIVMSG #{relay[3]} :\02[#{network}] * #{msg.nick}\02 #{$1}"
+        Bot::Connections[relay[2]].raw "PRIVMSG #{relay[3]} :\02[#{network}] * #{@msg.nick}\02 #{$1}"
       else
-        Bot::Connections[relay[0]].raw "PRIVMSG #{relay[1]} :\02[#{network}] * #{msg.nick}\02 #{$1}"
+        Bot::Connections[relay[0]].raw "PRIVMSG #{relay[1]} :\02[#{network}] * #{@msg.nick}\02 #{$1}"
       end
 
     else
 
       if relay[0] == network and relay[1] == channel
-        Bot::Connections[relay[2]].raw "PRIVMSG #{relay[3]} :[\02#{network}] <#{msg.nick}\02> #{msg.text}"
+        Bot::Connections[relay[2]].raw "PRIVMSG #{relay[3]} :[\02#{network}] <#{@msg.nick}\02> #{@msg.text}"
       else
-        Bot::Connections[relay[0]].raw "PRIVMSG #{relay[1]} :[\02#{network}] <#{msg.nick}\02> #{msg.text}"
+        Bot::Connections[relay[0]].raw "PRIVMSG #{relay[1]} :[\02#{network}] <#{@msg.nick}\02> #{@msg.text}"
       end
 
     end
   end
 end
 
-def on_join msg
-  return unless msg.destination.start_with? "#"
+event :JOIN do
+  next unless channel?
 
-  network = msg.connection.name
-  channel = msg.text
+  network = @connection.name
+  channel = @msg.text
+
+  matches = get_relays network, channel
+
+  next if matches.empty?
+
+  matches.each do |relay|
+    if relay[0] == network and relay[1] == channel
+      Bot::Connections[relay[2]].raw "PRIVMSG #{relay[3]} :\02[#{network}]\02 --> \02#{@msg.nick}\02 has joined \02#{channel}\02"
+    else
+      Bot::Connections[relay[0]].raw "PRIVMSG #{relay[1]} :\02[#{network}]\02 --> \02#{@msg.nick}\02 has joined \02#{channel}\02"
+    end
+  end
+end
+
+event :PART do
+  next unless channel?
+
+  network = @connection.name
+  channel = @msg.destination
+
+  matches = get_relays network, channel
+
+  next if matches.empty?
+
+  matches.each do |relay|
+    if relay[0] == network and relay[1] == channel
+      Bot::Connections[relay[2]].raw "PRIVMSG #{relay[3]} :\02[#{network}]\02 <-- \02#{@msg.nick}\02 has left \02#{channel}\02"
+    else
+      Bot::Connections[relay[0]].raw "PRIVMSG #{relay[1]} :\02[#{network}]\02 <-- \02#{@msg.nick}\02 has left \02#{channel}\02"
+    end
+  end
+end
+
+event :KICK do
+  next unless channel?
+
+  network = @connection.name
+  channel = @msg.destination
 
   matches = get_relays network, channel
 
@@ -133,57 +163,19 @@ def on_join msg
 
   matches.each do |relay|
     if relay[0] == network and relay[1] == channel
-      Bot::Connections[relay[2]].raw "PRIVMSG #{relay[3]} :\02[#{network}]\02 --> \02#{msg.nick}\02 has joined \02#{channel}\02"
+      Bot::Connections[relay[2]].raw "PRIVMSG #{relay[3]} :\02[#{network}]\02 <-- \02#{msg.raw_arr[3]}\02 has been kicked from \02#{channel}\02 by \02#{@msg.nick}\02 (#{msg.text})"
     else
-      Bot::Connections[relay[0]].raw "PRIVMSG #{relay[1]} :\02[#{network}]\02 --> \02#{msg.nick}\02 has joined \02#{channel}\02"
+      Bot::Connections[relay[0]].raw "PRIVMSG #{relay[1]} :\02[#{network}]\02 <-- \02#{msg.raw_arr[3]}\02 has been kicked from \02#{channel}\02 by \02#{@msg.nick}\02 (#{msg.text})"
     end
   end
 end
 
-def on_part msg
-  return unless msg.destination.start_with? "#"
-
-  network = msg.connection.name
-  channel = msg.destination
-
-  matches = get_relays network, channel
-
-  return if matches.empty?
-
-  matches.each do |relay|
-    if relay[0] == network and relay[1] == channel
-      Bot::Connections[relay[2]].raw "PRIVMSG #{relay[3]} :\02[#{network}]\02 <-- \02#{msg.nick}\02 has left \02#{channel}\02"
-    else
-      Bot::Connections[relay[0]].raw "PRIVMSG #{relay[1]} :\02[#{network}]\02 <-- \02#{msg.nick}\02 has left \02#{channel}\02"
-    end
-  end
-end
-
-def on_kick msg
-  return unless msg.destination.start_with? "#"
-
-  network = msg.connection.name
-  channel = msg.destination
-
-  matches = get_relays network, channel
-
-  return if matches.empty?
-
-  matches.each do |relay|
-    if relay[0] == network and relay[1] == channel
-      Bot::Connections[relay[2]].raw "PRIVMSG #{relay[3]} :\02[#{network}]\02 <-- \02#{msg.raw_arr[3]}\02 has been kicked from \02#{channel}\02 by \02#{msg.nick}\02 (#{msg.text})"
-    else
-      Bot::Connections[relay[0]].raw "PRIVMSG #{relay[1]} :\02[#{network}]\02 <-- \02#{msg.raw_arr[3]}\02 has been kicked from \02#{channel}\02 by \02#{msg.nick}\02 (#{msg.text})"
-    end
-  end
-end
-
-def on_quit msg
-  network = msg.connection.name
+event :QUIT do
+  network = @connection.name
   channel = ""
   matches = nil
 
-  msg.connection.channels.each_value do |chan|
+  @connection.channels.each_value do |chan|
 
     if chan.get_user msg.nick
       channel = chan.name
@@ -192,67 +184,66 @@ def on_quit msg
 
   end
 
-  return if matches == nil
-  return if matches.empty?
+  next if matches.nil? or matches.empty?
 
   matches.each do |relay|
     if relay[0] == network and relay[1] == channel
-      Bot::Connections[relay[2]].raw "PRIVMSG #{relay[3]} :\02[#{network}]\02 <-- \02#{msg.nick}\02 has quit (#{msg.text})"
+      Bot::Connections[relay[2]].raw "PRIVMSG #{relay[3]} :\02[#{network}]\02 <-- \02#{@msg.nick}\02 has quit (#{@msg.text})"
     else
-      Bot::Connections[relay[0]].raw "PRIVMSG #{relay[1]} :\02[#{network}]\02 <-- \02#{msg.nick}\02 has quit (#{msg.text})"
+      Bot::Connections[relay[0]].raw "PRIVMSG #{relay[1]} :\02[#{network}]\02 <-- \02#{@msg.nick}\02 has quit (#{@msg.text})"
     end
   end
 end
 
-def get_relays network, channel
-  matches = Array.new
+helpers do
+  def get_relays network, channel
+    matches = []
 
-  @relays.each do |relay|
-    if (relay[0] == network and
-      relay[1] == channel) or
-      (relay[2] == network and
-      relay[3] == channel)
-      matches << relay
+    @@relays.each do |relay|
+      if (relay[0] == network and
+          relay[1] == channel) or
+          (relay[2] == network and
+           relay[3] == channel)
+           matches << relay
+      end
     end
-  end
 
-  return matches
-end
-def relay_exists? source_network, source_channel, target_network, target_channel
-  @relays.each do |relay|
-    if relay[0] == source_network and
-      relay[1] == source_channel and
-      relay[2] == target_network and
-      relay[3] == target_channel
-      return relay
+    matches
+  end
+  def relay_exists? source_network, source_channel, target_network, target_channel
+    @@relays.each do |relay|
+      if relay[0] == source_network and
+        relay[1] == source_channel and
+        relay[2] == target_network and
+        relay[3] == target_channel
+        return relay
+      end
     end
+
+    false
   end
 
-  return false
+  def relay_points_exist? source_network, source_channel, target_network, target_channel
+    unless Bot::Connections.has_key? source_network
+      reply "Source network \02#{source_network}\02 does not exist."
+      return false
+    end
+
+    unless Bot::Connections.has_key? target_network
+      reply "Target network \02#{target_network}\02 does not exist."
+      return false
+    end
+
+    unless Bot::Connections[source_network].channels.has_key? source_channel
+      reply "Source channel \02#{source_channel}\02 does not exist."
+      return false
+    end
+
+    unless Bot::Connections[target_network].channels.has_key? target_channel
+      reply "Target channel \02#{target_channel}\02 does not exist."
+      return false
+    end
+
+    true
+  end
 end
-
-def relay_points_exist? msg, source_network, source_channel, target_network, target_channel
-  unless Bot::Connections.has_key? source_network
-    msg.reply "Source network \02#{source_network}\02 does not exist."
-    return false
-  end
-
-  unless Bot::Connections.has_key? target_network
-    msg.reply "Target network \02#{target_network}\02 does not exist."
-    return false
-  end
-
-  unless Bot::Connections[source_network].channels.has_key? source_channel
-    msg.reply "Source channel \02#{source_channel}\02 does not exist."
-    return false
-  end
-
-  unless Bot::Connections[target_network].channels.has_key? target_channel
-    msg.reply "Target channel \02#{target_channel}\02 does not exist."
-    return false
-  end
-
-
-  true
-end
-

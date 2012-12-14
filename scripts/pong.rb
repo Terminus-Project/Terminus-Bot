@@ -23,13 +23,9 @@
 # SOFTWARE.
 #
 
-def initialize
-  register_script "Reply to server pings."
+register 'Reply to server pings.'
 
-  register_event :PING, :pong
-end
-
-def pong msg
-  msg.connection.raw_fast "PONG :#{msg.text}"
+event :PING do
+  @connection.raw_fast "PONG :#{@msg.text}"
 end
 

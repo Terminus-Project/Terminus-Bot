@@ -26,61 +26,59 @@
 require 'rexml/document'
 require 'htmlentities'
 
-URL = 'http://ws.audioscrobbler.com/2.0/'
-
 # TODO: Store account names on bot accounts and use those if available.
 
-def initialize
-  raise "lastfm script requires the http_client module" unless defined? MODULE_LOADED_HTTP
+raise "lastfm script requires the http_client module" unless defined? MODULE_LOADED_HTTP
 
-  register_script "Last.fm interface."
+register 'Last.fm interface.'
 
-  register_command "np", :cmd_np, 1,  0, nil, "Show the currently playing track for the given Last.fm user."
-end
+command 'np', 'Show the currently playing track for the given Last.fm user.' do
+  argc! 1
 
-def api_call msg, opt = {}
-  api_key = get_config :apikey, nil
-
-  if api_key == nil
-    msg.reply "A Last.fm API key must be set in the bot's configuration for this command to work."
-    yield nil
-    return
-  end
-
-  opt[:api_key] = api_key
-    
-  Bot.http_get(URI(URL), opt) do |response|
-    # TODO: Figure out why we never get here.
-
-    unless response.status == 200
-      msg.reply "There was a problem retrieving information."
-    else
-      yield REXML::Document.new response.content.force_encoding('ASCII-8BIT')
-    end
-  end
-end
-
-
-def cmd_np msg, params
-  api_call(msg, :user => params[0], :method => "user.getrecenttracks", :limit => "1") do |root|
+  api_call(:user => @params.first, :method => "user.getrecenttracks", :limit => "1") do |root|
     raise "API call failed" if root == nil
 
     track = root.elements["//track"]
 
     if track == nil
-      msg.reply "No such user."
+      reply "No such user."
       next
     end
 
     if track.attributes.get_attribute("nowplaying") == nil
-      msg.reply "No music is currently playing."
+      reply "No music is currently playing."
       next
     end
 
     name = track.elements["//name"].text
     artist = track.elements["//artist"].text
 
-    msg.reply "\02#{params[0]} is listening to:\02 #{artist} - #{name}", false
+    reply "\02#{@params.first} is listening to:\02 #{artist} - #{name}", false
+  end
+end
+
+helpers do
+  def api_call opt = {}
+    api_url = 'http://ws.audioscrobbler.com/2.0/'
+
+    api_key = get_config :apikey, nil
+
+    if api_key == nil
+      reply "A Last.fm API key must be set in the bot's configuration for this command to work."
+      return
+    end
+
+    opt[:api_key] = api_key
+
+    Bot.http_get(URI(api_url), opt) do |response|
+      # TODO: Figure out why we never get here.
+
+      unless response.status == 200
+        reply "There was a problem retrieving information."
+      else
+        yield REXML::Document.new response.content.force_encoding('ASCII-8BIT')
+      end
+    end
   end
 end
 

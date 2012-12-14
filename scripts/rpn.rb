@@ -23,17 +23,15 @@
 # SOFTWARE.
 #
 
-def initialize
-  register_script "RPN calculator script."
+register 'RPN calculator script.'
 
-  register_command "rpn", :rpn,  1,  0, nil, "Perform calculations using a Reverse Polish notation (postfix) calculator. Operations: add + sub - mul * exp ** div / f p"
-end
+command 'rpn', 'Perform calculations using a Reverse Polish notation (postfix) calculator. Operations: add + sub - mul * exp ** div / f p' do
+  argc! 1
 
-def rpn msg, params
   max_prints = get_config(:max_prints, 3).to_i
   stack, printed = [], false
 
-  params[0].split.each do |s|
+  @params.first.split.each do |s|
     printed = false
 
     case s
@@ -51,12 +49,12 @@ def rpn msg, params
       s = '/'
 
     when 'f'
-      msg.reply stack.join(', ')
+      reply stack.join(', ')
       max_prints -= 1 and max_prints.zero? and return
       printed = true
       next
     when 'p'
-      msg.reply stack.last.to_s
+      reply stack.last.to_s
       max_prints -= 1 and max_prints.zero? and return
       printed = true
       next
@@ -71,11 +69,11 @@ def rpn msg, params
         Float(s)
       end
     rescue
-      msg.reply "Syntax error at '#{s}'"
-      return
+      reply "Syntax error at '#{s}'"
+      next
     end
   end
 
-  msg.reply stack.last.to_s unless printed
+  reply stack.last.to_s unless printed
 end
 

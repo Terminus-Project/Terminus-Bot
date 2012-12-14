@@ -23,16 +23,14 @@
 # SOFTWARE.
 #
 
-def initialize
-  register_script "Dump raw messages to debug log."
+register 'Dump raw messages to debug log.'
 
-  register_event :raw, :on_raw
-end
+event :raw do
+  $log.debug("lograw.on_raw") { @msg.raw_str }
 
-def on_raw(msg)
-  $log.debug("lograw.on_raw") { msg.raw_str }
-
-  $log.debug("lograw.on_raw") { sprintf "O: %s  D: %s  TXT: %s  TYP: %s  NUH: %s!%s@%s  C: %s",
-    msg.origin, msg.destination, msg.text, msg.type, msg.nick, msg.user, msg.host,
-    msg.connection.name }
+  $log.debug("lograw.on_raw") {
+    sprintf "O: %s  D: %s  TXT: %s  TYP: %s  NUH: %s!%s@%s  C: %s",
+    @msg.origin, @msg.destination, @msg.text, @msg.type, @msg.nick,
+    @msg.user, @msg.host, @connection.name
+  }
 end

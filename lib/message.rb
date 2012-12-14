@@ -98,58 +98,6 @@ module Bot
       end
     end
 
-    # Actually send the reply. If prefix is true, prefix each message with the
-    # triggering user's nick. If replying in private, never use a prefix, and
-    # reply with NOTICE instead.
-    def send_reply str, prefix
-      if str.empty?
-        str = "I tried to send you an empty message. Oops!"
-      end
-
-      # TODO: Hold additional content for later sending or something.
-      #       Just don't try to send it all in multiple messages without
-      #       the user asking for it!
-      unless self.private?
-        str = "#{@nick}: #{str}" if prefix
-
-        send_privmsg @destination, str
-      else
-        send_notice @nick, str
-      end
-    end
-
-    def raw *args
-      @connection.raw *args
-    end
-
-    # Attempt to truncate messages in such a way that the maximum
-    # amount of space possible is used. This assumes the server will
-    # send a full 512 bytes to a client with exactly 1459 format.
-    def truncate message, destination, notice = false
-      prefix_length = @connection.nick.length +
-        @connection.user.length +
-        @connection.client_host.length +
-        destination.length +
-        15
-
-      # PRIVMSG is 1 char longer than NOTICE
-      prefix_length += 1 unless notice
-
-      if (prefix_length + message.length) - 512 > 0
-        return message[0..511-prefix_length]
-      end
-
-      message
-    end
-
-    def send_privmsg target, str
-      raw "PRIVMSG #{target} :#{truncate str, target}"
-    end
-
-    def send_notice target, str
-      raw "NOTICE #{target} :#{truncate str, target, true}"
-    end
-
     # Return true if this message's origin appears to be the bot.
     def me?
       nick_canon == @connection.canonize(@connection.nick)
@@ -181,26 +129,11 @@ module Bot
       @destination || @text
     end
 
-    # Return true if this message doesn't appear to have been sent in a
-    # channel.
-    def private?
+    # Return true if this message doesn't appear to have been sent in a channel
+    def query?
       return true if @destination == nil
 
-      @private ||= (not @connection.support("CHANTYPES", "#&").include? @destination.chr)
+      @query ||= (not @connection.support("CHANTYPES", "#&").include? @destination.chr)
     end
-
-    def op?
-      private? or @connection.channels[destination_canon].op? @nick
-    end
-
-    def half_op?
-      private? or @connection.channels[destination_canon].half_op? @nick
-    end
-
-    def voice?
-      private? or @connection.channels[destination_canon].voice? @nick
-    end
-
-    #private :strip
   end
 end

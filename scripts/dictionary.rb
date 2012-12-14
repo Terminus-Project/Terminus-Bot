@@ -26,99 +26,93 @@
 require 'rexml/document'
 require 'htmlentities'
 
-URL = 'http://api-pub.dictionary.com/v001'
+raise "dictionary script requires the http_client module" unless defined? MODULE_LOADED_HTTP
 
-def initialize
-  raise "dictionary script requires the http_client module" unless defined? MODULE_LOADED_HTTP
+register 'Dictionary.com look-ups.'
 
-  register_script "Dictionary.com look-ups."
+helpers do
+  def api_call opt = {}
+    api_key = get_config :apikey, nil
 
-  register_command "define",    :cmd_define,    1,  0, nil, "Look up some of the possible definitions of a word."
-  register_command "spell",     :cmd_spell,     1,  0, nil, "Suggest correct or alternate spellings of a word."
-  register_command "slang",     :cmd_slang,     1,  0, nil, "Look up possible meanings of a slang word."
-  #register_command "example",   :cmd_example,   1,  0, nil, "Find usage examples for the given word."
-  #register_command "thesaurus", :cmd_thesaurus, 1,  0, nil, "Look up synonyms and antonyms of the given word."
-  #register_command "synonyms",  :cmd_synonyms,  1,  0, nil, "Find synonyms for the given word."
-  register_command "etymology", :cmd_etymology, 1,  0, nil, "Look up the etymology of a word."
-  register_command "wotd",      :cmd_wotd,      0,  0, nil, "Fetch the Word of the Day on dictionary.com"
-  register_command "randword",  :cmd_random,    0,  0, nil, "Look up the definition of a random word."
-end
+    if api_key == nil
+      reply "A dictionary.com API key must be set in the bot's configuration for this command to work."
+      return  
+    end
 
-def api_call msg, opt = {}
-  api_key = get_config :apikey, nil
+    opt[:vid] = api_key
 
-  if api_key == nil
-    msg.reply "A dictionary.com API key must be set in the bot's configuration for this command to work."
-    return  
-  end
+    api = 'http://api-pub.dictionary.com/v001'
 
-  opt[:vid] = api_key
-
-  Bot.http_get(URI(URL), opt) do |response, uri, redirected|
-    yield nil unless response.status == 200
-    yield (REXML::Document.new(response.content)).root
-  end
-end
-
-def get_definition msg, word, root, definitions
-  coder = HTMLEntities.new
-  max = get_config(:max, 1).to_i
-  results = Array.new
-
-  root.elements.each do |entry|
-    entry.elements.each do |foo|
-
-      break if results.length >= max or results.length > definitions
-      
-      result = Array.new
-
-      head = "\02#{word}"
-      head << " (#{coder.decode(foo.attributes["pos"])})" if foo.has_attributes? and foo.attributes["pos"] != nil
-  
-      foo.elements.each do |p|
-        p.elements.each do |d|
-          buf = (p.has_attributes? and p.attributes['pos'] != nil) ? "\02(#{coder.decode(p.attributes['pos'])})\02 " : ""
-
-          text = d.has_text? ? d.text.strip : ""
-
-          result << buf + coder.decode(d.text.strip) if text.length > 0
-        end
-      end
-
-      unless result == nil
-        buf = result.join("; ").gsub(/<\/?(b|i)>/, "\02").gsub(/<[^>]+>/, '').gsub(/\s+/, " ")
-
-        results << head + ":\02 " + buf unless buf.empty?
-      end
-
+    Bot.http_get(URI(api), opt) do |response, uri, redirected|
+      yield nil unless response.status == 200
+      yield (REXML::Document.new(response.content)).root
     end
   end
 
-  if results.empty?
-    msg.reply "No results"
-  else
-    msg.reply results
+  def get_definition word, root, definitions
+    coder   = HTMLEntities.new
+    max     = get_config(:max, 1).to_i
+    results = []
+
+    root.elements.each do |entry|
+      entry.elements.each do |foo|
+
+        break if results.length >= max or results.length > definitions
+
+        result = []
+
+        head = "\02#{word}"
+        head << " (#{coder.decode(foo.attributes["pos"])})" if foo.has_attributes? and foo.attributes["pos"] != nil
+
+        foo.elements.each do |p|
+          p.elements.each do |d|
+            buf = (p.has_attributes? and p.attributes['pos'] != nil) ? "\02(#{coder.decode(p.attributes['pos'])})\02 " : ""
+
+            text = d.has_text? ? d.text.strip : ""
+
+            result << buf + coder.decode(d.text.strip) if text.length > 0
+          end
+        end
+
+        unless result == nil
+          buf = result.join("; ").gsub(/<\/?(b|i)>/, "\02").gsub(/<[^>]+>/, '').gsub(/\s+/, " ")
+
+          results << head + ":\02 " + buf unless buf.empty?
+        end
+
+      end
+    end
+
+    if results.empty?
+      reply "No results"
+    else
+      reply results
+    end
   end
 end
 
-def cmd_define msg, params
-  api_call(msg, :q => params[0], :type => :define) do |root|
+command 'define', 'Look up some of the possible definitions of a word.' do
+  argc! 1
+
+  api_call(:q => @params.first, :type => :define) do |root|
 
     definitions = root.elements["//dictionary"].attributes["totalresults"].to_i rescue 0
 
     if definitions == 0
-      msg.reply "No results"
+      reply "No results"
     else
-      get_definition msg, params[0], root, definitions
+      get_definition @params.first, root, definitions
     end
 
   end
 end
 
-def cmd_spell msg, params
-  api_call(msg, :q => params[0], :type => :spelling) do |root|
+command 'spell', 'Suggest correct or alternate spellings of a word.' do
+  argc! 1
 
-    buf = Array.new
+  api_call(:q => @params.first, :type => :spelling) do |root|
+
+    buf   = []
     coder = HTMLEntities.new
 
     buf << coder.decode(root.elements["//spelling/bestmatch/dictionary"].text) rescue ""
@@ -128,57 +122,63 @@ def cmd_spell msg, params
     end
 
     if buf.empty?
-      msg.reply "No results"
+      reply "No results"
     else
-      msg.reply"Best match: \02#{buf.shift}\02#{buf.empty? ? "" : " (Other matches: #{buf[0..10].join(", ")})"}"
+      reply"Best match: \02#{buf.shift}\02#{buf.empty? ? "" : " (Other matches: #{buf[0..10].join(", ")})"}"
     end
   end
 end
 
-def cmd_etymology msg, params
-  api_call(msg, :site => :etymology, :q => params[0]) do |root|
+command 'etymology', 'Look up the etymology of a word.' do
+  argc! 1
+
+  api_call(:site => :etymology, :q => @params.first) do |root|
     coder = HTMLEntities.new
 
     if ((root.elements['/results'].attributes['id'].to_s == "nothingfound") rescue false)
-      msg.reply "No results"
+      reply "No results"
     else
       root = root.elements['/etymology']
 
       buf = "\02#{coder.decode root.elements['date'].text}\02: "
       buf << coder.decode(root.text).gsub(/<\/?(b|i)>/, "\02").gsub(/<.>/, '').gsub(/\s+/, " ")
 
-      msg.reply buf
+      reply buf
     end
   end
 end
 
-#def cmd_thesaurus(msg, params)
+#command 'thesaurus', 'Look up synonyms and antonyms of the given word.' do
+#  argc! 1
 #  api_call(msg, :type => :define, :site => :thesaurus, :q => params[0]) do |root|
 #  end
 #end
 
-def cmd_slang msg, params
-  api_call(msg, :type => :define, :site => :slang, :q => params[0]) do |root|
+command 'slang', 'Look up possible meanings of a slang word.' do
+  argc! 1
+
+  api_call(:type => :define, :site => :slang, :q => @params.first) do |root|
     coder = HTMLEntities.new
 
     definitions = root.elements["//slang"].attributes["totalresults"].to_i rescue 0
 
-    if definitions == 0
-      msg.reply "No results"
+    if definitions.zero?
+      reply "No results"
     else
-      get_definition msg, params[0], root, definitions
+      get_definition @params.first, root, definitions
     end
 
   end
 end
 
-#def cmd_example msg, params
+#command 'example', 'Find usage examples for the given word.' do
+#  argc! 1
 #  api_call(msg, :type => :example, :q => params[0]) do |root|
 #  end
 #end
 
-def cmd_wotd msg, params
-  api_call(msg, :type => :wotd) do |root|
+command 'wotd', 'Fetch the Word of the Day on dictionary.com' do
+  api_call(:type => :wotd) do |root|
     coder = HTMLEntities.new
 
     root = root.elements['/wordoftheday/entry']
@@ -187,27 +187,28 @@ def cmd_wotd msg, params
     buf << "(#{coder.decode(root.elements['partofspeech'].text)}):\02 "
     buf << coder.decode(root.elements['shortdefinition'].text)
 
-    msg.reply buf
+    reply buf
   end
 end
 
-#def cmd_synonyms msg, params
+#command 'synonyms', 'Find synonyms for the given word.' do
+#  argc! 1
 #end
 
-def cmd_random msg, param
-  api_call(msg, :type => :random) do |root|
-    buf = Array.new
+command 'randword', 'Look up the definition of a random word.' do
+  api_call(:type => :random) do |root|
+    buf   = []
     coder = HTMLEntities.new
 
     word = coder.decode root.elements["//dictionary/random_entry"].text
 
-    api_call(msg, :q => word, :type => :define) do |root|
+    api_call(:q => word, :type => :define) do |root|
       definitions = root.elements["//dictionary"].attributes["totalresults"].to_i rescue 0
 
       if definitions == 0
-        msg.reply "No results"
+        reply "No results"
       else
-        get_definition msg, word, root, definitions
+        get_definition word, root, definitions
       end
     end
 

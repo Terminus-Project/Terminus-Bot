@@ -23,58 +23,54 @@
 # SOFTWARE.
 #
 
-def initialize
-  register_script "Bot administration script."
+register 'Bot administration script.'
 
-  register_command "quit",     :cmd_quit,     0, 10, nil, "Kill the bot."
-  register_command "reconnect",:cmd_reconnect,1, 10, nil, "Reconnect the specified connection."
+command 'quit', 'Kill the bot.' do
+  level! 10
 
-  register_command "rehash",   :cmd_rehash,   0,  8, nil, "Reload the configuration file."
-  register_command "nick",     :cmd_nick,     1,  7, nil, "Change the bot's nick for this connection."
-
-  register_command "lib", :cmd_lib, 0,  9, nil, "Reload core files with stopping the bot. Warning: may produce undefined behavior."
-  register_command "reload",   :cmd_reload,   1,  9, nil, "Reload one or more scripts."
-  register_command "unload",   :cmd_unload,   1,  9, nil, "Unload one or more scripts."
-  register_command "load",     :cmd_load,     1,  9, nil, "Load the specified script."
+  EM.next_tick { @params.empty? ? Bot.quit : Bot.quit(@params.first) }
 end
 
-def cmd_quit msg, params
-  EM.next_tick { params.empty? ? Bot.quit : Bot.quit(params[0]) }
-end
+command 'reconnect', 'Reconnect the specified connection.' do
+  level! 10 and argc! 1
 
-def cmd_reconnect msg, params
-  name = params[0].to_sym
+  name = @params.first.to_sym
 
   unless Bot::Connections.has_key? name
-    msg.reply "No such connection."
-    return
+    reply "No such connection."
+    next
   end
 
   Bot::Connections[name].reconnect
-  msg.reply "Reconnecting."
+  reply "Reconnecting."
 end
 
-def cmd_rehash msg, params
+command 'rehash', 'Reload the configuration file.' do
+  leve! 8
+
   Bot::Conf.read_config
-  msg.reply "Done reloading configuration."
-
-  #Bot.start_connections
+  reply "Done reloading configuration."
 end
 
-def cmd_nick msg, params
-  msg.raw "NICK #{params[0]}"
+command 'nick', 'Change the bot\'s nick for this connection.' do
+  level! 7 and argc! 1
 
-  msg.reply "Nick changed to #{params[0]}"
+  raw "NICK #{@params.first}"
+  reply "Nick changed to #{@params.first}"
 end
 
-def cmd_lib msg, params
+command 'lib', 'Reload core files with stopping the bot. Warning: may produce undefined behavior.' do
+  level! 9
+
   load_lib
-  msg.reply "Core files reloaded."
+  reply "Core files reloaded."
 end
 
-def cmd_reload msg, params
-  op = proc {
-    arr, buf = params[0].split, []
+command 'reload', 'Reload one or more scripts.' do
+  level! 9 and argc! 1
+  
+  EM.defer proc {
+    arr, buf = @params.first.split, []
 
     arr.each do |script|
 
@@ -83,20 +79,20 @@ def cmd_reload msg, params
         buf << script
 
       rescue => e
-        msg.reply "Failed to reload \02#{script}\02: #{e}"
+        reply "Failed to reload \02#{script}\02: #{e}"
       end
 
     end
     
-    msg.reply "Reloaded script#{"s" if buf.length > 1} \02#{buf.join(", ")}\02" unless buf.empty?
+    reply "Reloaded script#{"s" if buf.length > 1} \02#{buf.join(", ")}\02" unless buf.empty?
   }
-
-  EM.defer op
 end
 
-def cmd_unload msg, params
-  op = proc {
-    arr, buf = params[0].split, []
+command 'unload', 'Unload one or more scripts.' do
+  level! 9 and argc! 1
+  
+  EM.defer proc {
+    arr, buf = @params.first.split, []
 
     arr.each do |script|
 
@@ -105,27 +101,26 @@ def cmd_unload msg, params
         buf << script
 
       rescue => e
-        msg.reply "Failed to unload \02#{script}\02: #{e}"
+        reply "Failed to unload \02#{script}\02: #{e}"
       end
 
     end
     
-    msg.reply "Unloaded script#{"s" if buf.length > 1} \02#{buf.join(", ")}\02" unless buf.empty?
+    reply "Unloaded script#{"s" if buf.length > 1} \02#{buf.join(", ")}\02" unless buf.empty?
   }
-
-  EM.defer op
 end
 
-def cmd_load msg, params
-  op = proc {
+command 'load', 'Load the specified script.' do
+  level! 9 and argc! 1
+  
+  EM.defer proc {
     begin
-      Bot::Scripts.load_file "scripts/#{params[0]}.rb"
-      msg.reply "Loaded script \02#{params[0]}\02"
+      Bot::Scripts.load_file "#{Bot::SCRIPTS_PATH}/#{@params.first}.rb"
+
+      reply "Loaded script \02#{@params.first}\02"
     rescue => e
-      msg.reply "Failed to load \02#{params[0]}\02: #{e}"
+      reply "Failed to load \02#{@params.first}\02: #{e}"
     end
   }
-
-  EM.defer op
 end
 

@@ -23,52 +23,53 @@
 # SOFTWARE.
 #
 
-def initialize
-  raise "ignores script requires the ignores module" unless defined? MODULE_LOADED_IGNORES
+raise "ignores script requires the ignores module" unless defined? MODULE_LOADED_IGNORES
 
-  register_script "Manipulate the bot's hostmask-based ignore list."
+register 'Manipulate the bot\'s hostmask-based ignore list.'
 
-  register_command "ignores",  :cmd_ignores,  0,  4, nil, "List all active ignores."
-  register_command "ignore",   :cmd_ignore,   1,  4, nil, "Ignore the given hostmask."
-  register_command "unignore", :cmd_unignore, 1,  4, nil, "Remove the given ignore."
-end
+command 'ignores', 'List all active ignores.' do
+  level! 4
 
-def cmd_ignores msg, params
   if Ignores.empty?
-    msg.reply "There are no active ignores."
-    return
+    reply "There are no active ignores."
+    next
   end
 
-  msg.reply Ignores.join(", ")
+  reply Ignores.join(", ")
 end
 
-def cmd_ignore msg, params
-  mask = params[0]
+command 'ignore', 'Ignore the given hostmask.' do
+  level! 4 and argc! 1
+
+  mask = @params.first
 
   mask << "!*@*"  unless mask =~ /[!@*]/
  
-  if Ignores.include? params[0]
-    msg.reply "Already ignoring #{mask}"
-    return
+  if Ignores.include? mask
+    reply "Already ignoring #{mask}"
+    next
   end
 
   Ignores << mask
 
-  msg.reply "Ignore added: #{mask}"
+  reply "Ignore added: #{mask}"
 end
 
-def cmd_unignore msg, params
+
+command 'unignore', 'Remove the given ignore.' do
+  level! 4 and argc! 1
+
   mask = params[0]
 
   mask << "!*@*"  unless mask =~ /[!@*]/
 
   unless Ignores.include? mask
-    msg.reply "No such ignore."
-    return
+    reply "No such ignore."
+    next
   end
 
   Ignores.delete mask
 
-  msg.reply "Ignore removed: #{mask}"
+  reply "Ignore removed: #{mask}"
 end
 

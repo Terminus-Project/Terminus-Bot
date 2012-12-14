@@ -26,6 +26,8 @@
 module Bot
   Script_Info = Struct.new :name, :description
 
+  SCRIPTS_PATH = "scripts"
+
   class ScriptManager
 
     attr_reader :script_info
@@ -46,11 +48,11 @@ module Bot
 
       noload = Bot::Conf[:core][:noload]
 
-      Dir.glob("scripts/*.rb").each do |file|
+      Dir.glob("#{SCRIPTS_PATH}/*.rb").each do |file|
 
         unless noload == nil
           # I realize we are pulling the name out twice. Deal with it.
-          next if noload.keys.include? file.match("scripts/(.+).rb")[1].to_sym
+          next if noload.keys.include? file.match("#{SCRIPTS_PATH}/(.+).rb")[1].to_sym
         end
 
         $log.debug("ScriptManager.initilize") { "Loading #{file}" }
@@ -71,13 +73,15 @@ module Bot
         raise "File #{filename} does not exist."
       end
 
-      name = filename.match("scripts/(.+).rb")[1]
+      name = filename.match("#{SCRIPTS_PATH}/(.+).rb")[1]
 
       $log.debug("ScriptManager.load_file") { "Script file name: #{filename}" }
 
       script = [
         "class Script_#{name} < Script",
-        IO.read(filename),
+        "  def initialize",
+             IO.read(filename),
+        "  end",
         "end",
         "Script_#{name}.new"].join "\n"
 
@@ -87,6 +91,8 @@ module Bot
 
       begin
         @scripts[name] = eval script, nil, filename, 0
+
+        Events.dispatch_for @scripts[name], :done_loading
       rescue Exception => e
         $log.error("ScriptManager.load_file") { "Problem loading script #{name}. Clearing data and aborting..." }
 
@@ -109,7 +115,7 @@ module Bot
     def reload name
       raise "Cannot reload: No such script #{name}" unless @scripts.has_key? name
 
-      filename = "scripts/#{name}.rb"
+      filename = "#{SCRIPTS_PATH}/#{name}.rb"
 
       raise "Script file for #{name} does not exist (#{filename})." unless File.exists? filename
 
@@ -157,30 +163,30 @@ module Bot
 
   class Script
 
-    # Cheat mode for passing functions to Bot.
-    # There's probably a better way to do this.
-    #def method_missing(name, *args, &block)
-    #  if Bot.respond_to? name
-    #    Bot.send(name, *args, &block)
-    #  else
-    #    $log.error("Script.method_missing") { "Attempted to call nonexistent method #{name}" }
-    #    raise NoMethodError.new("#{my_name} attempted to call a nonexistent method #{name}", name, args)
-    #  end
-    #end
-
     # Pass along some register commands with self or our class name attached
     # as needed. This just makes code in the scripts a little shorter.
 
-    def register_event *args
-      Bot::Events.create self, *args
+    def event *names, &blk
+      names.each do |name|
+        Bot::Events.create name, self, nil, &blk
+      end
     end
 
-    def register_command *args
-      Bot::Commands.create self, *args
+    def command cmd, help = "", &blk
+      Bot::Commands.create self, cmd, help, &blk
     end
 
-    def register_script *args
+
+    def register *args
       Bot::Scripts.register_script my_short_name, *args
+    end
+
+    def helpers &blk
+      @helpers = blk
+    end
+
+    def get_helpers
+      @helpers
     end
 
 

@@ -23,17 +23,15 @@
 # SOFTWARE.
 #
 
-def initialize
-  register_script "Evaluate raw Ruby code from IRC."
+register 'Evaluate raw Ruby code from IRC.'
 
-  register_command "eval", :cmd_eval, 1, 10, nil, "Run raw Ruby code."
-end
+command 'eval', 'Run raw Ruby code.' do
+  level! 10 and argc! 1
 
-def cmd_eval msg, params
   begin
-    msg.reply eval(params[0]).to_s
+    reply eval(@params.first).to_s
   rescue Exception => e
-    msg.reply e.to_s
+    reply e.to_s
   end
 end
 

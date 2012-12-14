@@ -53,10 +53,10 @@ module Bot
 
       $log.debug("IRCConnection.initialize #{name}") { "#{@config[:address]}:#{@config[:port]} #{@nick}!#{@user}@ #{@realname}" }
 
-      Events.create self, :NICK,  :on_nick
-      Events.create self, :"433", :on_nick_in_use
-      Events.create self, :"001", :on_registered
-      Events.create self, :"005", :on_isupport
+      Events.create :NICK,  self, :on_nick
+      Events.create :"433", self, :on_nick_in_use
+      Events.create :"001", self, :on_registered
+      Events.create :"005", self, :on_isupport
 
       Flags.add_server name.to_s
 

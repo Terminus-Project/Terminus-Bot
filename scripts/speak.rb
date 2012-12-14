@@ -23,17 +23,17 @@
 # SOFTWARE.
 #
 
-def initialize
-  register_script "Provides SAY and ACT commands for making the bot speak in channel."
+register 'Provides SAY and ACT commands for making the bot speak in channel.'
 
-  register_command "say", :say,  1,  8, nil, "Speak the given text."
-  register_command "act", :act,  1,  8, nil, "Act the given text (CTCP ACTION)."
+
+command 'say', 'Speak the given text.' do
+  level! 8 and argc! 1
+
+  reply @params.first, false
 end
 
-def say msg, params
-  msg.reply params[0], false
-end
+command 'act', 'Act the given text (CTCP ACTION).' do
+  level! 8 and argc! 1
 
-def act msg, params
-  msg.reply "\01ACTION #{params[0]}\01", false
+  reply "\01ACTION #{@params.first}\01", false
 end

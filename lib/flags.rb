@@ -66,7 +66,7 @@ module Bot
       return true unless owner.is_a? Script
 
       # Always answer private messages!
-      return true if msg.private?
+      return true if msg.query?
 
       server  = msg.connection.name.to_s
       channel = msg.destination_canon

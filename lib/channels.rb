@@ -31,21 +31,21 @@ module Bot
     def initialize connection
       @connection = connection
 
-      Bot::Events.create self, :JOIN,  :on_join
-      Bot::Events.create self, :PART,  :on_part
-      Bot::Events.create self, :KICK,  :on_kick
-      Bot::Events.create self, :MODE,  :on_mode
-      Bot::Events.create self, :"324", :on_modes_on_join
+      Bot::Events.create :JOIN,  self, :on_join
+      Bot::Events.create :PART,  self, :on_part
+      Bot::Events.create :KICK,  self, :on_kick
+      Bot::Events.create :MODE,  self, :on_mode
+      Bot::Events.create :"324", self, :on_modes_on_join
 
-      Bot::Events.create self, :QUIT,  :on_quit
+      Bot::Events.create :QUIT,  self, :on_quit
 
-      Bot::Events.create self, :TOPIC, :on_topic
-      Bot::Events.create self, :"332", :on_topic_on_join # topic on join
+      Bot::Events.create :TOPIC, self, :on_topic
+      Bot::Events.create :"332", self, :on_topic_on_join # topic on join
 
-      Bot::Events.create self, :"352", :on_who_reply # who reply
-      Bot::Events.create self, :NAMES, :on_names
+      Bot::Events.create :"352", self, :on_who_reply # who reply
+      Bot::Events.create :NAMES, self, :on_names
 
-      Bot::Events.create self, :NICK,  :on_nick
+      Bot::Events.create :NICK,  self, :on_nick
     end
 
 
@@ -75,8 +75,8 @@ module Bot
       end
 
       if msg.me?
-        msg.raw "MODE #{msg.destination}"
-        msg.raw "WHO #{msg.destination}"
+        @connection.raw "MODE #{msg.destination}"
+        @connection.raw "WHO #{msg.destination}"
       end
 
       self[msg.destination_canon].join(ChannelUser.new(msg.nick_canon, msg.user, msg.host, []))

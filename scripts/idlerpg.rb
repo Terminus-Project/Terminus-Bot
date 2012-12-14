@@ -28,76 +28,72 @@ require 'net/http'
 require 'rexml/document'
 require 'htmlentities'
 
-def initialize
-  register_script "Play IdleRPG."
+register 'Play IdleRPG.'
 
-  register_command "idlerpg", :cmd_idlerpg, 0, 0, nil, "Get information about players on this network's IdleRPG game. Parameters: [player]"
-
-  register_event :JOIN, :on_join
-end
-
-def cmd_idlerpg msg, params
-  config = get_config msg.connection.name.to_sym
+command 'idlerpg', 'Get information about players on this network\'s IdleRPG game. Parameters: [player]' do
+  config = get_config @connection.name.to_sym
 
   if config == nil
-    msg.reply "I am not configured for this network's IdleRPG."
-    return
+    reply "I am not configured for this network's IdleRPG."
+    next
   end
 
-  name = params.empty? ? msg.nick : params[0]
+  name = params.empty? ? @msg.nick : params[0]
 
   unless config.has_key? :xml_url
-    msg.reply "I don't know where to get player info on this network."
-    return
+    reply "I don't know where to get player info on this network."
+    next
   end
 
   info = get_player_info name, config
 
   if info == nil
-    msg.reply "Player info not found."
-    return
+    reply "Player info not found."
+    next
   end
 
-  msg.reply info
+  reply info
 end
 
-def get_player_info player, config
-  url = "#{config[:xml_url]}#{URI.escape(player)}"
+event :JOIN do
+  config = get_config @connection.name.to_sym
 
-  body = Net::HTTP.get URI.parse url
-  root = (REXML::Document.new(body)).root
+  next if config.nil?
 
-  return nil if root == nil
-  
-  level = root.elements["//level"].text
-  ttl = root.elements["//ttl"].text.to_i
-  idled = root.elements["//totalidled"].text.to_i
-  klass = root.elements["//class"].text
-  rank = root.elements["//rank"].text # Not available on all most networks
+  next unless config[:channel].downcase == @msg.destination.downcase
 
-  return nil if level == nil or level.empty?
+  next unless config.has_key? :login_command and config.has_key? :nick
 
-  ttl = Time.at(Time.now.to_i + ttl).to_duration_s
-  idled = Time.at(Time.now.to_i + idled).to_duration_s
+  next if not @msg.me? or not @msg.nick != config[:nick]
 
-  buf =  "\02Level:\02 #{level}"
-  buf << " \02Rank:\02 #{rank}" if rank != nil and not rank.empty?
-  buf << " \02Class:\02 #{klass}"
-  buf << " \02Time to Level:\02 #{ttl}"
-  buf << " \02Time Idled:\02 #{idled}"
+  send_privmsg config[:nick], config[:login_command]
 end
 
-def on_join msg
-  config = get_config msg.connection.name.to_sym
+helpers do
+  def get_player_info player, config
+    url = "#{config[:xml_url]}#{URI.escape(player)}"
 
-  return if config == nil
+    body = Net::HTTP.get URI.parse url
+    root = (REXML::Document.new(body)).root
 
-  return unless config[:channel].downcase == msg.destination.downcase
+    return nil if root == nil
 
-  return unless config.has_key? :login_command and config.has_key? :nick
+    level = root.elements["//level"].text
+    ttl   = root.elements["//ttl"].text.to_i
+    idled = root.elements["//totalidled"].text.to_i
+    klass = root.elements["//class"].text
+    rank  = root.elements["//rank"].text # Not available on all most networks
 
-  return if not msg.me? or not msg.nick != config[:nick]
+    return nil if level == nil or level.empty?
 
-  msg.send_privmsg config[:nick], config[:login_command]
+    ttl   = Time.at(Time.now.to_i + ttl).to_duration_s
+    idled = Time.at(Time.now.to_i + idled).to_duration_s
+
+    buf =   "\02Level:\02 #{level}"
+    buf << " \02Rank:\02 #{rank}" if rank != nil and not rank.empty?
+    buf << " \02Class:\02 #{klass}"
+    buf << " \02Time to Level:\02 #{ttl}"
+    buf << " \02Time Idled:\02 #{idled}"
+  end
 end
 

@@ -23,58 +23,52 @@
 # SOFTWARE.
 #
 
-def initialize
-  register_script "Leave messages for inactive users."
+register 'Leave messages for inactive users.'
 
-  register_event :PRIVMSG, :on_privmsg
 
-  register_command "tell",  :cmd_tell,  2,  0, nil, "Have the bot tell the given user something the next time they speak. Parameters: nick message"
-end
+event :PRIVMSG do
+  tells = get_data @connection.name, Hash.new
 
-def on_privmsg msg
-  tells = get_data msg.connection.name, Hash.new
+  next unless tells.has_key? @msg.nick_canon
 
-  return unless tells.has_key? msg.nick_canon
-
-  tells[msg.nick_canon].each do |tell|
+  tells[@msg.nick_canon].each do |tell|
     time = Time.at(tell[0]).strftime("%Y-%m-%d %H:%M:%S %Z")
 
-    msg.reply "Tell from \02#{tell[1]}\02 (#{time}): #{tell[2]}"
+    reply "Tell from \02#{tell[1]}\02 (#{time}): #{tell[2]}"
   end
   
-  tells.delete msg.nick_canon
+  tells.delete @msg.nick_canon
 end
 
-def cmd_tell msg, params
-  tells = get_data msg.connection.name, Hash.new
+command 'tell', 'Have the bot tell the given user something the next time they speak. Parameters: nick message' do
+  argc! 2
 
-  dest = msg.connection.canonize params[0]
+  tells = get_data @connection.name, Hash.new
 
-  if msg.connection.support('CHANTYPES', '#&').include? dest.chr
-    msg.reply "You cannot leave tells for channels."
-    return
+  dest = @connection.canonize @params.first
+
+  if @connection.support('CHANTYPES', '#&').include? dest.chr
+    raise "You cannot leave tells for channels."
   end
 
-  if dest == msg.connection.canonize(msg.connection.nick)
-    msg.reply "You cannot leave tells for me."
-    return
+  if dest == @connection.canonize(@connection.nick)
+    raise "You cannot leave tells for me."
   end
   
   if tells.has_key? dest
     if tells[dest].length > get_config(:max, 5).to_i
-      msg.reply "No more tells can be left for that nick."
-      return
+      raise "No more tells can be left for that nick."
     end
   else
-    tells[dest] = Array.new
+    tells[dest] = []
   end
 
-  tells[dest] << [Time.now.to_i, msg.nick, params[1]]
+  tells[dest] << [Time.now.to_i, @msg.nick, @params[1]]
 
-  store_data msg.connection.name, tells
+  store_data @connection.name, tells
 
   $log.info("tell.cmd_tell") { "Added: #{tells[dest]}" }
 
-  msg.reply "I will try to deliver your message."
+  reply "I will try to deliver your message."
 end
 

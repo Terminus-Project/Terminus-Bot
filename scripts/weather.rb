@@ -26,24 +26,20 @@
 require 'rexml/document'
 require 'htmlentities'
 
-def initialize
-  raise "weather script requires the http_client module" unless defined? MODULE_LOADED_HTTP
+raise "weather script requires the http_client module" unless defined? MODULE_LOADED_HTTP
 
-  register_script "Weather information look-ups via Weather Underground (wunderground.com)."
+register 'Weather information look-ups via Weather Underground (wunderground.com).'
 
-  register_command "weather",   :weather,  1,  0, nil, "View current conditions for the specified location."
-  register_command "temp",      :temp,     1,  0, nil, "View current temperature for the specified location."
-  register_command "forecast",  :forecast, 1,  0, nil, "View a short-term forecast for the specified location."
-end
 
-def weather msg, params
-  url = "http://api.wunderground.com/auto/wui/geo/WXCurrentObXML/index.xml?query=#{URI.escape(params.join)}"
+command 'weather', 'View current conditions for the specified location.' do
+  argc! 1
+
+  url = "http://api.wunderground.com/auto/wui/geo/WXCurrentObXML/index.xml?query=#{URI.escape(@params.join ' ')}"
 
   Bot.http_get(URI(url)) do |response|
 
     unless response.status == 200
-      msg.reply("There was a problem performing the looking up the weather for that location. Please try again later.")
-      next
+      riase 'There was a problem performing the looking up the weather for that location. Please try again later.'
     end
 
     root = (REXML::Document.new(response.content)).root
@@ -51,46 +47,47 @@ def weather msg, params
     weather = root.elements["//weather"].text rescue nil
 
     if weather == nil
-      msg.reply "That does not appear to be a valid location. If it is, try being more specific, or specify the location in another way."
+      output "That does not appear to be a valid location. If it is, try being more specific, or specify the location in another way."
       next
     end
 
-    credit = root.elements["//credit"].text
-    updatedTime = root.elements["//observation_epoch"].text.to_i
-    localTime = root.elements["//local_time"].text
+    credit          = root.elements["//credit"].text
+    updatedTime     = root.elements["//observation_epoch"].text.to_i
+    localTime       = root.elements["//local_time"].text
     stationLocation = root.elements["//observation_location/full"].text
-    temperature = root.elements["//temperature_string"].text
-    humidity = root.elements["//relative_humidity"].text
-    wind = root.elements["//wind_string"].text
-    pressure = root.elements["//pressure_string"].text
-    dewpoint = root.elements["//dewpoint_string"].text
-    link = root.elements["//forecast_url"].text
+    temperature     = root.elements["//temperature_string"].text
+    humidity        = root.elements["//relative_humidity"].text
+    wind            = root.elements["//wind_string"].text
+    pressure        = root.elements["//pressure_string"].text
+    dewpoint        = root.elements["//dewpoint_string"].text
+    link            = root.elements["//forecast_url"].text
 
     updatedTime = "Updated #{Time.at(updatedTime).to_fuzzy_duration_s} ago"
 
-    reply = "[\02#{credit}\02 for \02#{stationLocation}\02] "
-    reply << "Currently: \02#{weather}\02; "
-    reply << "Temp: \02#{temperature}\02; "
-    reply << "Humidity: \02#{humidity}\02; "
-    reply << "Wind: \02#{wind}\02; "
-    reply << "Pressure: \02#{pressure}\02; "
-    #reply << "Dewpoint: \02#{dewpoint}\02; "
-    reply << "#{updatedTime}; "
-    reply << "#{link}"
+    output =  "[\02#{credit}\02 for \02#{stationLocation}\02] "
+    output << "Currently: \02#{weather}\02; "
+    output << "Temp: \02#{temperature}\02; "
+    output << "Humidity: \02#{humidity}\02; "
+    output << "Wind: \02#{wind}\02; "
+    output << "Pressure: \02#{pressure}\02; "
+    #output << "Dewpoint: \02#{dewpoint}\02; "
+    output << "#{updatedTime}; "
+    output << "#{link}"
 
-    msg.reply reply
+    reply output
 
   end
 end
 
-def temp msg, params
-  url = "http://api.wunderground.com/auto/wui/geo/WXCurrentObXML/index.xml?query=#{URI.escape(params.join)}"
+command 'temp', 'View current temperature for the specified location.' do
+  argc! 1
+
+  url = "http://api.wunderground.com/auto/wui/geo/WXCurrentObXML/index.xml?query=#{URI.escape(@params.join ' ')}"
 
   Bot.http_get(URI(url)) do |response|
 
     unless response.status == 200
-      msg.reply "There was a problem performing the looking up the weather for that location. Please try again later."
-      next
+      raise 'There was a problem performing the looking up the weather for that location. Please try again later.'
     end
 
     root = (REXML::Document.new(response.content)).root
@@ -98,29 +95,29 @@ def temp msg, params
     weather = root.elements["//weather"].text rescue nil
 
     if weather == nil
-      msg.reply("That does not appear to be a valid location. If it is, try being more specific, or specify the location in another way.")
-      next
+      raise 'That does not appear to be a valid location. If it is, try being more specific, or specify the location in another way.'
     end
 
-    credit = root.elements["//credit"].text
+    credit          = root.elements["//credit"].text
     stationLocation = root.elements["//observation_location/full"].text
-    temperature = root.elements["//temperature_string"].text
+    temperature     = root.elements["//temperature_string"].text
 
-    reply = "[\02#{credit}\02 for \02#{stationLocation}\02] "
-    reply << "Temperature: \02#{temperature}\02"
+    output =  "[\02#{credit}\02 for \02#{stationLocation}\02] "
+    output << "Temperature: \02#{temperature}\02"
 
-    msg.reply reply
+    reply output
   end
 end
 
-def forecast msg, params
-  url = "http://api.wunderground.com/auto/wui/geo/ForecastXML/index.xml?query=#{URI.escape(params[0])}"
+command 'forecast', 'View a short-term forecast for the specified location.' do
+  argc! 1
+
+  url = "http://api.wunderground.com/auto/wui/geo/ForecastXML/index.xml?query=#{URI.escape(@params.join ' ')}"
 
   Bot.http_get(URI(url)) do |response|
 
     unless response.status == 200
-      msg.reply("There was a problem performing the looking up the weather for that location. Please try again later.")
-      next
+      raise 'There was a problem performing the looking up the weather for that location. Please try again later.'
     end
 
     root = (REXML::Document.new(response.content)).root.elements["//txt_forecast"]
@@ -128,11 +125,10 @@ def forecast msg, params
     date = root.elements["date"].text rescue nil
 
     if date == nil
-      msg.reply "That does not appear to be a valid location. If it is, try being more specific, or specify the location in another way."
-      next
+      raise 'That does not appear to be a valid location. If it is, try being more specific, or specify the location in another way.'
     end
 
-    reply = "[\02Forecast for #{params[0]}\02 as of \02#{date}\02] "
+    output = "[\02Forecast for #{@params.join ' '}\02 as of \02#{date}\02] "
 
     count = 0
 
@@ -142,18 +138,17 @@ def forecast msg, params
       text = element.elements["fcttext"].text
       text = HTMLEntities.new.decode(text)
 
-      reply << "[\02#{title}\02] #{text} "
+      output << "[\02#{title}\02] #{text} "
 
       count += 1
       break if count == 2
     end
 
     if count == 0
-      msg.reply("That does not appear to be a valid location. If it is, try being more specific, or specify the location in another way.")
-      nextn
+      raise 'That does not appear to be a valid location. If it is, try being more specific, or specify the location in another way.'
     end
 
-    msg.reply reply
+    reply output
   end
 end
 

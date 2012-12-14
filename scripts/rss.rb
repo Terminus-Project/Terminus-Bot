@@ -27,160 +27,152 @@ require 'rss'
 require 'htmlentities'
 
 
-def initialize
-  register_script "Periodically check RSS and ATOM feeds and post the new items to channels."
+register 'Periodically check RSS and ATOM feeds and post the new items to channels.'
 
-  register_command "rss", :cmd_rss,  1,  0, :half_op, "Manage the RSS/ATOM feeds for the current channel. Parameters: LIST|CHECK|CLEAR|ADD uri|DEL uri"
 
-  register_event :em_started, :on_em_started
-end
-
-def on_em_started
+event :em_started do
   periodic_check true
 end
 
-def periodic_check just_started = false
-  begin
-    check_feeds unless just_started
-  rescue => e
-    $log.debug("rss.periodic_check") { "Error while checking feeds: #{e}" }
-  ensure
-    EM.add_timer(get_config(:interval, 1800)) do
-      periodic_check
-    end
-  end
-end
 
-def cmd_rss msg, params
+command 'rss', 'Manage the RSS/ATOM feeds for the current channel. Parameters: LIST|CHECK|CLEAR|ADD uri|DEL uri' do
+  channel! and half_op! and argc! 1
 
-  if msg.private?
-    msg.reply "This command may only be used in channels."
-    return
-  end
-
-  arr = params[0].split
+  arr = @params.first.split
   action = arr.shift.upcase
   arg = arr.shift
 
   case action
-    when "LIST"
+  when "LIST"
 
-      feeds = get_data [msg.connection.name, msg.destination_canon], Array.new
+    feeds = get_data [@connection.name, @msg.destination_canon], Array.new
 
-      msg.send_notice msg.nick, "There are \02#{feeds.length}\02 feeds for #{msg.destination}"
+    send_notice @msg.nick, "There are \02#{feeds.length}\02 feeds for #{@msg.destination}"
 
-      feeds.each do |feed|
-        msg.send_notice msg.nick, feed[0]
-      end
+    feeds.each do |feed|
+      send_notice @msg.nick, feed[0]
+    end
 
-      msg.send_notice msg.nick, "End of list."
+    send_notice @msg.nick, "End of list."
 
-    when "CLEAR"
+  when "CLEAR"
 
-      delete_data [msg.connection.name, msg.destination_canon]
+    delete_data [@connection.name, @msg.destination_canon]
 
-      msg.reply "The feed list has been cleared."
+    reply "The feed list has been cleared."
 
-    when "ADD"
-      
-      unless arg =~ /\Ahttps?:\/\/.+\..+/
-        msg.reply "That is not a URI I can handle. You must provide an HTTP URI."
-        return
-      end
+  when "ADD"
 
-      feeds = get_data [msg.connection.name, msg.destination_canon], Array.new
+    unless arg =~ /\Ahttps?:\/\/.+\..+/
+      raise "That is not a URI I can handle. You must provide an HTTP URI."
+    end
 
-      feeds << [arg, ""]
+    feeds = get_data [@connection.name, @msg.destination_canon], Array.new
 
-      store_data [msg.connection.name, msg.destination_canon], feeds
+    feeds << [arg, ""]
 
-      msg.reply "Feed added to the list for \02#{msg.destination}\02."
+    store_data [@connection.name, @msg.destination_canon], feeds
 
-    when "DEL"
+    reply "Feed added to the list for \02#{@msg.destination}\02."
 
-      feeds = get_data [msg.connection.name, msg.destination_canon], Array.new
+  when "DEL"
 
-      feed = feeds.select {|f| f[0] == arg}[0]
+    feeds = get_data [@connection.name, @msg.destination_canon], Array.new
 
-      if feed == nil or feed.empty?
-        msg.reply("I don't have that feed in the list for #{msg.destination}. Please give the feed name exactly as appears in the output of LIST.")
-        return
-      end
+    feed = feeds.select {|f| f[0] == arg}[0]
 
-      feeds.delete feed
+    if feed == nil or feed.empty?
+      reply("I don't have that feed in the list for #{@msg.destination}. Please give the feed name exactly as appears in the output of LIST.")
+      return
+    end
 
-      store_data [msg.connection.name, msg.destination_canon], feeds
+    feeds.delete feed
 
-      msg.reply "Feed deleted from the list for \02#{msg.destination}\02."
+    store_data [@connection.name, @msg.destination_canon], feeds
 
-    when "CHECK"
+    reply "Feed deleted from the list for \02#{@msg.destination}\02."
 
-      msg.reply "Checking feeds..."
+  when "CHECK"
 
-      check_feeds
+    reply "Checking feeds..."
 
-    else
+    check_feeds
 
-      msg.reply "Unknown action. Parameters: LIST|CHECK|CLEAR|ADD uri|DEL uri"
+  else
+
+    reply "Unknown action. Parameters: LIST|CHECK|CLEAR|ADD uri|DEL uri"
   end
 
 end
 
-def check_feeds
-  $log.debug("rss.check_feeds") { "Beginning check." }
-
-  get_all_data.each do |key, val|
-
-    network = key[0]
-    channel = key[1]
-
-    next unless Bot::Connections.has_key? network
-    next unless Bot::Connections[network].channels.has_key? channel
-
-    val.each do |feed|
-      next if feed == nil
-  
-      $log.debug("rss.check_feeds") { "Checking %s for %s on %s" % [feed, channel, network] }
-
-      Bot.http_get(URI(feed[0])) do |response|
-        next unless response.status == 200
-
-        rss = RSS::Parser.parse(response.content)
-
-        send = false
-        atom = rss.kind_of? RSS::Atom::Feed
-
-        feed_title = sanitize(atom ? rss.title.to_s : rss.channel.title.to_s)
-
-        items = rss.items[0..get_config(:max, 3).to_i-1].reverse
-
-        items.each do |item|
-
-          if item.title == feed[1]
-            send = true
-
-          elsif send or feed[1].empty?
-            title = sanitize(item.title.to_s)
-
-            link = sanitize(atom ? item.links.select {|l| l.rel == "alternate"}[0].href.to_s : item.link.to_s)
-
-            Bot::Connections[network].raw "PRIVMSG #{channel} :\02[#{feed_title}]\02 #{title} :: #{link}"
-
-          end
-
-        end
-
-        # update the last read title
-
-        feed[1] = items.last.title.to_s
+helpers do
+  def periodic_check just_started = false
+    begin
+      check_feeds unless just_started
+    rescue => e
+      $log.debug("rss.periodic_check") { "Error while checking feeds: #{e}" }
+    ensure
+      EM.add_timer(get_config(:interval, 1800).to_i) do
+        periodic_check
       end
     end
   end
 
-  $log.debug("rss.check_feeds") { "Done checking feeds." }
-end
+  def check_feeds
+    $log.debug("rss.check_feeds") { "Beginning check." }
 
-def sanitize(str)
-  return HTMLEntities.new.decode str.gsub(/[\s]+/, " ").gsub(/<\/?[^>]+>/, "")
-end
+    get_all_data.each do |key, val|
 
+      network = key[0]
+      channel = key[1]
+
+      next unless Bot::Connections.has_key? network
+      next unless Bot::Connections[network].channels.has_key? channel
+
+      val.each do |feed|
+        next if feed == nil
+
+        $log.debug("rss.check_feeds") { "Checking %s for %s on %s" % [feed, channel, network] }
+
+        Bot.http_get(URI(feed[0])) do |response|
+          next unless response.status == 200
+
+          rss = RSS::Parser.parse(response.content)
+
+          send = false
+          atom = rss.kind_of? RSS::Atom::Feed
+
+          feed_title = sanitize(atom ? rss.title.to_s : rss.channel.title.to_s)
+
+          items = rss.items[0..get_config(:max, 3).to_i-1].reverse
+
+          items.each do |item|
+
+            if item.title == feed[1]
+              send = true
+
+            elsif send or feed[1].empty?
+              title = sanitize(item.title.to_s)
+
+              link = sanitize(atom ? item.links.select {|l| l.rel == "alternate"}[0].href.to_s : item.link.to_s)
+
+              Bot::Connections[network].raw "PRIVMSG #{channel} :\02[#{feed_title}]\02 #{title} :: #{link}"
+
+            end
+
+          end
+
+          # update the last read title
+
+          feed[1] = items.last.title.to_s
+        end
+      end
+    end
+
+    $log.debug("rss.check_feeds") { "Done checking feeds." }
+  end
+
+  def sanitize str
+    HTMLEntities.new.decode str.gsub(/[\s]+/, " ").gsub(/<\/?[^>]+>/, "")
+  end
+end

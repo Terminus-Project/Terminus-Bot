@@ -25,16 +25,13 @@
 
 # TODO: Support user-specified UTC offset.
 
-def initialize
-  register_script "Get the time and date from the bot."
+register 'Get the time and date from the bot.'
 
-  register_command "time", :cmd_time,  0,  0, nil, "Get the current time with optional time format. Parameters: [format]"
-end
+command 'time', 'Get the current time with optional time format. Parameters: [format]' do
 
-def cmd_time msg, params
-  if params.empty?
-    msg.reply Time.now.strftime("%Y-%m-%d %H:%M:%S %Z")
+  if @params.empty?
+    reply Time.now.strftime("%Y-%m-%d %H:%M:%S %Z")
   else
-    msg.reply Time.now.strftime(params[0])
+    reply Time.now.strftime(@params.join ' ')
   end
 end

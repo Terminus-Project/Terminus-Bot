@@ -23,12 +23,8 @@
 # SOFTWARE.
 #
 
-def initialize
-  register_script "Provides the SOURCE command."
+register 'Provides the SOURCE command.'
 
-  register_command "source", :cmd_source, 0, 0, nil, "Share info about the bot and its source code."
-end
-
-def cmd_source msg, params
-  msg.reply "I am Terminus-Bot, an EventMachine-powered Ruby IRC bot (version: #{VERSION}). You can find my source code and other information about me at: https://github.com/kabaka/Terminus-Bot"
+command 'source', 'Share info about the bot and its source code.' do
+  reply "I am Terminus-Bot, an EventMachine-powered Ruby IRC bot (version: #{VERSION}). You can find my source code and other information about me at: http://terminus-bot.net/"
 end

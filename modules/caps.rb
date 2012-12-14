@@ -34,14 +34,14 @@ module Bot
       @parent = parent
 
       # SASL
-      Events.create self, :CAP,          :on_cap
-      Events.create self, :AUTHENTICATE, :on_authenticate
-      Events.create self, :"904",        :on_sasl_fail
-      Events.create self, :"905",        :on_sasl_fail
-      Events.create self, :"900",        :on_sasl_success
-      Events.create self, :"903",        :on_sasl_success
-      Events.create self, :"906",        :on_sasl_abort
-      Events.create self, :"907",        :on_sasl_abort
+      Events.create :CAP,          self, :on_cap
+      Events.create :AUTHENTICATE, self, :on_authenticate
+      Events.create :"904",        self, :on_sasl_fail
+      Events.create :"905",        self, :on_sasl_fail
+      Events.create :"900",        self, :on_sasl_success
+      Events.create :"903",        self, :on_sasl_success
+      Events.create :"906",        self, :on_sasl_abort
+      Events.create :"907",        self, :on_sasl_abort
 
       @sasl_pending = true
     end
@@ -90,11 +90,11 @@ module Bot
       end
 
       if req.empty?
-        msg.raw "CAP END"
+        msg.connection.raw "CAP END"
         return
       end
 
-      msg.raw "CAP REQ :#{req.join(" ")}"
+      msg.connection.raw "CAP REQ :#{req.join(" ")}"
     end
 
     def on_cap_ack msg
@@ -111,7 +111,7 @@ module Bot
       end
 
       unless @sasl_pending
-        msg.raw "CAP END"
+        msg.connection.raw "CAP END"
       else
         timeout = @parent.config.has_key?(:sasl_timeout) ? @parent.config[:sasl_timeout] : 15
         EM.add_timer(timeout) { sasl_timeout msg if @sasl_pending }
@@ -130,7 +130,7 @@ module Bot
 
         encoded = Base64.encode64 "#{username}\0#{username}\0#{password}"
 
-        msg.raw "AUTHENTICATE #{encoded}"
+        msg.connection.raw "AUTHENTICATE #{encoded}"
 
       else
 
@@ -146,7 +146,7 @@ module Bot
       end
 
       @sasl_pending = true
-      msg.raw "AUTHENTICATE PLAIN"
+      msg.connection.raw "AUTHENTICATE PLAIN"
     end
 
     def sasl_timeout msg
@@ -163,7 +163,7 @@ module Bot
 
       @sasl_pending = false
 
-      msg.raw "CAP END"
+      msg.connection.raw "CAP END"
     end
 
     def on_sasl_fail msg
@@ -171,7 +171,7 @@ module Bot
 
       @sasl_pending = false
 
-      msg.raw "CAP END"
+      msg.connection.raw "CAP END"
     end
 
     def on_sasl_abort msg
@@ -179,7 +179,7 @@ module Bot
 
       @sasl_pending = false
 
-      msg.raw "CAP END"
+      msg.connection.raw "CAP END"
     end
 
   end

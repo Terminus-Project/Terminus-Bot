@@ -23,20 +23,16 @@
 # SOFTWARE.
 #
 
-def initialize
-  register_script "Let the bot decide for you."
+register 'Let the bot decide for you.'
 
-  register_event :PRIVMSG, :on_privmsg
-end
-
-def on_privmsg msg
-  return unless msg.text.start_with? "#{Bot::Conf[:core][:prefix]} " and msg.text.end_with? "?"
+event :PRIVMSG do
+  next unless @msg.text.start_with? "#{Bot::Conf[:core][:prefix]} " and @msg.text.end_with? "?"
   
-  choices = msg.text.split /,?\s+or\s+|,\s+/i
+  choices = @msg.text.split /,?\s+or\s+|,\s+/i
 
   if choices.length == 1
-    msg.reply ["Yes", "No"].sample
-    return
+    reply ["Yes", "No"].sample
+    next
   end
 
   # chop off the prefix and space
@@ -45,5 +41,5 @@ def on_privmsg msg
   #chop off the question mark
   choices[-1] = choices.last[0..choices.last.length-2]
 
-  msg.reply choices.sample
+  reply choices.sample
 end

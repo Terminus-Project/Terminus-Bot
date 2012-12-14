@@ -28,87 +28,86 @@ require "uri"
 require "strscan"
 require "htmlentities"
 
-PANDORA_URL = "http://www.pandorabots.com/pandora/talk-xml"
+register 'Provides an interface to Pandorabots.'
 
-# TODO: Use config keys that aren't concatenated strings. :|
+command 'pandora', 'Enable or disable Pandorabot interaction. Parameters: ON or OFF.' do
+  half_op! and argc! 1
 
-def initialize
-  register_script "Provides an interface to Pandorabots."
-
-  register_command "pandora", :pandora, 1, 0, :half_op, "Enable or disable Pandorabot interaction. Parameters: ON or OFF."
-
-  register_event :PRIVMSG, :on_message
-end
-
-def pandora msg, params
-  if msg.private?
-    msg.reply "You may only use this command in channels."
-    return
+  if query?
+    reply "You may only use this command in channels."
+    next
   end
 
-  case params[0].upcase
+  case @params.first.upcase
   when "ON"
 
-    store_data [msg.connection.name, msg.destination], true
-    msg.reply "Pandorabot interaction enabled."
+    store_data [@connection.name, @msg.destination], true
+    reply "Pandorabot interaction enabled."
 
   when "OFF"
 
-    store_data [msg.connection.name, msg.destination], false
-    msg.reply "Pandorabot interaction disabled."
+    store_data [@connection.name, @msg.destination], false
+    reply "Pandorabot interaction disabled."
 
   else
-    msg.reply "Invalid choice. Must be ON or OFF."
+
+    reply "Invalid choice. Must be ON or OFF."
+
   end
 end
 
-def on_message msg
-  return unless get_data [msg.connection.name, msg.destination], false
+event :PRIVMSG do
 
-  first = (msg.text.split)[0]
+  next unless get_data [@msg.connection.name, @msg.destination], false
+
+  first = (@msg.text.split)[0]
   first = first[0..first.length-2].upcase
 
-  return unless first == msg.connection.nick.upcase
+  next unless first == @connection.nick.upcase
 
   botid = get_config :botid, ""
   if botid.empty?
-    msg.reply("Bot ID is not set in the configuration. Pandora will not function.")
-    return
+    reply "Bot ID is not set in the configuration. Pandora will not function."
+    next
   end
 
-  get_reply botid, msg.text[msg.connection.nick.length+2..msg.text.length].chomp, msg
+  get_reply botid, @msg.text[@connection.nick.length+2..@msg.text.length].chomp
+
 end
 
-def get_reply botid, str, msg
-  return if str.empty?
+helpers do
 
-  custid = "#{msg.connection.name.to_s}/#{msg.destination}"
+  def get_reply botid, str
+    return if str.empty?
 
-  uri = URI(PANDORA_URL)
-  query_hash = {:custid => custid, :botid => botid, :input => str}
+    custid = "#{@connection.name.to_s}/#{@msg.destination}"
 
-  Bot.http_post(uri, query_hash) do |response|
-    begin
-      $log.info('pandora.get_reply') { "Getting relpy with #{botid} for message: #{str}" }
+    uri = URI("http://www.pandorabots.com/pandora/talk-xml")
+    query_hash = {:custid => custid, :botid => botid, :input => str}
 
-      response = response.content.gsub(/\n/, "").scan(/that>(.+)<\/that/)[0]
+    Bot.http_post(uri, query_hash) do |response|
+      begin
+        $log.info('pandora.get_reply') { "Getting relpy with #{botid} for message: #{str}" }
 
-      if response == nil
-        msg.reply "Pandora gave me an empty reply."
-        raise "empty pandora reply"
+        response = response.content.gsub(/\n/, "").scan(/that>(.+)<\/that/)[0]
+
+        if response == nil
+          reply "Pandora gave me an empty reply."
+          raise "empty pandora reply"
+        end
+
+        if response.kind_of? Array
+          response = response.join " "
+        end
+
+        response = HTMLEntities.new.decode response.force_encoding('UTF-8')
+
+        reply response.gsub(/<[^>]+>/, "").gsub(/\s+/, " ")
+      rescue => e
+        $log.error('pandora.get_reply') { "Error getting reply: #{e}" }
+        reply "Error getting reply from Pandora: #{e}"
       end
-
-      if response.kind_of? Array
-        response = response.join " "
-      end
-
-      response = HTMLEntities.new.decode response.force_encoding('UTF-8')
-
-      msg.reply response.gsub(/<[^>]+>/, "").gsub(/\s+/, " ")
-    rescue => e
-      $log.error('pandora.get_reply') { "Error getting reply: #{e}" }
-      msg.reply "Error getting reply from Pandora: #{e}"
     end
   end
-end
 
+end

@@ -34,12 +34,12 @@ module Bot
       @connection = connection
 
       # Register events relevant to us.
-      Events.create self, "JOIN",    :add_origin
-      Events.create self, "352",     :add_352 # WHO reply
-      Events.create self, "PRIVMSG", :add_origin
-      Events.create self, "NICK",    :change_nick
-      Events.create self, "QUIT",    :quit
-      Events.create self, "PART",    :part
+      Events.create :JOIN,    self, :add_origin
+      Events.create :"352",   self, :add_352 # WHO reply
+      Events.create :PRIVMSG, self, :add_origin
+      Events.create :NICK,    self, :change_nick
+      Events.create :QUIT,    self, :quit
+      Events.create :PART,    self, :part
     end
 
     # User has quit the network. Forget about them.
