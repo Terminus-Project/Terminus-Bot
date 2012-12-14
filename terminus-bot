@@ -30,7 +30,7 @@ unless RUBY_VERSION.start_with? "1.9"
   abort "Ruby version 1.9 is required."
 end
 
-VERSION  = "Terminus-Bot v0.7"
+VERSION  = "Terminus-Bot v0.8"
 PID_FILE = "var/terminus-bot.pid"
 LICENSE  = "MIT"
 
