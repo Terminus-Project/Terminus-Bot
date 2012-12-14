@@ -69,8 +69,7 @@ command 'rpn', 'Perform calculations using a Reverse Polish notation (postfix) c
         Float(s)
       end
     rescue
-      reply "Syntax error at '#{s}'"
-      next
+      raise "Syntax error at '#{s}'"
     end
   end
 

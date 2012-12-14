@@ -33,23 +33,20 @@ register 'Play IdleRPG.'
 command 'idlerpg', 'Get information about players on this network\'s IdleRPG game. Parameters: [player]' do
   config = get_config @connection.name.to_sym
 
-  if config == nil
-    reply "I am not configured for this network's IdleRPG."
-    next
+  if config.nil?
+    raise "I am not configured for this network's IdleRPG."
   end
 
   name = params.empty? ? @msg.nick : params[0]
 
   unless config.has_key? :xml_url
-    reply "I don't know where to get player info on this network."
-    next
+    raise "I don't know where to get player info on this network."
   end
 
   info = get_player_info name, config
 
-  if info == nil
-    reply "Player info not found."
-    next
+  if info.nil?
+    raise "Player info not found."
   end
 
   reply info

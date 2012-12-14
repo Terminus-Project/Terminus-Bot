@@ -37,8 +37,7 @@ command 'reconnect', 'Reconnect the specified connection.' do
   name = @params.first.to_sym
 
   unless Bot::Connections.has_key? name
-    reply "No such connection."
-    next
+    raise "No such connection."
   end
 
   Bot::Connections[name].reconnect

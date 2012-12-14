@@ -46,8 +46,7 @@ command 'ignore', 'Ignore the given hostmask.' do
   mask << "!*@*"  unless mask =~ /[!@*]/
  
   if Ignores.include? mask
-    reply "Already ignoring #{mask}"
-    next
+    raise "Already ignoring #{mask}"
   end
 
   Ignores << mask
@@ -64,8 +63,7 @@ command 'unignore', 'Remove the given ignore.' do
   mask << "!*@*"  unless mask =~ /[!@*]/
 
   unless Ignores.include? mask
-    reply "No such ignore."
-    next
+    raise "No such ignore."
   end
 
   Ignores.delete mask

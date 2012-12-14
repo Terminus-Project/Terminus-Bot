@@ -66,9 +66,9 @@ event :PRIVMSG do
   next unless first == @connection.nick.upcase
 
   botid = get_config :botid, ""
+
   if botid.empty?
-    reply "Bot ID is not set in the configuration. Pandora will not function."
-    next
+    raise "Bot ID is not set in the configuration. Pandora will not function."
   end
 
   get_reply botid, @msg.text[@connection.nick.length+2..@msg.text.length].chomp

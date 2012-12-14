@@ -45,23 +45,19 @@ command 'dice', 'Roll dice. Parameters: <count>d<sides>[+/-<modifier> | s<succes
   botch   = $8.to_i
 
   if count > 100
-    reply "You may only roll up to 100 dice."
-    next
+    raise "You may only roll up to 100 dice."
   end
 
   if sides > 100
-    reply "Dice may only have up to 100 sides."
-    next
+    raise "Dice may only have up to 100 sides."
   end
 
   if count <= 0 or sides <= 0
-    reply "The number of dice and their sides must be positive numbers larger than 0."
-    next
+    raise "The number of dice and their sides must be positive numbers larger than 0."
   end
 
   unless success <= botch
-    reply "The success target must be greater than the botch target."
-    next
+    raise "The success target must be greater than the botch target."
   end
 
   @params.each do |param|
@@ -71,8 +67,7 @@ command 'dice', 'Roll dice. Parameters: <count>d<sides>[+/-<modifier> | s<succes
   end
 
   unless not ( order and success )
-    reply "Cannot count successes/botches and roll dice in order."
-    next
+    raise "Cannot count successes/botches and roll dice in order."
   end
 
   if order

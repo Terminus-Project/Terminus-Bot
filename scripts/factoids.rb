@@ -30,13 +30,11 @@ command 'remember', 'Remember the given factoid. Should be in the form: ___ is|=
   arr = @params.first.downcase.split /\sis\s|\s=\s/, 2
 
   unless arr.length == 2
-    reply "Factoid must be given in the form: ___ is|= ___"
-    next
+    raise "Factoid must be given in the form: ___ is|= ___"
   end
 
   unless get_data(arr[0]) == nil
-    reply "A factoid for \02#{arr[0]}\02 already exists."
-    next
+    raise "A factoid for \02#{arr[0]}\02 already exists."
   end
 
   store_data arr[0], arr[1]
@@ -50,8 +48,7 @@ command 'forget', 'Forget this factoid.' do
   key = @params.first.downcase
 
   if get_data(key) == nil
-    reply "No such factoid."
-    next
+    raise "No such factoid."
   end
 
   delete_data key
@@ -66,8 +63,7 @@ command 'factoid', 'Retrieve a factoid.' do
   factoid = get_data key
 
   if factoid == nil
-    reply "No such factoid."
-    next
+    raise "No such factoid."
   end
 
   reply "#{key} is #{factoid}"

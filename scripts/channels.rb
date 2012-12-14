@@ -102,8 +102,7 @@ command 'join', 'Join a channel with optional key.' do
 
   # TODO: Use CHANTYPES
   unless name.start_with? "#" or name.start_with? "&"
-    reply "That does not look like a channel name."
-    next
+    raise "That does not look like a channel name."
   end
 
   channels = get_data @connection.name, {}

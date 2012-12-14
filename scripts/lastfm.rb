@@ -40,12 +40,11 @@ command 'np', 'Show the currently playing track for the given Last.fm user.' do
 
     track = root.elements["//track"]
 
-    if track == nil
-      reply "No such user."
-      next
+    if track.nil?
+      raise "No such user."
     end
 
-    if track.attributes.get_attribute("nowplaying") == nil
+    if track.attributes.get_attribute("nowplaying").nil?
       reply "No music is currently playing."
       next
     end

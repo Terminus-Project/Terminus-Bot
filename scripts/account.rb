@@ -36,8 +36,7 @@ command 'identify', 'Log in to the bot. Parameters: username password' do
   stored = get_data @params[0], nil
 
   unless verify_password stored, @params[1]
-    reply "Incorrect log-in information."
-    next
+    raise "Incorrect log-in information."
   end
 
   @connection.users[@msg.nick_canon].account = @params[0]
@@ -61,13 +60,11 @@ command 'register', 'Register a new account on the bot. Parameters: username pas
   query! and argc! 2
 
   unless @connection.users[@msg.nick_canon].account == nil
-    reply "You are already logged in to a bot account."
-    next
+    raise "You are already logged in to a bot account."
   end
 
   unless get_data(@params[0], nil) == nil
-    reply "That user name is already registered."
-    next
+    raise "That user name is already registered."
   end
 
   store_data @params[0], Hash[:password => encrypt_password(@params[1]), :level => 1]
@@ -82,15 +79,13 @@ command 'password',  'Change your bot account password. Parameters: password' do
   account = @connection.users[@msg.nick_canon].account
 
   if account.nil?
-    reply "You must be logged in to change your password."
-    next
+    raise "You must be logged in to change your password."
   end
 
   stored = get_data @connection.users[@msg.nick_canon].account, nil
   
   if stored.nil?
-    reply "Your account no longer exists."
-    next
+    raise "Your account no longer exists."
   end
 
   stored[:password] = encrypt_password(@params[0])
@@ -106,8 +101,7 @@ command 'fpassword', 'Change another user\'s bot account password. Parameters: u
   stored = get_data @params[0], nil
   
   if stored.nil?
-    reply "No such account."
-    next
+    raise "No such account."
   end
 
   stored[:password] = encrypt_password @params[0]
@@ -123,15 +117,13 @@ command 'level', 'Change a user\'s account level. Parameters: username level' do
   stored = get_data @params[0], nil
   
   if stored.nil?
-    reply "No such account."
-    next
+    raise "No such account."
   end
 
   level = @params[1].to_i
 
   if level < 1 or level > 10
-    reply "Level must be a whole number from 1 to 10."
-    next
+    raise "Level must be a whole number from 1 to 10."
   end
 
   stored[:level] = level
@@ -158,8 +150,7 @@ command 'account', 'Display information about a user. Parameters: username' do
   stored = get_data @params[0], nil
   
   if stored.nil?
-    reply "No such account."
-    next
+    raise "No such account."
   end
 
   reply "\02Account:\02 #{@params[0]} \02Level:\02 #{stored[:level]}"
@@ -169,8 +160,7 @@ command 'whoami', 'Display your current user information if you are logged in.' 
   u = @connection.users[@msg.nick_canon]
 
   if u.account.nil?
-    reply "You are not logged in."
-    next
+    raise "You are not logged in."
   end
 
   reply "\02Account:\02 #{u.account} \02Level:\02 #{u.level}"

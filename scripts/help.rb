@@ -37,8 +37,7 @@ command 'help', 'Show command help. Syntax: help [command]' do
   name = @params.shift.downcase
 
   unless Bot::Commands::COMMANDS.has_key? name
-    reply "There is no help available for that command."
-    next
+    raise "There is no help available for that command."
   end
 
   command = Bot::Commands::COMMANDS[name]
@@ -58,8 +57,8 @@ command 'script', 'Show script info. Syntax: script [name]' do
     s.name.downcase == target
   end.first
 
-  if script == nil
-    reply "There is no information available on that script."
+  if script.nil?
+    raise "There is no information available on that script."
   else
     reply script.description
   end
