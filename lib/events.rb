@@ -46,6 +46,10 @@ module Bot
 
       self[name].each do |event|
         begin
+          unless msg.nil?
+            next unless Bot::Flags.permit_message? event.owner, msg
+          end
+
           Event.dispatch event.owner, event.name, event.func, msg, &event.blk
         rescue => e
           $log.error("events.run") { "Error running event #{name}: #{e}" }
