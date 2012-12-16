@@ -544,6 +544,11 @@ In addition to basic title retrieval, the bot handles several special cases:
 
 * YouTube videos
 * Twitter posts
+* GitHub repositories
+* GitHub commits
+* deviantART posts
+* FIMFiction.net stories
+* Derpibooru posts
 
 More sites may be added later.
 
