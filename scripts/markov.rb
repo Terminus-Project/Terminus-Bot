@@ -54,11 +54,11 @@ command 'chain', 'Generate a random Markov chain. Parameters: [word [word]]' do
 
   if @params.length == 1
 
-    if @params[0].count(" ") > 1
+    if @params.first.count(" ") > 1
       raise "Chain seeds can contain two or less words."
     end
 
-    build_chain(@params[0].dup.downcase) do |chain|
+    build_chain(@params.first.dup.downcase) do |chain|
       reply chain, false
     end
   else
@@ -287,7 +287,7 @@ helpers do
     unless word.include? " "
       arr = @@words[word]
 
-      if arr == nil or arr.empty?
+      if arr.nil? or arr.empty?
         if requested
           yield "I was not able to create a chain with that seed."
         end
@@ -298,7 +298,7 @@ helpers do
       word = arr.sample.word
     end
 
-    return if word == nil and not requested
+    return if word.nil? and not requested
 
     word.gsub! /[!?.]/, ''
 
@@ -348,7 +348,7 @@ helpers do
     buf, done = "", false
     result = get_word word
 
-    if result == nil
+    if result.nil?
       if depth.zero?
         return word.dup
       else
@@ -492,7 +492,7 @@ helpers do
         linked = arr.shift
         score  = arr.shift.to_i
 
-        if score == 0 or linked == nil or linked.empty?
+        if score.zero? or linked.nil? or linked.empty?
           $log.warn("Markov.read_database") { "Skipping invalid database entry." }
           next
         end
