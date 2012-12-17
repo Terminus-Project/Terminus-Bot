@@ -177,7 +177,7 @@ command 'markov', 'Manage the Markov script. Parameters: ON|OFF|FREQUENCY percen
 
     end
 
-    reply "\02@@links:\02 #{links}"
+    reply "\02links:\02 #{links}"
 
   when "DELETE"
 
