@@ -48,7 +48,7 @@ command 'battle', 'Start, stop, or reset the battle in the current channel. Para
       next
     end
 
-    @active.delete @msg.destination_canon
+    @@active.delete @msg.destination_canon
 
     reply "The battle in \02#{@msg.destination}\02 has been ended by \02#{@msg.nick}\02", false
 
@@ -59,7 +59,7 @@ command 'battle', 'Start, stop, or reset the battle in the current channel. Para
       next
     end
 
-    @active[@msg.destination_canon] = {}
+    @@active[@msg.destination_canon] = {}
 
     reply "The battle in \02#{@msg.destination}\02 has been restarted by \02#{@msg.nick}\02.", false
 
@@ -128,14 +128,14 @@ helpers do
 
 
   def get_health target
-    return @active[@msg.destination_canon][target] if @active[@msg.destination_canon].include? target
+    return @@active[@msg.destination_canon][target] if @@active[@msg.destination_canon].include? target
 
-    get_config :start_health, 100
+    get_config(:start_health, 100).to_i
   end
 
 
   def set_health target, health
-    @active[@msg.destination_canon][target] = health
+    @@active[@msg.destination_canon][target] = health
   end
 
 
@@ -153,8 +153,8 @@ helpers do
       return
     end
 
-    current = get_health msg, target
-    my_health = get_health , @connection.canonize(@msg.nick)
+    current = get_health target
+    my_health = get_health @connection.canonize(@msg.nick)
 
     if my_health == 0
       reply "You cannot attack while dead."
@@ -176,14 +176,14 @@ helpers do
     new = 0 if new < 0
 
     if rand(100) < get_config(:miss, 10).to_i
-      reply "#{original} dodges #{msg.nick}'s #{weapon}.", false
+      reply "#{original} dodges #{@msg.nick}'s #{weapon}.", false
       return
     end
 
     set_health target, new
 
     if damage > 0
-      reply "#{msg.nick}'s #{weapon} hits #{original} for \02#{damage} damage\02.", false
+      reply "#{@msg.nick}'s #{weapon} hits #{original} for \02#{damage} damage\02.", false
 
       if new == 0
         reply "#{original} has been defeated!", false
