@@ -28,7 +28,7 @@ register 'Bot administration script.'
 command 'quit', 'Kill the bot.' do
   level! 10
 
-  EM.next_tick { @params.empty? ? Bot.quit : Bot.quit(@params.first) }
+  EM.next_tick { @params.empty? ? Bot.quit : Bot.quit(@params.join ' ') }
 end
 
 command 'reconnect', 'Reconnect the specified connection.' do
