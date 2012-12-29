@@ -45,7 +45,7 @@ command 'reconnect', 'Reconnect the specified connection.' do
 end
 
 command 'rehash', 'Reload the configuration file.' do
-  leve! 8
+  level! 8
 
   Bot::Conf.read_config
   reply "Done reloading configuration."
