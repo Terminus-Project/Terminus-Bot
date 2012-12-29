@@ -92,7 +92,6 @@ helpers do
         response = response.content.gsub(/\n/, "").scan(/that>(.+)<\/that/)[0]
 
         if response == nil
-          reply "Pandora gave me an empty reply."
           raise "empty pandora reply"
         end
 
@@ -105,7 +104,7 @@ helpers do
         reply response.gsub(/<[^>]+>/, "").gsub(/\s+/, " ")
       rescue => e
         $log.error('pandora.get_reply') { "Error getting reply: #{e}" }
-        reply "Error getting reply from Pandora: #{e}"
+        raise "Error getting reply from Pandora: #{e}"
       end
     end
   end
