@@ -104,7 +104,7 @@ helpers do
         reply response.gsub(/<[^>]+>/, "").gsub(/\s+/, " ")
       rescue => e
         $log.error('pandora.get_reply') { "Error getting reply: #{e}" }
-        raise "Error getting reply from Pandora: #{e}"
+        reply "Error getting reply from Pandora: #{e}"
       end
     end
   end
