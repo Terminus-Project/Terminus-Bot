@@ -56,6 +56,8 @@ event :PRIVMSG do
       next if get_youtube match
     elsif match.host =~ /(www\.)?twitter\.com/ and not match.path == nil
       next if get_twitter match
+    elsif match.host == 'imgur.com' or match.host =~ /(www|i\.)?imgur\.com/
+      next if get_imgur match
     elsif match.host == 'redd.it' or match.host =~ /(www\.)?reddit\.com/
       next if get_reddit match
     elsif match.host == 'fav.me' or match.host =~ /(.+)\.deviantart\.com/
@@ -305,6 +307,41 @@ helpers do
     false
   end
 
+  def get_imgur uri
+    $log.debug('title.get_imgur') { uri.to_s }
+
+    match = uri.path.match(/\/(?<album>a\/)?(?<hash>[^\.]+)(?<extension>\.[a-z]{3})?/)
+
+    return false unless match
+
+    arg = URI.escape match[:hash]
+    type = match[:album] ? 'album' : 'image'
+    api = URI("https://api.imgur.com/2/#{type}/#{arg}.json")
+
+    Bot.http_get(api) do |response|
+      next unless response.status == 200
+
+      data = JSON.parse(response.content)
+
+      case type
+      when 'image'
+        data = data['image']['image']
+      
+        title = data['title'] ? data['title'] : 'No Title'
+
+        reply "imgur: \02#{title}\02 - #{data["width"]}x#{data["height"]} #{data["type"]}#{" (animated)" if data["animated"]}", false
+      when 'album'
+        data = data['album']
+
+        title = data['title'] ? data['title'] : 'No Title'
+
+        reply "imgur album: \02#{title}\02 - #{data["images"].length} images", false
+      end
+
+      $log.debug('title.get_imgur') { data.inspect }
+
+    end
+  end
 
   # get_reddit helpers
 
