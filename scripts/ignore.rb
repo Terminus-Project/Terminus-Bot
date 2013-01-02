@@ -58,7 +58,7 @@ end
 command 'unignore', 'Remove the given ignore.' do
   level! 4 and argc! 1
 
-  mask = params[0]
+  mask = @params.first
 
   mask << "!*@*"  unless mask =~ /[!@*]/
 
