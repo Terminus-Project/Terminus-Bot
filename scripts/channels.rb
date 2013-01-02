@@ -35,7 +35,7 @@ event :"001" do
 end
 
 event :JOIN do
-  next unless get_config :antiforce, false or msg.me?
+  next unless get_config :antiforce, false or me?
 
   channels = get_data @connection.name, {}
   channel  = @connection.canonize @msg.destination
