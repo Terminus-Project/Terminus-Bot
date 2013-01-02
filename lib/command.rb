@@ -99,6 +99,18 @@ module Bot
       @msg.me?
     end
 
+    def op?
+      query? or half_op? or voice? or @connection.channels[@msg.destination_canon].op? @msg.nick
+    end
+
+    def half_op?
+      query? or voice? or @connection.channels[@msg.destination_canon].half_op? @msg.nick
+    end
+
+    def voice?
+      query? or @connection.channels[@msg.destination_canon].voice? @msg.nick
+    end
+
     # require 'count' args, send optional syntax on failure
     def argc! count, syntax = nil
       @params = @params_str.split(/\s/, count)
@@ -135,19 +147,19 @@ module Bot
     end
 
     def op!
-      return true if query? or @connection.channels[@msg.destination_canon].op? @msg.nick
+      return true if op?
 
       raise 'You must be a channel operator to use this command.'
     end
 
     def half_op!
-      return true if query? or @connection.channels[@msg.destination_canon].half_op? @msg.nick
+      return true if half_op?
 
       raise 'You must be a channel half-operator to use this command.'
     end
 
     def voice!
-      return true if query? or @connection.channels[@msg.destination_canon].voice? @msg.nick
+      return true if voice?
 
       raise 'You must be voiced to use this command.'
     end
