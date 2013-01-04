@@ -329,7 +329,7 @@ helpers do
       
         title = data['title'] ? data['title'] : 'No Title'
 
-        reply "imgur: \02#{title}\02 - #{data["width"]}x#{data["height"]} #{data["type"]}#{" (animated)" if data["animated"]}", false
+        reply "imgur: \02#{title}\02 - #{data["width"]}x#{data["height"]} #{data["type"]}#{" (animated)" if data["animated"] == 'true'}", false
       when 'album'
         data = data['album']
 
