@@ -223,7 +223,7 @@ helpers do
 
       data = JSON.parse(response.content)
 
-      reply "Derpibooru: #{data["tags"]} - Uploaded by \02#{data["uploader"]}\02 - #{data["width"]}x#{data["height"]} #{data["original_format"]}", false
+      reply "Derpibooru: #{data['tags']} - Uploaded by #{data['uploader']} - Score: \02#{data['score']}\02 (#{data['upvotes']} Up / #{data['downvotes']} Down) - #{data['width']}x#{data['height']} #{data['original_format']}", false
     end
   end
 
