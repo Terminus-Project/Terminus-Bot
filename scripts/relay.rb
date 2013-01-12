@@ -163,9 +163,9 @@ event :KICK do
 
   matches.each do |relay|
     if relay[0] == network and relay[1] == channel
-      Bot::Connections[relay[2]].raw "PRIVMSG #{relay[3]} :\02[#{network}]\02 <-- \02#{msg.raw_arr[3]}\02 has been kicked from \02#{channel}\02 by \02#{@msg.nick}\02 (#{msg.text})"
+      Bot::Connections[relay[2]].raw "PRIVMSG #{relay[3]} :\02[#{network}]\02 <-- \02#{@msg.raw_arr[3]}\02 has been kicked from \02#{channel}\02 by \02#{@msg.nick}\02 (#{@msg.text})"
     else
-      Bot::Connections[relay[0]].raw "PRIVMSG #{relay[1]} :\02[#{network}]\02 <-- \02#{msg.raw_arr[3]}\02 has been kicked from \02#{channel}\02 by \02#{@msg.nick}\02 (#{msg.text})"
+      Bot::Connections[relay[0]].raw "PRIVMSG #{relay[1]} :\02[#{network}]\02 <-- \02#{@msg.raw_arr[3]}\02 has been kicked from \02#{channel}\02 by \02#{@msg.nick}\02 (#{@msg.text})"
     end
   end
 end
@@ -177,7 +177,7 @@ event :QUIT do
 
   @connection.channels.each_value do |chan|
 
-    if chan.get_user msg.nick
+    if chan.get_user @msg.nick
       channel = chan.name
       matches = get_relays network, chan.name
     end
