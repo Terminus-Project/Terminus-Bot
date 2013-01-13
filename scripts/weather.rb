@@ -23,13 +23,15 @@
 # SOFTWARE.
 #
 
+# TODO: raise errors rather than just reply (needs fix elsewhere)
+# TODO: refactor more
+
 require 'rexml/document'
 require 'htmlentities'
 
 raise "weather script requires the http_client module" unless defined? MODULE_LOADED_HTTP
 
 register 'Weather information look-ups via Weather Underground (wunderground.com).'
-
 
 command 'weather', 'View current conditions for the specified location.' do
   argc! 1
@@ -39,15 +41,15 @@ command 'weather', 'View current conditions for the specified location.' do
   Bot.http_get(URI(url)) do |response|
 
     unless response.status == 200
-      riase 'There was a problem performing the looking up the weather for that location. Please try again later.'
+      raise 'There was a problem performing the looking up the weather for that location. Please try again later.'
     end
 
     root = (REXML::Document.new(response.content)).root
 
     weather = root.elements["//weather"].text rescue nil
 
-    if weather == nil
-      output "That does not appear to be a valid location. If it is, try being more specific, or specify the location in another way."
+    if weather.nil?
+      reply "That does not appear to be a valid location. If it is, try being more specific, or specify the location in another way."
       next
     end
 
@@ -64,17 +66,19 @@ command 'weather', 'View current conditions for the specified location.' do
 
     updatedTime = "Updated #{Time.at(updatedTime).to_fuzzy_duration_s} ago"
 
-    output =  "[\02#{credit}\02 for \02#{stationLocation}\02] "
-    output << "Currently: \02#{weather}\02; "
-    output << "Temp: \02#{temperature}\02; "
-    output << "Humidity: \02#{humidity}\02; "
-    output << "Wind: \02#{wind}\02; "
-    output << "Pressure: \02#{pressure}\02; "
-    #output << "Dewpoint: \02#{dewpoint}\02; "
-    output << "#{updatedTime}; "
-    output << "#{link}"
+    output = []
 
-    reply output
+    output << "[\02#{credit}\02 for \02#{stationLocation}\02]"
+    output << "Currently: \02#{weather}\02;"
+    output << "Temp: \02#{temperature}\02;"
+    output << "Humidity: \02#{humidity}\02;"
+    output << "Wind: \02#{wind}\02;"
+    output << "Pressure: \02#{pressure}\02;"
+    #output << "Dewpoint: \02#{dewpoint}\02;"
+    output << "#{updatedTime};"
+    output << link
+
+    reply output.join(' ')
 
   end
 end
@@ -87,25 +91,29 @@ command 'temp', 'View current temperature for the specified location.' do
   Bot.http_get(URI(url)) do |response|
 
     unless response.status == 200
-      raise 'There was a problem performing the looking up the weather for that location. Please try again later.'
+      reply 'There was a problem performing the looking up the weather for that location. Please try again later.'
+      next
     end
 
     root = (REXML::Document.new(response.content)).root
 
     weather = root.elements["//weather"].text rescue nil
 
-    if weather == nil
-      raise 'That does not appear to be a valid location. If it is, try being more specific, or specify the location in another way.'
+    if weather.nil?
+      reply 'That does not appear to be a valid location. If it is, try being more specific, or specify the location in another way.'
+      next
     end
 
     credit          = root.elements["//credit"].text
     stationLocation = root.elements["//observation_location/full"].text
     temperature     = root.elements["//temperature_string"].text
 
-    output =  "[\02#{credit}\02 for \02#{stationLocation}\02] "
+    output = []
+
+    output << "[\02#{credit}\02 for \02#{stationLocation}\02]"
     output << "Temperature: \02#{temperature}\02"
 
-    reply output
+    reply output.join(' ')
   end
 end
 
@@ -117,18 +125,22 @@ command 'forecast', 'View a short-term forecast for the specified location.' do
   Bot.http_get(URI(url)) do |response|
 
     unless response.status == 200
-      raise 'There was a problem performing the looking up the weather for that location. Please try again later.'
+      reply 'There was a problem performing the looking up the weather for that location. Please try again later.'
+      next
     end
 
     root = (REXML::Document.new(response.content)).root.elements["//txt_forecast"]
 
     date = root.elements["date"].text rescue nil
 
-    if date == nil
-      raise 'That does not appear to be a valid location. If it is, try being more specific, or specify the location in another way.'
+    if date.nil?
+      reply 'That does not appear to be a valid location. If it is, try being more specific, or specify the location in another way.'
+      next
     end
 
-    output = "[\02Forecast for #{@params.join ' '}\02 as of \02#{date}\02] "
+    output = []
+
+    output << "[\02Forecast for #{@params.join ' '}\02 as of \02#{date}\02]"
 
     count = 0
 
@@ -138,17 +150,18 @@ command 'forecast', 'View a short-term forecast for the specified location.' do
       text = element.elements["fcttext"].text
       text = HTMLEntities.new.decode(text)
 
-      output << "[\02#{title}\02] #{text} "
+      output << "[\02#{title}\02] #{text}"
 
       count += 1
       break if count == 2
     end
 
-    if count == 0
-      raise 'That does not appear to be a valid location. If it is, try being more specific, or specify the location in another way.'
+    if count.zero?
+      reply 'That does not appear to be a valid location. If it is, try being more specific, or specify the location in another way.'
+      next
     end
 
-    reply output
+    reply output.join(' ')
   end
 end
 
