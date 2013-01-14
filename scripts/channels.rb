@@ -90,11 +90,15 @@ helpers do
 end
 
 command 'joinchans', 'Force the join channels event.' do
+  level! 10
+
   join_channels
   reply "Done"
 end
 
 command 'join', 'Join a channel with optional key.' do
+  level! 8
+
   arr = @params.first.split /\s+/, 2
 
   name = @connection.canonize arr[0]
@@ -115,6 +119,8 @@ command 'join', 'Join a channel with optional key.' do
 end
 
 command 'part', 'Part a channel.' do
+  level! 8
+
   name = @connection.canonize @params.first
 
   channels = get_data @connection.name, {}
@@ -135,6 +141,8 @@ command 'part', 'Part a channel.' do
 end
 
 command 'cycle', 'Part and then join a channel.' do
+  level! 8
+
   channels = get_data @connection.name, {}
 
   name = @connection.canonize @params.first
