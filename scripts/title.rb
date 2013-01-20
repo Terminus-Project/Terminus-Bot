@@ -310,7 +310,7 @@ helpers do
   def get_imgur uri
     $log.debug('title.get_imgur') { uri.to_s }
 
-    match = uri.path.match(/\/(?<album>a\/)?(?<hash>[^\.]+)(?<extension>\.[a-z]{3})?/)
+    match = uri.path.match(/\/(?<album>(a|gallery)\/)?(?<hash>[^\.]+)(?<extension>\.[a-z]{3})?/)
 
     return false unless match
 
