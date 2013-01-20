@@ -223,7 +223,22 @@ helpers do
 
       data = JSON.parse(response.content)
 
-      reply "Derpibooru: #{data['tags']} - Uploaded by #{data['uploader']} - Score: \02#{data['score']}\02 (#{data['upvotes']} Up / #{data['downvotes']} Down) - #{data['width']}x#{data['height']} #{data['original_format']}", false
+      tags = data['tags'].split(/, /)
+      
+      tags_total = tags.length
+
+      # TODO: use config for max tags
+      tags = tags[0..10]
+
+      tags_remaining = tags_total - tags.length
+
+      unless tags_remaining.zero?
+        tags = "#{tags.join(', ')} (and #{tags_remaining} more)"
+      else
+        tags = tags.join(', ')
+      end
+
+      reply "Derpibooru: #{tags} - Uploaded by #{data['uploader']} - Score: \02#{data['score']}\02 (#{data['upvotes']} Up / #{data['downvotes']} Down) - #{data['width']}x#{data['height']} #{data['original_format']}", false
     end
   end
 
