@@ -194,8 +194,11 @@ helpers do
   def get_fimfiction uri
     $log.debug('title.get_fimfiction') { uri.to_s }
 
-    arg = URI.escape uri.to_s
-    api = URI("http://www.fimfiction.net/api/story.php?story=#{arg}")
+    match = uri.to_s.match(/\/story\/(?<id>[0-9]+)\//)
+
+    return false unless match
+
+    api = URI("http://www.fimfiction.net/api/story.php?story=#{match[:id]}")
 
     Bot.http_get(api) do |response|
       next unless response.status == 200
