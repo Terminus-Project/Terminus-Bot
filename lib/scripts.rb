@@ -241,7 +241,7 @@ module Bot
     end
 
     # Get the value stored for the given key in the database for this
-    # script. The optional default value is what is returned if not value
+    # script. The optional default value is what is returned if no value
     # exists for the given key.
     def get_data key, default = nil
       init_data
