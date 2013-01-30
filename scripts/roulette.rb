@@ -23,26 +23,22 @@
 # SOFTWARE.
 #
 
-def initialize
-  register_script "A Russian Roulette-style game of chance."
+register 'A Russian Roulette-style game of chance.'
 
-  register_command "roulette", :cmd_roulette,  0,  0, nil, "Pull the trigger. You have a 5/6 chance of surviving."
-end
-
-def cmd_roulette msg, params
-  return if msg.private?
+command 'roulette', 'Pull the trigger. You have a 5/6 chance of surviving.' do
+  channel!
 
   if rand(6) == 0
-    if msg.connection.channels[msg.destination_canon].half_op? msg.connection.nick
-      msg.raw "KICK #{msg.destination} #{msg.nick} :Bang!"
+    if @connection.channels[@msg.destination_canon].half_op? @connection.nick
+      raw "KICK #{@msg.destination} #{@msg.nick} :Bang!"
     else
-      msg.reply "Bang!"
+      reply "Bang!"
     end
 
-    msg.reply "\01ACTION chambers another round and spins the cylinder.\01", false
+    reply "\01ACTION chambers another round and spins the cylinder.\01", false
 
   else
-    msg.reply "\01ACTION spins the cylinder after #{msg.nick} pulled the trigger on an empty chamber.\01", false
+    reply "\01ACTION spins the cylinder after #{@msg.nick} pulled the trigger on an empty chamber.\01", false
 
   end
 end
