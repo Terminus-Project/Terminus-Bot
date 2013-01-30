@@ -33,7 +33,7 @@ command 'nato', 'Convert text to the NATO phonetic alphabet.' do
     "Papa", "Quebec", "Romeo", "Sierra", "Tango", "Uniform", "Victor",
     "Whiskey", "Xray", "Yankee", "Zulu"]
   
-  reply @params.first.upcase.chars.map {|c| nato.select {|n| n.start_with? c }[0].to_s + " " if c =~ /[A-Z]/}.join
+  reply @params.join.upcase.chars.map {|c| nato.select {|n| n.start_with? c }[0].to_s + " " if c =~ /[A-Z]/}.join
 end
 
 command 'morse', 'Convert text to Morse code.' do
@@ -59,6 +59,6 @@ command 'morse', 'Convert text to Morse code.' do
     "-..-",   "-.--",   "--..",   "",       "",       "",       "",       "",  
   ]
 
-  reply @params.first.chars.map { |c| morse[c.ord] if c.ord < 128 }.join(" ")
+  reply @params.join.chars.map { |c| morse[c.ord] if c.ord < 128 }.join(" ")
 end
 
