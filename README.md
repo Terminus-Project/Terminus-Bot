@@ -1,6 +1,6 @@
 # Terminus-Bot
 
-irc.staticbox.net #Terminus-Bot         http://terminus-bot.net/
+chat.freenode.net #Terminus-Bot         http://terminus-bot.net/
 
 # About the Bot
 
@@ -256,14 +256,14 @@ any server.
 
 When accessing or modifying the flags table, wildcards are supported.
 
-For example, if we want to disable all scripts on the StaticBox network:
+For example, if we want to disable all scripts on the Freenode network:
 
-    <Kabaka> @disable staticbox * *
+    <Kabaka> @disable freenode * *
 
 If we want to see what scripts are enabled in the #Terminus-Bot channel on 
 StaticBox:
 
-    <Kabaka> @flags staticbox #Terminus-Bot *
+    <Kabaka> @flags freenode #Terminus-Bot *
 
 Commands:
 
