@@ -78,7 +78,7 @@ module Bot
     def reconnect lost_connection = false
       unless lost_connection
         raw "QUIT :Reconnecting"
-        flush_queue
+        #flush_queue
       else
         $log.warn("IRCConnection.reconnect #{@name}") { "Lost connection." }
       end
