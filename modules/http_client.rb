@@ -21,97 +21,41 @@
 # SOFTWARE.
 # 
 
-require "uri"
-require 'cgi'
-
-# EventMachine doesn't send a User-agent header. Many sites require it.
-module EventMachine
-  module Protocols
-    class HttpClient2
-      class Request
-
-        def send_request
-          headers = [
-            "#{@args[:verb]} #{@args[:uri]} HTTP/#{@args[:version] or "1.1"}",
-            "Host: #{@args[:host_header] or "_"}"
-          ]
-
-          headers.concat(@args[:headers]) unless @args[:headers] == nil
-          headers << "\r\n"
-
-          @conn.send_data headers.join("\r\n")
-        end
-
-      end
-    end
-  end
-end
+require 'uri'
+require 'em-http-request'
 
 module Bot
 
   MODULE_LOADED_HTTP  = true
   MODULE_VERSION_HTTP = 0.2
 
-  def self.http_get uri, query_hash = nil, &block
-    uri.query = hash_to_query query_hash unless query_hash == nil
-    http_request uri, true, &block
+  def self.http_get uri, query = {}, &block
+    http_request uri, query, true, &block
   end
 
-  def self.http_post uri, query_hash = nil, &block
-    uri.query = hash_to_query query_hash unless query_hash == nil
-    http_request uri, false, &block
-  end
-
-  def self.hash_to_query hash
-    hash.map {|k,v| "#{CGI.escape k.to_s}=#{CGI.escape v.to_s}"}.join '&'
+  def self.http_post uri, query = {}, &block
+    http_request uri, query, false, &block
   end
 
   # Should not be called directly.
-  def self.http_request uri, get, limit = Conf[:modules][:http_client][:redirects], redirected = false, &block
-    return nil if limit == 0
-
+  def self.http_request uri, query, get, &block
     $log.debug("Bot.http_request") { uri }
 
-    ua = Conf[:modules][:http_client][:user_agent] || "Terminus-Bot (http://terminus-bot.net/)"
+    ua = Conf[:modules][:http_client][:user_agent] or "Terminus-Bot (http://terminus-bot.net/)"
 
     # TODO: Let callers add headers.
-    headers = [
-      "User-agent: %s" % ua
-    ]
 
-    conn = EM::Protocols::HttpClient2.connect :host => uri.host,
-                                              :port => uri.port,
-                                              :ssl => (uri.scheme == "https")
+    http = EventMachine::HttpRequest.new(uri,
+      :connect_timeout    => (Conf[:modules][:http_client][:timeout] or 5),
+      :inactivity_timeout => (Conf[:modules][:http_client][:timeout] or 5),
+    ).get :query => query,
+      :head               => { 'User-agent' => ua },
+      :redirects          => (Conf[:modules][:http_client][:redirects] or 10)
 
-    conn.comm_inactivity_timeout = Conf[:modules][:http_client][:timeout] or 5
+    http.callback { block.call(http) }
 
-    path = uri.path
-    path << "?%s" % uri.query unless uri.query == nil
-
-    args = {:uri => path, :headers => headers}
-
-    req = (get ? conn.get(args) : conn.post(args))
-
-    req.callback do |response|
-      $log.debug("Bot.http_request") { response.status }
-
-      case response.status
-
-      when 300..399
-        location = URI(response.headers['location'][0])
-        
-        if location.relative?
-          location = URI("#{uri.scheme}://#{uri.host}/#{location.path}")
-        end
-
-        $log.debug("Bot.http_request") { "Redirection: #{uri} -> #{location} (#{limit})" }
-
-        http_request location, get, limit - 1, true, &block
-
-      else
-        block.call response, uri, redirected
-
-      end
+    http.errback do
+      $log.error('Bot.http_request') { "#{uri} #{http.error}" }
     end
   end
 end

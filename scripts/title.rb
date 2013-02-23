@@ -98,11 +98,9 @@ helpers do
     vid = URI.escape vid
     api = URI("https://gdata.youtube.com/feeds/api/videos/#{vid}?v=2")
 
-    Bot.http_get(api) do |response|
-      next unless response.status == 200
-
+    Bot.http_get(api) do |http|
       # TODO: YouTube apparently does some things with JSON. Use that if possible!
-      root = REXML::Document.new(response.content.force_encoding('ASCII-8BIT')).root
+      root = REXML::Document.new(http.response.force_encoding('ASCII-8BIT')).root
 
       next unless root.get_elements("error").empty?
 
@@ -129,11 +127,9 @@ helpers do
   def get_title uri
     $log.info('title.get_title') { "Getting title for #{uri}" }
 
-    Bot.http_get(uri) do |response, uri, redirected|
+    Bot.http_get(uri) do |http|
       begin
-        next unless response.status == 200
-
-        page = StringScanner.new response.content.force_encoding('ASCII-8BIT')
+        page = StringScanner.new http.response.force_encoding('ASCII-8BIT')
 
         page.skip_until /<title[^>]*>/ix
         title = page.scan_until /<\/title[^>]*>/ix
@@ -149,7 +145,7 @@ helpers do
 
         next if title.empty?
 
-        reply "\02Title on #{uri.host}#{" (redirected)" if redirected}:\02 #{title}", false
+        reply "\02Title on #{http.last_effective_url.host}#{" (redirected)" unless http.redirects.zero?}:\02 #{title}", false
       rescue => e
         $log.error('title.get_title') { "Error getting title for #{uri}: #{e} #{e.backtrace.join("\n")}" }
       end
@@ -174,13 +170,11 @@ helpers do
     id = URI.escape match[:id]
     api = URI("https://api.twitter.com/1/statuses/show.xml?id=#{id}")
 
-    Bot.http_get(api) do |response|
-      next unless response.status == 200
-
+    Bot.http_get(api) do |http|
       # Since we're already using REXML for YouTube, we may as well use it here too.
       # (However, see the TODO about that.)
 
-      root = REXML::Document.new(response.content.force_encoding('ASCII-8BIT')).root
+      root = REXML::Document.new(http.response.force_encoding('ASCII-8BIT')).root
 
       next unless root.get_elements("error").empty?
 
@@ -200,13 +194,14 @@ helpers do
 
     api = URI("http://www.fimfiction.net/api/story.php?story=#{match[:id]}")
 
-    Bot.http_get(api) do |response|
-      next unless response.status == 200
+    Bot.http_get(api) do |http|
+      data = JSON.parse(http.response)["story"]
 
-      data = JSON.parse(response.content)["story"]
       cats = data["categories"].select {|cat, value| value }.keys.join(', ')
+      title = HTMLEntities.new.decode data["title"]
+      desc = HTMLEntities.new.decode data["short_description"]
 
-      reply "\02#{data["title"]}\02 by \02#{data["author"]["name"]}\02 - #{data["short_description"]} - #{cats} (Status: #{data["status"]})", false
+      reply "\02#{title}\02 by \02#{data["author"]["name"]}\02 - #{desc} - #{cats} (Status: #{data["status"]})", false
     end
   end
 
@@ -221,10 +216,9 @@ helpers do
 
     api = URI("http://#{"#{host_match[:server]}." if host_match}derpiboo.ru/#{match[:id]}.json")
 
-    Bot.http_get(api) do |response|
-      next unless response.status == 200
+    Bot.http_get(api) do |http|
 
-      data = JSON.parse(response.content)
+      data = JSON.parse(http.response)
 
       tags = data['tags'].split(/, /)
       
@@ -282,10 +276,8 @@ helpers do
     arg = URI.escape uri.to_s
     api = URI("https://backend.deviantart.com/oembed?url=#{arg}")
 
-    Bot.http_get(api) do |response|
-      next unless response.status == 200
-
-      data = JSON.parse(response.content)
+    Bot.http_get(api) do |http|
+      data = JSON.parse(http.response)
 
       reply "#{data["provider_name"]}: \02#{data["title"]}\02 by \02#{data["author_name"]}\02 - #{data["category"]} - #{data["width"]}x#{data["height"]} #{data["type"]}", false
     end
@@ -336,10 +328,8 @@ helpers do
     type = match[:album] ? 'album' : 'image'
     api = URI("https://api.imgur.com/2/#{type}/#{arg}.json")
 
-    Bot.http_get(api) do |response|
-      next unless response.status == 200
-
-      data = JSON.parse(response.content)
+    Bot.http_get(api) do |http|
+      data = JSON.parse(http.response)
 
       case type
       when 'image'
@@ -366,10 +356,8 @@ helpers do
   def get_reddit_user username
     api = URI("http://www.reddit.com/user/#{URI.escape username}/about.json")
 
-    Bot.http_get(api) do |response|
-      next unless response.status == 200
-
-      data = JSON.parse(response.content)["data"]
+    Bot.http_get(api) do |http|
+      data = JSON.parse(http.response)["data"]
 
       reply "\02#{data["name"]}\02 - \02#{data["link_karma"]}\02 Link Karma - \02#{data["comment_karma"]}\02 Comment Karma - Joined #{Time.at(data["created_utc"]).to_s}", false
     end
@@ -378,10 +366,8 @@ helpers do
   def get_reddit_subreddit name
     api = URI("http://www.reddit.com/r/#{URI.escape name}/about.json")
 
-    Bot.http_get(api) do |response|
-      next unless response.status == 200
-
-      data = JSON.parse(response.content)["data"]
+    Bot.http_get(api) do |http|
+      data = JSON.parse(http.response)["data"]
 
       reply "#{"[NSFW] " if data["over18"]}#{data["url"]}: \02#{data["title"]}\02 - \02#{data["subscribers"]}\02 subscribers - #{data["public_description"]}", false
     end
@@ -390,10 +376,8 @@ helpers do
   def get_reddit_post id
     api = URI("http://www.reddit.com/comments/#{URI.escape id}.json")
 
-    Bot.http_get(api) do |response|
-      next unless response.status == 200
-
-      data = JSON.parse(response.content, :max_nesting => 100).first["data"]["children"].first["data"]
+    Bot.http_get(api) do |http|
+      data = JSON.parse(http.response, :max_nesting => 100).first["data"]["children"].first["data"]
 
       reply "#{"[NSFW] " if data["over18"]}/r/#{data["subreddit"]}: \02#{data["title"]}\02 - \02#{data["score"]}\02 Karma - \02#{data["num_comments"]}\02 Comments", false
     end
@@ -405,10 +389,8 @@ helpers do
   def get_github_commit match
     api = URI("https://api.github.com/repos/#{match[:owner]}/#{match[:project]}/git/commits/#{match[:hash]}")
 
-    Bot.http_get(api) do |response|
-      next unless response.status == 200
-
-      data = JSON.parse(response.content)
+    Bot.http_get(api) do |http|
+      data = JSON.parse(http.response)
 
       reply "\02#{match[:project]}\02: #{data["message"].lines.first} - by #{data["author"]["name"]} at #{Time.parse(data["author"]["date"]).to_s}", false
     end
@@ -417,10 +399,8 @@ helpers do
   def get_github_repo match
     api = URI("https://api.github.com/repos/#{match[:owner]}/#{match[:project]}")
 
-    Bot.http_get(api) do |response|
-      next unless response.status == 200
-
-      data = JSON.parse(response.content)
+    Bot.http_get(api) do |http|
+      data = JSON.parse(http.response)
 
       reply "\02#{match[:project]}\02 (#{data["language"]}): #{data["description"]} - by #{data["owner"]["login"]}", false
     end

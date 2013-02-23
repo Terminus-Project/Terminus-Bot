@@ -134,10 +134,8 @@ helpers do
 
         $log.debug("rss.check_feeds") { "Checking %s for %s on %s" % [feed, channel, network] }
 
-        Bot.http_get(URI(feed[0])) do |response|
-          next unless response.status == 200
-
-          rss = RSS::Parser.parse(response.content)
+        Bot.http_get(URI(feed[0])) do |http|
+          rss = RSS::Parser.parse(http.response)
 
           send = false
           atom = rss.kind_of? RSS::Atom::Feed

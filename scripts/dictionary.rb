@@ -43,9 +43,8 @@ helpers do
 
     api = 'http://api-pub.dictionary.com/v001'
 
-    Bot.http_get(URI(api), opt) do |response, uri, redirected|
-      yield nil unless response.status == 200
-      yield (REXML::Document.new(response.content)).root
+    Bot.http_get(URI(api), opt) do |http|
+      yield (REXML::Document.new(http.response)).root
     end
   end
 

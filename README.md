@@ -23,6 +23,7 @@ have encountered, as well as all of those everyone else tells us about.
     * json
     * psych 1.2.2
     * dnsruby
+    * em-http-request (http_client module and all scripts that use it)
 * Script Dependencies
     * netutils: ping, ping6, mtr
 

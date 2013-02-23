@@ -88,6 +88,7 @@ helpers do
     Bot.http_post(uri, query_hash) do |response|
       begin
         $log.info('pandora.get_reply') { "Getting relpy with #{botid} for message: #{str}" }
+        $log.info('pandora.get_reply') { response.content }
 
         response = response.content.gsub(/\n/, "").scan(/that>(.+)<\/that/)[0]
 

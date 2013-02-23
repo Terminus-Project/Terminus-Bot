@@ -47,13 +47,9 @@ helpers do
   def do_lookup url
     $log.debug('urbandict.do_lookup') { url }
 
-    Bot.http_get(URI(url)) do |response, uri, redirected|
+    Bot.http_get(URI(url)) do |http|
+      page  = StringScanner.new http.response.force_encoding 'UTF-8'
 
-      unless response.status == 200
-        raise "There was a problem looking up the definition for that word."
-      end
-
-      page  = StringScanner.new response.content.force_encoding 'UTF-8'
       defs  = []
       count = 0
       max   = get_config(:max, 1).to_i

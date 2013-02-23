@@ -84,13 +84,9 @@ helpers do
     uri = URI("https://ajax.googleapis.com/ajax/services/search/#{type}")
     query_hash = {:v => "1.0", :q => query}
 
-    Bot.http_get(uri, query_hash) do |response|
+    Bot.http_get(uri, query_hash) do |http|
 
-      unless response.status == 200
-        yield "There was a problem with the search. Sorry! Response code: #{response.status}."
-      end
-
-      response = JSON.parse response.content
+      response = JSON.parse http.response
 
       results = []
       limit = get_config(:resultlimit, 3).to_i

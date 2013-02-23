@@ -38,13 +38,8 @@ command 'weather', 'View current conditions for the specified location.' do
 
   url = "http://api.wunderground.com/auto/wui/geo/WXCurrentObXML/index.xml?query=#{URI.escape(@params.join ' ')}"
 
-  Bot.http_get(URI(url)) do |response|
-
-    unless response.status == 200
-      raise 'There was a problem performing the looking up the weather for that location. Please try again later.'
-    end
-
-    root = (REXML::Document.new(response.content)).root
+  Bot.http_get(URI(url)) do |http|
+    root = (REXML::Document.new(http.response)).root
 
     weather = root.elements["//weather"].text rescue nil
 
@@ -88,14 +83,8 @@ command 'temp', 'View current temperature for the specified location.' do
 
   url = "http://api.wunderground.com/auto/wui/geo/WXCurrentObXML/index.xml?query=#{URI.escape(@params.join ' ')}"
 
-  Bot.http_get(URI(url)) do |response|
-
-    unless response.status == 200
-      reply 'There was a problem performing the looking up the weather for that location. Please try again later.'
-      next
-    end
-
-    root = (REXML::Document.new(response.content)).root
+  Bot.http_get(URI(url)) do |http|
+    root = (REXML::Document.new(http.response)).root
 
     weather = root.elements["//weather"].text rescue nil
 
@@ -122,14 +111,8 @@ command 'forecast', 'View a short-term forecast for the specified location.' do
 
   url = "http://api.wunderground.com/auto/wui/geo/ForecastXML/index.xml?query=#{URI.escape(@params.join ' ')}"
 
-  Bot.http_get(URI(url)) do |response|
-
-    unless response.status == 200
-      reply 'There was a problem performing the looking up the weather for that location. Please try again later.'
-      next
-    end
-
-    root = (REXML::Document.new(response.content)).root.elements["//txt_forecast"]
+  Bot.http_get(URI(url)) do |http|
+    root = (REXML::Document.new(http.response)).root.elements["//txt_forecast"]
 
     date = root.elements["date"].text rescue nil
 

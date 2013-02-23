@@ -35,13 +35,8 @@ command 'wiki', 'Search Wikipedia for the given text.' do
   $log.info('wikipedia.cmd_wiki') { "Getting Wikipedia page for #{@params.first}" }
 
 
-  Bot.http_get(URI('http://en.wikipedia.org/w/api.php'), :action=> :query, :format => :json, :srsearch => @params.first, :limit => 1, :list => :search) do |response|
-
-    unless response.status == 200
-      raise "There was a problem with the search."
-    end
-
-    response = JSON.parse response.content.force_encoding("UTF-8")
+  Bot.http_get(URI('http://en.wikipedia.org/w/api.php'), :action=> :query, :format => :json, :srsearch => @params.first, :limit => 1, :list => :search) do |http|
+    response = JSON.parse http.response.force_encoding("UTF-8")
 
     if response["query"]["search"].empty?
       reply "No results."

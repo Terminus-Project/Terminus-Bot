@@ -69,14 +69,8 @@ helpers do
 
     opt[:api_key] = api_key
 
-    Bot.http_get(URI(api_url), opt) do |response|
-      # TODO: Figure out why we never get here.
-
-      unless response.status == 200
-        reply "There was a problem retrieving information."
-      else
-        yield REXML::Document.new response.content.force_encoding('ASCII-8BIT')
-      end
+    Bot.http_get(URI(api_url), opt) do |http|
+      yield REXML::Document.new http.response.force_encoding('ASCII-8BIT')
     end
   end
 end
