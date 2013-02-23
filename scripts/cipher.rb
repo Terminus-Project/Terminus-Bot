@@ -110,16 +110,16 @@ helpers do
   # Generic Cipher API
   # TODO: find a way to indicate error messages better
   def do_encode cipher, key, data
-    return "Unknown cipher #{cipher}" unless @ciphers.has_key? cipher
+    return "Unknown cipher #{cipher}" unless @@ciphers.has_key? cipher
 
-    encoded = self.send @ciphers[cipher].encoder, key, data
+    encoded = self.send @@ciphers[cipher].encoder, key, data
     encoded ? encoded : "Unable to encode"
   end
 
   def do_decode cipher, key, data
-    return "Unknown cipher #{cipher}" unless @ciphers.has_key? cipher
+    return "Unknown cipher #{cipher}" unless @@ciphers.has_key? cipher
 
-    decoded = self.send @ciphers[cipher].decoder, key, data
+    decoded = self.send @@ciphers[cipher].decoder, key, data
     decoded ? decoded : "Unable to decode"
   end
 
@@ -127,7 +127,7 @@ end
 
 # Basic interface
 command 'ciphers', 'List the available cphers.' do
-  reply "Available ciphers: #{@ciphers.keys.join(', ')}"
+  reply "Available ciphers: #{@@ciphers.keys.join(', ')}"
 end
 
 command 'encode', 'Encode some text using a particular cipher and key. Parameters: cipher key message' do
