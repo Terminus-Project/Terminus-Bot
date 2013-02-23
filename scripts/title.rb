@@ -44,39 +44,65 @@ event :PRIVMSG do
     next if i >= max
 
     next if matches.include? match
+
     matches << match
-
-    match = URI(match)
-
-    # TODO: Find a way to make these site-specific things work after following
-    # redirects so we can get info from shortened URLs.
-    if match.host =~ /(www\.)?youtube\.com/ and not match.query == nil
-      next if get_youtube match
-    elsif match.host =~ /(www\.)?youtu\.be/ and not match.path == nil
-      next if get_youtube match
-    elsif match.host =~ /(www\.)?twitter\.com/ and not match.path == nil
-      next if get_twitter match
-    elsif match.host == 'imgur.com' or match.host =~ /(www|i\.)?imgur\.com/
-      next if get_imgur match
-    elsif match.host == 'redd.it' or match.host =~ /(www\.)?reddit\.com/
-      next if get_reddit match
-    elsif match.host == 'fav.me' or match.host =~ /(.+)\.deviantart\.com/
-      next if get_deviantart match
-    elsif match.host =~ /(www\.)?github\.com/
-      next if get_github match
-    elsif match.host =~ /(www\.)?fimfiction\.net/ and match.path.start_with? "/story/"
-      next if get_fimfiction match
-    elsif match.host =~ /(.+\.)?derpiboo(ru.org|.ru)/
-      next if get_derpibooru match
-    end
-    
-    get_title match
+    get_title URI(match)
 
     i += 1
   end
 end
 
 helpers do
+
+  def get_title uri
+    $log.info('title.get_title') { "Getting title for #{uri}" }
+
+    Bot.http_get(uri) do |http|
+      last = http.last_effective_url
+
+      if last.host =~ /(www\.)?youtube\.com/ and not last.query == nil
+        next if get_youtube match
+      elsif last.host =~ /(www\.)?youtu\.be/ and not last.path == nil
+        next if get_youtube last
+      elsif last.host =~ /(www\.)?twitter\.com/ and not last.path == nil
+        next if get_twitter last
+      elsif last.host == 'imgur.com' or last.host =~ /(www|i\.)?imgur\.com/
+        next if get_imgur last
+      elsif last.host == 'redd.it' or last.host =~ /(www\.)?reddit\.com/
+        next if get_reddit last
+      elsif last.host == 'fav.me' or last.host =~ /(.+)\.deviantart\.com/
+        next if get_deviantart last
+      elsif last.host =~ /(www\.)?github\.com/
+        next if get_github last
+      elsif last.host =~ /(www\.)?fimfiction\.net/ and last.path.start_with? "/story/"
+        next if get_fimfiction last
+      elsif last.host =~ /(.+\.)?derpiboo(ru.org|.ru)/
+        next if get_derpibooru last
+      end
+
+      begin
+        page = StringScanner.new http.response.force_encoding('ASCII-8BIT')
+
+        page.skip_until /<title[^>]*>/ix
+        title = page.scan_until /<\/title[^>]*>/ix
+
+        next if title == nil
+
+        title = HTMLEntities.new.decode title
+
+        len = title.length - 9
+        next if len <= 0
+
+        title = title[0..len].strip.gsub(/[[[:cntrl:]]\s]+/, " ").strip
+
+        next if title.empty?
+
+        reply "\02Title on #{last.host}#{" (redirected)" unless http.redirects.zero?}:\02 #{title}", false
+      rescue => e
+        $log.error('title.get_title') { "Error getting title for #{uri}: #{e} #{e.backtrace.join("\n")}" }
+      end
+    end
+  end
 
   def get_youtube uri
     $log.info('title.get_title') { "Getting YouTube info for #{uri}" }
@@ -122,34 +148,6 @@ helpers do
     end
 
     true
-  end
-
-  def get_title uri
-    $log.info('title.get_title') { "Getting title for #{uri}" }
-
-    Bot.http_get(uri) do |http|
-      begin
-        page = StringScanner.new http.response.force_encoding('ASCII-8BIT')
-
-        page.skip_until /<title[^>]*>/ix
-        title = page.scan_until /<\/title[^>]*>/ix
-
-        next if title == nil
-
-        title = HTMLEntities.new.decode title
-
-        len = title.length - 9
-        next if len <= 0
-
-        title = title[0..len].strip.gsub(/[[[:cntrl:]]\s]+/, " ").strip
-
-        next if title.empty?
-
-        reply "\02Title on #{http.last_effective_url.host}#{" (redirected)" unless http.redirects.zero?}:\02 #{title}", false
-      rescue => e
-        $log.error('title.get_title') { "Error getting title for #{uri}: #{e} #{e.backtrace.join("\n")}" }
-      end
-    end
   end
 
   def get_twitter uri
