@@ -47,15 +47,25 @@ module Bot
 
     http = EventMachine::HttpRequest.new(uri,
       :connect_timeout    => (Conf[:modules][:http_client][:timeout] or 5),
-      :inactivity_timeout => (Conf[:modules][:http_client][:timeout] or 5),
-    ).get :query => query,
+      :inactivity_timeout => (Conf[:modules][:http_client][:timeout] or 5)
+    )
+    
+    args = {
+      :query              => query,
       :head               => { 'User-agent' => ua },
       :redirects          => (Conf[:modules][:http_client][:redirects] or 10)
+    }
 
-    http.callback { block.call(http) }
+    if get
+      req = http.get  args
+    else
+      req = http.post args
+    end
 
-    http.errback do
-      $log.error('Bot.http_request') { "#{uri} #{http.error}" }
+    req.callback { block.call(req) }
+
+    req.errback do
+      $log.error('Bot.http_request') { "#{uri} #{req.error}" }
     end
   end
 end
