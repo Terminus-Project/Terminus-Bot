@@ -26,23 +26,23 @@
 register 'Provides several game commands.'
 
 
-# TODO: refactor
 command 'dice', 'Roll dice. Parameters: <count>d<sides>[+/-<modifier> | s<success>[b<botch>]] [order]' do
   argc! 1
 
   order = false
+  params = @params.shift.split
 
-  # XXX
-  unless @params.shift =~ /\A([0-9]+)d([0-9]+)(([+-][0-9]+)|(s([0-9])+(b([0-9])+)?))?\Z/
-    reply "Syntax: <count>d<sides>[+/-<modfier> | s<success>[b<botch>]] [order]"
-    next
+  match = params.shift.match(/\A(?<count>[0-9]+)d(?<sides>[0-9]+)((?<mod>[+-][0-9]+)|(s(?<success>[0-9])+(b(?<botch>[0-9])+)?))?\Z/)
+
+  unless match
+    raise "Syntax: <count>d<sides>[+/-<modfier> | s<success>[b<botch>]] [order]"
   end
 
-  count   = $1.to_i
-  sides   = $2.to_i
-  mod     = $4.to_i
-  success = $6.to_i
-  botch   = $8.to_i
+  count   = match[:count].to_i
+  sides   = match[:sides].to_i
+  mod     = match[:mod].to_i
+  success = match[:success].to_i
+  botch   = match[:botch].to_i
 
   if count > 100
     raise "You may only roll up to 100 dice."
@@ -56,17 +56,18 @@ command 'dice', 'Roll dice. Parameters: <count>d<sides>[+/-<modifier> | s<succes
     raise "The number of dice and their sides must be positive numbers larger than 0."
   end
 
-  unless success <= botch
+  if match[:success] and botch > success
     raise "The success target must be greater than the botch target."
   end
 
-  @params.each do |param|
+  params.each do |param|
     if param == "order"
       order = true
+      break
     end
   end
 
-  unless not ( order and success )
+  if order and match[:success]
     raise "Cannot count successes/botches and roll dice in order."
   end
 
@@ -80,9 +81,10 @@ command 'dice', 'Roll dice. Parameters: <count>d<sides>[+/-<modifier> | s<succes
     end
 
     reply "#{rolls.join(", ")} #{"Modifier: #{mod}" unless mod.zero?} \02Sum: #{sum}\02"
-  elsif success != 0
+
+  elsif success and not success.zero?
     num_success = 0
-    num_botch = 0
+    num_botch   = 0
 
     count.times do
       r = rand(sides) + 1
@@ -98,6 +100,7 @@ command 'dice', 'Roll dice. Parameters: <count>d<sides>[+/-<modifier> | s<succes
     else
       reply "Rolled #{num_success} successes and #{num_botch} botches."
     end
+
   else
     rolls  = Hash.new 0
     output = []
@@ -115,17 +118,19 @@ command 'dice', 'Roll dice. Parameters: <count>d<sides>[+/-<modifier> | s<succes
 end
 
 command 'eightball', 'Shake the 8-ball.' do
-  reply [ "Most likely" ,   "It is certain",
-    "As I see it, yes",         "Signs point to yes",
-    "Outlook Good",             "It is decidedly so",
-    "My sources say Yes ",      "Yes, Definetly",
-    "Without a doubt",          "You may rely on it",
-    "YES",                      "Very doubtful",
-    "My sources say NO",        "My reply is NO",
-    "Don't count on it",        "Outlook not so good",
-    "Concentrate and ask again","Cannot predict now",
-    "Reply hazy, try again",    "Ask again later",
-    "Better not tell you now" ].sample
+  reply [
+    "Most likely" ,               "It is certain",
+    "As I see it, yes",           "Signs point to yes",
+    "Outlook Good",               "It is decidedly so",
+    "My sources say Yes ",        "Yes, Definetly",
+    "Without a doubt",            "You may rely on it",
+    "YES",                        "Very doubtful",
+    "My sources say NO",          "My reply is NO",
+    "Don't count on it",          "Outlook not so good",
+    "Concentrate and ask again",  "Cannot predict now",
+    "Reply hazy, try again",      "Ask again later",
+    "Better not tell you now"
+  ].sample
 end
 
 command 'coin', 'Flip a coin.' do
