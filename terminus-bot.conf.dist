@@ -113,6 +113,15 @@ core = {
 
 
   # OPTIONAL
+  # How often the database should be written to disk in seconds. This should be
+  # reasonably high (300 seconds or more) as serialization and writing can be
+  # expensive. The database is written on exit, so this is only useful for
+  # crash recovery. Changes currently require a bot restart.
+  # default: 300
+  # database_flush_frequency = 300
+
+
+  # OPTIONAL
   # Scripts in this list will not be loaded during start, but can still be loaded
   # manually. Script names should be the same as the file name without an
   # extension.List one script per line.

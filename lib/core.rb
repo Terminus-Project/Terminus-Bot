@@ -72,8 +72,7 @@ module Bot
 
     Events.dispatch :em_started
 
-    # TODO: Make this a config variable?
-    EM.add_periodic_timer(300) { DB.write_database }
+    EM.add_periodic_timer(Bot::Conf[:core][:database_flush_frequency] or 300) { DB.write_database }
 
     bind = Bot::Conf[:core][:bind]
 
