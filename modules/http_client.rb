@@ -41,19 +41,43 @@ module Bot
   def self.http_request uri, query, get, &block
     $log.debug("Bot.http_request") { uri }
 
-    ua = Conf[:modules][:http_client][:user_agent] or "Terminus-Bot (http://terminus-bot.net/)"
+    conf = Conf[:modules][:http_client]
+
+    ua = conf[:user_agent] or "Terminus-Bot (http://terminus-bot.net/)"
 
     # TODO: Let callers add headers.
 
-    http = EventMachine::HttpRequest.new(uri,
-      :connect_timeout    => (Conf[:modules][:http_client][:timeout] or 5),
-      :inactivity_timeout => (Conf[:modules][:http_client][:timeout] or 5)
-    )
+    conn_opts = {
+      :connect_timeout    => (conf[:timeout] or 5),
+      :inactivity_timeout => (conf[:timeout] or 5)
+    }
+
+    if conf[:proxy_address]
+      proxy = {
+        :host => conf[:proxy_address],
+        :port => (conf[:proxy_port] or 8080)
+      }
+
+      if conf[:proxy_username] and conf[:proxy_password]
+        proxy[:authentication] = [
+          conf[:proxy_username],
+          conf[:proxy_password]
+        ]
+      end
+
+      if conf[:proxy_type]
+        proxy[:type] = conf[:proxy_type].to_sym
+      end
+    
+      conn_opts[:proxy] = proxy
+    end
+
+    http = EventMachine::HttpRequest.new uri, conn_opts
     
     args = {
       :query              => query,
       :head               => { 'User-agent' => ua },
-      :redirects          => (Conf[:modules][:http_client][:redirects] or 10)
+      :redirects          => (conf[:redirects] or 10)
     }
 
     if get

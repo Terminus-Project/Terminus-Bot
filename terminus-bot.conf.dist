@@ -174,6 +174,31 @@ modules = {
     # Maximum number of redirections to follow. This should be 10 or less. Setting
     # it too high may cause the bot to hang. It should probably be at least 3.
     redirects = 10
+
+    # OPTIONAL
+    # The HTTP or SOCKS5 proxy address to use for all HTTP requests. Do not set
+    # this option if you do not want to use a proxy.
+    # proxy_address = example.com
+
+    # OPTIONAL
+    # The port for the HTTP or SOCKS5 proxy to use for all HTTP requests.
+    # default: 8080
+    # proxy_port = 8080
+
+    # OPTIONAL
+    # The proxy type to use, if any. Can be http or socks5.
+    # default: http
+    # proxy_type = http
+
+    # OPTIONAL
+    # The user name to use to authenticate with your proxy. If you set this,
+    # remember to set proxy_password as well.
+    # proxy_username = 
+
+    # OPTIONAL
+    # The password to use to authenticate with your proxy. Set this if you set
+    # a user name in proxy_username.
+    # proxy_password = 
   }
 
   # Note: Don't uncomment this for now. The module is unfinished and will
