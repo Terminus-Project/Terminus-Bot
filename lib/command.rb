@@ -179,8 +179,8 @@ module Bot
     private
 
     # Actually send the reply. If prefix is true, prefix each message with the
-    # # triggering user's nick. If replying in private, never use a prefix, and
-    # # reply with NOTICE instead.
+    # triggering user's nick. If replying in private, never use a prefix, and
+    # reply with NOTICE instead.
     def send_reply str, prefix
       if str.empty?
         str = "I tried to send you an empty message. Oops!"
@@ -199,8 +199,8 @@ module Bot
     end
 
     # Attempt to truncate messages in such a way that the maximum
-    # # amount of space possible is used. This assumes the server will
-    # # send a full 512 bytes to a client with exactly 1459 format.
+    # amount of space possible is used. This assumes the server will
+    # send a full 512 bytes to a client with exactly 1459 format.
     def truncate message, destination, notice = false
       prefix_length = @connection.nick.length +
         @connection.user.length +
