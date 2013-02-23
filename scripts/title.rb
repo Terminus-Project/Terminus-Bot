@@ -57,28 +57,12 @@ helpers do
   def get_title uri
     $log.info('title.get_title') { "Getting title for #{uri}" }
 
+    return if attempt_site_specific uri
+
     Bot.http_get(uri) do |http|
       last = http.last_effective_url
 
-      if last.host =~ /(www\.)?youtube\.com/ and not last.query == nil
-        next if get_youtube match
-      elsif last.host =~ /(www\.)?youtu\.be/ and not last.path == nil
-        next if get_youtube last
-      elsif last.host =~ /(www\.)?twitter\.com/ and not last.path == nil
-        next if get_twitter last
-      elsif last.host == 'imgur.com' or last.host =~ /(www|i\.)?imgur\.com/
-        next if get_imgur last
-      elsif last.host == 'redd.it' or last.host =~ /(www\.)?reddit\.com/
-        next if get_reddit last
-      elsif last.host == 'fav.me' or last.host =~ /(.+)\.deviantart\.com/
-        next if get_deviantart last
-      elsif last.host =~ /(www\.)?github\.com/
-        next if get_github last
-      elsif last.host =~ /(www\.)?fimfiction\.net/ and last.path.start_with? "/story/"
-        next if get_fimfiction last
-      elsif last.host =~ /(.+\.)?derpiboo(ru.org|.ru)/
-        next if get_derpibooru last
-      end
+      next if attempt_site_specific last
 
       begin
         page = StringScanner.new http.response.force_encoding('ASCII-8BIT')
@@ -103,6 +87,31 @@ helpers do
       end
     end
   end
+
+  def attempt_site_specific uri
+    if uri.host =~ /(www\.)?youtube\.com/ and not uri.query == nil
+      return true if get_youtube uri
+    elsif uri.host =~ /(www\.)?youtu\.be/ and not uri.path == nil
+      return true if get_youtube uri
+    elsif uri.host =~ /(www\.)?twitter\.com/ and not uri.path == nil
+      return true if get_twitter uri
+    elsif uri.host == 'imgur.com' or uri.host =~ /(www|i\.)?imgur\.com/
+      return true if get_imgur uri
+    elsif uri.host == 'redd.it' or uri.host =~ /(www\.)?reddit\.com/
+      return true if get_reddit uri
+    elsif uri.host == 'fav.me' or uri.host =~ /(.+)\.deviantart\.com/
+      return true if get_deviantart uri
+    elsif uri.host =~ /(www\.)?github\.com/
+      return true if get_github uri
+    elsif uri.host =~ /(www\.)?fimfiction\.net/ and uri.path.start_with? "/story/"
+      return true if get_fimfiction uri
+    elsif uri.host =~ /(.+\.)?derpiboo(ru.org|.ru)/
+      return true if get_derpibooru uri
+    end
+
+    false
+  end
+
 
   def get_youtube uri
     $log.info('title.get_title') { "Getting YouTube info for #{uri}" }
