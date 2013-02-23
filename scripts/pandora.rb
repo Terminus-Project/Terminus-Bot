@@ -85,12 +85,12 @@ helpers do
     uri = URI("http://www.pandorabots.com/pandora/talk-xml")
     query_hash = {:custid => custid, :botid => botid, :input => str}
 
-    Bot.http_post(uri, query_hash) do |response|
+    Bot.http_post(uri, query_hash) do |http|
       begin
         $log.info('pandora.get_reply') { "Getting relpy with #{botid} for message: #{str}" }
-        $log.info('pandora.get_reply') { response.content }
+        $log.info('pandora.get_reply') { http.response }
 
-        response = response.content.gsub(/\n/, "").scan(/that>(.+)<\/that/)[0]
+        response = http.response.gsub(/\n/, "").scan(/that>(.+)<\/that/)[0]
 
         if response == nil
           raise "empty pandora reply"
