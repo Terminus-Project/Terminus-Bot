@@ -23,7 +23,6 @@
 # SOFTWARE.
 #
 
-# TODO: raise errors rather than just reply (needs fix elsewhere)
 # TODO: refactor more
 
 require 'rexml/document'
@@ -44,8 +43,7 @@ command 'weather', 'View current conditions for the specified location.' do
     weather = root.elements["//weather"].text rescue nil
 
     if weather.nil?
-      reply "That does not appear to be a valid location. If it is, try being more specific, or specify the location in another way."
-      next
+      raise "That does not appear to be a valid location. If it is, try being more specific, or specify the location in another way."
     end
 
     credit          = root.elements["//credit"].text
@@ -89,8 +87,7 @@ command 'temp', 'View current temperature for the specified location.' do
     weather = root.elements["//weather"].text rescue nil
 
     if weather.nil?
-      reply 'That does not appear to be a valid location. If it is, try being more specific, or specify the location in another way.'
-      next
+      raise 'That does not appear to be a valid location. If it is, try being more specific, or specify the location in another way.'
     end
 
     credit          = root.elements["//credit"].text
@@ -117,8 +114,7 @@ command 'forecast', 'View a short-term forecast for the specified location.' do
     date = root.elements["date"].text rescue nil
 
     if date.nil?
-      reply 'That does not appear to be a valid location. If it is, try being more specific, or specify the location in another way.'
-      next
+      raise 'That does not appear to be a valid location. If it is, try being more specific, or specify the location in another way.'
     end
 
     output = []
@@ -140,8 +136,7 @@ command 'forecast', 'View a short-term forecast for the specified location.' do
     end
 
     if count.zero?
-      reply 'That does not appear to be a valid location. If it is, try being more specific, or specify the location in another way.'
-      next
+      raise 'That does not appear to be a valid location. If it is, try being more specific, or specify the location in another way.'
     end
 
     reply output.join(' ')
