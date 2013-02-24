@@ -72,7 +72,9 @@ module Bot
 
     Events.dispatch :em_started
 
-    flush_period = Bot::Conf[:core][:database_flush_frequency] or 300
+    flush_period = (Bot::Conf[:core][:database_flush_frequency] or 300)
+
+    $log.debug("Bot.run") { "flush period: #{flush_period.inspect}" }
 
     EM.add_periodic_timer(flush_period) { DB.write_database }
 
