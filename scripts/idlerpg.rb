@@ -37,7 +37,7 @@ command 'idlerpg', 'Get information about players on this network\'s IdleRPG gam
     raise "I am not configured for this network's IdleRPG."
   end
 
-  name = params.empty? ? @msg.nick : params[0]
+  name = @params.empty? ? @msg.nick : @params[0]
 
   unless config.has_key? :xml_url
     raise "I don't know where to get player info on this network."
