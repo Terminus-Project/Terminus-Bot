@@ -86,7 +86,13 @@ module Bot
       req = http.post args
     end
 
-    req.callback { block.call(req) }
+    req.callback do
+      begin
+        block.call(req)
+      rescue
+        $log.error('Bot.http_request') { "#{uri} #{req.error}" }
+      end
+    end
 
     req.errback do
       $log.error('Bot.http_request') { "#{uri} #{req.error}" }
