@@ -57,6 +57,7 @@ helpers do
       page.skip_until /class=.word.>/i
       word = page.scan_until /<\/td>/i
       word = clean_result word[0..word.length-7]
+      word = HTMLEntities.new.decode word
 
       while page.skip_until(/<div class="definition">/i) != nil and count < max
         count += 1
