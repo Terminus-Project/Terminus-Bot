@@ -100,17 +100,21 @@ event :PRIVMSG do
     if @msg.text =~ /\01ACTION (.+)\01/
 
       if relay[0] == network and relay[1] == channel
-        Bot::Connections[relay[2]].raw "PRIVMSG #{relay[3]} :[\02#{network}:#{channel_original}\02] * \02#{@msg.nick_with_prefix(channel)}\02 #{$1}"
+        Bot::Connections[relay[2]].raw generate_raw(:action, relay[3], network,
+          channel_original, @msg.nick_with_prefix(channel), $1)
       else
-        Bot::Connections[relay[0]].raw "PRIVMSG #{relay[1]} :[\02#{network}:#{channel_original}\02] * \02#{@msg.nick_with_prefix(channel)}\02 #{$1}"
+        Bot::Connections[relay[0]].raw generate_raw(:action, relay[1], network,
+          channel_original, @msg.nick_with_prefix(channel), $1)
       end
 
     else
 
       if relay[0] == network and relay[1] == channel
-        Bot::Connections[relay[2]].raw "PRIVMSG #{relay[3]} :[\02#{network}:#{channel_original}\02] <\02#{@msg.nick_with_prefix(channel)}\02> #{@msg.text}"
+        Bot::Connections[relay[2]].raw generate_raw(:message, relay[3], network,
+          channel_original, @msg.nick_with_prefix(channel), @msg.text)
       else
-        Bot::Connections[relay[0]].raw "PRIVMSG #{relay[1]} :[\02#{network}:#{channel_original}\02] <\02#{@msg.nick_with_prefix(channel)}\02> #{@msg.text}"
+        Bot::Connections[relay[0]].raw generate_raw(:message, relay[1], network,
+          channel_original, @msg.nick_with_prefix(channel), @msg.text)
       end
 
     end
@@ -130,9 +134,11 @@ event :JOIN do
 
   matches.each do |relay|
     if relay[0] == network and relay[1] == channel
-      Bot::Connections[relay[2]].raw "PRIVMSG #{relay[3]} :[\02#{network}:#{channel_original}\02] --> \02#{@msg.nick_with_prefix(channel)}\02 has joined \02#{channel}\02"
+      Bot::Connections[relay[2]].raw generate_raw(:join, relay[3], network,
+        channel_original, @msg.nick_with_prefix(channel))
     else
-      Bot::Connections[relay[0]].raw "PRIVMSG #{relay[1]} :[\02#{network}:#{channel_original}\02] --> \02#{@msg.nick_with_prefix(channel)}\02 has joined \02#{channel}\02"
+      Bot::Connections[relay[0]].raw generate_raw(:join, relay[1], network,
+        channel_original, @msg.nick_with_prefix(channel))
     end
   end
 end
@@ -150,9 +156,11 @@ event :PART do
 
   matches.each do |relay|
     if relay[0] == network and relay[1] == channel
-      Bot::Connections[relay[2]].raw "PRIVMSG #{relay[3]} :[\02#{network}:#{channel_original}\02] <-- \02#{@msg.nick_with_prefix(channel)}\02 has left \02#{channel}\02"
+      Bot::Connections[relay[2]].raw generate_raw(:part, relay[3], network,
+        channel_original, @msg.nick_with_prefix(channel))
     else
-      Bot::Connections[relay[0]].raw "PRIVMSG #{relay[1]} :[\02#{network}:#{channel_original}\02] <-- \02#{@msg.nick_with_prefix(channel)}\02 has left \02#{channel}\02"
+      Bot::Connections[relay[0]].raw generate_raw(:part, relay[1], network,
+        channel_original, @msg.nick_with_prefix(channel))
     end
   end
 end
@@ -170,9 +178,11 @@ event :KICK do
 
   matches.each do |relay|
     if relay[0] == network and relay[1] == channel
-      Bot::Connections[relay[2]].raw "PRIVMSG #{relay[3]} :[\02#{network}:#{channel_original}\02] <-- \02#{@msg.raw_arr[3]}\02 has been kicked from \02#{channel}\02 by \02#{@msg.nick_with_prefix(channel)}\02 (#{@msg.text})"
+      Bot::Connections[relay[2]].raw generate_raw(:kick, relay[3], network,
+        channel_original, @msg.nick_with_prefix(channel), @msg.text, @msg.raw_arr[3])
     else
-      Bot::Connections[relay[0]].raw "PRIVMSG #{relay[1]} :[\02#{network}:#{channel_original}\02] <-- \02#{@msg.raw_arr[3]}\02 has been kicked from \02#{channel}\02 by \02#{@msg.nick_with_prefix(channel)}\02 (#{@msg.text})"
+      Bot::Connections[relay[0]].raw generate_raw(:kick, relay[1], network,
+        channel_original, @msg.nick_with_prefix(channel), @msg.text, @msg.raw_arr[3])
     end
   end
 end
@@ -195,14 +205,43 @@ event :QUIT do
 
   matches.each do |relay|
     if relay[0] == network and relay[1] == channel
-      Bot::Connections[relay[2]].raw "PRIVMSG #{relay[3]} :[\02#{network}:#{channel}\02] <-- \02#{@msg.nick_with_prefix(channel)}\02 has quit (#{@msg.text})"
+      Bot::Connections[relay[2]].raw generate_raw(:quit, relay[3], network,
+        channel, @msg.nick_with_prefix(channel), @msg.text)
     else
-      Bot::Connections[relay[0]].raw "PRIVMSG #{relay[1]} :[\02#{network}:#{channel}\02] <-- \02#{@msg.nick_with_prefix(channel)}\02 has quit (#{@msg.text})"
+      Bot::Connections[relay[0]].raw generate_raw(:quit, relay[1], network,
+        channel, @msg.nick_with_prefix(channel), @msg.text)
     end
   end
 end
 
 helpers do
+
+  def generate_raw type, dest, network, channel, nick, text = '', misc = ''
+    prefix = message_prefix network, channel
+    case type
+    when :message
+      "PRIVMSG #{dest} :#{prefix} <\02#{nick}\02> #{text}"
+    when :action
+      "PRIVMSG #{dest} :#{prefix} * \02#{nick}\02 #{text}"
+    when :join
+      "PRIVMSG #{dest} :#{prefix} --> \02#{nick}\02 has joined \02#{channel}\02"
+    when :part
+      "PRIVMSG #{dest} :#{prefix} <-- \02#{nick}\02 has left \02#{channel}\02"
+    when :kick
+      "PRIVMSG #{dest} :#{prefix} <-- \02#{misc}\02 has has been kicked from \02#{channel}\02 by \02#{nick}\02 (#{text})"
+    when :quit
+      "PRIVMSG #{dest} :#{prefix} <-- \02#{nick}\02 has quit (#{text})"
+    end
+  end
+
+  def message_prefix network, channel
+    if get_config(:show_channel, true)
+      "[\02#{network}:#{channel}\02]"
+    else
+      "[\02#{network}\02]"
+    end
+  end
+
   def get_relays network, channel
     matches = []
 

@@ -422,6 +422,17 @@ battle = {
 
 }
 
+# Channel relay script.
+relay = {
+
+  # Show the channel name in relay output.
+  #   Example:
+  #     Enabled: [freenode:#Terminus-Bot] <Kabaka> Hello!
+  #     Disabled: [freenode] <Kabaka> Hello!
+  # default: true
+  #show_channel = true
+ 
+}
 
 # RSS/ATOM feed reader script.
 rss = {
