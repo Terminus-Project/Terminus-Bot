@@ -215,10 +215,6 @@ helpers do
       end
     end
 
-    $log.debug('Script_relay.get_relays') { "#{network.inspect} #{channel.inspect}" }
-    $log.debug('Script_relay.get_relays') { @@relays.inspect }
-    $log.debug('Script_relay.get_relays') { matches.inspect }
-
     matches
   end
   def relay_exists? source_network, source_channel, target_network, target_channel
