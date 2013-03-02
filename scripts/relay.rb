@@ -40,6 +40,9 @@ command 'relay', 'Manage channel relays. Parameters: ON|OFF source-network sourc
   
   next unless relay_points_exist? source_network, source_channel, target_network, target_channel
 
+  source_channel = Bot::Connections[source_network].canonize source_channel
+  target_channel = Bot::Connections[target_network].canonize target_channel
+
   case @params.first.upcase
   when "ON"
 
@@ -86,7 +89,8 @@ event :PRIVMSG do
   next unless channel?
 
   network = @connection.name
-  channel = @msg.destination
+  channel = @msg.destination_canon
+  channel_original = @msg.destination
 
   matches = get_relays network, channel
 
@@ -96,17 +100,17 @@ event :PRIVMSG do
     if @msg.text =~ /\01ACTION (.+)\01/
 
       if relay[0] == network and relay[1] == channel
-        Bot::Connections[relay[2]].raw "PRIVMSG #{relay[3]} :\02[#{network}] * #{@msg.nick}\02 #{$1}"
+        Bot::Connections[relay[2]].raw "PRIVMSG #{relay[3]} :[\02#{network}:#{channel_original}\02] * \02#{@msg.nick}\02 #{$1}"
       else
-        Bot::Connections[relay[0]].raw "PRIVMSG #{relay[1]} :\02[#{network}] * #{@msg.nick}\02 #{$1}"
+        Bot::Connections[relay[0]].raw "PRIVMSG #{relay[1]} :[\02#{network}:#{channel_original}\02] * \02#{@msg.nick}\02 #{$1}"
       end
 
     else
 
       if relay[0] == network and relay[1] == channel
-        Bot::Connections[relay[2]].raw "PRIVMSG #{relay[3]} :[\02#{network}] <#{@msg.nick}\02> #{@msg.text}"
+        Bot::Connections[relay[2]].raw "PRIVMSG #{relay[3]} :[\02#{network}:#{channel_original}\02] <\02#{@msg.nick}\02> #{@msg.text}"
       else
-        Bot::Connections[relay[0]].raw "PRIVMSG #{relay[1]} :[\02#{network}] <#{@msg.nick}\02> #{@msg.text}"
+        Bot::Connections[relay[0]].raw "PRIVMSG #{relay[1]} :[\02#{network}:#{channel_original}\02] <\02#{@msg.nick}\02> #{@msg.text}"
       end
 
     end
@@ -117,7 +121,8 @@ event :JOIN do
   next unless channel?
 
   network = @connection.name
-  channel = @msg.text
+  channel = @connection.canonize @msg.text
+  channel_original = @msg.text
 
   matches = get_relays network, channel
 
@@ -125,9 +130,9 @@ event :JOIN do
 
   matches.each do |relay|
     if relay[0] == network and relay[1] == channel
-      Bot::Connections[relay[2]].raw "PRIVMSG #{relay[3]} :\02[#{network}]\02 --> \02#{@msg.nick}\02 has joined \02#{channel}\02"
+      Bot::Connections[relay[2]].raw "PRIVMSG #{relay[3]} :[\02#{network}:#{channel_original}\02] --> \02#{@msg.nick}\02 has joined \02#{channel}\02"
     else
-      Bot::Connections[relay[0]].raw "PRIVMSG #{relay[1]} :\02[#{network}]\02 --> \02#{@msg.nick}\02 has joined \02#{channel}\02"
+      Bot::Connections[relay[0]].raw "PRIVMSG #{relay[1]} :[\02#{network}:#{channel_original}\02] --> \02#{@msg.nick}\02 has joined \02#{channel}\02"
     end
   end
 end
@@ -136,7 +141,8 @@ event :PART do
   next unless channel?
 
   network = @connection.name
-  channel = @msg.destination
+  channel = @msg.destination_canon
+  channel_original = @msg.destination
 
   matches = get_relays network, channel
 
@@ -144,9 +150,9 @@ event :PART do
 
   matches.each do |relay|
     if relay[0] == network and relay[1] == channel
-      Bot::Connections[relay[2]].raw "PRIVMSG #{relay[3]} :\02[#{network}]\02 <-- \02#{@msg.nick}\02 has left \02#{channel}\02"
+      Bot::Connections[relay[2]].raw "PRIVMSG #{relay[3]} :[\02#{network}:#{channel_original}\02] <-- \02#{@msg.nick}\02 has left \02#{channel}\02"
     else
-      Bot::Connections[relay[0]].raw "PRIVMSG #{relay[1]} :\02[#{network}]\02 <-- \02#{@msg.nick}\02 has left \02#{channel}\02"
+      Bot::Connections[relay[0]].raw "PRIVMSG #{relay[1]} :[\02#{network}:#{channel_original}\02] <-- \02#{@msg.nick}\02 has left \02#{channel}\02"
     end
   end
 end
@@ -155,7 +161,8 @@ event :KICK do
   next unless channel?
 
   network = @connection.name
-  channel = @msg.destination
+  channel = @msg.destination_canon
+  channel_original = @msg.destination
 
   matches = get_relays network, channel
 
@@ -163,9 +170,9 @@ event :KICK do
 
   matches.each do |relay|
     if relay[0] == network and relay[1] == channel
-      Bot::Connections[relay[2]].raw "PRIVMSG #{relay[3]} :\02[#{network}]\02 <-- \02#{@msg.raw_arr[3]}\02 has been kicked from \02#{channel}\02 by \02#{@msg.nick}\02 (#{@msg.text})"
+      Bot::Connections[relay[2]].raw "PRIVMSG #{relay[3]} :[\02#{network}:#{channel_original}\02] <-- \02#{@msg.raw_arr[3]}\02 has been kicked from \02#{channel}\02 by \02#{@msg.nick}\02 (#{@msg.text})"
     else
-      Bot::Connections[relay[0]].raw "PRIVMSG #{relay[1]} :\02[#{network}]\02 <-- \02#{@msg.raw_arr[3]}\02 has been kicked from \02#{channel}\02 by \02#{@msg.nick}\02 (#{@msg.text})"
+      Bot::Connections[relay[0]].raw "PRIVMSG #{relay[1]} :[\02#{network}:#{channel_original}\02] <-- \02#{@msg.raw_arr[3]}\02 has been kicked from \02#{channel}\02 by \02#{@msg.nick}\02 (#{@msg.text})"
     end
   end
 end
@@ -173,13 +180,13 @@ end
 event :QUIT do
   network = @connection.name
   channel = ""
-  matches = nil
+  matches = []
 
   @connection.channels.each_value do |chan|
 
     if chan.get_user @msg.nick
-      channel = chan.name
-      matches = get_relays network, chan.name
+      channel = Bot::Connections[network].canonize chan.name
+      matches << get_relays(network, channel)
     end
 
   end
@@ -188,9 +195,9 @@ event :QUIT do
 
   matches.each do |relay|
     if relay[0] == network and relay[1] == channel
-      Bot::Connections[relay[2]].raw "PRIVMSG #{relay[3]} :\02[#{network}]\02 <-- \02#{@msg.nick}\02 has quit (#{@msg.text})"
+      Bot::Connections[relay[2]].raw "PRIVMSG #{relay[3]} :[\02#{network}:#{channel}\02] <-- \02#{@msg.nick}\02 has quit (#{@msg.text})"
     else
-      Bot::Connections[relay[0]].raw "PRIVMSG #{relay[1]} :\02[#{network}]\02 <-- \02#{@msg.nick}\02 has quit (#{@msg.text})"
+      Bot::Connections[relay[0]].raw "PRIVMSG #{relay[1]} :[\02#{network}:#{channel}\02] <-- \02#{@msg.nick}\02 has quit (#{@msg.text})"
     end
   end
 end
@@ -207,6 +214,10 @@ helpers do
            matches << relay
       end
     end
+
+    $log.debug('Script_relay.get_relays') { "#{network.inspect} #{channel.inspect}" }
+    $log.debug('Script_relay.get_relays') { @@relays.inspect }
+    $log.debug('Script_relay.get_relays') { matches.inspect }
 
     matches
   end
@@ -234,10 +245,14 @@ helpers do
       return false
     end
 
+    source_channel = Bot::Connections[source_network].canonize source_channel
+
     unless Bot::Connections[source_network].channels.has_key? source_channel
       reply "Source channel \02#{source_channel}\02 does not exist."
       return false
     end
+
+    target_channel = Bot::Connections[target_network].canonize target_channel
 
     unless Bot::Connections[target_network].channels.has_key? target_channel
       reply "Target channel \02#{target_channel}\02 does not exist."
