@@ -119,6 +119,14 @@ module Bot
       @nick_canon ||= @connection.canonize @nick
     end
 
+    # Original nick with prefix for the given IRC channel
+    def nick_with_prefix channel
+      channel = @connection.canonize(channel)
+      prefix = @connection.channels[channel].users[nick_canon].prefix || ''
+
+      "#{prefix}#{@nick}"
+    end
+
     # Apply CASEMAPPING to the destination and return it.
     def destination_canon
       @destination_canon ||= @connection.canonize destination
