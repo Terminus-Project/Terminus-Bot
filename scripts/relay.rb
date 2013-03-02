@@ -33,9 +33,9 @@ register 'Relay chat between two or more channels on one or more networks.'
 command 'relay', 'Manage channel relays. Parameters: ON|OFF source-network source-channel target-network target-channel' do
   level! 7 and argc! 5
 
-  source_network = @params[1]
+  source_network = @params[1].to_sym
   source_channel = @params[2]
-  target_network = @params[3]
+  target_network = @params[3].to_sym
   target_channel = @params[4]
   
   next unless relay_points_exist? source_network, source_channel, target_network, target_channel
