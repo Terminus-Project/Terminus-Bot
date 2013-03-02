@@ -125,8 +125,8 @@ event :JOIN do
   next unless channel?
 
   network = @connection.name
-  channel = @connection.canonize @msg.text
-  channel_original = @msg.text
+  channel = @msg.destination_canon
+  channel_original = @msg.destination
 
   matches = get_relays network, channel
 
@@ -157,10 +157,10 @@ event :PART do
   matches.each do |relay|
     if relay[0] == network and relay[1] == channel
       Bot::Connections[relay[2]].raw generate_raw(:part, relay[3], network,
-        channel_original, @msg.nick_with_prefix(channel))
+        channel_original, @msg.nick)
     else
       Bot::Connections[relay[0]].raw generate_raw(:part, relay[1], network,
-        channel_original, @msg.nick_with_prefix(channel))
+        channel_original, @msg.nick)
     end
   end
 end
