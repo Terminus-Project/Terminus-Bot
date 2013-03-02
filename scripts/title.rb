@@ -169,7 +169,7 @@ helpers do
     end
 
     unless match
-      match = uri.path.match(/status\/(?<id>[0-9]+)/)
+      match = uri.path.match(/status(es)?\/(?<id>[0-9]+)/)
 
       return false unless match
     end
