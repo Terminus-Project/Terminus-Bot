@@ -57,10 +57,12 @@ module Bot
         self[canon_name] = Channel.new canon_name, @connection
       end
 
-      self[canon_name].join(ChannelUser.new(@connection.canonize(msg.raw_arr[7]),
-                                                     msg.raw_arr[4],
-                                                     msg.raw_arr[5],
-                                                     []))
+      self[canon_name].join(ChannelUser.new(
+        self[canon_name],
+        @connection.canonize(msg.raw_arr[7]),
+        msg.raw_arr[4],
+        msg.raw_arr[5],
+        []))
 
       self[canon_name].who_modes msg.raw_arr[7], msg.raw_arr[8]
     end
@@ -79,7 +81,10 @@ module Bot
         @connection.raw "WHO #{msg.destination}"
       end
 
-      self[msg.destination_canon].join(ChannelUser.new(msg.nick_canon, msg.user, msg.host, []))
+      self[msg.destination_canon].join(ChannelUser.new(
+        self[msg.destination_canon],
+        msg.nick_canon, msg.user, msg.host, []
+      ))
     end
 
     def on_part msg
@@ -167,11 +172,27 @@ module Bot
   end
 
   # TODO: Track channel users in the user objects rather than here.
-  ChannelUser = Struct.new :nick, :user, :host, :modes
+  class ChannelUser 
+    attr_accessor :nick, :user, :host, :modes
+
+    def initialize parent, nick, user, host, modes
+      @parent = parent
+      @nick, @user, @host, @modes = nick, user, host, modes
+    end
+
+    def prefix
+      @parent.prefixes.each do |prefix, mode|
+        return prefix if @modes.include? mode
+      end
+
+      ''
+    end
+
+  end
 
   class Channel
 
-    attr_reader :name, :topic, :modes, :users, :lists
+    attr_reader :name, :topic, :modes, :users, :lists, :prefixes
 
     # Create the channel object. Since all we know when we join is the name,
     # that's all we're going to store here.
@@ -384,7 +405,8 @@ module Bot
 
       # Apparently structs don't let you change values. So just make a
       # new user.
-      changed_user = ChannelUser.new changed_nick_canon,
+      changed_user = ChannelUser.new self,
+                                     changed_nick_canon,
                                      @users[msg.nick_canon].user,
                                      @users[msg.nick_canon].host,
                                      @users[msg.nick_canon].modes
