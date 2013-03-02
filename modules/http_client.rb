@@ -94,6 +94,9 @@ module Bot
       end
     end
 
+    
+    # TODO: errback for request sender
+
     req.errback do
       $log.error('Bot.http_request') { "#{uri} #{req.error}" }
     end
