@@ -176,13 +176,15 @@ event :KICK do
 
   return if matches.empty?
 
+  kicked, reason = @msg.parameters.split(/ :/, 2)
+
   matches.each do |relay|
     if relay[0] == network and relay[1] == channel
       Bot::Connections[relay[2]].raw generate_raw(:kick, relay[3], network,
-        channel_original, @msg.nick_with_prefix(channel), @msg.text, @msg.raw_arr[3])
+        channel_original, @msg.nick_with_prefix(channel), reason, kicked)
     else
       Bot::Connections[relay[0]].raw generate_raw(:kick, relay[1], network,
-        channel_original, @msg.nick_with_prefix(channel), @msg.text, @msg.raw_arr[3])
+        channel_original, @msg.nick_with_prefix(channel), reason, kicked)
     end
   end
 end
