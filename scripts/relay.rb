@@ -263,6 +263,11 @@ helpers do
         relay[2] == target_network and
         relay[3] == target_channel
         return relay
+      elsif  relay[2] == source_network and
+        relay[3] == source_channel and
+        relay[0] == target_network and
+        relay[1] == target_channel
+        return relay
       end
     end
 
