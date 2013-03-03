@@ -87,6 +87,8 @@ module Bot
     end
 
     req.callback do
+      req.response.fix_encoding!
+
       begin
         block.call(req)
       rescue

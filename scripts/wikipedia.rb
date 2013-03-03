@@ -36,7 +36,7 @@ command 'wiki', 'Search Wikipedia for the given text.' do
 
 
   Bot.http_get(URI('http://en.wikipedia.org/w/api.php'), :action=> :query, :format => :json, :srsearch => @params.first, :limit => 1, :list => :search) do |http|
-    response = JSON.parse http.response.force_encoding("UTF-8")
+    response = JSON.parse http.response
 
     if response["query"]["search"].empty?
       reply "No results."

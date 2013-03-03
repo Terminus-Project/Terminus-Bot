@@ -475,7 +475,9 @@ helpers do
     fi = File.open @@filename, "r"
 
     while line = fi.gets
-      arr = line.force_encoding('UTF-8').chomp.split "\t"
+      line.fix_encoding!
+
+      arr = line.chomp.split "\t"
 
       word = arr.shift
 

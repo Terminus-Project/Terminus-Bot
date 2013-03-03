@@ -48,7 +48,7 @@ helpers do
     $log.debug('urbandict.do_lookup') { url }
 
     Bot.http_get(URI(url)) do |http|
-      page  = StringScanner.new http.response.force_encoding 'UTF-8'
+      page  = StringScanner.new http.response
 
       defs  = []
       count = 0

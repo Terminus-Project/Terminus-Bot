@@ -100,7 +100,7 @@ helpers do
           response = response.join " "
         end
 
-        response = HTMLEntities.new.decode response.force_encoding('UTF-8')
+        response = HTMLEntities.new.decode response
 
         reply response.gsub(/<[^>]+>/, "").gsub(/\s+/, " ")
       rescue => e

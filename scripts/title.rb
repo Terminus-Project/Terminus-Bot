@@ -65,7 +65,7 @@ helpers do
       next if attempt_site_specific last
 
       begin
-        page = StringScanner.new http.response.force_encoding('ASCII-8BIT')
+        page = StringScanner.new http.response
 
         page.skip_until /<title[^>]*>/ix
         title = page.scan_until /<\/title[^>]*>/ix
@@ -135,7 +135,7 @@ helpers do
 
     Bot.http_get(api) do |http|
       # TODO: YouTube apparently does some things with JSON. Use that if possible!
-      root = REXML::Document.new(http.response.force_encoding('ASCII-8BIT')).root
+      root = REXML::Document.new(http.response).root
 
       next unless root.get_elements("error").empty?
 
@@ -181,7 +181,7 @@ helpers do
       # Since we're already using REXML for YouTube, we may as well use it here too.
       # (However, see the TODO about that.)
 
-      root = REXML::Document.new(http.response.force_encoding('ASCII-8BIT')).root
+      root = REXML::Document.new(http.response).root
 
       next unless root.get_elements("error").empty?
 
