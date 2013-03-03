@@ -110,12 +110,13 @@ module Bot
     try_exit
   end
 
-  def self.try_exit
+  def self.try_exit tries = 0
     count = EM.connection_count
 
-    unless count.zero?
-      $log.debug("Bot.try_exit") { "Waiting for connections to close (#{count} remaining)." }
-      EM.add_timer(0.1) { self.try_exit }
+    unless count.zero? or tries == 100
+      $log.debug("Bot.try_exit") { "Waiting for connections to close (#{count} remaining). Will give up in #{100 - tries} tries." }
+
+      EM.add_timer(0.1) { self.try_exit(tries + 1) }
     else
       exit
     end
