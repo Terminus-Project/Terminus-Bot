@@ -196,7 +196,7 @@ event :QUIT do
 
   @connection.channels.each_value do |chan|
 
-    if chan.get_user @msg.nick_with_prefix(channel)
+    if chan.get_user @msg.nick
       channel = Bot::Connections[network].canonize chan.name
       matches << get_relays(network, channel)
     end
