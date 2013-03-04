@@ -135,10 +135,10 @@ event :JOIN do
   matches.each do |relay|
     if relay[0] == network and relay[1] == channel
       Bot::Connections[relay[2]].raw generate_raw(:join, relay[3], network,
-        channel_original, @msg.nick_with_prefix(channel))
+        channel_original, @msg.nick
     else
       Bot::Connections[relay[0]].raw generate_raw(:join, relay[1], network,
-        channel_original, @msg.nick_with_prefix(channel))
+        channel_original, @msg.nick)
     end
   end
 end
