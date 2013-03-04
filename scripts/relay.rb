@@ -189,21 +189,13 @@ event :KICK do
   end
 end
 
-event :QUIT do
+event :QUIT_CHANNEL do
   network = @connection.name
-  channel = ""
-  matches = []
+  channel = @data[:channel].name_canon
 
-  @connection.channels.each_value do |chan|
-
-    if chan.get_user @msg.nick
-      channel = Bot::Connections[network].canonize chan.name
-      matches << get_relays(network, channel)
-    end
-
-  end
-
-  next if matches.nil? or matches.empty?
+  matches = get_relays network, channel
+  
+  next if matches.empty?
 
   matches.each do |relay|
     if relay[0] == network

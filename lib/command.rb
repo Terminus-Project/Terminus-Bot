@@ -28,11 +28,11 @@ module Bot
     #attr_reader :owner, :cmd, :func, :argc, :level, :chan_level, :help
 
     class << self
-      def run owner, msg, cmd, params, &blk
+      def run owner, msg, cmd, params, data = {}, &blk
         helpers &owner.get_helpers
 
         begin
-          self.new(owner, msg, cmd, params).instance_eval &blk
+          self.new(owner, msg, cmd, params, data).instance_eval &blk
         rescue Exception => e
           # XXX - this sort of sucks
           if msg.query?
@@ -51,8 +51,8 @@ module Bot
       end
     end
 
-    def initialize owner, msg, cmd, params = ""
-      @owner, @msg, @cmd, = owner, msg, cmd
+    def initialize owner, msg, cmd, params = "", data = {}
+      @owner, @msg, @cmd, @data = owner, msg, cmd, data
 
       if params.nil?
         @params     = []

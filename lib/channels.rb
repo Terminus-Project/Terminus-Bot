@@ -149,7 +149,7 @@ module Bot
       # TODO: This is fucko. The Users class needs to hold channel users. We have
       # too much duplicate data.
       each_value do |c|
-        c.part msg.nick
+        c.quit msg
       end
     end
 
@@ -205,6 +205,10 @@ module Bot
       @lists = {} # bans, exempts, etc.
 
       parse_prefixes
+    end
+
+    def name_canon
+      @name_canon ||= @connection.canonize(@name)
     end
 
     # TODO: Move to IRC_Connection.
@@ -392,14 +396,14 @@ module Bot
     end
 
     # Remove a user from our channel's user list.
-    def quit nick
-      nick = @connection.canonize nick
+    def quit msg
+      return nil unless @users.include? msg.nick_canon
 
-      return nil unless @users.include? nick
+      $log.debug("Channel.quit") { "#{msg.nick} quit #{@name}" }
 
-      $log.debug("Channel.quit") { "#{nick} quit #{@name}" }
+      Events.dispatch :QUIT_CHANNEL, msg, {:channel => self}
 
-      @users.delete nick
+      @users.delete msg.nick_canon
     end
 
     # Retrieve the channel user object for the named user, or return nil

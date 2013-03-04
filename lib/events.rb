@@ -39,7 +39,7 @@ module Bot
     end
 
     # Run all the events with the given name.
-    def dispatch name, msg = nil
+    def dispatch name, msg = nil, data = {}
       return unless self.has_key? name
 
       $log.debug("events.dispatch") { name }
@@ -50,7 +50,7 @@ module Bot
             next unless Bot::Flags.permit_message? event.owner, msg
           end
 
-          Event.dispatch event.owner, event.name, event.func, msg, &event.blk
+          Event.dispatch event.owner, event.name, event.func, msg, data, &event.blk
         rescue => e
           $log.error("events.run") { "Error running event #{name}: #{e}" }
           $log.debug("events.run") { "Backtrace for #{name}: #{e.backtrace}" }
@@ -58,7 +58,7 @@ module Bot
       end
     end
 
-    def dispatch_for owner, name, msg = nil
+    def dispatch_for owner, name, msg = nil, data = {}
       return unless self.has_key? name
 
       $log.debug("events.dipatch_for") { "#{owner} #{name}" }
@@ -67,7 +67,7 @@ module Bot
         begin
           next unless event.owner == owner
 
-          Event.dispatch event.owner, event.name, event.func, msg, &event.blk
+          Event.dispatch event.owner, event.name, event.func, msg, data, &event.blk
         rescue => e
           $log.error("events.run") { "Error running event #{name}: #{e}" }
           $log.debug("events.run") { "Backtrace for #{name}: #{e.backtrace}" }
@@ -86,27 +86,39 @@ module Bot
 
   class Event < Command
     class << self
-      def dispatch owner, name, func, msg = nil, &blk
+      def dispatch owner, name, func, msg = nil, data = {}, &blk
         helpers &owner.get_helpers if owner.respond_to? :helpers
 
         if block_given?
           if msg.nil?
-            self.new(owner, name).instance_eval &blk
+            if data.empty?
+              self.new(owner, name).instance_eval &blk
+            else
+              self.new(owner, name, data).instance_eval &blk
+            end
           else
-            self.new(owner, name, msg).instance_eval &blk
+            self.new(owner, name, msg, data).instance_eval &blk
           end
         else
           if msg.nil?
-            owner.send func
+            if data.empty?
+              owner.send func
+            else
+              owner.send func, data
+            end
           else
-            owner.send func, msg
+            if data.empty?
+              owner.send func, msg
+            else
+              owner.send func, msg, data
+            end
           end
         end
       end
     end
 
-    def initialize owner, name, msg = nil
-      super owner, msg, nil
+    def initialize owner, name, msg = nil, data = {}
+      super owner, msg, nil, '', data
     end
   end
 
