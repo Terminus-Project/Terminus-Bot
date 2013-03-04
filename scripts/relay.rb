@@ -205,8 +205,6 @@ event :QUIT do
 
   next if matches.nil? or matches.empty?
 
-  $log.debug('Script_relay.quit') { "THIS LINE: #{matches.inspect}" }
-
   matches.each do |relay|
     if relay[0] == network
       Bot::Connections[relay[2]].raw generate_raw(:quit, relay[3], network,
