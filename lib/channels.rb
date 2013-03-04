@@ -382,9 +382,24 @@ module Bot
 
     # Remove a user from our channel's user list.
     def part nick
+      nick = @connection.canonize nick
+
+      return nil unless @users.include? nick
+
       $log.debug("Channel.part") { "#{nick} parted #{@name}" }
 
-      @users.delete @connection.canonize(nick)
+      @users.delete nick
+    end
+
+    # Remove a user from our channel's user list.
+    def quit nick
+      nick = @connection.canonize nick
+
+      return nil unless @users.include? nick
+
+      $log.debug("Channel.quit") { "#{nick} quit #{@name}" }
+
+      @users.delete nick
     end
 
     # Retrieve the channel user object for the named user, or return nil
