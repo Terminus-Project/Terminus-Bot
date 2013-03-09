@@ -29,16 +29,28 @@ module Bot
   MODULE_LOADED_HTTP  = true
   MODULE_VERSION_HTTP = 0.2
 
-  def self.http_get uri, query = {}, &block
-    http_request uri, query, true, &block
+  class Command
+
+    def http_get uri, query = {}, &block
+      Bot.http_request uri, query, true, @msg, &block
+    end
+
+    def http_post uri, query = {}, &block
+      Bot.http_request uri, query, false, @msg, &block
+    end
+
   end
 
-  def self.http_post uri, query = {}, &block
-    http_request uri, query, false, &block
+  def self.http_get uri, query = {}, msg = nil, &block
+    Bot.http_request uri, query, true, msg, &block
+  end
+
+  def self.http_post uri, query = {}, msg = nil, &block
+    Bot.http_request uri, query, false, msg, &block
   end
 
   # Should not be called directly.
-  def self.http_request uri, query, get, &block
+  def self.http_request uri, query, get, msg, &block
     $log.debug("Bot.http_request") { uri }
 
     conf = Conf[:modules][:http_client]
@@ -93,14 +105,21 @@ module Bot
         block.call(req)
       rescue => e
         $log.error('Bot.http_request') { "#{uri} callback error: #{e}" }
+        msg.connection.send_reply msg, "Error: #{e}" unless msg.nil?
       end
     end
 
-    
-    # TODO: errback for request sender
-
     req.errback do
-      $log.error('Bot.http_request') { "#{uri} #{req.error}" }
+      $log.error('Bot.http_request') { "#{uri} errback for: #{req.error}" }
+
+      req.response.fix_encoding!
+
+      begin
+        block.call(req)
+      rescue => e
+        $log.error('Bot.http_request') { "#{uri} errback error: #{e}" }
+        msg.connection.send_reply msg, "Error: #{e}" unless msg.nil?
+      end
     end
   end
 end
