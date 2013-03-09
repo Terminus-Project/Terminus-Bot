@@ -320,6 +320,54 @@ module Bot
 
     end
 
+    def send_privmsg dest, msg
+      raw "PRIVMSG #{dest} :#{msg}"
+    end
+
+    def send_notice dest, msg
+      raw "NOTICE #{dest} :#{msg}"
+    end
+
+    # Actually send the reply. If prefix is true, prefix each message with the
+    # triggering user's nick. If replying in private, never use a prefix, and
+    # reply with NOTICE instead.
+    def send_reply msg, str, prefix = true
+      if str.empty?
+        str = "I tried to send you an empty message. Oops!"
+      end
+
+      # TODO: Hold additional content for later sending or something.
+      #       Just don't try to send it all in multiple messages without
+      #       the user asking for it!
+      unless msg.query?
+        str = "#{msg.nick}: #{str}" if prefix
+
+        send_privmsg msg.destination, str
+      else
+        send_notice msg.nick, str
+      end
+    end
+
+    # Attempt to truncate messages in such a way that the maximum
+    # amount of space possible is used. This assumes the server will
+    # send a full 512 bytes to a client with exactly 1459 format.
+    def truncate message, destination, notice = false
+      prefix_length = @nick.length +
+        @user.length +
+        @client_host.length +
+        destination.length +
+        15
+
+      # PRIVMSG is 1 char longer than NOTICE
+      prefix_length += 1 unless notice
+
+      if (prefix_length + message.length) - 512 > 0
+        return message[0..511-prefix_length]
+      end
+
+      message
+    end
+
     # retrieve ISUPPORT values or default to a value we don't have
     def support param, default = nil
       param.upcase!

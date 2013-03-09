@@ -34,6 +34,11 @@ module Bot
         begin
           self.new(owner, msg, cmd, params, data).instance_eval &blk
         rescue Exception => e
+          error msg, e
+        end
+      end
+
+      def error msg, e
           # XXX - this sort of sucks
           if msg.query?
             msg.connection.raw "NOTICE #{msg.nick} :Error: #{e.to_s}"
@@ -43,7 +48,6 @@ module Bot
 
           $log.error('Command.run') { e }
           $log.error('Command.run') { e.backtrace }
-        end
       end
 
       def helpers &blk
@@ -80,10 +84,10 @@ module Bot
     def reply str, prefix = true
       if str.kind_of? Array
         str.each do |this_str|
-          send_reply this_str, prefix
+          @connection.send_reply @msg, this_str, prefix
         end
       else
-        send_reply str, prefix
+        @connection.send_reply @msg, str, prefix
       end
     end
 
@@ -164,59 +168,16 @@ module Bot
       raise 'You must be voiced to use this command.'
     end
 
-    def send_privmsg dest, msg
-      raw "PRIVMSG #{dest} :#{msg}"
+    def send_privmsg *args
+      @connection.send_privmsg *args
     end
 
-    def send_notice dest, msg
-      raw "NOTICE #{dest} :#{msg}"
+    def send_notice *args
+      @connection.send_notice *args
     end
 
     def raw *args
       @connection.raw *args
     end
-
-    private
-
-    # Actually send the reply. If prefix is true, prefix each message with the
-    # triggering user's nick. If replying in private, never use a prefix, and
-    # reply with NOTICE instead.
-    def send_reply str, prefix
-      if str.empty?
-        str = "I tried to send you an empty message. Oops!"
-      end
-
-      # TODO: Hold additional content for later sending or something.
-      #       Just don't try to send it all in multiple messages without
-      #       the user asking for it!
-      unless @msg.query?
-        str = "#{@msg.nick}: #{str}" if prefix
-
-        send_privmsg @msg.destination, str
-      else
-        send_notice @msg.nick, str
-      end
-    end
-
-    # Attempt to truncate messages in such a way that the maximum
-    # amount of space possible is used. This assumes the server will
-    # send a full 512 bytes to a client with exactly 1459 format.
-    def truncate message, destination, notice = false
-      prefix_length = @connection.nick.length +
-        @connection.user.length +
-        @connection.client_host.length +
-        destination.length +
-        15
-
-      # PRIVMSG is 1 char longer than NOTICE
-      prefix_length += 1 unless notice
-
-      if (prefix_length + message.length) - 512 > 0
-        return message[0..511-prefix_length]
-      end
-
-      message
-    end
-
   end
 end
