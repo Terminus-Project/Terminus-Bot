@@ -31,26 +31,26 @@ module Bot
 
   class Command
 
-    def http_get uri, query = {}, &block
-      Bot.http_request uri, query, true, @msg, &block
+    def http_get uri, query = {}, silent_err = false, &block
+      Bot.http_request uri, query, true, @msg, silent_err, &block
     end
 
-    def http_post uri, query = {}, &block
-      Bot.http_request uri, query, false, @msg, &block
+    def http_post uri, query = {}, silent_err = false, &block
+      Bot.http_request uri, query, false, @msg, silent_err, &block
     end
 
   end
 
-  def self.http_get uri, query = {}, msg = nil, &block
-    Bot.http_request uri, query, true, msg, &block
+  def self.http_get uri, query = {}, msg = nil, silent_err = false, &block
+    Bot.http_request uri, query, true, msg, silent_err, &block
   end
 
-  def self.http_post uri, query = {}, msg = nil, &block
-    Bot.http_request uri, query, false, msg, &block
+  def self.http_post uri, query = {}, msg = nil, silent_err = false, &block
+    Bot.http_request uri, query, false, msg, silent_err, &block
   end
 
   # Should not be called directly.
-  def self.http_request uri, query, get, msg, &block
+  def self.http_request uri, query, get, msg, silent_err, &block
     $log.debug("Bot.http_request") { uri }
 
     conf = Conf[:modules][:http_client]
@@ -105,7 +105,11 @@ module Bot
         block.call(req)
       rescue => e
         $log.error('Bot.http_request') { "#{uri} callback error: #{e}" }
-        msg.connection.send_reply msg, "Error: #{e}" unless msg.nil?
+
+        unless msg.nil? or silent_err
+          msg.connection.send_reply msg, "Error: #{e}"
+        end
+
       end
     end
 
@@ -118,7 +122,11 @@ module Bot
         block.call(req)
       rescue => e
         $log.error('Bot.http_request') { "#{uri} errback error: #{e}" }
-        msg.connection.send_reply msg, "Error: #{e}" unless msg.nil?
+
+        unless msg.nil? or silent_err
+          msg.connection.send_reply msg, "Error: #{e}"
+        end
+
       end
     end
   end
