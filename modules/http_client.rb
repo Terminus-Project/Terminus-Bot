@@ -91,8 +91,8 @@ module Bot
 
       begin
         block.call(req)
-      rescue
-        $log.error('Bot.http_request') { "#{uri} #{req.error}" }
+      rescue => e
+        $log.error('Bot.http_request') { "#{uri} callback error: #{e}" }
       end
     end
 
