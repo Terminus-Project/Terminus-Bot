@@ -69,7 +69,7 @@ helpers do
 
     opt[:api_key] = api_key
 
-    Bot.http_get(URI(api_url), opt) do |http|
+    http_get(URI(api_url), opt) do |http|
       yield REXML::Document.new http.response
     end
   end
