@@ -28,25 +28,25 @@ register 'Reply to some CTCP requests.'
 event :PRIVMSG do
   if @msg.text =~ /\01([^\s]+) ?(.*)\01/
 
-    case $1
+    case $1.to_sym
 
-      when "VERSION"
+      when :VERSION
         send_notice @msg.nick, "\01VERSION #{VERSION}\01"
       
-      when "URL"
+      when :URL
         send_notice @msg.nick, "\01URL http://terminus-bot.com/\01"
 
-      when "TIME"
+      when :TIME
         # implements rfc 822 section 5 as date-time
         send_notice @msg.nick, "\01TIME #{DateTime.now.strftime("%d %m %y %H:%M:%S %z")}\01"
       
-      when "PING"
+      when :PING
         send_notice @msg.nick, "\01PING #{$2}\01"
       
-      when "CLIENTINFO"
+      when :CLIENTINFO
         send_notice @msg.nick, "\01CLIENTINFO VERSION PING URL TIME\01"
       
-      when "ACTION"
+      when :ACTION
         # Don't do anything!
   
       else
