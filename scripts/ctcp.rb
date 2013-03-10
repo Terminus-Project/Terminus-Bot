@@ -26,33 +26,33 @@
 register 'Reply to some CTCP requests.'
 
 event :PRIVMSG do
-  if @msg.text =~ /\01([^\s]+) ?(.*)\01/
+  match = @msg.text.match(/\01(?<command>[^\s]+)( (?<params>.*))?\01/)
 
-    case $1.to_sym
+  next unless match
 
-      when :VERSION
-        send_notice @msg.nick, "\01VERSION #{VERSION}\01"
-      
-      when :URL
-        send_notice @msg.nick, "\01URL http://terminus-bot.com/\01"
+  case match[:command].to_sym
 
-      when :TIME
-        # implements rfc 822 section 5 as date-time
-        send_notice @msg.nick, "\01TIME #{DateTime.now.strftime("%d %m %y %H:%M:%S %z")}\01"
-      
-      when :PING
-        send_notice @msg.nick, "\01PING #{$2}\01"
-      
-      when :CLIENTINFO
-        send_notice @msg.nick, "\01CLIENTINFO VERSION PING URL TIME\01"
-      
-      when :ACTION
-        # Don't do anything!
-  
-      else
-        send_notice @msg.nick, "\01ERRMSG #{$1} QUERY UNKNOWN\01"
+  when :VERSION
+    send_notice @msg.nick, "\01VERSION #{VERSION}\01"
 
-      end
+  when :URL
+    send_notice @msg.nick, "\01URL http://terminus-bot.com/\01"
+
+  when :TIME
+    # implements rfc 822 section 5 as date-time
+    send_notice @msg.nick, "\01TIME #{DateTime.now.strftime("%d %m %y %H:%M:%S %z")}\01"
+
+  when :PING
+    send_notice @msg.nick, "\01PING #{match[:params]}\01"
+
+  when :CLIENTINFO
+    send_notice @msg.nick, "\01CLIENTINFO VERSION PING URL TIME\01"
+
+  when :ACTION
+    # Don't do anything!
+
+  else
+    send_notice @msg.nick, "\01ERRMSG #{match[:command]} QUERY UNKNOWN\01"
 
   end
 end
