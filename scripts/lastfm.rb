@@ -35,7 +35,9 @@ register 'Last.fm interface.'
 command 'np', 'Show the currently playing track for the given Last.fm user.' do
   argc! 1
 
-  api_call(:user => @params.first, :method => "user.getrecenttracks", :limit => "1") do |root|
+  user = @params.first.strip
+
+  api_call(:user => user, :method => "user.getrecenttracks", :limit => "1") do |root|
     raise "API call failed" if root == nil
 
     track = root.elements["//track"]
@@ -52,7 +54,7 @@ command 'np', 'Show the currently playing track for the given Last.fm user.' do
     name = track.elements["//name"].text
     artist = track.elements["//artist"].text
 
-    reply "\02#{@params.first} is listening to:\02 #{artist} - #{name}", false
+    reply "\02#{user} is listening to:\02 #{artist} - #{name}", false
   end
 end
 
