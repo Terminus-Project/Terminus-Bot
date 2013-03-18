@@ -65,10 +65,10 @@ module Bot
 
     at_exit { self.clean_up }
 
-    EM.error_handler { |e|
+    EM.error_handler do |e|
       $log.error("EM.error_handler") { e.to_s }
       $log.error("EM.error_handler") { e.backtrace.join "\n" }
-    }
+    end
 
     Events.dispatch :em_started
 
