@@ -94,8 +94,10 @@ module Bot
 
     max_time = conf[:max_time].to_i rescue 5
 
-    EM.add_timer(max_time) do
-      http.conn.close_connection
+    unless max_time.zero?
+      EM.add_timer(max_time) do
+        http.conn.close_connection
+      end
     end
 
     if get

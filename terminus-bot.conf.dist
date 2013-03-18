@@ -214,6 +214,9 @@ modules = {
     # malicious hosts or undesirably large files from wasting your bandwidth,
     # such as when the title script is given the URL for a very large file or
     # site crafted to send a never-ending stream of data.
+    #
+    # To disable and allow downloads to continue forever, set to 0 (not
+    # recommended).
     # default: 5
     # max_time = 5
   }
