@@ -35,6 +35,7 @@ command 'whois', 'Look up domain registration information.' do
   # em-whois inside eventmachine wants to use fibers, so we need to pass a
   # block to synchrony
   EM.synchrony do
+    begin
     result = Whois.whois domain
 
     if result.available?
@@ -42,8 +43,12 @@ command 'whois', 'Look up domain registration information.' do
       next
     end
 
-    registrants = result.properties[:registrant_contacts].map do |c|
-      "#{c[:name]}#{" (#{c[:organization]})" if c[:organization] and not c[:organization].empty?}"
+    begin
+      registrants = result.properties[:registrant_contacts].map do |c|
+        "#{c[:name]}#{" (#{c[:organization]})" if c[:organization] and not c[:organization].empty?}"
+      end
+    rescue
+      registrants = ["None Found"]
     end
 
     registrants = "\02Registrant#{'s' if registrants.length > 1}:\02 #{registrants.join(', ')}"
@@ -51,11 +56,20 @@ command 'whois', 'Look up domain registration information.' do
     creation    = "\02Created:\02 #{result.properties[:created_on]}"
     expiry      = "\02Expires:\02 #{result.properties[:expires_on]}"
 
-    registrar   = "\02Registrar:\02 #{result.properties[:registrar][:name]}"
+    if result.properties[:registrar]
+      registrar = "\02Registrar:\02 #{result.properties[:registrar][:name]}"
+    end
 
-    domain      = "\02#{result.properties[:domain]}\02:"
+    if result.properties[:domain]
+      domain    = "\02#{result.properties[:domain]}\02:"
+    end
 
     reply [domain, creation, expiry, registrar, registrants].join(' ')
+    rescue => e
+      $log.error('Script_whois.whois') { e }
+      $log.error('Script_whois.whois') { e.backtrace }
+      reply "Error performing whois."
+    end
   end
 end
 
