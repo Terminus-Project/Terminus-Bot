@@ -208,6 +208,14 @@ modules = {
     # The password to use to authenticate with your proxy. Set this if you set
     # a user name in proxy_username.
     # proxy_password = 
+
+    # OPTIONAL
+    # The maximum duration in secnds of an HTTP request. This will prevent
+    # malicious hosts or undesirably large files from wasting your bandwidth,
+    # such as when the title script is given the URL for a very large file or
+    # site crafted to send a never-ending stream of data.
+    # default: 5
+    # max_time = 5
   }
 
   # Note: Don't uncomment this for now. The module is unfinished and will

@@ -92,6 +92,12 @@ module Bot
       :redirects          => (conf[:redirects] or 10)
     }
 
+    max_time = conf[:max_time].to_i rescue 5
+
+    EM.add_timer(max_time) do
+      http.conn.close_connection
+    end
+
     if get
       req = http.get  args
     else
