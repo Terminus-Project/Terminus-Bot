@@ -24,6 +24,7 @@ have encountered, as well as all of those everyone else tells us about.
     * psych 1.2.2
     * dnsruby
     * em-http-request (http_client module and all scripts that use it)
+    * em-whois
 * Script Dependencies
     * netutils: ping, ping6, mtr
 
@@ -583,6 +584,14 @@ Commands:
 * WEATHER - View current conditions for the specified location.
 * TEMP - View the current temperature for the specified location.
 * FORECAST - View a short-term forecast for the specified location.
+
+### WHOIS
+
+Look up domain registration information.
+
+Commands:
+
+* WHOIS - View domain registration informatiaon for the specified domain name.
 
 ### Wikipedia
 
