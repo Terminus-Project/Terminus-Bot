@@ -43,7 +43,7 @@ command 'whois', 'Look up domain registration information.' do
     end
 
     registrants = result.properties[:registrant_contacts].map do |c|
-      "#{c[:name]}#{" (#{c[:organization]})" if c[:organization]}"
+      "#{c[:name]}#{" (#{c[:organization]})" if c[:organization] and not c[:organization].empty?}"
     end
 
     registrants = "\02Registrant#{'s' if registrants.length > 1}:\02 #{registrants.join(', ')}"
