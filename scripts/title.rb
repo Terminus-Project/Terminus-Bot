@@ -145,6 +145,10 @@ helpers do
 
       rating   = root.get_elements("yt:rating").first
 
+      duration = root.get_elements("media:group/yt:duration").first.attribute("seconds").to_s.to_i
+
+      duration = Time.at(Time.now.to_i + duration).to_duration_s
+
       likes, dislikes = 0, 0
 
       unless rating == nil
@@ -152,7 +156,7 @@ helpers do
         dislikes = rating.attribute("numDislikes").to_s
       end
 
-      reply "\02YouTube:\02 #{title} \02By:\02 #{author} \02Views:\02 #{views} \02Likes:\02 #{likes} \02Dislikes:\02 #{dislikes}#{link}", false
+      reply "\02YouTube:\02 #{title} \02By:\02 #{author} \02Duration:\02 #{duration} \02Views:\02 #{views} \02Likes:\02 #{likes} \02Dislikes:\02 #{dislikes}#{link}", false
 
     end
 
