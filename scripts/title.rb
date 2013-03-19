@@ -149,7 +149,7 @@ helpers do
       author    = "\02By:\02 #{json['snippet']['channelTitle']}"
       views     = "\02Views:\02 #{json['statistics']['viewCount']}"
 
-      duration  = json['contentDetails']['duration'].match(/^PT(?<minutes>[0-9]+)M(?<seconds>[0-9]+)S$/)
+      duration  = json['contentDetails']['duration'].match(/^PT((?<minutes>[0-9]+)M)?(?<seconds>[0-9]+)S$/)
 
       duration  = duration[:minutes].to_i * 60 + duration[:seconds].to_i
       
