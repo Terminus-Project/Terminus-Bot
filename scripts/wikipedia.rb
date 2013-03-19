@@ -34,8 +34,17 @@ command 'wiki', 'Search Wikipedia for the given text.' do
 
   $log.info('wikipedia.cmd_wiki') { "Getting Wikipedia page for #{@params.first}" }
 
+  uri = URI('http://en.wikipedia.org/w/api.php')
 
-  Bot.http_get(URI('http://en.wikipedia.org/w/api.php'), :action=> :query, :format => :json, :srsearch => @params.first, :limit => 1, :list => :search) do |http|
+  opts = {
+    :action   => :query,
+    :format   => :json,
+    :srsearch => @params.first,
+    :limit    => 1,
+    :list     => :search
+  }
+
+  http_get(uri, opts) do |http|
     response = JSON.parse http.response
 
     if response["query"]["search"].empty?

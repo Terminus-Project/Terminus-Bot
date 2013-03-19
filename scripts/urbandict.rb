@@ -47,7 +47,7 @@ helpers do
   def do_lookup url
     $log.debug('urbandict.do_lookup') { url }
 
-    Bot.http_get(URI(url)) do |http|
+    http_get(URI(url)) do |http|
       page  = StringScanner.new http.response
 
       defs  = []
