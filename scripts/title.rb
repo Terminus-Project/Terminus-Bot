@@ -130,33 +130,36 @@ helpers do
       link = " - https://youtu.be/#{vid}" if get_config(:shorten_youtube, false)
     end
 
-    vid = URI.escape vid
-    api = URI("https://gdata.youtube.com/feeds/api/videos/#{vid}?v=2")
+    api = URI("https://www.googleapis.com/youtube/v3/videos")
 
-    Bot.http_get(api) do |http|
-      # TODO: YouTube apparently does some things with JSON. Use that if possible!
-      root = REXML::Document.new(http.response).root
+    opts = {
+      :id   => vid,
+      :part => 'contentDetails,statistics,snippet',
+      :key  => 'AIzaSyDyoH7a9ABi-QJ3f5qS1PsLZJbnxvzKvxc'
+    }
 
-      next unless root.get_elements("error").empty?
+    Bot.http_get(api, opts) do |http|
+      json = JSON.parse(http.response)['items'].first
 
-      title    = root.get_elements("title").first.text.to_s
-      author   = root.get_elements("author/name").first.text.to_s
-      views    = root.get_elements("yt:statistics").first.attribute("viewCount").to_s
-
-      rating   = root.get_elements("yt:rating").first
-
-      duration = root.get_elements("media:group/yt:duration").first.attribute("seconds").to_s.to_i
-
-      duration = Time.at(Time.now.to_i + duration).to_duration_s
-
-      likes, dislikes = 0, 0
-
-      unless rating == nil
-        likes    = rating.attribute("numLikes").to_s
-        dislikes = rating.attribute("numDislikes").to_s
+      if json['error']
+        raise json['error']['errors'].first['message']
       end
 
-      reply "\02YouTube:\02 #{title} \02By:\02 #{author} \02Duration:\02 #{duration} \02Views:\02 #{views} \02Likes:\02 #{likes} \02Dislikes:\02 #{dislikes}#{link}", false
+      title     = "\02YouTube\02: #{json['snippet']['title']}"
+      author    = "\02By:\02 #{json['snippet']['channelTitle']}"
+      views     = "\02Views:\02 #{json['statistics']['viewCount']}"
+
+      duration  = json['contentDetails']['duration'].match(/^PT(?<minutes>[0-9]+)M(?<seconds>[0-9]+)S$/)
+
+      duration  = duration[:minutes].to_i * 60 + duration[:seconds].to_i
+      
+      duration  = "\02Duration:\02 #{Time.at(Time.now.to_i + duration).to_duration_s}"
+
+      likes     = "\02Likes:\02 #{json['statistics']['likeCount']}"
+      dislikes  = "\02Dislikes:\02 #{json['statistics']['dislikeCount']}"
+
+      reply [title, author, duration, views, likes, dislikes, link].join(' '),
+        false
 
     end
 
