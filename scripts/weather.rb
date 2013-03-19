@@ -35,9 +35,10 @@ register 'Weather information look-ups via Weather Underground (wunderground.com
 command 'weather', 'View current conditions for the specified location.' do
   argc! 1
 
-  url = "http://api.wunderground.com/auto/wui/geo/WXCurrentObXML/index.xml?query=#{URI.escape(@params.join ' ')}"
+  uri = URI('http://api.wunderground.com/auto/wui/geo/WXCurrentObXML/index.xml')
+  opts = {:query => @params.join(' ')}
 
-  Bot.http_get(URI(url)) do |http|
+  http_get(uri, opts) do |http|
     root = (REXML::Document.new(http.response)).root
 
     weather = root.elements["//weather"].text rescue nil
@@ -79,9 +80,10 @@ end
 command 'temp', 'View current temperature for the specified location.' do
   argc! 1
 
-  url = "http://api.wunderground.com/auto/wui/geo/WXCurrentObXML/index.xml?query=#{URI.escape(@params.join ' ')}"
+  uri = URI('http://api.wunderground.com/auto/wui/geo/WXCurrentObXML/index.xml')
+  opts = {:query => @params.join(' ')}
 
-  Bot.http_get(URI(url)) do |http|
+  http_get(uri, opts) do |http|
     root = (REXML::Document.new(http.response)).root
 
     weather = root.elements["//weather"].text rescue nil
@@ -106,9 +108,10 @@ end
 command 'forecast', 'View a short-term forecast for the specified location.' do
   argc! 1
 
-  url = "http://api.wunderground.com/auto/wui/geo/ForecastXML/index.xml?query=#{URI.escape(@params.join ' ')}"
+  uri = URI('http://api.wunderground.com/auto/wui/geo/ForecastXML/index.xml')
+  opts = {:query => @params.join(' ')}
 
-  Bot.http_get(URI(url)) do |http|
+  http_get(uri, opts) do |http|
     root = (REXML::Document.new(http.response)).root.elements["//txt_forecast"]
 
     date = root.elements["date"].text rescue nil
