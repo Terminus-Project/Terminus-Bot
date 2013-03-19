@@ -107,12 +107,13 @@ module Bot
     end
 
     req.callback do
-      req.response.fix_encoding!
-
       begin
+        req.response.fix_encoding!
+
         block.call(req)
       rescue => e
         $log.error('Bot.http_request') { "#{uri} callback error: #{e}" }
+        $log.error('Bot.http_request') { e.backtrace }
 
         unless msg.nil? or silent_err
           msg.connection.send_reply msg, "Error: #{e}"
@@ -124,12 +125,13 @@ module Bot
     req.errback do
       $log.error('Bot.http_request') { "#{uri} errback for: #{req.error}" }
 
-      req.response.fix_encoding!
-
       begin
+        req.response.fix_encoding!
+
         block.call(req)
       rescue => e
         $log.error('Bot.http_request') { "#{uri} errback error: #{e}" }
+        $log.error('Bot.http_request') { e.backtrace }
 
         unless msg.nil? or silent_err
           msg.connection.send_reply msg, "Error: #{e}"
