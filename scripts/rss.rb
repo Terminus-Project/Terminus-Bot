@@ -154,7 +154,8 @@ helpers do
 
               link = sanitize(atom ? item.links.select {|l| l.rel == "alternate"}[0].href.to_s : item.link.to_s)
 
-              Bot::Connections[network].raw "PRIVMSG #{channel} :\02[#{feed_title}]\02 #{title} :: #{link}"
+              Bot::Connections[network].send_privmsg channel,
+                "\02[#{feed_title}]\02 #{title} :: #{link}"
 
             end
 
