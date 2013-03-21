@@ -71,7 +71,7 @@ helpers do
   end
 
   def new_logger network, channel
-    @@loggers[network] ||= Hash.new
+    @@loggers[network] ||= {}
 
     if @@loggers[network].has_key? channel
       # We already have a logger for this channel.
