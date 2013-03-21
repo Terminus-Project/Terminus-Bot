@@ -145,12 +145,10 @@ event :JOIN do
   log_msg @msg.connection.name, @msg.destination, "JOIN", @msg.nick
 end
 
-event :QUIT do
-  @connection.channels.each_value do |chan|
-    if chan.get_user @msg.nick
-      log_msg @connection.name, chan.name, "QUIT", @msg.nick, @msg.stripped
-    end
-  end
+event :QUIT_CHANNEL do
+  chan = @data[:channel]
+
+  log_msg @connection.name, chan.name, "QUIT", @msg.nick, @msg.stripped
 end
 
 event :TOPIC do
