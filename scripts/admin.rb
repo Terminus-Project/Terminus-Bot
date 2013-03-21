@@ -54,7 +54,7 @@ end
 command 'nick', 'Change the bot\'s nick for this connection.' do
   level! 7 and argc! 1
 
-  raw "NICK #{@params.first}"
+  send_nick @params.first
   reply "Nick changed to #{@params.first}"
 end
 

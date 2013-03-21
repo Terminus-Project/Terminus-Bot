@@ -30,7 +30,7 @@ command 'roulette', 'Pull the trigger. You have a 5/6 chance of surviving.' do
 
   if rand(6) == 0
     if @connection.channels[@msg.destination_canon].half_op? @connection.nick
-      raw "KICK #{@msg.destination} #{@msg.nick} :Bang!"
+      send_kick @msg.destination, @msg.nick, "Bang!"
     else
       reply "Bang!"
     end

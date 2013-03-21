@@ -98,7 +98,7 @@ helpers do
 
     @@pending[nick] = [now, @msg.destination]
 
-    raw "WHOIS #{nick}"
+    send_whois nick
   end
 
 end

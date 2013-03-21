@@ -46,7 +46,7 @@ event :JOIN do
   $log.debug("channels.on_join") { "Parting channel #{@msg.destination} since we are not configured to be in it." }
 
   # It doesn't look like we should be here. Part!
-  raw "PART #{@msg.destination} :I am not configured to be in this channel."
+  send_part @msg.destination, "I am not configured to be in this channel."
 end
 
 event :PING do
@@ -62,29 +62,12 @@ helpers do
     @connection.channels.each_key do |chan|
       next if channels.has_key? chan
 
-      raw "PART #{chan} :I am not configured to be in this channel."
+      send_part chan, "I am not configured to be in this channel."
     end
   end
 
   def join_channels
-    chans, keys = [], []
-    channels = get_data @connection.name, {}
-
-    channels.each_pair do |channel, key|
-      next if @connection.channels.has_key? channel
-
-      chans << channel
-      keys << (key.empty? ? "x" : key)
-
-      # TODO: determine a sane maximum for this
-      if chans.length == 4
-        raw "JOIN #{chans.join(",")} #{keys.join(",")}"
-        chans.clear
-        keys.clear
-      end
-    end
-
-    raw "JOIN #{chans.join(",")} #{keys.join(",")}" unless chans.empty?
+    send_join get_data(@connection.name, {})
   end 
 
 end
@@ -114,7 +97,7 @@ command 'join', 'Join a channel with optional key.' do
   channels[name] = key
   store_data @connection.name, channels
 
-  raw "JOIN #{name} #{key}"
+  send_join "#{name} #{key}"
   reply "I have joined #{name}"
 end
 
@@ -136,7 +119,7 @@ command 'part', 'Part a channel.' do
 
   store_data @connection.name, channels
 
-  raw "PART #{name} :Leaving channel at request of #{@msg.nick}"
+  send_part name, "Leaving channel at request of #{@msg.nick}"
   reply "I have left #{name}"
 end
 
@@ -149,7 +132,7 @@ command 'cycle', 'Part and then join a channel.' do
 
   next unless channels.has_key? name
   
-  raw "PART #{name} :Be right back!"
-  raw "JOIN #{name}"
+  send_part name, "Be right back!"
+  send_join name
 end
 
