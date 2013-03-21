@@ -44,6 +44,7 @@ module Bot
     end
 
     def send_join channel
+      # TODO: don't dispatch joins for channels we are already in, if possible
       if channel.is_a? Array
         buf = []
 
