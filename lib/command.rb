@@ -27,6 +27,8 @@ module Bot
   class Command
     #attr_reader :owner, :cmd, :func, :argc, :level, :chan_level, :help
 
+    include Bot::IRCMacros
+
     class << self
       def run owner, msg, cmd, params, data = {}, &blk
         helpers &owner.get_helpers
@@ -166,14 +168,6 @@ module Bot
       return true if voice?
 
       raise 'You must be voiced to use this command.'
-    end
-
-    def send_privmsg *args
-      @connection.send_privmsg *args
-    end
-
-    def send_notice *args
-      @connection.send_notice *args
     end
 
     def raw *args

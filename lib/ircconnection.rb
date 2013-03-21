@@ -28,6 +28,8 @@ module Bot
   class IRCConnection < EventMachine::Connection
     require 'timeout'
 
+    include Bot::IRCMacros
+
     attr_reader :config, :name, :channels, :users, :client_host, :caps, :nick, :user, :realname
 
     def initialize name
@@ -318,14 +320,6 @@ module Bot
 
       end
 
-    end
-
-    def send_privmsg dest, msg
-      raw "PRIVMSG #{dest} :#{msg}"
-    end
-
-    def send_notice dest, msg
-      raw "NOTICE #{dest} :#{msg}"
     end
 
     # Actually send the reply. If prefix is true, prefix each message with the

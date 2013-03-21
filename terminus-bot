@@ -109,6 +109,7 @@ def load_lib
   # These have to be first.
   load "lib/flags.rb"
   #load "lib/database.rb"
+  load "lib/ircmacros.rb"
 
   load "lib/config.rb"
   load "lib/command.rb"
