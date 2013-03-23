@@ -235,7 +235,15 @@ helpers do
       data = JSON.parse(http.response)
 
       tags = data['tags'].split(/, /)
-      
+     
+      rating = %w[
+        safe suggestive questionable explicit
+        grimdark grotesque meta text
+      ]
+
+      rating.select! {|r| tags.include? r}
+      tags.reject! {|t| rating.include? t}
+
       tags_total = tags.length
 
       # TODO: use config for max tags
@@ -249,7 +257,9 @@ helpers do
         tags = tags.join(', ')
       end
 
-      reply "Derpibooru: #{tags} - Uploaded by #{data['uploader']} - Score: \02#{data['score']}\02 (#{data['upvotes']} Up / #{data['downvotes']} Down) - #{data['width']}x#{data['height']} #{data['original_format']}", false
+      rating = rating.join(', ')
+
+      reply "Derpibooru: Rating: \02#{rating}\02 - #{tags} - Uploaded by \02#{data['uploader']}\02 - Score: \02#{data['score']}\02 (#{data['upvotes']} Up / #{data['downvotes']} Down) - #{data['width']}x#{data['height']} #{data['original_format']}", false
     end
   end
 
