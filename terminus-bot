@@ -115,6 +115,7 @@ def load_lib
   load "lib/command.rb"
   load "lib/events.rb"
 
+  load "lib/hash.rb"
   load "lib/string.rb"
   load "lib/time.rb"
 
