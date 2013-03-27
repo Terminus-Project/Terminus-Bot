@@ -89,7 +89,7 @@ command 'mpd', 'Interact with MPD. Syntax: mpd next|previous|stop|play|pause|shu
     end
     
   when :shuffle
-    level! 54
+    level! 4
 
     connect
     if @@mpd.shuffle
