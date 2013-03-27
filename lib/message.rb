@@ -87,16 +87,6 @@ module Bot
       @destination.freeze
     end
 
-    # Reply to a message. If an array is given, send each reply separately.
-    def reply str, prefix = true
-      if str.kind_of? Array
-        str.each do |this_str|
-          send_reply this_str, prefix
-        end
-      else
-        send_reply str, prefix
-      end
-    end
 
     # Return true if this message's origin appears to be the bot.
     def me?
