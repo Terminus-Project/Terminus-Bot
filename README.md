@@ -351,6 +351,10 @@ Create Markov chains based on word statistics collected by the bot.
 This script is experimental and will be subject to change before beta.
 
 *If you are in a low-memory environment, _do not_ use this script!*
+Commands:
+
+* MARKOV - Manage the Markov script.
+* CHAIN - Generate a random Markov chain.
 
 ### MPD
 
@@ -370,11 +374,6 @@ Commands:
   * NP? - Show the currently playing track.
   * AUDIO? - Show technical information about the currently playing track.
   * DATABASE? - Show information about the MPD database.
-
-Commands:
-
-* MARKOV - Manage the Markov script.
-* CHAIN - Generate a random Markov chain.
 
 ### Nato
 
