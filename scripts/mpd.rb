@@ -27,7 +27,7 @@ require 'ruby-mpd'
 
 register 'Interact with a Music Player Daemon instance.'
 
-command 'mpd', 'Interact with MPD. Syntax: mpd next|previous|stop|play|pause|next?|playlist?|np?|audio?|database?' do
+command 'mpd', 'Interact with MPD. Syntax: mpd next|previous|stop|play|pause|shuffle|next?|playlist?|np?|audio?|database?' do
   argc! 1
 
   args = @params.first.split
@@ -63,6 +63,12 @@ command 'mpd', 'Interact with MPD. Syntax: mpd next|previous|stop|play|pause|nex
     connect
     @@mpd.pause     and check_status
     
+  when :shuffle
+    level! 54
+
+    connect
+    @@mpd.shuffle
+
   when :next?
     song = @@mpd.song_with_id status[:nextsongid]
 

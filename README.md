@@ -369,6 +369,7 @@ Commands:
   * STOP - Stop playback.
   * PLAY - Start or resume playback.
   * PAUSE - Pause playback.
+  * SHUFFLE - Shuffle the queue.
   * NEXT? - Show the name of the next track that will be played.
   * PLAYLIST? - Show information about the current queue.
   * NP? - Show the currently playing track.
