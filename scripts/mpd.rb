@@ -61,7 +61,14 @@ command 'mpd', 'Interact with MPD. Syntax: mpd next|previous|stop|play|pause|nex
 
     duration = Time.at(Time.now.to_i + duration).to_duration_s
 
-    reply "Playlist: \02Tracks:\02 #{length} \02Duration:\02 #{duration}", false
+    data = {
+      'Playlist' => {
+        'Tracks'    => length,
+        'Duration'  => duration
+      }
+    }
+
+    reply data, false
 
   when :np?
     say_now_playing
@@ -69,21 +76,28 @@ command 'mpd', 'Interact with MPD. Syntax: mpd next|previous|stop|play|pause|nex
   when :audio?
     audio = status[:audio]
 
-    reply "Audio: \02Rate:\02 #{audio.shift} \02Bits:\02 #{audio.shift} \02Channels:\02 #{audio.shift}", false
+    data = {
+      'Audio' => {
+        'Rate'      => audio.shift,
+        'Bits'      => audio.shift,
+        'Channels'  => audio.shift
+      } 
+    }
+
+    reply data, false
 
   when :database?
     my_stats = stats
 
     playtime = Time.at(Time.now.to_i + my_stats[:db_playtime]).to_duration_s
 
-    msg = [
-      "\02Artists:\02 #{my_stats[:artists]}",
-      "\02Tracks:\02 #{my_stats[:songs]}",
-      "\02Play Time:\02 #{playtime}"
-    ]
+    data = {
+      'Artists'   => my_stats[:artists],
+      'Tracks'    => my_stats[:songs],
+      'Play Time' => playtime
+    }
 
-    reply msg.join(' '), false
-
+    reply data, false
 
   else
     raise 'Unknown MPD command.'
@@ -109,8 +123,6 @@ event :done_loading do
 
   @@announce_server  = server.to_sym
   @@announce_channel = chan
-
-  check_status
 
   @@timer = EM.add_periodic_timer(get_config(:announce_check_interval, 5).to_i) do
     check_status
