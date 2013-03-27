@@ -65,7 +65,12 @@ command 'mpd', 'Interact with MPD. Syntax: mpd next|previous|stop|play|pause|nex
     
   when :next?
     song = @@mpd.song_with_id status[:nextsongid]
-    reply "Next Track: \02#{song_to_s song}\02", false
+
+    data = {
+      'Next Track' => song_to_s(song)
+    }
+
+    reply data, false
 
   when :playlist?
     my_queue  = queue
