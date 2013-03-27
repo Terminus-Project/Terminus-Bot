@@ -43,13 +43,7 @@ command 'idlerpg', 'Get information about players on this network\'s IdleRPG gam
     raise "I don't know where to get player info on this network."
   end
 
-  info = get_player_info name, config
-
-  if info.nil?
-    raise "Player info not found."
-  end
-
-  reply info
+  reply get_player_info(name, config)
 end
 
 event :JOIN do
@@ -73,7 +67,7 @@ helpers do
     body = Net::HTTP.get URI.parse url
     root = (REXML::Document.new(body)).root
 
-    return nil if root == nil
+    raise 'Player info not found.' if root.nil?
 
     level = root.elements["//level"].text
     ttl   = root.elements["//ttl"].text.to_i
@@ -81,7 +75,7 @@ helpers do
     klass = root.elements["//class"].text
     rank  = root.elements["//rank"].text # Not available on all most networks
 
-    return nil if level == nil or level.empty?
+    raise 'Player info not found.' if level.nil? or level.empty?
 
     ttl   = Time.at(Time.now.to_i + ttl).to_duration_s
     idled = Time.at(Time.now.to_i + idled).to_duration_s
