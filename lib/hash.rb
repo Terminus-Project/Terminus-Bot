@@ -29,7 +29,11 @@ class Hash
   # Format a hash for use in an IRC message.
   def to_s_irc
     each.map do |key, value|
-      "\02#{key}:\02 #{value}"
+      if value.is_a? Hash
+        "\02#{key}:\02 #{value.to_s_irc}"
+      else
+        "\02#{key}:\02 #{value}"
+      end
     end.join(' ')
   end
 
