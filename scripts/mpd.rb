@@ -37,37 +37,66 @@ command 'mpd', 'Interact with MPD. Syntax: mpd next|previous|stop|play|pause|shu
     level! 4
 
     connect
-    @@mpd.next      and check_status
+    if @@mpd.next
+      reply 'Playing next track.'
+      check_status
+    else
+      raise 'Unable to play next track.'
+    end
 
   when :previous
     level! 4
 
     connect
-    @@mpd.previous  and check_status
+    if @@mpd.previous
+      reply 'Playing previous track.'
+      check_status
+    else
+      raise 'Unable to play previous track.'
+    end
   
   when :stop
     level! 4
 
     connect
-    @@mpd.stop      and check_status
+    if @@mpd.stop
+      reply 'Playback stopped.'
+      check_status
+    else
+      raise 'Unable to stop playback.'
+    end
   
   when :play
     level! 4
 
     connect
-    @@mpd.play      and check_status
+    if @@mpd.play
+      reply 'Playback started/resumed.'
+      check_status
+    else
+      raise 'Unable to start or resume playback.'
+    end
   
   when :pause
     level! 4
 
     connect
-    @@mpd.pause     and check_status
+    if @@mpd.pause
+      reply 'Playback paused.'
+      check_status
+    else
+      raise 'Unable to pause playback.'
+    end
     
   when :shuffle
     level! 54
 
     connect
-    @@mpd.shuffle
+    if @@mpd.shuffle
+      reply 'Queue shuffled.'
+    else
+      raise 'Unable to shuffle queue.'
+    end
 
   when :next?
     song = @@mpd.song_with_id status[:nextsongid]
