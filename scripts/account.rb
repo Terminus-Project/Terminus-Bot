@@ -153,7 +153,7 @@ command 'account', 'Display information about a user. Parameters: username' do
     raise "No such account."
   end
 
-  reply "\02Account:\02 #{@params[0]} \02Level:\02 #{stored[:level]}"
+  reply 'Account' => @params[0], 'Level' => stored[:level]
 end
 
 command 'whoami', 'Display your current user information if you are logged in.' do

@@ -80,11 +80,17 @@ helpers do
     ttl   = Time.at(Time.now.to_i + ttl).to_duration_s
     idled = Time.at(Time.now.to_i + idled).to_duration_s
 
-    buf =   "\02Level:\02 #{level}"
-    buf << " \02Rank:\02 #{rank}" if rank != nil and not rank.empty?
-    buf << " \02Class:\02 #{klass}"
-    buf << " \02Time to Level:\02 #{ttl}"
-    buf << " \02Time Idled:\02 #{idled}"
+    data = {
+      'Level'         => level,
+      'Rank'          => ((rank != nil and not rank.empty?) ? rank : nil),
+      'Class'         => klass,
+      'Time to Level' => ttl,
+      'Time Idled'    => idled
+    }
+
+    data.delete('Rank') if data['Rank'].nil?
+
+    data
   end
 end
 

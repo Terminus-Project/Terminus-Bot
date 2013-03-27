@@ -43,28 +43,29 @@ command 'whois', 'Look up domain registration information.' do
       next
     end
 
+    data = {}
+
     begin
-      registrants = result.properties[:registrant_contacts].map do |c|
+      data['Registrants'] = result.properties[:registrant_contacts].map do |c|
         "#{c[:name]}#{" (#{c[:organization]})" if c[:organization] and not c[:organization].empty?}"
-      end
+      end.join(', ')
     rescue
-      registrants = ["None Found"]
+      data['Registrants'] = 'Not Found'
     end
 
-    registrants = "\02Registrant#{'s' if registrants.length > 1}:\02 #{registrants.join(', ')}"
-
-    creation    = "\02Created:\02 #{result.properties[:created_on]}"
-    expiry      = "\02Expires:\02 #{result.properties[:expires_on]}"
+    data['Created'] = result.properties[:created_on]
+    data['Expires'] = result.properties[:expires_on]
 
     if result.properties[:registrar]
-      registrar = "\02Registrar:\02 #{result.properties[:registrar][:name]}"
+      data['Registrar'] = result.properties[:registrar][:name]
     end
 
     if result.properties[:domain]
-      domain    = "\02#{result.properties[:domain]}\02:"
+      data = { result.properties[:domain] => data }
     end
 
-    reply [domain, creation, expiry, registrar, registrants].join(' ')
+    reply data
+
     rescue => e
       $log.error('Script_whois.whois') { e }
       $log.error('Script_whois.whois') { e.backtrace }

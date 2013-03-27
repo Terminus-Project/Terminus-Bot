@@ -145,21 +145,19 @@ helpers do
         raise json['error']['errors'].first['message']
       end
 
-      title     = "\02YouTube\02: #{json['snippet']['title']}"
-      author    = "\02By:\02 #{json['snippet']['channelTitle']}"
-      views     = "\02Views:\02 #{json['statistics']['viewCount']}"
-
       duration  = json['contentDetails']['duration'].match(/^PT((?<minutes>[0-9]+)M)?(?<seconds>[0-9]+)S$/)
-
       duration  = duration[:minutes].to_i * 60 + duration[:seconds].to_i
-      
-      duration  = "\02Duration:\02 #{Time.at(Time.now.to_i + duration).to_duration_s}"
 
-      likes     = "\02Likes:\02 #{json['statistics']['likeCount']}"
-      dislikes  = "\02Dislikes:\02 #{json['statistics']['dislikeCount']}"
+      data = {
+        'YouTube'  => json['snippet']['title'],
+        'By'       => json['snippet']['channelTitle'],
+        'Views'    => json['statistics']['viewCount'],
+        'Duration' => Time.at(Time.now.to_i + duration).to_duration_s,
+        'Likes'    => json['statistics']['likeCount'],
+        'Dislikes' => json['statistics']['dislikeCount']
+      }
 
-      reply [title, author, duration, views, likes, dislikes, link].join(' '),
-        false
+      reply data, false
 
     end
 
@@ -195,7 +193,11 @@ helpers do
       text     = root.get_elements("text").first.text.to_s.gsub(/[\r\n[[:cntrl:]]]/, '')
       author   = root.get_elements("user/screen_name").first.text.to_s
 
-      reply "\02<@#{author}>\02 #{text}", false
+      data = {
+        "<@#{author}>" => text
+      }
+
+      reply data, false
     end
   end
 
@@ -215,7 +217,12 @@ helpers do
       title = HTMLEntities.new.decode data["title"]
       desc = HTMLEntities.new.decode data["short_description"]
 
-      reply "\02#{title}\02 by \02#{data["author"]["name"]}\02 - #{desc} - #{cats} (Status: #{data["status"]})", false
+      data = {
+        "#{title} by #{data['author']['name']}" => [desc, cats].join(' - '),
+        'Status' => data['status']
+      }
+
+      reply data, false
     end
   end
 
@@ -259,7 +266,17 @@ helpers do
 
       rating = rating.join(', ')
 
-      reply "Derpibooru: Rating: \02#{rating}\02 - #{tags} - Uploaded by \02#{data['uploader']}\02 - Score: \02#{data['score']}\02 (#{data['upvotes']} Up / #{data['downvotes']} Down) - #{data['width']}x#{data['height']} #{data['original_format']}", false
+      data = {
+        'Derpibooru' => {
+          'Rating' => rating,
+          'Tags' => tags,
+          'Uploader' => data['uploader'],
+          'Score' => "#{data['score']} (#{data['upvotes']} Up / #{data['downvotes']} Down)",
+          "#{data['width']}x#{data['height']}" => data['original_format']
+        }        
+      }
+
+      reply data, false
     end
   end
 

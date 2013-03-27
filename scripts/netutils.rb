@@ -109,15 +109,15 @@ helpers do
           next
         end
 
-        output = [
-          "\02Hops:\02 #{hops}",
-          "\02Up:\02 #{up}",
-          "\02Down:\02 #{hops - up}",
-          "\02Average Reply Time (ms):\02 #{sprintf("%.1f", avg/hops)}",
-          "\02Longest Reply Time (ms):\02 #{longest}"
-        ].join(' ')
+        data = {
+          'Hops'                    => hops,
+          'Up'                      => up,
+          'Down'                    => (hops - up),
+          'Average Reply Time (ms)' => sprintf("%.1f", avg/hops),
+          'Longest Reply Time (ms)' => longest
+        }
 
-        reply output
+        reply data
       else
         reply "Unable to perform MTR for this host."
       end

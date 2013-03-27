@@ -58,21 +58,21 @@ command 'weather', 'View current conditions for the specified location.' do
     dewpoint        = root.elements["//dewpoint_string"].text
     link            = root.elements["//forecast_url"].text
 
-    updatedTime = "Updated #{Time.at(updatedTime).to_fuzzy_duration_s} ago"
+    updated = "#{Time.at(updatedTime).to_fuzzy_duration_s} ago"
 
-    output = []
+    data = {
+      "[#{credit} for #{stationLocation}]" => {
+        'Currently' => weather,
+        'Temp'      => temperature,
+        'Humidity'  => humidity,
+        'Wind'      => wind,
+        #'Dewpoint' => dewpoint,
+        'Updated'   => updated,
+        'URL'       => link
+      }
+    }
 
-    output << "[\02#{credit}\02 for \02#{stationLocation}\02]"
-    output << "Currently: \02#{weather}\02;"
-    output << "Temp: \02#{temperature}\02;"
-    output << "Humidity: \02#{humidity}\02;"
-    output << "Wind: \02#{wind}\02;"
-    output << "Pressure: \02#{pressure}\02;"
-    #output << "Dewpoint: \02#{dewpoint}\02;"
-    output << "#{updatedTime};"
-    output << link
-
-    reply output.join(' ')
+    reply data
 
   end
 end
@@ -96,12 +96,13 @@ command 'temp', 'View current temperature for the specified location.' do
     stationLocation = root.elements["//observation_location/full"].text
     temperature     = root.elements["//temperature_string"].text
 
-    output = []
+    data = {
+      "[#{credit} for #{stationLocation}]" => {
+        'Temperature' => temperature
+      }
+    }
 
-    output << "[\02#{credit}\02 for \02#{stationLocation}\02]"
-    output << "Temperature: \02#{temperature}\02"
-
-    reply output.join(' ')
+    reply data
   end
 end
 
