@@ -28,24 +28,38 @@ require 'ruby-mpd'
 register 'Interact with a Music Player Daemon instance.'
 
 command 'mpd', 'Interact with MPD. Syntax: mpd next|previous|stop|play|pause|next?|playlist?|np?|audio?|database?' do
-  level! 4 and argc! 1
+  argc! 1
 
   args = @params.first.split
 
   case args.shift.downcase.to_sym
   when :next
+    level! 4
+
     connect
     @@mpd.next      and check_status
+
   when :previous
+    level! 4
+
     connect
     @@mpd.previous  and check_status
+  
   when :stop
+    level! 4
+
     connect
     @@mpd.stop      and check_status
+  
   when :play
+    level! 4
+
     connect
     @@mpd.play      and check_status
+  
   when :pause
+    level! 4
+
     connect
     @@mpd.pause     and check_status
     
