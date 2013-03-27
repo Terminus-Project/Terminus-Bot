@@ -433,6 +433,39 @@ battle = {
 
 }
 
+# Music Player Daemon script.
+mpd = {
+
+  # Host name or IP of the MPD server.
+  # default: localhost
+  #addres = localhost
+
+  # Port number for the MPD server.
+  # default: 6600
+  #port = 6600
+
+  # Password for the MPD server.
+  #password = 
+  
+  # You may announce track and state changes on IRC. If you want to enable this
+  # feature, you must set both announce_server and announce_channel. It is up
+  # to you to make sure the bot is on the given server and in the given channel
+  # in order for this to work -- **IT WILL NOT JOIN BASED ON THIS SETTING**.
+  
+  # IRC server name on which to announce MPD status. This must match the server
+  # name configured in this file.
+  #announce_server = 
+  
+  # IRC channel on which to announce MPD status. Again, you must ensure the bot
+  # will join, such as through the channels script.
+  #announce_channel = 
+  
+  # The interval (in seconds) at which the MPD server should be polled for
+  # track changes or state changes for annoucement.
+  # default: 5
+  #announce_check_interval = 5
+}
+
 # Channel relay script.
 relay = {
 

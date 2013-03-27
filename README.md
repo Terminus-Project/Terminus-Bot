@@ -22,9 +22,10 @@ have encountered, as well as all of those everyone else tells us about.
     * htmlentities
     * json
     * psych 1.2.2
-    * dnsruby
+    * dnsruby (dns script)
     * em-http-request (http_client module and all scripts that use it)
-    * em-whois
+    * em-whois (whois script)
+    * ruby-mpd (mpd script)
 * Script Dependencies
     * netutils: ping, ping6, mtr
 
@@ -350,6 +351,25 @@ Create Markov chains based on word statistics collected by the bot.
 This script is experimental and will be subject to change before beta.
 
 *If you are in a low-memory environment, _do not_ use this script!*
+
+### MPD
+
+Interface with a Music Player Daemon script and optionally announce status
+changes to an IRC channel (useful for Internet radio stations).
+
+Commands:
+
+* MPD - Interact with MPD. Parameters:
+  * NEXT - Play the next track in the queue.
+  * PREVIOUS - Play the previous track in the queue.
+  * STOP - Stop playback.
+  * PLAY - Start or resume playback.
+  * PAUSE - Pause playback.
+  * NEXT? - Show the name of the next track that will be played.
+  * PLAYLIST? - Show information about the current queue.
+  * NP? - Show the currently playing track.
+  * AUDIO? - Show technical information about the currently playing track.
+  * DATABASE? - Show information about the MPD database.
 
 Commands:
 
