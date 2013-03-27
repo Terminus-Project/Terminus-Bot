@@ -84,7 +84,9 @@ module Bot
     # TODO: move remaining helpers from @msg to here.
 
     def reply str, prefix = true
-      if str.kind_of? Array
+      if str.kind_of? Hash
+        reply str.to_s_irc, prefix
+      elsif str.kind_of? Array
         str.each do |this_str|
           @connection.send_reply @msg, this_str, prefix
         end
