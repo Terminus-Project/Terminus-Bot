@@ -27,7 +27,7 @@ require 'ruby-mpd'
 
 register 'Interact with a Music Player Daemon instance.'
 
-command 'mpd', 'Interact with MPD. Syntax: mpd next|previous|stop|play|pause|shuffle|next?|playlist?|np?|audio?|database?' do
+command 'mpd', 'Interact with MPD. Syntax: mpd next|previous|stop|play|pause|shuffle|update|rescan|search?|count?|next?|playlist?|np?|audio?|database?' do
   argc! 1
 
   args = @params.first.split
@@ -216,7 +216,7 @@ event :done_loading do
   @@previous_state = :unknown
 
   server = get_config :announce_server, nil
-  chan = get_config :announce_channel, nil
+  chan   = get_config :announce_channel, nil
 
   return unless server and chan
 
@@ -315,14 +315,15 @@ helpers do
 
   # TODO: move to Song class if possible
   def song_to_s song
-    msg = []
-    msg << song.artist if song.artist
-    msg << song.album  if song.album
-    msg << song.title  if song.title
+    s = []
 
-    msg << song.file   if msg.empty?
+    s << song.artist if song.artist
+    s << song.album  if song.album
+    s << song.title  if song.title
 
-    msg.join(' - ')
+    s << song.file   if msg.empty?
+
+    s.join(' - ')
   end
 
   def die
