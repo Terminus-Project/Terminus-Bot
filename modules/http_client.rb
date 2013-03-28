@@ -31,33 +31,33 @@ module Bot
 
   class Command
 
-    def http_get uri, query = {}, silent_err = false, &block
-      Bot.http_request uri, query, true, @msg, silent_err, &block
+    def http_get uri, query = {}, silent_err = false, opts = {}, &block
+      Bot.http_request uri, query, true, @msg, silent_err, opts, &block
     end
 
-    def http_post uri, query = {}, silent_err = false, &block
-      Bot.http_request uri, query, false, @msg, silent_err, &block
+    def http_post uri, query = {}, silent_err = false, opts = {}, &block
+      Bot.http_request uri, query, false, @msg, silent_err, opts, &block
     end
 
   end
 
   def self.http_get uri, query = {}, msg = nil, silent_err = false, &block
-    Bot.http_request uri, query, true, msg, silent_err, &block
+    Bot.http_request uri, query, true, msg, silent_err, {}, &block
   end
 
   def self.http_post uri, query = {}, msg = nil, silent_err = false, &block
-    Bot.http_request uri, query, false, msg, silent_err, &block
+    Bot.http_request uri, query, false, msg, silent_err, {}, &block
   end
 
   # Should not be called directly.
-  def self.http_request uri, query, get, msg, silent_err, &block
+  def self.http_request uri, query, get, msg, silent_err, opts, &block
     $log.debug("Bot.http_request") { uri }
 
     conf = Conf[:modules][:http_client]
 
     ua = conf[:user_agent] or "Terminus-Bot (http://terminus-bot.net/)"
 
-    # TODO: Let callers add headers.
+    # TODO: Let callers add headers in a more sane way.
 
     conn_opts = {
       :connect_timeout    => (conf[:timeout] or 5),
@@ -91,6 +91,8 @@ module Bot
       :head               => { 'User-agent' => ua },
       :redirects          => (conf[:redirects] or 10)
     }
+
+    args.merge! opts
 
     max_time = conf[:max_time].to_i rescue 5
 
