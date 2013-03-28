@@ -37,6 +37,8 @@ command 'xbox', 'Retrieve information about Xbox Live players.' do
     profile @params.last
   when :achievements
     achievements *@params.last.split(/\s/, 2)
+  when :friends
+    friends @params.last
   end
 end
 
@@ -129,5 +131,38 @@ helpers do
       }
 
       reply data
+  end
+
+  def friends gamertag
+    uri = URI('http://www.xboxleaders.com/api/friends.json')
+
+    query = {
+      :gamertag => gamertag
+    }
+
+    http_get(uri, query) do |http|
+
+      json = JSON.parse(http.response)
+
+      unless json.has_key? 'Data'
+        raise 'Player not found.'
+      end
+
+      json = json['Data']
+
+      arr = []
+
+      json['Friends'].each do |friend|
+        online = friend['IsOnline'] ? 'Online' : 'Offline'
+
+        arr << "#{friend['Gamertag']} (#{online})"
+      end
+
+      data = {
+        "#{json['TotalFriends']} Friends" => arr.join(', ')
+      }
+
+      reply data
+    end
   end
 end
