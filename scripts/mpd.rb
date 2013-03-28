@@ -98,7 +98,48 @@ command 'mpd', 'Interact with MPD. Syntax: mpd next|previous|stop|play|pause|shu
       raise 'Unable to shuffle queue.'
     end
 
+  when :update
+    level! 4
+
+    connect
+    @@mpd.update
+
+    reply 'Database update started.'
+
+  when :rescan
+    level! 4
+
+    connect
+    @@mpd.rescan
+
+    reply 'Database update with full rescan started.'
+
+  when :search?
+    connect
+    results = @@mpd.search :any, args.join(' ')
+
+    data = {
+      'Results' => results.length
+    }
+
+    reply data, false
+
+
+  when :count?
+    connect
+    results = @@mpd.count args.shift.downcase.to_sym, args.join(' ')
+ 
+    duration = Time.at(Time.now.to_i + results[:playtime]).to_duration_s
+
+    data = {
+      'Tracks' => results[:songs],
+      'Duration' => duration
+    }
+
+    reply data
+
   when :next?
+    connect
     song = @@mpd.song_with_id status[:nextsongid]
 
     data = {

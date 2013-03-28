@@ -370,6 +370,10 @@ Commands:
   * PLAY - Start or resume playback.
   * PAUSE - Pause playback.
   * SHUFFLE - Shuffle the queue.
+  * UPDATE - Begin MPD database update.
+  * RESCAN - Begin MPD database update, also rescanning unchanged files.
+  * SEARCH? - Search the database for matching tracks, any tag.
+  * COUNT? - Search the database, exact matches only. Parameters: tag values
   * NEXT? - Show the name of the next track that will be played.
   * PLAYLIST? - Show information about the current queue.
   * NP? - Show the currently playing track.
