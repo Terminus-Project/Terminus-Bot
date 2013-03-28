@@ -114,6 +114,32 @@ command 'mpd', 'Interact with MPD. Syntax: mpd next|previous|stop|play|pause|shu
 
     reply 'Database update with full rescan started.'
 
+  when :add
+    level! 4
+
+    connect
+
+    if @@mpd.search :any, args.join(' '), :add => true
+      reply 'Added matching tracks to queue.'
+    else
+      raise 'Could not add matching tracks to queue.'
+    end
+
+  when :addplay
+    level! 4
+
+    connect
+    
+    add_pos = queue.length
+
+    if @@mpd.search :any, args.join(' '), :add => true
+      reply 'Added matching tracks to queue.'
+
+      @@mpd.play add_pos
+    else
+      raise 'Could not add matching tracks to queue.'
+    end
+
   when :search?
     connect
     results = @@mpd.search :any, args.join(' ')
@@ -321,7 +347,7 @@ helpers do
     s << song.album  if song.album
     s << song.title  if song.title
 
-    s << song.file   if msg.empty?
+    s << song.file   if s.empty?
 
     s.join(' - ')
   end
