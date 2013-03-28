@@ -127,7 +127,7 @@ helpers do
         'Gamer Score'  => "#{json['EarnedGamerScore']}/#{json['PossibleGamerScore']}",
         'Achievements' => "#{json['EarnedAchievements']}/#{json['PossibleAchievements']}",
         'Completion'   => "#{json['PercentageCompleted']}%",
-        'Last Played'  => "#{Time.at(Time.now.to_i + json['LastPlayed']).to_duration_s} ago"
+        'Last Played'  => "#{Time.at(json['LastPlayed']).to_duration_s} ago"
       }
 
       reply data
