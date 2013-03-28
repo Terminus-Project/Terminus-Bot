@@ -632,7 +632,9 @@ Look up information on Xbox Live players and games.
 
 Commands:
 
-* XBOX - Display inforation about the given gamer tag.
+* XBOX - Display inforation about Xbox Live players.
+  * PROFILE - Show the current status and information about the given gamer tag.
+  * ACHIEVEMENTS - Show achievements for the given gamer tag with optional game.
 
 ## Modules
 

@@ -29,35 +29,105 @@ raise "xbox script requires the http_client module" unless defined? MODULE_LOADE
 
 register 'Retrieve information about Xbox Live players.'
 
-command 'xbox', 'Retrieve the status of an Xbox Live player.' do
-  argc! 1
+command 'xbox', 'Retrieve information about Xbox Live players.' do
+  argc! 2
 
-  uri = URI('http://www.xboxleaders.com/api/profile.json')
-
-  query = {
-    :gamertag => @params.join(' ')
-  }
-  
-  http_get(uri, query) do |http|
-
-    json = JSON.parse(http.response)
-
-    unless json.has_key? 'Data'
-      raise 'Player not found.'
-    end
-
-    json = json['Data']
-
-    data = {
-      json['Gamertag'] => {
-        'Status' => json['OnlineStatus'],
-        'Gamer Score' => json['GamerScore'],
-        'Tier' => json['Tier']
-      }
-    }
-
-    reply data
-
+  case @params.first.downcase.to_sym
+  when :profile
+    profile @params.last
+  when :achievements
+    achievements *@params.last.split(/\s/, 2)
   end
 end
 
+
+helpers do
+  def profile gamertag
+    uri = URI('http://www.xboxleaders.com/api/profile.json')
+
+    query = {
+      :gamertag => gamertag
+    }
+
+    http_get(uri, query) do |http|
+
+      json = JSON.parse(http.response)
+
+      unless json.has_key? 'Data'
+        raise 'Player not found.'
+      end
+
+      json = json['Data']
+
+      data = {
+        json['Gamertag'] => {
+        'Status' => json['OnlineStatus'],
+        'Gamer Score' => json['GamerScore'],
+        'Tier' => json['Tier']
+        }
+      }
+
+      reply data
+    end
+  end
+
+  def achievements gamertag, game = nil
+    uri = URI('http://www.xboxleaders.com/api/games.json')
+
+    query = {
+      :gamertag => gamertag
+    }
+
+    http_get(uri, query) do |http|
+
+      catch :game_found do
+
+        json = JSON.parse(http.response)
+
+        unless json.has_key? 'Data'
+          raise 'Player not found.'
+        end
+
+        json = json['Data']
+        unless game.nil?
+          game.downcase!
+
+          json['PlayedGames'].each do |game_json|
+
+            if game_json['Title'].downcase == game
+              game_achievements game_json
+              throw :game_found
+            end
+
+          end
+
+          if json.nil? or json.empty?
+            raise "That game has not been played."
+          end
+        end
+
+        data = {
+          'Games Played' => json['GameCount'],
+          'Gamer Score'  => "#{json['TotalEarnedGamerScore']}/#{json['TotalPossibleGamerScore']}",
+          'Achievements' => "#{json['TotalEarnedAchievements']}/#{json['TotalPossibleAchievements']}",
+          'Completion'   => "#{json['TotalPercentCompleted']}%"
+        }
+
+        reply data
+
+      end
+    end
+  end
+
+  def game_achievements json
+      data = {
+        'Title' => json['Title'],
+        'Gamer Score'  => "#{json['EarnedGamerScore']}/#{json['PossibleGamerScore']}",
+        'Achievements' => "#{json['EarnedAchievements']}/#{json['PossibleAchievements']}",
+        'Completion'   => "#{json['PercentageCompleted']}%",
+        'Last Played'  => "#{Time.at(Time.now.to_i + json['LastPlayed']).to_duration_s} ago"
+      }
+
+      reply data
+  end
+end
