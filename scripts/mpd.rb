@@ -37,66 +37,54 @@ command 'mpd', 'Interact with MPD. Syntax: mpd next|previous|stop|play|pause|shu
     level! 4
 
     connect
-    if @@mpd.next
-      reply 'Playing next track.'
-      check_status
-    else
-      raise 'Unable to play next track.'
-    end
+    @@mpd.next
+
+    reply 'Playing next track.'
+    check_status
 
   when :previous
     level! 4
 
     connect
-    if @@mpd.previous
-      reply 'Playing previous track.'
-      check_status
-    else
-      raise 'Unable to play previous track.'
-    end
-  
+    @@mpd.previous
+
+    reply 'Playing previous track.'
+    check_status
+
   when :stop
     level! 4
 
     connect
-    if @@mpd.stop
-      reply 'Playback stopped.'
-      check_status
-    else
-      raise 'Unable to stop playback.'
-    end
+    @@mpd.stop
+
+    reply 'Playback stopped.'
+    check_status
   
   when :play
     level! 4
 
     connect
-    if @@mpd.play
-      reply 'Playback started/resumed.'
-      check_status
-    else
-      raise 'Unable to start or resume playback.'
-    end
-  
+    @@mpd.play
+    
+    reply 'Playback started/resumed.'
+    check_status
+
   when :pause
     level! 4
 
     connect
-    if @@mpd.pause
-      reply 'Playback paused.'
-      check_status
-    else
-      raise 'Unable to pause playback.'
-    end
+    @@mpd.pause
+    
+    reply 'Playback paused.'
+    check_status
     
   when :shuffle
     level! 4
 
     connect
-    if @@mpd.shuffle
-      reply 'Queue shuffled.'
-    else
-      raise 'Unable to shuffle queue.'
-    end
+     @@mpd.shuffle
+
+    reply 'Queue shuffled.'
 
   when :update
     level! 4
@@ -119,11 +107,9 @@ command 'mpd', 'Interact with MPD. Syntax: mpd next|previous|stop|play|pause|shu
 
     connect
 
-    if @@mpd.search :any, args.join(' '), :add => true
-      reply 'Added matching tracks to queue.'
-    else
-      raise 'Could not add matching tracks to queue.'
-    end
+    @@mpd.search :any, args.join(' '), :add => true
+    
+    reply 'Added matching tracks to queue.'
 
   when :addplay
     level! 4
@@ -132,13 +118,10 @@ command 'mpd', 'Interact with MPD. Syntax: mpd next|previous|stop|play|pause|shu
     
     add_pos = queue.length
 
-    if @@mpd.search :any, args.join(' '), :add => true
-      reply 'Added matching tracks to queue.'
+     @@mpd.search :any, args.join(' '), :add => true
+     @@mpd.play add_pos
 
-      @@mpd.play add_pos
-    else
-      raise 'Could not add matching tracks to queue.'
-    end
+     reply 'Added matching tracks to queue and started playback.'
 
   when :search?
     connect
