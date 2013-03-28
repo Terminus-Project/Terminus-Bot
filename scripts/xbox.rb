@@ -103,9 +103,7 @@ helpers do
 
           end
 
-          if json.nil? or json.empty?
-            raise "That game has not been played."
-          end
+          raise "That game has not been played."
         end
 
         data = {
