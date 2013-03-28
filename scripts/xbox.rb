@@ -23,7 +23,6 @@
 # SOFTWARE.
 #
 
-require 'htmlentities'
 require 'json'
 
 raise "xbox script requires the http_client module" unless defined? MODULE_LOADED_HTTP
