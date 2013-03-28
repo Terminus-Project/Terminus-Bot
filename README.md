@@ -626,6 +626,14 @@ Commands:
 
 * WIKI - Search Wikipedia for the given text.
 
+### Xbox
+
+Look up information on Xbox Live players and games.
+
+Commands:
+
+* XBOX - Display inforation about the given gamer tag.
+
 ## Modules
 
 Modules are files that augment the bot's core code. They cannot be unloaded or
