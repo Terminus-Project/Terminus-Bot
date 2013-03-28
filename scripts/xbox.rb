@@ -29,7 +29,7 @@ raise "xbox script requires the http_client module" unless defined? MODULE_LOADE
 
 register 'Retrieve information about Xbox Live players.'
 
-command 'xbox', 'Retrieve information about Xbox Live players.' do
+command 'xbox', 'Retrieve information about Xbox Live players. Syntax: PROFILE gamertag|ACHIEVEMENTS gamertag [game]|FRIENDS gamertag' do
   argc! 2
 
   case @params.first.downcase.to_sym
