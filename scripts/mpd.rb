@@ -117,9 +117,13 @@ command 'mpd', 'Interact with MPD. Syntax: mpd next|previous|stop|play|pause|shu
   when :search?
     connect
     results = @@mpd.search :any, args.join(' ')
+    
+    duration = results.inject(0) {|sum, s| sum + s.time}
+    duration = Time.at(Time.now.to_i + duration).to_duration_s
 
     data = {
-      'Results' => results.length
+      'Tracks'    => results.length,
+      'Duration'  => duration
     }
 
     reply data, false
@@ -132,8 +136,8 @@ command 'mpd', 'Interact with MPD. Syntax: mpd next|previous|stop|play|pause|shu
     duration = Time.at(Time.now.to_i + results[:playtime]).to_duration_s
 
     data = {
-      'Tracks' => results[:songs],
-      'Duration' => duration
+      'Tracks'    => results[:songs],
+      'Duration'  => duration
     }
 
     reply data
