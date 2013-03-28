@@ -241,6 +241,12 @@ helpers do
 
       data = JSON.parse(http.response)
 
+      if data.has_key? 'duplicate_of'
+        get_derpibooru URI("https://#{host_match[:server] if host_match}derpiboo.ru/#{data['duplicate_of']}")
+
+        next
+      end
+
       tags = data['tags'].split(/, /)
      
       rating = %w[
