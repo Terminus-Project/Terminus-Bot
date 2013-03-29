@@ -63,7 +63,7 @@ helpers do
 
       data = {
         json['Gamertag'] => {
-        'Status' => json['OnlineStatus'],
+        'Status' => json['OnlineStatus'].gsub(/\s+/, ' '),
         'Gamer Score' => json['GamerScore'],
         'Tier' => json['Tier']
         }
