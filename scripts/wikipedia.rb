@@ -34,7 +34,9 @@ command 'wiki', 'Search Wikipedia for the given text.' do
 
   $log.info('wikipedia.cmd_wiki') { "Getting Wikipedia page for #{@params.first}" }
 
-  uri = URI('http://en.wikipedia.org/w/api.php')
+  site = get_config :site, 'en'
+
+  uri = URI("http://#{site}.wikipedia.org/w/api.php")
 
   opts = {
     :action   => :query,

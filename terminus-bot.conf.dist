@@ -573,3 +573,17 @@ idlerpg = {
   #
 
 }
+
+# Wikipedia script.
+wikipedia = {
+  
+  # Wikipedia site to use for look-ups. This setting allows you to change what
+  # language your Wikipedia results are displayed in, and which site is
+  # searched. This is the short set of letters that appears before the
+  # wikipedia.org in the URL. For example, en for English or de for German
+  # (en.wikipedia.org and de.wikipedia.org).
+  #
+  # default: en
+  #site = en
+
+}
