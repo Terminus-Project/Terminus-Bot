@@ -28,7 +28,7 @@ register 'A Russian Roulette-style game of chance.'
 command 'roulette', 'Pull the trigger. You have a 5/6 chance of surviving.' do
   channel!
 
-  if rand(6) == 0
+  if rand(6).zero?
     if @connection.channels[@msg.destination_canon].half_op? @connection.nick
       send_kick @msg.destination, @msg.nick, "Bang!"
     else
