@@ -203,17 +203,14 @@ Available CTCPs:
 
 ### Dictionary
 
-Provides an interface to dictionary.com. You must have a valid dictionary.com
-API key to use this script.
+Provides an interface to cleandictionary.com.
 
 Commands:
 
 * DEFINE - Look up some possibile definitions of a word.
-* RANDWORD - Look up the definition of a random word.
-* WOTD - Look up the Word of the Day on dictionary.com.
-* SPELL - Suggest correct or alternate spellings of a word.
 * SLANG - Look up possibly meanings of a slang word.
-* ETYMOLOGY - Look up the etymology of a word.
+* SYNONYMS - Look up synonyms of a word.
+* ANTONYMS - Look up antonyms of a word.
 
 ### DNS
 

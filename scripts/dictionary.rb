@@ -23,69 +23,90 @@
 # SOFTWARE.
 #
 
-require 'rexml/document'
-require 'htmlentities'
+require 'json'
 
 raise "dictionary script requires the http_client module" unless defined? MODULE_LOADED_HTTP
 
-register 'Dictionary.com look-ups.'
+register 'CleanDictionary.com look-ups.'
 
 helpers do
-  def api_call opt = {}
-    api_key = get_config :apikey, nil
+  def api_call func, args
+    uri = URI("http://cleandictionary.com/#{func}/#{args}")
 
-    if api_key == nil
-      reply "A dictionary.com API key must be set in the bot's configuration for this command to work."
-      return  
-    end
-
-    opt[:vid] = api_key
-
-    api = 'http://api-pub.dictionary.com/v001'
-
-    Bot.http_get(URI(api), opt) do |http|
-      yield (REXML::Document.new(http.response)).root
+    http_get(uri) do |http|
+      yield JSON.parse http.response
     end
   end
 
-  def get_definition word, root, definitions
-    coder   = HTMLEntities.new
-    max     = get_config(:max, 1).to_i
-    results = []
-
-    root.elements.each do |entry|
-      entry.elements.each do |foo|
-
-        break if results.length >= max or results.length > definitions
-
-        result = []
-
-        head = "\02#{word}"
-        head << " (#{coder.decode(foo.attributes["pos"])})" if foo.has_attributes? and foo.attributes["pos"] != nil
-
-        foo.elements.each do |p|
-          p.elements.each do |d|
-            buf = (p.has_attributes? and p.attributes['pos'] != nil) ? "\02(#{coder.decode(p.attributes['pos'])})\02 " : ""
-
-            text = d.has_text? ? d.text.strip : ""
-
-            result << buf + coder.decode(d.text.strip) if text.length > 0
-          end
-        end
-
-        unless result == nil
-          buf = result.join("; ").gsub(/<\/?(b|i)>/, "\02").gsub(/<[^>]+>/, '').gsub(/\s+/, " ")
-
-          results << head + ":\02 " + buf unless buf.empty?
-        end
-
+  def show_word json, type
+    case type
+    when :defs
+      data = {
+        "#{json['word']} (#{json['ps']})" => strip_def(json['defs'].first)
+      }
+    when :syn
+      if json['synonyms'].empty?
+        reply "No synonyms found for #{json['word']} (#{json['ps']})"
+        return
       end
+
+      str = strip_def(json['synonyms'][0..10].join(', ')).gsub /;/, '; '
+
+      data = {
+        "#{json['word']} (#{json['ps']})" => str
+      }
+    when :ant
+      if json['antonyms'].empty?
+        reply "No antonyms found for #{json['word']} (#{json['ps']})"
+        return
+      end
+
+      str = strip_def(json['antonyms'][0..10].join(', ')).gsub /;/, '; '
+
+      data = {
+        "#{json['word']} (#{json['ps']})" => str
+      }
     end
 
-    if results.empty?
-      reply "No results"
-    else
-      reply results
+    reply data
+  end
+
+  def strip_def str
+    str.gsub(/[\[\]]|\{\{[^\}]+\}\}/, '').strip.squeeze ' '
+  end
+
+  def slang json
+    found = 0
+    max = get_config :max, 1
+
+    slang = json['result'].each do |result|
+      result['defs'].each do |definition|
+        if definition.start_with? '{{slang}}'
+          found += 1
+
+          data = {
+            "#{result['word']} (#{result['ps']})" => strip_def(definition)
+          }
+
+          reply data
+
+          return if found == max
+        end
+      end
+    end
+  end
+
+  def search word, type = :defs
+    api_call('s', word) do |json|
+
+      if type == :slang
+        slang json
+      else
+        json['result'][0..get_config(:max, 1).to_i-1].each do |word|
+          show_word word, type
+        end
+      end
+
     end
   end
 end
@@ -93,124 +114,24 @@ end
 command 'define', 'Look up some of the possible definitions of a word.' do
   argc! 1
 
-  api_call(:q => @params.first, :type => :define) do |root|
-
-    definitions = root.elements["//dictionary"].attributes["totalresults"].to_i rescue 0
-
-    if definitions == 0
-      reply "No results"
-    else
-      get_definition @params.first, root, definitions
-    end
-
-  end
+  search @params.first
 end
 
-command 'spell', 'Suggest correct or alternate spellings of a word.' do
+command 'slang', 'Look up slang definitions of a word.' do
   argc! 1
 
-  api_call(:q => @params.first, :type => :spelling) do |root|
-
-    buf   = []
-    coder = HTMLEntities.new
-
-    buf << coder.decode(root.elements["//spelling/bestmatch/dictionary"].text) rescue ""
-
-    root.elements["//spelling/suggestions/dictionaryitems"].elements.each do |e|
-      buf << coder.decode(e.text)
-    end
-
-    if buf.empty?
-      reply "No results"
-    else
-      reply"Best match: \02#{buf.shift}\02#{buf.empty? ? "" : " (Other matches: #{buf[0..10].join(", ")})"}"
-    end
-  end
+  search @params.first, :slang
 end
 
-command 'etymology', 'Look up the etymology of a word.' do
+command 'synonyms', 'Look up synonmys of a word.' do
   argc! 1
 
-  api_call(:site => :etymology, :q => @params.first) do |root|
-    coder = HTMLEntities.new
-
-    if ((root.elements['/results'].attributes['id'].to_s == "nothingfound") rescue false)
-      reply "No results"
-    else
-      root = root.elements['/etymology']
-
-      buf = "\02#{coder.decode root.elements['date'].text}\02: "
-      buf << coder.decode(root.text).gsub(/<\/?(b|i)>/, "\02").gsub(/<.>/, '').gsub(/\s+/, " ")
-
-      reply buf
-    end
-  end
+  search @params.first, :syn
 end
 
-#command 'thesaurus', 'Look up synonyms and antonyms of the given word.' do
-#  argc! 1
-#  api_call(msg, :type => :define, :site => :thesaurus, :q => params[0]) do |root|
-#  end
-#end
-
-command 'slang', 'Look up possible meanings of a slang word.' do
+command 'antonyms', 'Look up antonmys of a word.' do
   argc! 1
 
-  api_call(:type => :define, :site => :slang, :q => @params.first) do |root|
-    coder = HTMLEntities.new
-
-    definitions = root.elements["//slang"].attributes["totalresults"].to_i rescue 0
-
-    if definitions.zero?
-      reply "No results"
-    else
-      get_definition @params.first, root, definitions
-    end
-
-  end
-end
-
-#command 'example', 'Find usage examples for the given word.' do
-#  argc! 1
-#  api_call(msg, :type => :example, :q => params[0]) do |root|
-#  end
-#end
-
-command 'wotd', 'Fetch the Word of the Day on dictionary.com' do
-  api_call(:type => :wotd) do |root|
-    coder = HTMLEntities.new
-
-    root = root.elements['/wordoftheday/entry']
-
-    buf = "\02#{coder.decode(root.elements['word'].text)} "
-    buf << "(#{coder.decode(root.elements['partofspeech'].text)}):\02 "
-    buf << coder.decode(root.elements['shortdefinition'].text)
-
-    reply buf
-  end
-end
-
-#command 'synonyms', 'Find synonyms for the given word.' do
-#  argc! 1
-#end
-
-command 'randword', 'Look up the definition of a random word.' do
-  api_call(:type => :random) do |root|
-    buf   = []
-    coder = HTMLEntities.new
-
-    word = coder.decode root.elements["//dictionary/random_entry"].text
-
-    api_call(:q => word, :type => :define) do |root|
-      definitions = root.elements["//dictionary"].attributes["totalresults"].to_i rescue 0
-
-      if definitions == 0
-        reply "No results"
-      else
-        get_definition word, root, definitions
-      end
-    end
-
-  end
+  search @params.first, :ant
 end
 
