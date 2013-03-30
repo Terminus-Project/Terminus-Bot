@@ -45,22 +45,7 @@ end
 
 helpers do
   def profile gamertag
-    uri = URI('http://www.xboxleaders.com/api/profile.json')
-
-    query = {
-      :gamertag => gamertag
-    }
-
-    http_get(uri, query) do |http|
-
-      json = JSON.parse(http.response)
-
-      unless json.has_key? 'Data'
-        raise 'Player not found.'
-      end
-
-      json = json['Data']
-
+    api_call('profile', gamertag) do |json|
       data = {
         json['Gamertag'] => {
         'Status' => json['OnlineStatus'].gsub(/\s+/, ' '),
@@ -74,23 +59,9 @@ helpers do
   end
 
   def achievements gamertag, game = nil
-    uri = URI('http://www.xboxleaders.com/api/games.json')
-
-    query = {
-      :gamertag => gamertag
-    }
-
-    http_get(uri, query) do |http|
-
+    api_call('games', gamertag) do |json|
       catch :game_found do
 
-        json = JSON.parse(http.response)
-
-        unless json.has_key? 'Data'
-          raise 'Player not found.'
-        end
-
-        json = json['Data']
         unless game.nil?
           game.downcase!
 
@@ -132,22 +103,7 @@ helpers do
   end
 
   def friends gamertag
-    uri = URI('http://www.xboxleaders.com/api/friends.json')
-
-    query = {
-      :gamertag => gamertag
-    }
-
-    http_get(uri, query) do |http|
-
-      json = JSON.parse(http.response)
-
-      unless json.has_key? 'Data'
-        raise 'Player not found.'
-      end
-
-      json = json['Data']
-
+    api_call('friends', gamertag) do |json|
       arr = []
 
       json['Friends'].each do |friend|
@@ -161,6 +117,25 @@ helpers do
       }
 
       reply data
+    end
+  end
+
+  def api_call func, gamertag
+    uri = URI("http://www.xboxleaders.com/api/#{func}.json")
+
+    query = {
+      :gamertag => gamertag
+    }
+
+
+    http_get(uri, query) do |http|
+      json = JSON.parse(http.response)
+
+      unless json.has_key? 'Data'
+        raise 'Player not found.'
+      end
+
+      yield json['Data']
     end
   end
 end
