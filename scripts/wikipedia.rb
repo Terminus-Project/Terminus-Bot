@@ -23,7 +23,7 @@
 # SOFTWARE.
 #
 
-require "json"
+require 'json'
 
 raise "wiki script requires the http_client module" unless defined? MODULE_LOADED_HTTP
 
@@ -47,22 +47,24 @@ command 'wiki', 'Search Wikipedia for the given text.' do
   http_get(uri, opts) do |http|
     response = JSON.parse http.response
 
-    if response["query"]["search"].empty?
-      reply "No results."
+    if response['query']['search'].empty?
+      reply 'No results.'
       next
     end
 
-    data = response["query"]["search"][0]
+    data = response['query']['search'].first
 
-    link_title = data["title"].gsub(/\s/, "_")
+    link_title = data['title'].gsub(/\s/, "_")
 
     # .gsub ALL THE THINGS!
-    snippet = data["snippet"].gsub(/<[^>]+>/, '').gsub(/\s+/, ' ').gsub(/\s([[:punct:]]+)\s/, '\1 ')
+    snippet = data['snippet'].gsub(/<[^>]+>/, '').gsub(/\s+/, ' ').gsub(/\s([[:punct:]]+)\s/, '\1 ')
 
-    buf = "\02#{data["title"]}:\02 #{snippet}"
-    buf << " https://en.wikipedia.org/wiki/#{URI.escape(link_title)}"
+    data = { 
+      data['title'] => snippet
+    }
 
-    reply buf, false
+    link = "https://en.wikipedia.org/wiki/#{URI.escape(link_title)}"
+    reply "#{data.to_s_irc} #{link}", false
   end
 end
 
