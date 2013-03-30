@@ -31,7 +31,7 @@ register 'CleanDictionary.com look-ups.'
 
 helpers do
   def api_call func, args
-    uri = URI("http://cleandictionary.com/#{func}/#{args}")
+    uri = URI("http://cleandictionary.com/#{func}/#{URI.encode args}")
 
     http_get(uri) do |http|
       yield JSON.parse http.response
@@ -72,7 +72,7 @@ helpers do
   end
 
   def strip_def str
-    str.gsub(/[\[\]]|\{\{[^\}]+\}\}/, '').strip.squeeze ' '
+    str.gsub(/[\[\]]|\{\{[^\}]+\}\}|\|\w+/, '').strip.squeeze ' '
   end
 
   def slang json
@@ -109,6 +109,20 @@ helpers do
 
     end
   end
+
+  def spell word
+    api_call('c', word) do |json|
+      if json['result'].empty?
+        reply "No results."
+      else
+        data = {
+          json['query'] => json['result'].join(', ')
+        }
+
+        reply data
+      end
+    end
+  end
 end
 
 command 'define', 'Look up some of the possible definitions of a word.' do
@@ -135,3 +149,8 @@ command 'antonyms', 'Look up antonmys of a word.' do
   search @params.first, :ant
 end
 
+command 'spell', 'Check for correct or alternate ways to spell a word.' do
+  argc! 1
+
+  spell @params.first
+end
