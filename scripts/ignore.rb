@@ -43,6 +43,10 @@ command 'ignore', 'Ignore the given hostmask.' do
 
   mask = @params.first
 
+  if mask =~ /\s/
+    raise 'Invalid banmask (spaces are not permitted).'
+  end
+
   mask << "!*@*"  unless mask =~ /[!@*]/
  
   if Ignores.include? mask
