@@ -46,7 +46,11 @@ command 'dominos', 'Look up the status for the Domino\'s order associated with t
   opt = {:Phone => phone}
 
   http_get(url, opt) do |http|
-    status = REXML::Document.new(http.response).elements['//GetTrackerDataResponse/OrderStatuses/OrderStatus']
+    begin
+      status = REXML::Document.new(http.response).elements['//GetTrackerDataResponse/OrderStatuses/OrderStatus']
+    rescue
+      raise 'Order not found.'
+    end
 
     status_text = status.elements['OrderStatus'].text
     status_time = status.elements['AsOfTime'].text
