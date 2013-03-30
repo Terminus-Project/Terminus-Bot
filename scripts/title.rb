@@ -191,11 +191,7 @@ helpers do
       text   = json['text'].gsub(/[\r\n[[:cntrl:]]]/, '')
       author = json['user']['screen_name']
 
-      data = {
-        "<@#{author}>" => text
-      }
-
-      reply data, false
+      reply "\02<@#{author}>\02 #{text}", false
     end
   end
 
