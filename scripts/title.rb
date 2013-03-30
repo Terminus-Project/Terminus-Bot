@@ -23,9 +23,8 @@
 # SOFTWARE.
 #
 
-require "strscan"
-require "htmlentities"
-require 'rexml/document'
+require 'strscan'
+require 'htmlentities'
 require 'json'
 
 raise "http script requires the http_client module" unless defined? MODULE_LOADED_HTTP
@@ -182,15 +181,15 @@ helpers do
     end
 
     id = URI.escape match[:id]
-    api = URI("https://api.twitter.com/1/statuses/show.xml?id=#{id}")
+    api = URI("https://api.twitter.com/1/statuses/show.json?id=#{id}")
 
     Bot.http_get(api) do |http|
-      root = REXML::Document.new(http.response).root
+      json = JSON.parse(http.response)
 
-      next unless root.get_elements("error").empty?
+      next if json['errors']
 
-      text     = root.get_elements("text").first.text.to_s.gsub(/[\r\n[[:cntrl:]]]/, '')
-      author   = root.get_elements("user/screen_name").first.text.to_s
+      text   = json['text'].gsub(/[\r\n[[:cntrl:]]]/, '')
+      author = json['user']['screen_name']
 
       data = {
         "<@#{author}>" => text
