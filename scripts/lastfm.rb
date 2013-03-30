@@ -37,24 +37,32 @@ command 'np', 'Show the currently playing track for the given Last.fm user.' do
 
   user = @params.first.strip
 
-  api_call(:user => user, :method => "user.getrecenttracks", :limit => "1") do |root|
-    raise "API call failed" if root == nil
+  opts = {
+    :user   => user,
+    :method => 'user.getrecenttracks',
+    :limit  => 1
+  }
 
-    track = root.elements["//track"]
+  api_call(opts) do |root|
+    raise 'API call failed' if root == nil
 
-    if track.nil?
-      raise "No such user."
-    end
+    track = root.elements['//track']
 
-    if track.attributes.get_attribute("nowplaying").nil?
-      reply "No music is currently playing."
+    raise 'No such user.' if track.nil?
+
+    if track.attributes.get_attribute('nowplaying').nil?
+      reply 'No music is currently playing.'
       next
     end
 
-    name = track.elements["//name"].text
-    artist = track.elements["//artist"].text
+    name = track.elements['//name'].text
+    artist = track.elements['//artist'].text
 
-    reply "\02#{user} is listening to:\02 #{artist} - #{name}", false
+    data = {
+      "#{user} is listening to" => "#{artist} - #{name}"
+    }
+
+    reply data, false
   end
 end
 
@@ -64,9 +72,8 @@ helpers do
 
     api_key = get_config :apikey, nil
 
-    if api_key == nil
-      reply "A Last.fm API key must be set in the bot's configuration for this command to work."
-      return
+    if api_key.nil?
+      raise "A Last.fm API key must be set in the bot's configuration for this command to work."
     end
 
     opt[:api_key] = api_key
