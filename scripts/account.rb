@@ -67,8 +67,8 @@ command 'register', 'Register a new account on the bot. Parameters: username pas
     raise "That user name is already registered."
   end
 
-  if Bot::Conf[:admins] and Bot::Conf[:admins].has_key? name
-    level = Bot::Conf[:admins][name]
+  if Bot::Conf[:admins] and Bot::Conf[:admins].has_key? @params[0]
+    level = Bot::Conf[:admins][@params[0]]
   else
     level = 1
   end
