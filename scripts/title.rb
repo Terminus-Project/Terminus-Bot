@@ -168,6 +168,8 @@ helpers do
     $log.debug('title.get_twitter') { uri.to_s }
 
     # TODO: Get the latest status for a linked user.
+    # TODO: API v1 is deprecated. v1.1 requires OAuth bullshit. Open to
+    #       suggestions on how to deal with this.
 
     if uri.fragment
       match = uri.fragment.match(/status(es)?\/(?<id>[0-9]+)/)
@@ -183,9 +185,6 @@ helpers do
     api = URI("https://api.twitter.com/1/statuses/show.xml?id=#{id}")
 
     Bot.http_get(api) do |http|
-      # Since we're already using REXML for YouTube, we may as well use it here too.
-      # (However, see the TODO about that.)
-
       root = REXML::Document.new(http.response).root
 
       next unless root.get_elements("error").empty?
