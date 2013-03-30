@@ -72,7 +72,11 @@ helpers do
   end
 
   def strip_def str
-    str.gsub(/[\[\]]|\{\{[^\}]+\}\}|\|\w+/, '').strip.squeeze ' '
+    str.gsub! /\{\{([^\|]+)\|([^\}]+)\}\}/, '(\1: \2)'
+    str.gsub! /\{\{([^\}]+)\}\}/, '(\1)'
+    str.gsub! /[\[\]]|\|\w+/, ''
+    
+    str.strip.squeeze ' '
   end
 
   def slang json
