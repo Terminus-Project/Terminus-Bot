@@ -50,7 +50,7 @@ helpers do
         json['Gamertag'] => {
         'Status' => json['OnlineStatus'].gsub(/\s+/, ' '),
         'Gamer Score' => json['GamerScore'],
-        'Tier' => json['Tier']
+        'Tier' => json['Tier'].capitalize
         }
       }
 
