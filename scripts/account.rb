@@ -44,7 +44,7 @@ command 'identify', 'Log in to the bot. Parameters: username password' do
   level = stored[:level]
   name = @params[0].to_sym
 
-  if Bot::Conf[:admins].has_key? name
+  if Bot::Conf[:admins] and Bot::Conf[:admins].has_key? name
     level = Bot::Conf[:admins][name]
 
     $log.info("account.cmd_identify") { "#{@msg.origin} identifying with override level #{level}" }
@@ -67,9 +67,15 @@ command 'register', 'Register a new account on the bot. Parameters: username pas
     raise "That user name is already registered."
   end
 
-  store_data @params[0], Hash[:password => encrypt_password(@params[1]), :level => 1]
+  if Bot::Conf[:admins] and Bot::Conf[:admins].has_key? name
+    level = Bot::Conf[:admins][name]
+  else
+    level = 1
+  end
 
-  reply "You have now registered an account with the user name #{@params[0]}. You now have level 1 authorization."
+  store_data @params[0], Hash[:password => encrypt_password(@params[1]), :level => level]
+
+  reply "You have now registered an account with the user name #{@params[0]}. You now have level #{level} authorization."
   $log.info("account.cmd_register") { "#{@msg.origin} registered bot account #{@params[0]}" }
 end
 
