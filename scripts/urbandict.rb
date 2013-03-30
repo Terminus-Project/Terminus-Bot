@@ -24,6 +24,7 @@
 #
 
 require 'htmlentities'
+require 'json'
 
 raise "urbandict script requires the http_client module" unless defined? MODULE_LOADED_HTTP
 
