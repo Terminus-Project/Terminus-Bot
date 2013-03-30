@@ -47,7 +47,7 @@ command 'ignore', 'Ignore the given hostmask.' do
     raise 'Invalid banmask (spaces are not permitted).'
   end
 
-  mask << "!*@*"  unless mask =~ /[!@*]/
+  mask << "!*@*" unless mask =~ /[!@*]/
  
   if Ignores.include? mask
     raise "Already ignoring #{mask}"
@@ -64,7 +64,7 @@ command 'unignore', 'Remove the given ignore.' do
 
   mask = @params.first
 
-  mask << "!*@*"  unless mask =~ /[!@*]/
+  mask << "!*@*" unless mask =~ /[!@*]/
 
   unless Ignores.include? mask
     raise "No such ignore."
