@@ -23,7 +23,7 @@
 # SOFTWARE.
 #
 
-require 'rexml/document'
+require 'json'
 require 'htmlentities'
 
 # TODO: Store account names on bot accounts and use those if available.
@@ -43,20 +43,23 @@ command 'np', 'Show the currently playing track for the given Last.fm user.' do
     :limit  => 1
   }
 
-  api_call(opts) do |root|
-    raise 'API call failed' if root == nil
+  api_call(opts) do |json|
+    raise json['message'] if json['error']
 
-    track = root.elements['//track']
+    unless json['recenttracks'] and json['recenttracks']['track']
+      raise 'No recent tracks found.'
+    end
 
-    raise 'No such user.' if track.nil?
+    track = json['recenttracks']['track'].first
 
-    if track.attributes.get_attribute('nowplaying').nil?
+    # hax
+    unless track.is_a? Hash and track['@attr'] and track['@attr']['nowplaying']
       reply 'No music is currently playing.'
       next
     end
 
-    name = track.elements['//name'].text
-    artist = track.elements['//artist'].text
+    name   = track['name']
+    artist = track['artist']['#text']
 
     data = {
       "#{user} is listening to" => "#{artist} - #{name}"
@@ -77,9 +80,10 @@ helpers do
     end
 
     opt[:api_key] = api_key
+    opt[:format]  = 'json'
 
     http_get(URI(api_url), opt) do |http|
-      yield REXML::Document.new http.response
+      yield JSON.parse http.response
     end
   end
 end
