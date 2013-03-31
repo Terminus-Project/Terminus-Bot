@@ -67,7 +67,7 @@ event :"318" do
 end
 
 command 'away', 'Enable or disable away status announcements for the current channel. Parameters: ON|OFF' do
-  help_op! and channel! and argc! 1
+  half_op! and channel! and argc! 1
 
   case @params.first.downcase
 
