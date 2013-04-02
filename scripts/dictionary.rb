@@ -105,10 +105,11 @@ helpers do
 
       if type == :slang
         slang json
-      else
-        json['result'][0..get_config(:max, 1).to_i-1].each do |word|
-          show_word word, type
-        end
+        next
+      end
+
+      json['result'][0..get_config(:max, 1).to_i-1].each do |word|
+        show_word word, type
       end
 
     end
