@@ -30,6 +30,7 @@ module Bot
       Bot::Events.create :PRIVMSG, self, :on_privmsg
 
       COMMANDS = {}
+      ALIASES  = {}
     end
 
     def self.on_privmsg msg
@@ -41,8 +42,12 @@ module Bot
 
       cmd_str = match[:command].downcase
 
-      return unless COMMANDS.has_key? cmd_str
+      if ALIASES.has_key? cmd_str
+        cmd_str = ALIASES[cmd_str]
+      end
 
+      return unless COMMANDS.has_key? cmd_str
+        
       command = COMMANDS[cmd_str]
 
       return unless Bot::Flags.permit_message? command[:owner], msg
@@ -61,9 +66,31 @@ module Bot
         raise "attempted to register duplicate command #{cmd} for #{owner.class.name}"
       end
 
+      if ALIASES.has_key? cmd
+        raise "attempted to register command #{cmd} for #{owner.class.name} but an alias by that name already exists"
+      end
+
       $log.debug("CommandManager.create") { "Creating command: #{cmd}" }
 
       COMMANDS[cmd] = {:owner => owner, :block => blk, :help => help}
+    end
+
+    def self.create_alias cmd, target
+      if COMMANDS.has_key? cmd
+        raise "attempted to register alias #{cmd} for #{owner.class.name} but a command by that name already exists"
+      end
+
+      if ALIASES.has_key? cmd
+        raise "attempted to register duplicate alias #{cmd} for #{owner.class.name}"
+      end
+
+      unless COMMANDS.has_key? target
+        raise "target command #{target} does not exist"
+      end
+
+      $log.debug("CommandManager.create_alias") { "Creating alias: #{cmd}" }
+
+      ALIASES[cmd] = target
     end
 
     def self.delete cmd
@@ -73,13 +100,25 @@ module Bot
 
       $log.debug("CommandManager.delete") { "Deleting command: #{cmd}" }
 
+      delete_aliases_for target
+
       COMMANDS.delete cmd
+    end
+
+    def self.delete_aliases_for target
+      ALIASES.reject! do |a, t|
+        t == target
+      end
+
+      true
     end
 
     def self.delete_for owner
       $log.debug("CommandManager.delete_for") { "Unregistering all commands for #{owner.class.name}" }
 
-      COMMANDS.delete_if {|n,c| c[:owner] == owner}
+      COMMANDS.reject! do |n,c| 
+        c[:owner] == owner and delete_aliases_for n
+      end
     end
 
   end
