@@ -108,7 +108,7 @@ module Bot
       COMMANDS.delete cmd
     end
 
-    def delete_alias cmd
+    def self.delete_alias cmd
       cmd.downcase!
 
       raise "attempted to delete non-existent alias #{cmd}" unless ALIASES.has_key? cmd
