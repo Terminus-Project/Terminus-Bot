@@ -57,6 +57,8 @@ module Bot
         handler[:owner] == parent
       end
 
+      return unless @@default_handler
+
       @@default_handler = nil if @@default_handler[:owner] == parent
     end
 
@@ -88,6 +90,8 @@ module Bot
   class URLHandler < Command
     class << self
       def dispatch owner, uri, msg, &block
+        helpers &owner.get_helpers if owner.respond_to? :helpers
+
         self.new(owner, uri, msg).instance_eval &block
       end
     end
