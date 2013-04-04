@@ -98,6 +98,9 @@ module Bot
 
         if @scripts.has_key? name
 
+          Events.delete_for @scripts[name]
+          URLHandlers.delete_for @scripts[name] if defined? MODULE_LOADED_URL_HANDLER
+
           @scripts[name].unregister_script
           @scripts[name].unregister_commands
           @scripts[name].unregister_events
@@ -121,6 +124,9 @@ module Bot
 
       @scripts[name].die if @scripts[name].respond_to? "die"
 
+      Events.delete_for @scripts[name]
+      URLHandlers.delete_for @scripts[name] if defined? MODULE_LOADED_URL_HANDLER
+
       @scripts[name].unregister_script
       @scripts[name].unregister_commands
       @scripts[name].unregister_events
@@ -136,6 +142,9 @@ module Bot
       raise "Cannot unload: No such script #{name}" unless @scripts.has_key? name
 
       @scripts[name].die if @scripts[name].respond_to? "die"
+
+      Events.delete_for @scripts[name]
+      URLHandlers.delete_for @scripts[name] if defined? MODULE_LOADED_URL_HANDLER
 
       @scripts[name].unregister_script
       @scripts[name].unregister_commands
