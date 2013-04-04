@@ -43,7 +43,7 @@ url /\/\/(youtu\.be\/.+|(www\.)?youtube\.com\/.+[?&]v=.+)/ do
 
     vid = query.split("=")[1]
 
-    link = " - https://youtu.be/#{vid}" if get_config(:shorten_youtube, false)
+    link = " - https://youtu.be/#{vid}" if get_config(:shorten_links, false)
   end
 
   api = URI("https://www.googleapis.com/youtube/v3/videos")
