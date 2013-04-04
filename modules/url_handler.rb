@@ -27,8 +27,8 @@ module Bot
 
   raise 'url_handler module requires http_client module' unless defined? MODULE_LOADED_HTTP
 
-  MODULE_LOADED_TITLE  = true
-  MODULE_VERSION_TITLE = 0.1
+  MODULE_LOADED_URL_HANDLER  = true
+  MODULE_VERSION_URL_HANDLER = 0.1
 
   class URLHandlers
 
@@ -70,7 +70,7 @@ module Bot
       $log.debug('URLHandlers.on_match') { uri.inspect }
 
       @@handlers.each do |regex, handler|
-        if uri.host.match regex
+        if uri.to_s.match regex
           URLHandler.dispatch handler[:owner], uri, msg, &handler[:block]
 
           return
