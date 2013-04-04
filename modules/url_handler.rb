@@ -63,8 +63,19 @@ module Bot
     end
 
     def on_privmsg msg
+      conf = Bot::Conf[:modules][:url_handler]
+
+      if conf.nil?
+        max = 3
+      else
+        max = conf[:max].to_i or 3
+      end
+
       URI.extract(msg.text, ['http', 'https']) do |uri|
         on_match msg, URI(uri)
+
+        max = max - 1
+        return if max.zero?
       end
     end
 

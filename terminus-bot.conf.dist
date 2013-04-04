@@ -224,7 +224,15 @@ modules = {
   # The URL handler module is required for quite a lot of scripts. It allows
   # scripts to react to http and https links that appear in messages, and is
   # generally used for title fetchers. It must be loaded after http_client.
-  url_handler
+  url_handler = {
+
+    # Maximum number of URLs to match per message. If a user posts a message with
+    # many URLs, we will look up the titles for this many of them (from the first
+    # one found to the last) and post the titles, each in a separate message.
+    # default: 3
+    max = 3
+
+  }
 
   # Note: Don't uncomment this for now. The module is unfinished and will
   # actually prevent the bot from starting,
@@ -347,12 +355,6 @@ dictionary = {
 
 # Link title fetching script.
 title = {
-
-  # Maximum number of URLs to match per message. If a user posts a message with
-  # many URLs, we will look up the titles for this many of them (from the first
-  # one found to the last) and post the titles, each in a separate message.
-  # default: 3
-  max = 3
 
   # Maximum number of redirections to follow. This should be 10 or less. Setting
   # it too high may cause the bot to hang. It should probably be at least 3.
