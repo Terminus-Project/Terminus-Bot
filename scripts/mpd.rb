@@ -214,31 +214,40 @@ command 'mpd', 'Interact with MPD. Syntax: mpd next|previous|stop|play|pause|shu
 end
 
 event :done_loading do
-  @@mpd = MPD.new get_config(:address, 'localhost'), get_config(:port, 6600)
+  start if EM.reactor_running?
+end
 
-  password = get_config :password, nil
-
-  @@mpd.password password if password
-  @@mpd.connect
-
-  @@previous_song  = nil
-  @@previous_state = :unknown
-
-  server = get_config :announce_server, nil
-  chan   = get_config :announce_channel, nil
-
-  return unless server and chan
-
-  @@announce_server  = server.to_sym
-  @@announce_channel = chan
-
-  @@timer = EM.add_periodic_timer(get_config(:announce_check_interval, 5).to_i) do
-    check_status
-  end
+event :em_started do
+  start
 end
 
 
 helpers do
+
+  def start
+    @@mpd = MPD.new get_config(:address, 'localhost'), get_config(:port, 6600)
+
+    password = get_config :password, nil
+
+    @@mpd.password password if password
+    @@mpd.connect
+
+    @@previous_song  = nil
+    @@previous_state = :unknown
+
+    server = get_config :announce_server, nil
+    chan   = get_config :announce_channel, nil
+
+    return unless server and chan
+
+    @@announce_server  = server.to_sym
+    @@announce_channel = chan
+
+    @@timer = EM.add_periodic_timer(get_config(:announce_check_interval, 5).to_i) do
+      check_status
+    end
+  end
+
   def check_status
     connect
 
