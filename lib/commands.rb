@@ -26,9 +26,11 @@
 module Bot
   module Commands
 
-    Bot::Events.create :PRIVMSG, self, :on_privmsg
+    unless defined? COMMANDS
+      Bot::Events.create :PRIVMSG, self, :on_privmsg
 
-    COMMANDS ||= {}
+      COMMANDS = {}
+    end
 
     def self.on_privmsg msg
       prefix = Regexp.escape Bot::Conf[:core][:prefix]
