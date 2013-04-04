@@ -79,7 +79,7 @@ module Bot
       end
     end
 
-    def on_match msg, uri
+    def on_match msg, uri, redirection = false
       $log.debug('URLHandlers.on_match') { uri.inspect }
 
       @@handlers.each do |regex, handler|
@@ -88,6 +88,14 @@ module Bot
 
           return
         end
+      end
+
+      unless redirection
+        Bot.http_get(uri) do |http|
+          on_match msg, http.last_effective_url, true
+        end
+
+        return
       end
 
       return if @@default_handler.nil?
@@ -101,6 +109,8 @@ module Bot
   class URLHandler < Command
     class << self
       def dispatch owner, uri, msg, &block
+      	return unless Bot::Flags.permit_message? owner, msg
+
         helpers &owner.get_helpers if owner.respond_to? :helpers
 
         self.new(owner, uri, msg).instance_eval &block
@@ -118,7 +128,7 @@ module Bot
     def url regex = nil, &block
       Bot::URL.add_handler self, regex, &block
     end
-  
+
   end
 
   URL ||= URLHandlers.new
