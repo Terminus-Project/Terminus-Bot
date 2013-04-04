@@ -1,7 +1,7 @@
 #
 # Terminus-Bot: An IRC bot to solve all of the problems with IRC bots.
 #
-# Copyright (C) 2010-2012 Kyle Johnson <kyle@vacantminded.com>, Alex Iadicicco
+# Copyright (C) 2010-2013 Kyle Johnson <kyle@vacantminded.com>, Alex Iadicicco
 # (http://terminus-bot.net/)
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -23,40 +23,41 @@
 # SOFTWARE.
 #
 
-require 'strscan'
-require 'htmlentities'
+require "json"
 
-raise "title script requires the url_handler module" unless defined? MODULE_LOADED_URL_HANDLER
+raise "twitter script requires the url_handler module" unless defined? MODULE_LOADED_URL_HANDLER
 
-register 'Fetches titles for URLs spoken in channels.'
+register 'Fetch statuses from Twitter.'
 
-url do
-  $log.info('title.url') { @uri.inspect }
+url /\/\/(www\.)?twitter\.com\/.+status/ do
+  $log.info('twitter.url') { @uri.inspect }
 
-  http_get(@uri, {}, true) do |http|
-    last = http.last_effective_url
+  # TODO: Get the latest status for a linked user.                   
+  # TODO: API v1 is deprecated. v1.1 requires OAuth bullshit. Open to
+  #       suggestions on how to deal with this.                      
 
-    begin
-      page = StringScanner.new http.response
+  if @uri.fragment
+    match = @uri.fragment.match(/status(es)?\/(?<id>[0-9]+)/)
+  end
 
-      page.skip_until /<title[^>]*>/ix
-      title = page.scan_until /<\/title[^>]*>/ix
+  unless match
+    match = @uri.path.match(/status(es)?\/(?<id>[0-9]+)/)
 
-      next if title == nil
+    return false unless match
+  end
 
-      title = HTMLEntities.new.decode title
+  id = URI.escape match[:id]
+  api = URI("https://api.twitter.com/1/statuses/show.json?id=#{id}")
 
-      len = title.length - 9
-      next if len <= 0
+  http_get(api, {}, true) do |http|
+    json = JSON.parse(http.response)
 
-      title = title[0..len].strip.gsub(/[[[:cntrl:]]\s]+/, " ").strip
+    next if json['errors']
 
-      next if title.empty?
+    text   = json['text'].gsub(/[\r\n[[:cntrl:]]]/, '')
+    author = json['user']['screen_name']
 
-      reply "\02Title on #{last.host}#{" (redirected)" unless http.redirects.zero?}:\02 #{title}", false
-    rescue => e
-      $log.error('title.get_title') { "Error getting title for #{uri}: #{e} #{e.backtrace.join("\n")}" }
-    end
+    reply "\02<@#{author}>\02 #{text}", false
   end
 
 end

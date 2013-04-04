@@ -1,7 +1,7 @@
 #
 # Terminus-Bot: An IRC bot to solve all of the problems with IRC bots.
 #
-# Copyright (C) 2010-2012 Kyle Johnson <kyle@vacantminded.com>, Alex Iadicicco
+# Copyright (C) 2010-2013 Kyle Johnson <kyle@vacantminded.com>, Alex Iadicicco
 # (http://terminus-bot.net/)
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -23,41 +23,44 @@
 # SOFTWARE.
 #
 
-require 'strscan'
-require 'htmlentities'
+require "json"
 
-raise "title script requires the url_handler module" unless defined? MODULE_LOADED_URL_HANDLER
+raise "imgur script requires the url_handler module" unless defined? MODULE_LOADED_URL_HANDLER
 
-register 'Fetches titles for URLs spoken in channels.'
+register 'Fetch information from Imgur.'
 
-url do
-  $log.info('title.url') { @uri.inspect }
+# XXX - /gallery/ links fuck this up
+url /\/\/((www|i)\.)?imgur\.com\// do
+  $log.info('imgur.url') { @uri.inspect }
 
-  http_get(@uri, {}, true) do |http|
-    last = http.last_effective_url
+  match = @uri.path.match(/\/(?<album>(a|gallery)\/)?(?<hash>[^\.]+)(?<extension>\.[a-z]{3})?/)
 
-    begin
-      page = StringScanner.new http.response
+  next unless match
 
-      page.skip_until /<title[^>]*>/ix
-      title = page.scan_until /<\/title[^>]*>/ix
+  arg = URI.escape match[:hash]
+  type = match[:album] ? 'album' : 'image'
+  api = URI("https://api.imgur.com/2/#{type}/#{arg}.json")
 
-      next if title == nil
+  http_get(api, {}, true) do |http|
+    data = JSON.parse http.response
 
-      title = HTMLEntities.new.decode title
+    case type
+    when 'image'
+      data = data['image']['image']
 
-      len = title.length - 9
-      next if len <= 0
+      title = data['title'] ? data['title'] : 'No Title'
 
-      title = title[0..len].strip.gsub(/[[[:cntrl:]]\s]+/, " ").strip
+      reply "imgur: \02#{title}\02 - #{data["width"]}x#{data["height"]} #{data["type"]}#{" (animated)" if data["animated"] == 'true'}", false
 
-      next if title.empty?
+    when 'album'
+      data = data['album']
 
-      reply "\02Title on #{last.host}#{" (redirected)" unless http.redirects.zero?}:\02 #{title}", false
-    rescue => e
-      $log.error('title.get_title') { "Error getting title for #{uri}: #{e} #{e.backtrace.join("\n")}" }
+      title = data['title'] ? data['title'] : 'No Title'
+
+      reply "imgur album: \02#{title}\02 - #{data["images"].length} images", false
+
     end
-  end
 
+  end
 end
 

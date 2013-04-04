@@ -1,7 +1,7 @@
 #
 # Terminus-Bot: An IRC bot to solve all of the problems with IRC bots.
 #
-# Copyright (C) 2010-2012 Kyle Johnson <kyle@vacantminded.com>, Alex Iadicicco
+# Copyright (C) 2010-2013 Kyle Johnson <kyle@vacantminded.com>, Alex Iadicicco
 # (http://terminus-bot.net/)
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -23,41 +23,25 @@
 # SOFTWARE.
 #
 
-require 'strscan'
-require 'htmlentities'
+require "json"
 
-raise "title script requires the url_handler module" unless defined? MODULE_LOADED_URL_HANDLER
+raise "deviantart script requires the url_handler module" unless defined? MODULE_LOADED_URL_HANDLER
 
-register 'Fetches titles for URLs spoken in channels.'
+register 'Fetch information from deviantART.'
 
-url do
-  $log.info('title.url') { @uri.inspect }
+url /\/\/([^\.]+)\.deviantart\.com\/art\/.+|fav\.me/ do
+  $log.info('deviantart.url') { @uri.inspect }
 
-  http_get(@uri, {}, true) do |http|
-    last = http.last_effective_url
+  args = {
+    :url => uri.to_s
+  }
 
-    begin
-      page = StringScanner.new http.response
+  api = URI('https://backend.deviantart.com/oembed')
 
-      page.skip_until /<title[^>]*>/ix
-      title = page.scan_until /<\/title[^>]*>/ix
+  http_get(api, args, true) do
+    data = JSON.parse(http.response)
 
-      next if title == nil
-
-      title = HTMLEntities.new.decode title
-
-      len = title.length - 9
-      next if len <= 0
-
-      title = title[0..len].strip.gsub(/[[[:cntrl:]]\s]+/, " ").strip
-
-      next if title.empty?
-
-      reply "\02Title on #{last.host}#{" (redirected)" unless http.redirects.zero?}:\02 #{title}", false
-    rescue => e
-      $log.error('title.get_title') { "Error getting title for #{uri}: #{e} #{e.backtrace.join("\n")}" }
-    end
+    reply "#{data["provider_name"]}: \02#{data["title"]}\02 by \02#{data["author_name"]}\02 - #{data["category"]} - #{data["width"]}x#{data["height"]} #{data["type"]}", false
   end
-
 end
 

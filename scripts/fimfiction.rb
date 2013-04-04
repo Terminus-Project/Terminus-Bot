@@ -1,7 +1,7 @@
 #
 # Terminus-Bot: An IRC bot to solve all of the problems with IRC bots.
 #
-# Copyright (C) 2010-2012 Kyle Johnson <kyle@vacantminded.com>, Alex Iadicicco
+# Copyright (C) 2010-2013 Kyle Johnson <kyle@vacantminded.com>, Alex Iadicicco
 # (http://terminus-bot.net/)
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -23,41 +23,37 @@
 # SOFTWARE.
 #
 
-require 'strscan'
-require 'htmlentities'
+require "json"
 
-raise "title script requires the url_handler module" unless defined? MODULE_LOADED_URL_HANDLER
+raise "fimfiction script requires the url_handler module" unless defined? MODULE_LOADED_URL_HANDLER
 
-register 'Fetches titles for URLs spoken in channels.'
+register 'Fetch information from FIMFiction.'
 
-url do
-  $log.info('title.url') { @uri.inspect }
+url /\/\/(www\.)?fimfiction\.net\/story\/[0-9]+\// do
+  $log.info('fimfiction.url') { @uri.inspect }
 
-  http_get(@uri, {}, true) do |http|
-    last = http.last_effective_url
+  match = @uri.to_s.match(/\/story\/(?<id>[0-9]+)\//)
 
-    begin
-      page = StringScanner.new http.response
+  args = {
+    :story => match[:id]
+  }
 
-      page.skip_until /<title[^>]*>/ix
-      title = page.scan_until /<\/title[^>]*>/ix
+  api = URI('http://www.fimfiction.net/api/story.php')
 
-      next if title == nil
+  http_get(api, args, true) do |http|
+    data = JSON.parse(http.response)['story']
 
-      title = HTMLEntities.new.decode title
+    rating  = data['content_rating_text']
+    cats    = data['categories'].select {|cat, value| value }.keys.join(', ')
+    title   = HTMLEntities.new.decode data['title']
+    desc    = HTMLEntities.new.decode data['short_description']
 
-      len = title.length - 9
-      next if len <= 0
+    data = {
+      "#{title} by #{data['author']['name']}" => [rating, desc, cats].join(' - '),
+      'Status' => data['status']
+    }
 
-      title = title[0..len].strip.gsub(/[[[:cntrl:]]\s]+/, " ").strip
-
-      next if title.empty?
-
-      reply "\02Title on #{last.host}#{" (redirected)" unless http.redirects.zero?}:\02 #{title}", false
-    rescue => e
-      $log.error('title.get_title') { "Error getting title for #{uri}: #{e} #{e.backtrace.join("\n")}" }
-    end
+    reply data, false
   end
-
 end
 
