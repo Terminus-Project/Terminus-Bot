@@ -31,7 +31,7 @@ command 'ping', 'Measure the time it takes for the bot to receive a reply to a C
   @@pending[@connection.name] ||= {}
 
   if @@pending[@connection.name].has_key? @msg.nick
-    if Time.now.to_f - @@pending[msg.connection.name][@msg.nick] > 30
+    if Time.now.to_f - @@pending[@connection.name][@msg.nick] > 30
       @@pending[@connection.name].delete(@msg.nick)
     else
       reply "I'm still waiting on a reply to the last ping I sent you. (It will expire 30 seconds after it was sent.)"
