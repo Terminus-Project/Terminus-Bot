@@ -80,11 +80,11 @@ module Bot
       target.downcase!
 
       if COMMANDS.has_key? cmd
-        raise "attempted to register alias #{cmd} for #{owner.class.name} but a command by that name already exists"
+        raise "attempted to register alias #{cmd} but a command by that name already exists"
       end
 
       if ALIASES.has_key? cmd
-        raise "attempted to register duplicate alias #{cmd} for #{owner.class.name}"
+        raise "attempted to register duplicate alias #{cmd}"
       end
 
       unless COMMANDS.has_key? target
