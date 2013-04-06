@@ -32,41 +32,55 @@ register 'Perform Wikipedia look-ups.'
 command 'wiki', 'Search Wikipedia for the given text.' do
   argc! 1
 
-  $log.info('wikipedia.cmd_wiki') { "Getting Wikipedia page for #{@params.first}" }
+  search @params.first
+end
 
-  site = get_config :site, 'en'
+url /\/\/[^\.]+\.wikipedia\.org\/wiki\/.+/ do
+  site = @uri.host.split(/\./, 2).first
+  page = @uri.path.match(/\/wiki\/(?<page>.+)/)[:page]
 
-  uri = URI("http://#{site}.wikipedia.org/w/api.php")
+  search page, site, true, false
+end
 
-  opts = {
-    :action   => :query,
-    :format   => :json,
-    :srsearch => @params.first,
-    :limit    => 1,
-    :list     => :search
-  }
+helpers do
+  def search query, site = get_config(:site, 'en'), hide_errors = false, include_link = true
+    $log.info('wikipedia.search') { "Searching Wikipedia (#{site}) for #{query}" }
 
-  http_get(uri, opts) do |http|
-    response = JSON.parse http.response
 
-    if response['query']['search'].empty?
-      reply 'No results.'
-      next
+    uri = URI("https://#{site}.wikipedia.org/w/api.php")
+
+    opts = {
+      :action   => :query,
+      :format   => :json,
+      :srsearch => query,
+      :limit    => 1,
+      :list     => :search
+    }
+
+    http_get(uri, opts, hide_errors) do |http|
+      response = JSON.parse http.response
+
+      if not response['query'] or response['query']['search'].empty?
+        reply 'No results.' unless hide_errors
+        next
+      end
+
+      output response['query']['search'].first, include_link
     end
+  end
 
-    data = response['query']['search'].first
-
+  def output data, include_link
     link_title = data['title'].gsub(/\s/, "_")
+    link = "https://en.wikipedia.org/wiki/#{URI.escape(link_title)}"
 
     # .gsub ALL THE THINGS!
     snippet = data['snippet'].gsub(/<[^>]+>/, '').gsub(/\s+/, ' ').gsub(/\s([[:punct:]]+)\s/, '\1 ')
+    snippet << link if include_link
 
     data = { 
       data['title'] => snippet
     }
 
-    link = "https://en.wikipedia.org/wiki/#{URI.escape(link_title)}"
-    reply "#{data.to_s_irc} #{link}", false
+    reply "#{data.to_s_irc}", false
   end
 end
-
