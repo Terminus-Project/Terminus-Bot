@@ -52,6 +52,8 @@ end
 command 'seen', 'Check when the given user was last seen \02speaking\02 on IRC.' do
   argc! 1
 
+  @params[0] = @params[0].strip
+
   nick = @connection.canonize @params.first
 
   if @msg.nick_canon == nick
