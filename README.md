@@ -409,28 +409,6 @@ Commands:
 
 * NETWORKS - Show a list of networks to which the bot is connected.
 
-### Pandora
-
-Provides an interface to pandorabots.com, a hosted ALICE chat bot provider. A
-valid bot ID (like an API key) is required to use this script.
-
-To talk to the bot once interactivity is enabled, simple begin your messages
-with the bot's nick like you might do when speaking to another user in the
-channel.
-
-Conversations are tracked per-channel, not per-user. So when multiple users
-in one channel are talking to the bot, it will consider them all to be the
-same person.
-
-    <Kabaka> @pandora on
-    <Terminus-Bot> Pandorabot interaction enabled.
-    <Kabaka> Terminus-Bot: Hi
-    <Terminus-Bot> Kabaka: Hello there!
-
-Commands:
-
-* PANDORA - Enable or disable Pandorabot interaction.
-
 ### Ping
 
 Allows users to check the round-trip time for a CTCP PING with the bot.
