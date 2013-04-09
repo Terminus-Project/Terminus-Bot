@@ -373,7 +373,7 @@ Commands:
   * SEARCH? - Search the database for matching tracks, any tag.
   * COUNT? - Search the database, exact matches only. Parameters: tag values
   * NEXT? - Show the name of the next track that will be played.
-  * PLAYLIST? - Show information about the current queue.
+  * QUEUE? - Show information about the current queue.
   * NP? - Show the currently playing track.
   * AUDIO? - Show technical information about the currently playing track.
   * DATABASE? - Show information about the MPD database.

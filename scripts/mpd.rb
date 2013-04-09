@@ -27,7 +27,7 @@ require 'ruby-mpd'
 
 register 'Interact with a Music Player Daemon instance.'
 
-command 'mpd', 'Interact with MPD. Syntax: mpd next|previous|stop|play|pause|shuffle|update|rescan|search?|count?|next?|playlist?|np?|audio?|database?' do
+command 'mpd', 'Interact with MPD. Syntax: mpd next|previous|stop|play|pause|shuffle|update|rescan|search?|count?|next?|queue?|np?|audio?|database?' do
   argc! 1
 
   args = @params.first.split
@@ -161,7 +161,7 @@ command 'mpd', 'Interact with MPD. Syntax: mpd next|previous|stop|play|pause|shu
 
     reply data, false
 
-  when :playlist?
+  when :queue?
     my_queue  = queue
 
     length    = queue.length
@@ -170,7 +170,7 @@ command 'mpd', 'Interact with MPD. Syntax: mpd next|previous|stop|play|pause|shu
     duration = Time.at(Time.now.to_i + duration).to_duration_s
 
     data = {
-      'Playlist' => {
+      'Queue' => {
         'Tracks'    => length,
         'Duration'  => duration
       }
@@ -308,7 +308,9 @@ helpers do
   end
 
   def state
-    status[:state]
+    s = status
+    s = status if status === true
+    s[:state]
   end
 
   def status
