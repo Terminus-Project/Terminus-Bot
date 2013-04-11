@@ -32,16 +32,31 @@ register 'Fetch information from deviantART.'
 url /\/\/([^\.]+)\.deviantart\.com\/art\/.+|fav\.me/ do
   $log.info('deviantart.url') { @uri.inspect }
 
-  args = {
-    :url => @uri.to_s
-  }
-
-  api = URI('https://backend.deviantart.com/oembed')
-
-  http_get(api, args, true) do |http|
-    data = JSON.parse(http.response)
-
-    reply "#{data["provider_name"]}: \02#{data["title"]}\02 by \02#{data["author_name"]}\02 - #{data["category"]} - #{data["width"]}x#{data["height"]} #{data["type"]}", false
-  end
+  title_handler @uri
 end
 
+url /\w{4}\.deviantart\.net.+by_\w+-\w+.\w{3}$/ do
+  $log.info('deviantart.url') { @uri.inspect }
+  
+  match = @uri.to_s.match(/_by_.+-(?<id>[0-9A-Za-z]+)\.\w{3}/)
+
+  next unless match 
+
+  title_handler "http://fav.me/#{match[:id]}", true
+end
+
+helpers do
+  def title_handler uri, show_uri = false
+    args = {
+      :url => uri.to_s
+    }
+
+    api = URI('https://backend.deviantart.com/oembed')
+
+    http_get(api, args, true) do |http|
+      data = JSON.parse(http.response)
+
+      reply "#{data["provider_name"]}:#{" #{uri}" if show_uri} \02#{data["title"]}\02 by \02#{data["author_name"]}\02 - #{data["category"]} - #{data["width"]}x#{data["height"]} #{data["type"]}", false
+    end
+  end
+end
