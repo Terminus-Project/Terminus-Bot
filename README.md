@@ -202,6 +202,18 @@ Available CTCPs:
 * PING - Reply with the text we were sent.
 * CLIENTINFO - Reply with a list of supported CTCP commands.
 
+### Derpibooru
+
+Search for and look up images on [Derpibooru](https://derpiboo.ru/). Search
+syntax is identical to that on the web site.
+
+Commands:
+
+* DERPI
+  * IMAGE - Display information about the given image ID.
+  * SEARCH - Look up the most recent image with the given tags.
+  * RANDOM - Show a random, somewhat recent image with the given tags.
+
 ### Dictionary
 
 Provides an interface to cleandictionary.com.

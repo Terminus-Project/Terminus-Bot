@@ -341,6 +341,18 @@ urbandict = {
 }
 
 
+# Derpibooru pony image booru script.
+derpibooru = {
+
+  # Optional key value. This is your user key, which can be found as part of
+  # your RSS feed URL, and other places. By setting this key, searches will
+  # be filtered according to your settings. Without it, default filters will
+  # apply, meaning that explicit and other images will not appear.
+  #key = 
+
+}
+
+
 # Dictionary (cleandictionary.com) look-up script.
 dictionary = {
 
