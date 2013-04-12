@@ -75,6 +75,7 @@ helpers do
     str.gsub! /\{\{([^\|]+)\|([^\}]+)\}\}/, '(\1: \2)'
     str.gsub! /\{\{([^\}]+)\}\}/, '(\1)'
     str.gsub! /[\[\]]|\|\w+/, ''
+    str.gsub! /\\(["'])/, '\1'
     
     str.strip.squeeze ' '
   end
