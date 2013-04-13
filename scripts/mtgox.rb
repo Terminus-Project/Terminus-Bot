@@ -34,7 +34,7 @@ command 'btc', 'Get current BTC -> USD exchange rate info.' do
     json = JSON.parse http.response
 
     data = {
-      'BTC to USD Trade Value' => {
+      'BTC to USD Trade Value (Mt.Gox)' => {
         'Average' => json['data']['avg']['display'],
         'High'    => json['data']['high']['display'],
         'Low'     => json['data']['low']['display'],
