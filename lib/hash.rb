@@ -30,9 +30,9 @@ class Hash
   def to_s_irc
     each.map do |key, value|
       if value.is_a? Hash
-        "\02#{key}:\02 #{value.to_s_irc}"
+        "\02#{key}:\02 #{value.to_s_irc}".strip
       else
-        "\02#{key}:\02 #{value}"
+        "\02#{key}:\02 #{value}".strip
       end
     end.join(' ')
   end
