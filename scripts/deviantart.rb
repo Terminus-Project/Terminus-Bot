@@ -56,7 +56,7 @@ helpers do
     http_get(api, args, true) do |http|
       data = MultiJson.load http.response
 
-      reply "#{data["provider_name"]}:#{" #{uri}" if show_uri} \02#{data["title"]}\02 by \02#{data["author_name"]}\02 - #{data["category"]} - #{data["width"]}x#{data["height"]} #{data["type"]}", false
+      reply "#{data["provider_name"]}:#{" #{uri}" if show_uri} \02#{data["title"]}\02 by \02#{data["author_name"]}\02 - #{data["category"]} - #{data["width"]}x#{data["height"]}", false
     end
   end
 end
