@@ -23,7 +23,7 @@
 # SOFTWARE.
 #
 
-require 'json'
+require 'multi_json'
 
 raise "xbox script requires the http_client module" unless defined? MODULE_LOADED_HTTP
 
@@ -129,7 +129,7 @@ helpers do
 
 
     http_get(uri, query) do |http|
-      json = JSON.parse(http.response)
+      json = MultiJson.load(http.response)
 
       unless json.has_key? 'Data'
         raise 'Player not found.'

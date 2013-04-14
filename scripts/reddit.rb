@@ -23,7 +23,7 @@
 # SOFTWARE.
 #
 
-require "json"
+require 'multi_json'
 
 raise "reddit script requires the url_handler module" unless defined? MODULE_LOADED_URL_HANDLER
 
@@ -58,7 +58,7 @@ helpers do
     api = URI("http://www.reddit.com/user/#{URI.escape username}/about.json")
 
     http_get(api, {}, true) do |http|
-      data = JSON.parse(http.response)['data']
+      data = MultiJson.load(http.response)['data']
 
       reply "\02#{data['name']}\02 - \02#{data['link_karma']}\02 Link Karma - \02#{data['comment_karma']}\02 Comment Karma - Joined #{Time.at(data['created_utc']).to_s}", false
     end
@@ -68,7 +68,7 @@ helpers do
     api = URI("http://www.reddit.com/comments/#{URI.escape id}.json")
 
     http_get(api, {}, true) do |http|
-      data = JSON.parse(http.response, :max_nesting => 100).first['data']['children'].first['data']
+      data = MultiJson.load(http.response, :max_nesting => 100).first['data']['children'].first['data']
 
       reply "#{"[NSFW] " if data["over18"]}/r/#{data["subreddit"]}: \02#{data["title"]}\02 - \02#{data["score"]}\02 Karma - \02#{data["num_comments"]}\02 Comments", false
     end
@@ -78,7 +78,7 @@ helpers do
     api = URI("http://www.reddit.com/r/#{URI.escape name}/about.json")
 
     http_get(api, {}, true) do |http|
-      data = JSON.parse(http.response)['data']
+      data = MultiJson.load(http.response)['data']
 
       reply "#{"[NSFW] " if data["over18"]}#{data["url"]}: \02#{data["title"]}\02 - \02#{data["subscribers"]}\02 subscribers - #{data["public_description"]}", false
     end

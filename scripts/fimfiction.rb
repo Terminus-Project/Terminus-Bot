@@ -23,7 +23,7 @@
 # SOFTWARE.
 #
 
-require "json"
+require 'multi_json'
 
 raise "fimfiction script requires the url_handler module" unless defined? MODULE_LOADED_URL_HANDLER
 
@@ -41,7 +41,7 @@ url /\/\/(www\.)?fimfiction\.net\/story\/[0-9]+\// do
   api = URI('http://www.fimfiction.net/api/story.php')
 
   http_get(api, args, true) do |http|
-    data = JSON.parse(http.response)['story']
+    data = MultiJson.load(http.response)['story']
 
     rating  = data['content_rating_text']
     cats    = data['categories'].select {|cat, value| value }.keys.join(', ')

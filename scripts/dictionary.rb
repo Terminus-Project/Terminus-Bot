@@ -23,7 +23,7 @@
 # SOFTWARE.
 #
 
-require 'json'
+require 'multi_json'
 
 raise "dictionary script requires the http_client module" unless defined? MODULE_LOADED_HTTP
 
@@ -34,7 +34,7 @@ helpers do
     uri = URI("http://cleandictionary.com/#{func}/#{URI.encode args}")
 
     http_get(uri) do |http|
-      yield JSON.parse http.response
+      yield MultiJson.load http.response
     end
   end
 

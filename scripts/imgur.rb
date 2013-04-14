@@ -23,7 +23,7 @@
 # SOFTWARE.
 #
 
-require "json"
+require 'multi_json'
 
 raise "imgur script requires the url_handler module" unless defined? MODULE_LOADED_URL_HANDLER
 
@@ -42,7 +42,7 @@ url /\/\/((www|i)\.)?imgur\.com\// do
   api = URI("https://api.imgur.com/2/#{type}/#{arg}.json")
 
   http_get(api, {}, true) do |http|
-    data = JSON.parse http.response
+    data = MultiJson.load http.response
 
     case type
     when 'image'

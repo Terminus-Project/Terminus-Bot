@@ -23,7 +23,7 @@
 # SOFTWARE.
 #
 
-require 'json'
+require 'multi_json'
 require 'htmlentities'
 
 # TODO: Store account names on bot accounts and use those if available.
@@ -83,7 +83,7 @@ helpers do
     opt[:format]  = 'json'
 
     http_get(URI(api_url), opt) do |http|
-      yield JSON.parse http.response
+      yield MultiJson.load http.response
     end
   end
 end

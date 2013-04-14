@@ -23,7 +23,7 @@
 # SOFTWARE.
 #
 
-require 'json'
+require 'multi_json'
 
 raise "wiki script requires the http_client module" unless defined? MODULE_LOADED_HTTP
 
@@ -58,7 +58,7 @@ helpers do
     }
 
     http_get(uri, opts, hide_errors) do |http|
-      response = JSON.parse http.response
+      response = MultiJson.load http.response
 
       if not response['query'] or response['query']['search'].empty?
         reply 'No results.' unless hide_errors

@@ -23,7 +23,7 @@
 # SOFTWARE.
 #
 
-require "json"
+require 'multi_json'
 
 raise "deviantart script requires the url_handler module" unless defined? MODULE_LOADED_URL_HANDLER
 
@@ -54,7 +54,7 @@ helpers do
     api = URI('https://backend.deviantart.com/oembed')
 
     http_get(api, args, true) do |http|
-      data = JSON.parse(http.response)
+      data = MultiJson.load http.response
 
       reply "#{data["provider_name"]}:#{" #{uri}" if show_uri} \02#{data["title"]}\02 by \02#{data["author_name"]}\02 - #{data["category"]} - #{data["width"]}x#{data["height"]} #{data["type"]}", false
     end

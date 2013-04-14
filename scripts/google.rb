@@ -30,7 +30,7 @@
 
 require "uri"
 require "net/http"
-require "json"
+require 'multi_json'
 require 'htmlentities'
 
 register 'Search the Internet with Google.'
@@ -89,7 +89,7 @@ helpers do
 
     http_get(uri, query_hash) do |http|
 
-      response = JSON.parse http.response
+      response = MultiJson.load http.response
 
       results = []
       limit = get_config(:resultlimit, 3).to_i

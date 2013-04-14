@@ -23,7 +23,7 @@
 # SOFTWARE.
 #
 
-require "json"
+require 'multi_json'
 
 raise "twitter script requires the url_handler module" unless defined? MODULE_LOADED_URL_HANDLER
 
@@ -50,7 +50,7 @@ url /\/\/(www\.)?twitter\.com\/.+status/ do
   api = URI("https://api.twitter.com/1/statuses/show.json?id=#{id}")
 
   http_get(api, {}, true) do |http|
-    json = JSON.parse(http.response)
+    json = MultiJson.load(http.response)
 
     next if json['errors']
 

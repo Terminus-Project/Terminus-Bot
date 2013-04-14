@@ -23,7 +23,7 @@
 # SOFTWARE.
 #
 
-require "json"
+require 'multi_json'
 
 raise "github script requires the url_handler module" unless defined? MODULE_LOADED_URL_HANDLER
 
@@ -54,7 +54,7 @@ helpers do
     api = URI("https://api.github.com/repos/#{match[:owner]}/#{match[:project]}/git/commits/#{match[:hash]}")
 
     http_get(api, {}, true) do |http|
-      data = JSON.parse http.response
+      data = MultiJson.load http.response
 
       reply "\02#{match[:project]}\02: #{data["message"].lines.first} - by #{data["author"]["name"]} at #{Time.parse(data["author"]["date"]).to_s}", false
     end
@@ -64,7 +64,7 @@ helpers do
     api = URI("https://api.github.com/repos/#{match[:owner]}/#{match[:project]}")
 
     http_get(api, {}, true) do |http|
-      data = JSON.parse http.response
+      data = MultiJson.load http.response
 
       reply "\02#{match[:project]}\02 (#{data["language"]}): #{data["description"]} - by #{data["owner"]["login"]}", false
     end

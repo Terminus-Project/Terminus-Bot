@@ -24,7 +24,7 @@
 #
 
 require 'htmlentities'
-require 'json'
+require 'multi_json'
 
 raise "urbandict script requires the http_client module" unless defined? MODULE_LOADED_HTTP
 
@@ -65,7 +65,7 @@ helpers do
     uri = URI("http://api.urbandictionary.com/v0/#{function}")
 
     http_get(uri, query) do |http|
-      json = JSON.parse http.response
+      json = MultiJson.load http.response
 
       if json['result_type'] == 'no_results'
         raise 'No results.'

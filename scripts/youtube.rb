@@ -23,7 +23,7 @@
 # SOFTWARE.
 #
 
-require "json"
+require 'multi_json'
 
 raise "youtube script requires the url_handler module" unless defined? MODULE_LOADED_URL_HANDLER
 
@@ -55,7 +55,7 @@ url /\/\/(youtu\.be\/.+|(www\.)?youtube\.com\/.+[?&]v=.+)/ do
   }
 
   http_get(api, opts, true) do |http|
-    json = JSON.parse(http.response)['items'].first
+    json = MultiJson.load(http.response)['items'].first
 
     if json['error']
       raise json['error']['errors'].first['message']
