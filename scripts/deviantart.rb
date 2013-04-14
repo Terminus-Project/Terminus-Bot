@@ -35,10 +35,10 @@ url /\/\/([^\.]+)\.deviantart\.com\/art\/.+|fav\.me/ do
   title_handler @uri
 end
 
-url /\w{4}\.deviantart\.net.+by_\w+-\w+.\w{3}$/ do
+url /\/[\w-]+_by_[\w-]+-d[0-9A-Za-z]{5,8}+.\w{3}$/ do
   $log.info('deviantart.url') { @uri.inspect }
   
-  match = @uri.to_s.match(/_by_.+-(?<id>[0-9A-Za-z]+)\.\w{3}/)
+  match = @uri.to_s.match(/_by_.+-(?<id>d[0-9A-Za-z]{5,8})\.\w{3}/)
 
   next unless match 
 
