@@ -24,6 +24,7 @@
 #
 
 require 'multi_json'
+require 'uri'
 
 raise "wiki script requires the http_client module" unless defined? MODULE_LOADED_HTTP
 
@@ -37,7 +38,7 @@ end
 
 url /\/\/[^\.]+\.wikipedia\.org\/wiki\/.+/ do
   site = @uri.host.split(/\./, 2).first
-  page = @uri.path.match(/\/wiki\/(?<page>.+)/)[:page]
+  page = URI.decode @uri.path.match(/\/wiki\/(?<page>.+)/)[:page]
 
   search page, site, true, false
 end
