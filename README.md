@@ -337,6 +337,14 @@ Commands:
 * UNIGNORE - Remove the given ignore.
 * IGNORES - List all active ignores.
 
+### Karma
+
+Track user "karma" based on observed `nick++` and `nick--` messages.
+
+Commands:
+
+* KARMA - Show your karma or the karma of another user.
+
 ### LastFM
 
 Access information on last.fm.
