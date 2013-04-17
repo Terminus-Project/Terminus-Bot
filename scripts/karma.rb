@@ -25,15 +25,10 @@
 
 register 'Track user karma.'
 
-
-command 'karma', 'Check karma or yourself or the specified nick.' do
+command 'karma', 'Check karma for yourself or the specified nick.' do
   target = @params.empty? ? @msg.nick : @params.first.strip
 
   karma = get_data(@connection.name, Hash.new(0))[target.upcase]
-
-  unless karma
-    raise "#{target} has no karma."
-  end
 
   reply "#{target}'s karma is #{karma}"
 end
@@ -41,7 +36,7 @@ end
 event :PRIVMSG do
   next if query?
 
-  match = @msg.text.match(/^(?<target>[^ ]+)(?<change>\+\+|--)(\s|$)/)
+  match = @msg.text.match(/^(?<target>[^ ]+)(?<change>\+\+|--)(\s|;|$)/)
 
   next unless match
 
@@ -54,7 +49,7 @@ event :PRIVMSG do
 
   karma = get_data @connection.name, Hash.new(0)
 
-  if match[:change] == "++"
+  if match[:change] == '++'
     karma[target] += 1
   else
     karma[target] -= 1
