@@ -67,6 +67,11 @@ helpers do
       return
     end
 
+    if @msg.nick_cannon == nick
+      $log.debug('karma.add_karma') { "Skipping self karma change attempt for #{nick}" }
+      return
+    end
+
     karma = get_data @connection.name, Hash.new(0)
 
     karma[nick] += amount
