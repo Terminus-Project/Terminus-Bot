@@ -28,9 +28,7 @@ register 'Track user karma.'
 command 'karma', 'Check karma for yourself or the specified nick.' do
   target = @params.empty? ? @msg.nick : @params.first.strip
 
-  karma = get_data(@connection.name, Hash.new(0))[target.upcase]
-
-  reply "#{target}'s karma is #{karma}"
+  reply "#{target}'s karma is #{get_karma target}"
 end
 
 event :PRIVMSG do
@@ -42,21 +40,44 @@ event :PRIVMSG do
 
   target = match[:target].upcase
 
-  unless @connection.channels[@msg.destination_canon].users.has_key? target
-    $log.debug('karma.privmsg') { "Skipping nonexistent target #{target}" }
-    next
-  end
-
-  karma = get_data @connection.name, Hash.new(0)
-
   if match[:change] == '++'
-    karma[target] += 1
+    add_karma target
   else
-    karma[target] -= 1
+    subtract_karma target
   end
-
-  $log.debug('karma.privmsg') { "#{target} karma: #{karma[target]}" }
-
-  store_data @connection.name, karma
 end
 
+helpers do
+
+  def get_top n = 3
+    # XXX
+  end
+
+  def get_bottom n = 3
+    # XXX
+  end
+
+  def get_karma nick
+    get_data(@connection.name, Hash.new(0))[nick.upcase]
+  end
+
+  def add_karma nick, amount = 1
+    unless @connection.channels[@msg.destination_canon].users.has_key? nick
+      $log.debug('karma.add_karma') { "Skipping nonexistent target #{nick}" }
+      return
+    end
+
+    karma = get_data @connection.name, Hash.new(0)
+
+    karma[nick] += amount
+
+    $log.debug('karma.add_karma') { "#{target} karma change: #{amount}: #{karma[target]}" }
+
+    store_data @connection.name, karma
+  end
+
+  def subtract_karma nick
+    add_karma nick, -1
+  end
+
+end
