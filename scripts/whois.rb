@@ -69,7 +69,7 @@ command 'whois', 'Look up domain registration information.' do
     rescue => e
       $log.error('Script_whois.whois') { e }
       $log.error('Script_whois.whois') { e.backtrace }
-      reply "Error performing whois."
+      reply 'Error performing whois.'
     end
   end
 end

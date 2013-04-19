@@ -41,23 +41,23 @@ command 'weather', 'View current conditions for the specified location.' do
   http_get(uri, opts) do |http|
     root = (REXML::Document.new(http.response)).root
 
-    weather = root.elements["//weather"].text rescue nil
+    weather = root.elements['//weather'].text rescue nil
 
     if weather.nil?
-      raise "That does not appear to be a valid location. If it is, try being more specific, or specify the location in another way."
+      raise 'That does not appear to be a valid location. If it is, try being more specific, or specify the location in another way.'
     end
 
-    credit          = root.elements["//credit"].text
-    updatedTime     = root.elements["//observation_epoch"].text.to_i
-    localTime       = root.elements["//local_time"].text
-    stationLocation = root.elements["//observation_location/full"].text
-    temperature     = root.elements["//temperature_string"].text
-    humidity        = root.elements["//relative_humidity"].text
-    wind            = root.elements["//wind_string"].text
-    pressure        = root.elements["//pressure_string"].text
-    dewpoint        = root.elements["//dewpoint_string"].text
-    link            = root.elements["//forecast_url"].text
-
+    credit          = root.elements['//credit'].text
+    updatedTime     = root.elements['//observation_epoch'].text.to_i
+    localTime       = root.elements['//local_time'].text
+    stationLocation = root.elements['//observation_location/full'].text
+    temperature     = root.elements['//temperature_string'].text
+    humidity        = root.elements['//relative_humidity'].text
+    wind            = root.elements['//wind_string'].text
+    pressure        = root.elements['//pressure_string'].text
+    dewpoint        = root.elements['//dewpoint_string'].text
+    link            = root.elements['//forecast_url'].text
+    
     updated = "#{Time.at(updatedTime).to_fuzzy_duration_s} ago"
 
     data = {
@@ -86,15 +86,15 @@ command 'temp', 'View current temperature for the specified location.' do
   http_get(uri, opts) do |http|
     root = (REXML::Document.new(http.response)).root
 
-    weather = root.elements["//weather"].text rescue nil
+    weather = root.elements['//weather'].text rescue nil
 
     if weather.nil?
       raise 'That does not appear to be a valid location. If it is, try being more specific, or specify the location in another way.'
     end
 
-    credit          = root.elements["//credit"].text
-    stationLocation = root.elements["//observation_location/full"].text
-    temperature     = root.elements["//temperature_string"].text
+    credit          = root.elements['//credit'].text
+    stationLocation = root.elements['//observation_location/full'].text
+    temperature     = root.elements['//temperature_string'].text
 
     data = {
       "[#{credit} for #{stationLocation}]" => {
@@ -113,9 +113,9 @@ command 'forecast', 'View a short-term forecast for the specified location.' do
   opts = {:query => @params.join(' ')}
 
   http_get(uri, opts) do |http|
-    root = (REXML::Document.new(http.response)).root.elements["//txt_forecast"]
+    root = (REXML::Document.new(http.response)).root.elements['//txt_forecast']
 
-    date = root.elements["date"].text rescue nil
+    date = root.elements['date'].text rescue nil
 
     if date.nil?
       raise 'That does not appear to be a valid location. If it is, try being more specific, or specify the location in another way.'
@@ -127,10 +127,10 @@ command 'forecast', 'View a short-term forecast for the specified location.' do
 
     count = 0
 
-    root.elements.each("forecastday") do |element|
-      title = element.elements["title"].text
+    root.elements.each('forecastday') do |element|
+      title = element.elements['title'].text
 
-      text = element.elements["fcttext"].text
+      text = element.elements['fcttext'].text
       text = HTMLEntities.new.decode(text)
 
       output << "[\02#{title}\02] #{text}"

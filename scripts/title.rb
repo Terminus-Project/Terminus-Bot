@@ -49,11 +49,11 @@ url do
       len = title.length - 9
       next if len <= 0
 
-      title = title[0..len].strip.gsub(/[[[:cntrl:]]\s]+/, " ").strip
+      title = title[0..len].strip.gsub(/[[[:cntrl:]]\s]+/, ' ').strip
 
       next if title.empty?
 
-      reply "\02Title on #{last.host}#{" (redirected)" unless http.redirects.zero?}:\02 #{title}", false
+      reply "\02Title on #{last.host}#{' (redirected)' unless http.redirects.zero?}:\02 #{title}", false
     rescue => e
       $log.error('title.get_title') { "Error getting title for #{uri}: #{e} #{e.backtrace.join("\n")}" }
     end
