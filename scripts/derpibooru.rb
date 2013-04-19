@@ -66,6 +66,22 @@ url /(.+\.)?derpiboo(ru.org|.ru)\/(images\/)?[0-9]+/ do
   end
 end
 
+url /\/\/derpicdn\.net\/media\/[^\/]+\/[0-9]+_/ do
+  $log.info('derpibooru.url') { @uri.inspect }
+
+  match = @uri.path.match(/\/(?<id>[0-9]+)__/)
+
+  next unless match
+
+  api = URI("https://derpiboo.ru/#{match[:id]}.json")
+
+  http_get(api, {}, true) do |http|
+    response = MultiJson.load http.response
+
+    reply_with_image response, false
+  end
+end
+
 helpers do
 
   def image id
