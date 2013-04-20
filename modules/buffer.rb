@@ -65,10 +65,12 @@ module Bot
                                                            :text => text,
                                                            :nick => msg.nick}
      
+      max = Conf[:modules][:buffer][:max_size] rescue 100
+
       # TODO: This is nasty. I am using a loop here because we might be
       # rehashed with a smaller value and have to shift it down to size. There
       # are better ways of doing this.
-      while self[msg.connection.name][msg.destination_canon].length > Config[:modules][:buffer][:max_size]
+      while self[msg.connection.name][msg.destination_canon].length > (Conf[:modules][:buffer][:max_size] rescue 100)
         self[msg.connection.name][msg.destination_canon].shift
       end
     end
