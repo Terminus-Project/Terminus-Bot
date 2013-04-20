@@ -110,7 +110,7 @@ command 'fpassword', 'Change another user\'s bot account password. Parameters: u
     raise "No such account."
   end
 
-  stored[:password] = encrypt_password @params[0]
+  stored[:password] = encrypt_password @params[1]
   store_data @connection.users[@msg.nick_canon].account, stored
 
   reply "The account password has been changed"
