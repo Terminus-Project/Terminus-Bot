@@ -23,10 +23,11 @@
 # SOFTWARE.
 #
 
+need_module! 'http'
+need_module! 'url_handler'
+
 require 'strscan'
 require 'htmlentities'
-
-raise "title script requires the url_handler module" unless defined? MODULE_LOADED_URL_HANDLER
 
 register 'Fetches titles for URLs spoken in channels.'
 

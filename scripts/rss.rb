@@ -1,4 +1,4 @@
-#
+
 # Terminus-Bot: An IRC bot to solve all of the problems with IRC bots.
 #
 # Copyright (C) 2010-2012 Kyle Johnson <kyle@vacantminded.com>, Alex Iadicicco
@@ -22,6 +22,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 #
+
+need_module! 'http'
 
 require 'rss'
 require 'htmlentities'

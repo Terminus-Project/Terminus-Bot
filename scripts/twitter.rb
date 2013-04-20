@@ -25,7 +25,8 @@
 
 require 'multi_json'
 
-raise "twitter script requires the url_handler module" unless defined? MODULE_LOADED_URL_HANDLER
+need_module! 'url_handler'
+need_module! 'http'
 
 register 'Fetch statuses from Twitter.'
 

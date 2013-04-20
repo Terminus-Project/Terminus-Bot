@@ -25,7 +25,7 @@
 
 require 'multi_json'
 
-raise "reddit script requires the url_handler module" unless defined? MODULE_LOADED_URL_HANDLER
+need_module! 'url_handler'
 
 register 'Fetch information about posts and users on Reddit.'
 

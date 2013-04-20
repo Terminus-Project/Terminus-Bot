@@ -23,9 +23,9 @@
 # SOFTWARE.
 #
 
-require 'rexml/document'
+need_module! 'http'
 
-raise "dominos script requires the http_client module" unless defined? MODULE_LOADED_HTTP
+require 'rexml/document'
 
 register 'Look up Domino\'s order status.'
 

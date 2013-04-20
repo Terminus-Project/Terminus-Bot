@@ -27,7 +27,7 @@
 
 require 'multi_json'
 
-raise "derpibooru script requires the http_client module" unless defined? MODULE_LOADED_HTTP
+need_module! 'http'
 
 register 'Interact with Derpibooru'
 

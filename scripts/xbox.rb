@@ -23,9 +23,9 @@
 # SOFTWARE.
 #
 
-require 'multi_json'
+need_module! 'http'
 
-raise "xbox script requires the http_client module" unless defined? MODULE_LOADED_HTTP
+require 'multi_json'
 
 register 'Retrieve information about Xbox Live players.'
 

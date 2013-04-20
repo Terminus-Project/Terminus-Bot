@@ -23,7 +23,7 @@
 # SOFTWARE.
 #
 
-raise "ignores script requires the ignores module" unless defined? MODULE_LOADED_IGNORES
+need_module! 'ignores'
 
 register 'Manipulate the bot\'s hostmask-based ignore list.'
 

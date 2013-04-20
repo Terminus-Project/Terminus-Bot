@@ -23,10 +23,11 @@
 # SOFTWARE.
 #
 
+need_module! 'url_handler'
+need_module! 'http'
+
 require 'multi_json'
 require 'uri'
-
-raise "wiki script requires the http_client module" unless defined? MODULE_LOADED_HTTP
 
 register 'Perform Wikipedia look-ups.'
 

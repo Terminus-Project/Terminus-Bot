@@ -23,6 +23,8 @@
 # SOFTWARE.
 #
 
+need_module! 'http'
+
 require 'multi_json'
 
 register 'Interface with Mt.Gox Bitcoin Exchange.'

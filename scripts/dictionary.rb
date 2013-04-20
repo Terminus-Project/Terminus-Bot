@@ -25,7 +25,7 @@
 
 require 'multi_json'
 
-raise "dictionary script requires the http_client module" unless defined? MODULE_LOADED_HTTP
+need_mdule! 'http'
 
 register 'CleanDictionary.com look-ups.'
 

@@ -175,6 +175,12 @@ module Bot
     # Pass along some register commands with self or our class name attached
     # as needed. This just makes code in the scripts a little shorter.
 
+    def need_module! name
+      unless Bot.const_defined? "MODULE_LOADED_#{name.upcase}"
+        raise "#{my_short_name} requires the #{name} module"
+      end
+    end
+
     def event *names, &blk
       names.each do |name|
         Bot::Events.create name, self, nil, &blk

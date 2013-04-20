@@ -28,6 +28,8 @@ require 'net/http'
 require 'rexml/document'
 require 'htmlentities'
 
+# XXX optionally use http_client module
+
 register 'Play IdleRPG.'
 
 command 'idlerpg', 'Get information about players on this network\'s IdleRPG game. Parameters: [player]' do

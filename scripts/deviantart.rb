@@ -25,7 +25,8 @@
 
 require 'multi_json'
 
-raise "deviantart script requires the url_handler module" unless defined? MODULE_LOADED_URL_HANDLER
+need_module! 'http'
+need_module! 'url_handler'
 
 register 'Fetch information from deviantART.'
 

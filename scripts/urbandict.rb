@@ -23,10 +23,10 @@
 # SOFTWARE.
 #
 
+need_module! 'http'
+
 require 'htmlentities'
 require 'multi_json'
-
-raise "urbandict script requires the http_client module" unless defined? MODULE_LOADED_HTTP
 
 register 'Look up words on UrbanDictionary.com.'
 

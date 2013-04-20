@@ -25,7 +25,8 @@
 
 require 'multi_json'
 
-raise "fimfiction script requires the url_handler module" unless defined? MODULE_LOADED_URL_HANDLER
+need_module! 'url_handler'
+need_module! 'http'
 
 register 'Fetch information from FIMFiction.'
 

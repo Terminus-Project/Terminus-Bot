@@ -25,10 +25,10 @@
 
 # TODO: refactor more
 
+need_module! 'http'
+
 require 'rexml/document'
 require 'htmlentities'
-
-raise "weather script requires the http_client module" unless defined? MODULE_LOADED_HTTP
 
 register 'Weather information look-ups via Weather Underground (wunderground.com).'
 
