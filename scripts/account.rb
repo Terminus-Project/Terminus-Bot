@@ -114,7 +114,7 @@ command 'fpassword', 'Change another user\'s bot account password. Parameters: u
   store_data @connection.users[@msg.nick_canon].account, stored
 
   reply "The account password has been changed"
-  $log.info("account.cmd_fpassword") { "#{@msg.origin} changed account password for #{params[0]}" }
+  $log.info("account.cmd_fpassword") { "#{@msg.origin} changed account password for #{@params[0]}" }
 end
 
 command 'level', 'Change a user\'s account level. Parameters: username level' do
