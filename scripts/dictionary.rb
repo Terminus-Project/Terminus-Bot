@@ -25,7 +25,7 @@
 
 require 'multi_json'
 
-need_mdule! 'http'
+need_module! 'http'
 
 register 'CleanDictionary.com look-ups.'
 
