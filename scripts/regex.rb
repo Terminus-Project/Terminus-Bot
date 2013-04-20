@@ -23,50 +23,30 @@
 # SOFTWARE.
 #
 
+need_module! 'buffer'
+
 require 'timeout'
 
 register 'Show corrected text with s/regex/replacement/ is used and allow searching with g/regex/.'
 
-
-@@messages = {}
-
-event :PART do
-  next unless @@messages.has_key? @connection.name and @msg.me?
-
-  @@messages[@connection.name].delete @msg.destination
-end
-
 event :PRIVMSG do
   next if query?
 
+  # XXX - fix recognition of escaped slashes
   match = @msg.text.match(/^(?<action>(s|g))\/(?<search>.+?)\/(?<replace>.*?)(\/(?<flags>.*))?$/)
 
   if match
-    next unless @@messages.has_key? @connection.name
-    next unless @@messages[@connection.name].has_key? @msg.destination
+    next unless Buffer.has_key? @connection.name
+    next unless Buffer[@connection.name].has_key? @msg.destination_canon
 
     case match[:action]
-    when "g"
+    when 'g'
       grep match
-    when "s"
+    when 's'
       substitute match
     end
 
     next
-  end
-
-  @@messages[@connection.name] ||= {}
-  @@messages[@connection.name][@msg.destination] ||= []
-
-  if @msg.text =~ /\01ACTION (.+)\01/
-    @@messages[@connection.name][@msg.destination] << [@msg.nick, $1,        true]
-  else
-    @@messages[@connection.name][@msg.destination] << [@msg.nick, @msg.text, false]
-  end
-
-
-  if @@messages[@connection.name][@msg.destination].length > get_config(:buffer, 100).to_i
-    @@messages[@connection.name][@msg.destination].shift
   end
 end
 
@@ -76,19 +56,15 @@ helpers do
       # match[:replace] is flags because whatever
       search, flags, opts = match[:search], match[:replace], Regexp::EXTENDED
 
-      opts |= Regexp::IGNORECASE if flags and flags.include? "i"
+      opts |= Regexp::IGNORECASE if flags and flags.include? 'i'
 
       search = Regexp.new match[:search].gsub(/\s/, '\s'), opts
 
-      @@messages[@connection.name][@msg.destination].reverse.each do |message|
+      Buffer[@connection.name][@msg.destination_canon].reverse.each do |message|
+        next if message[:text].match(/^(s|g)\/(.+?)\/(.*?)(\/.*)?$/)
 
-        if search.match message[1]
-
-          if message[2]
-            reply "* #{message[0]} #{message[1]}", false
-          else
-            reply "<#{message[0]}> #{message[1]}", false
-          end
+        if search.match message[:text]
+          reply_with_match message[:type], message[:nick], message[:text]
 
           return
         end
@@ -101,25 +77,33 @@ helpers do
     Timeout::timeout(get_config(:run_time, 2).to_i) do
       replace, flags, opts = match[:replace], match[:flags], Regexp::EXTENDED
 
-      opts |= Regexp::IGNORECASE if flags and flags.include? "i"
+      opts |= Regexp::IGNORECASE if flags and flags.include? 'i'
 
       search = Regexp.new match[:search].gsub(/\s/, '\s'), opts
 
-      @@messages[@connection.name][@msg.destination].reverse.each do |message|
+      Buffer[@connection.name][@msg.destination_canon].reverse.each do |message|
+        next if message[:text].match(/^(s|g)\/(.+?)\/(.*?)(\/.*)?$/)
 
-        if search.match message[1]
-          new_msg = ((flags and flags.include?("g")) ? message[1].gsub(search, replace) : message[1].sub(search, replace) )
+        if search.match message[:text]
+          new_msg = ((flags and flags.include?('g')) ? message[:text].gsub(search, replace) : message[:text].sub(search, replace) )
 
-          if message[2]
-            reply "* #{message[0]} #{new_msg}", false
-          else
-            reply "<#{message[0]}> #{new_msg}", false
-          end
+          reply_with_match message[:type], message[:nick], new_msg
 
           return
         end
 
       end
+    end
+  end
+
+  def reply_with_match type, nick, message
+    case type
+    when :ACTION
+      reply "* #{nick} #{message}", false
+    when :PRIVMSG
+      reply "<#{nick}> #{message}", false
+    when :NOTICE
+      reply "-#{nick}- #{message}", false
     end
   end
 end
