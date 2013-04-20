@@ -583,8 +583,7 @@ Commands:
 
 Look up words on urbandictionary.com.
 
-Because Urban Dictionary doesn't offer an API anymore, we have to scrape the
-web pages for information. Hopefully they'll have an API again at some point.
+Uses the new (unannounced?) JSON API.
 
 Commands:
 
@@ -657,6 +656,12 @@ headers.
 
 Allows the bot to ignore other users. This is managed by the
 [ignore script](#ignore).
+
+### url_handler
+
+Provides an easy-to-use way for scripts to react to URLs the bot sees in chat.
+
+For usage examples, see the title script, Wikipedia script, and others.
 
 ## First Run
 
