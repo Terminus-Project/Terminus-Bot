@@ -29,19 +29,11 @@ module Bot
   class BufferManager < Hash
 
     def initialize
-      Events.register self, :"001",   :on_registered
-      Events.register self, :JOIN,    :on_join
-      Events.register self, :PART,    :on_part
-      Events.register self, :PRIVMSG, :record_message
-      Events.register self, :NOTICE,  :record_message
-    end
+      Events.create :PART,    self, :on_part
+      Events.create :PRIVMSG, self, :record_message
+      Events.create :NOTICE,  self, :record_message
 
-    def on_registered msg
-      self[msg.connection.name] ||= {}
-    end
-
-    def on_join msg
-      self[msg.connection.name][msg.destination_canon] ||= []
+      super
     end
 
     def on_part msg
@@ -49,7 +41,7 @@ module Bot
     end
 
     def record_message msg
-      return if msg.private?
+      return if msg.query?
 
       if msg.type == :PRIVMSG
 
@@ -66,9 +58,12 @@ module Bot
         type = msg.type
       end
 
-      self[msg.connection.name][msg.destination_canon] <<  :type => type,
+      self[msg.connection.name] ||= {}
+      self[msg.connection.name][msg.destination_canon] ||= []
+
+      self[msg.connection.name][msg.destination_canon] << {:type => type,
                                                            :text => text,
-                                                           :nick => msg.nick
+                                                           :nick => msg.nick}
      
       # TODO: This is nasty. I am using a loop here because we might be
       # rehashed with a smaller value and have to shift it down to size. There
