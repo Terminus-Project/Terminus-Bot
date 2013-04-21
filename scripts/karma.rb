@@ -38,7 +38,7 @@ event :PRIVMSG do
 
   next unless match
 
-  target = match[:target].upcase
+  target = match[:target]
 
   if match[:change] == '++'
     add_karma target
@@ -58,16 +58,18 @@ helpers do
   end
 
   def get_karma nick
-    get_data(@connection.name, Hash.new(0))[nick.upcase]
+    get_data(@connection.name, Hash.new(0))[@connection.canonize nick]
   end
 
   def add_karma nick, amount = 1
+    nick = @connection.canonize nick
+
     unless @connection.channels[@msg.destination_canon].users.has_key? nick
       $log.debug('karma.add_karma') { "Skipping nonexistent target #{nick}" }
       return
     end
 
-    if @msg.nick_cannon == nick
+    if @msg.nick_canon == nick
       $log.debug('karma.add_karma') { "Skipping self karma change attempt for #{nick}" }
       return
     end
