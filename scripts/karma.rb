@@ -31,6 +31,14 @@ command 'karma', 'Check karma for yourself or the specified nick.' do
   reply "#{target}'s karma is #{get_karma target}"
 end
 
+command 'popular', 'Find out who has the highest karma.' do
+  reply top
+end
+
+command 'unpopular', 'Find out who was the lowest karma.' do
+  reply bottom
+end
+
 event :PRIVMSG do
   next if query?
 
@@ -49,12 +57,16 @@ end
 
 helpers do
 
-  def get_top n = 3
-    # XXX
+  def top n = 3
+    karma = get_data(@connection.name, Hash.new(0)).sort_by {|n, k| k}
+
+    Hash[karma.last(n).reverse]
   end
 
-  def get_bottom n = 3
-    # XXX
+  def bottom n = 3
+    karma = get_data(@connection.name, Hash.new(0)).sort_by {|n, k| k}
+
+    Hash[karma.first(n).reverse]
   end
 
   def get_karma nick
