@@ -103,7 +103,7 @@ module Bot
 
       $log.debug("CommandManager.delete") { "Deleting command: #{cmd}" }
 
-      delete_aliases_for target
+      delete_aliases_for cmd
 
       COMMANDS.delete cmd
     end
