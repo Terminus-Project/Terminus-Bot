@@ -76,6 +76,10 @@ helpers do
     http_get(uri, query) do |http|
       json = MultiJson.load http.response
 
+      unless json
+        raise 'The server did not give a valid reply. Please try again.'
+      end
+
       if json['result_type'] == 'no_results'
         raise 'No results.'
       end
