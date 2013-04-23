@@ -60,11 +60,19 @@ helpers do
   def top n = 3
     karma = get_data(@connection.name, Hash.new(0)).sort_by {|n, k| k}
 
+    if karma.empty?
+      return 'Nobody has received karma, yet.'
+    end
+
     Hash[karma.last(n).reverse]
   end
 
   def bottom n = 3
     karma = get_data(@connection.name, Hash.new(0)).sort_by {|n, k| k}
+
+    if karma.empty?
+      return 'Nobody has received karma, yet.'
+    end
 
     Hash[karma.first(n).reverse]
   end
