@@ -43,9 +43,7 @@ command 'np', 'Show the currently playing track for the given Last.fm user.' do
     :limit  => 1
   }
 
-  api_call(opts) do |json|
-    raise json['message'] if json['error']
-
+  api_call opts do |json|
     unless json['recenttracks'] and json['recenttracks']['track']
       raise 'No recent tracks found.'
     end
@@ -69,6 +67,36 @@ command 'np', 'Show the currently playing track for the given Last.fm user.' do
   end
 end
 
+command 'tasteometer', 'Check the musical compatibility of two Last.fm users.' do
+  argc! 2
+
+  user1, user2 = @params
+
+  opts = {
+    :method => 'tasteometer.compare',
+
+    :type1 => :user,
+    :type2 => :user,
+
+    :value1 => user1,
+    :value2 => user2,
+
+    :limit => 15
+  }
+
+  api_call opts do |json|
+    result = json['comparison']['result']
+
+    data = {
+      'Compatibility'  => "#{result['score'].to_f * 100}%",
+      'Common Artists' => (result['artists']['artist'].map {|a| a['name']}.join(', '))
+    }
+
+    reply data, false
+
+  end
+end
+
 helpers do
   def api_call opt = {}
     api_url = 'http://ws.audioscrobbler.com/2.0/'
@@ -83,7 +111,12 @@ helpers do
     opt[:format]  = 'json'
 
     http_get(URI(api_url), opt) do |http|
-      yield MultiJson.load http.response
+      json = MultiJson.load http.response
+
+      raise 'invalid JSON respon' unless json
+      raise json['message'] if json['error']
+
+      yield json
     end
   end
 end

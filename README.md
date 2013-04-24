@@ -354,6 +354,7 @@ Script script is experimental and will be subject to change before beta.
 Commands:
 
 * NP - Show the currently playing track for the given last.fm user.
+* TASTEOMETER - Show the musical compatibility of two users.
 
 ### Lograw
 
