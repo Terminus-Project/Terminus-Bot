@@ -7,7 +7,7 @@ covers many of these concerns.
 ## Installation
 
 Currently, it is not possible to install Terminus-Bot system-wide. (This is a
-[planned feature](https:/github.com/kabaka/Terminus-Bot/issues/26), but will
+[planned feature](https://github.com/kabaka/Terminus-Bot/issues/26), but will
 not be ready until 2.0.). For now, the recommended install method is to simply
 clone the git repository to a directory under your home directory.
 
