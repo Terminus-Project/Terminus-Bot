@@ -71,6 +71,8 @@ module Bot
       @connection = msg.connection unless msg.nil?
     end
 
+    # Pass unknown method calls to the command's parent object.
+    #
     # XXX - This sucks.
     def method_missing name, *args, &block
       if @owner.respond_to? name
@@ -83,6 +85,16 @@ module Bot
 
     # TODO: move remaining helpers from @msg to here.
 
+
+    # Send a reply to the message that triggered this command. The message
+    # destination is determined by the origin:
+    #
+    # * If the message was sent to a channel, reply in the channel.
+    # * If the message was sent in private, reply with a private NOTICE.
+    #
+    # @param str [String] the message text to send
+    # @param prefix [Boolean] if true and if the message is a channel message,
+    #   include the speaker's nick in the reply
     def reply str, prefix = true
       if str.kind_of? Hash
         reply str.to_s_irc, prefix
@@ -95,31 +107,50 @@ module Bot
       end
     end
 
+    # Check if the message was sent in private
+    # @return [Boolean] true if private message
     def query?
       @private ||= (not @connection.support("CHANTYPES", "#&").include? @msg.destination.chr)
     end
 
+    # Check if the message was sent to a channel.
+    # @return [Boolean] true if channel message
     def channel?
       not query?
     end
 
+    # Check if the speaker is the bot.
+    # @return [Boolean] true if the bot's nick matches the speaker's
     def me?
       @msg.me?
     end
 
+    # Check if the speaker is op or better.
+    # @return [Boolean] true if op or private message
     def op?
       query? or half_op? or voice? or @connection.channels[@msg.destination_canon].op? @msg.nick
     end
 
+    # Check if the speaker is a half-op or better.
+    # @return [Boolean] true if half-op or private message
     def half_op?
       query? or voice? or @connection.channels[@msg.destination_canon].half_op? @msg.nick
     end
 
+    # Check if the speaker is voiced or better.
+    # @return [Boolean] true if voiced or private message
     def voice?
       query? or @connection.channels[@msg.destination_canon].voice? @msg.nick
     end
 
-    # require 'count' args, send optional syntax on failure
+    # Require at least `count` command parameters and split the parameters into
+    # the @params array. If there are more than `count` parameters provided,
+    # the remainder are all included in the last element of @params.
+    #
+    # If too few parameters are included, an exception is raised.
+    #
+    # @param count [Integer] minimum parameters required
+    # @param syntax [String] optional syntax to include with exception message
     def argc! count, syntax = nil
       @params = @params_str.split(/\s/, count)
 
@@ -132,7 +163,10 @@ module Bot
       end
     end
 
-    # require sender to have minimum admin level
+    # Require the is logged in and has at least the account level specified.
+    # Raises an exception if failed.
+    # @param min [Integer] minimum account level required
+    # @return [Boolean] true if account level is greater than or equal to `min`
     def level! min
       level = @connection.users[@msg.nick_canon].level
 
@@ -141,37 +175,48 @@ module Bot
       raise 'Insufficient access level.'
     end
 
+    # Require the message be sent in a channel. Raises an exception if failed.
+    # @return [Boolean] true if the message was sent in a channel
     def channel!
       return true unless query?
 
       raise 'This command may only be used in channels.'
     end
 
-    # command must be used in private
+    # Require the message be sent in a private message. Raises an exception if
+    # failed.
+    # @return [Boolean] true if the message was sent in private
     def query!
       return true if query?
 
       raise 'This command may only be used in private.'
     end
 
+    # Require the speaker have channel op. Raises an exception if failed.
+    # @return [Boolean] true if op or private message
     def op!
       return true if op?
 
       raise 'You must be a channel operator to use this command.'
     end
 
+    # Require the speaker have channel half-op. Raises an exception if failed.
+    # @return [Boolean] true if half-op or private message
     def half_op!
       return true if half_op?
 
       raise 'You must be a channel half-operator to use this command.'
     end
 
+    # Require the speaker have channel voice. Raises an exception if failed.
+    # @return [Boolean] true if voiced or private message
     def voice!
       return true if voice?
 
       raise 'You must be voiced to use this command.'
     end
 
+    # @see IRCConnection#raw
     def raw *args
       @connection.raw *args
     end
