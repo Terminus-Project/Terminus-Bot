@@ -1,0 +1,1 @@
+-o doc/yard/ -m markdown - doc/*.md COPYING
