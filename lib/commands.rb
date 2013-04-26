@@ -33,6 +33,9 @@ module Bot
       ALIASES  = {}
     end
 
+    # Event handler for `PRIVMSG` events to identify and handle all commands.
+    #
+    # @param [Message] msg that triggered the event
     def self.on_privmsg msg
       prefix = Regexp.escape Bot::Conf[:core][:prefix]
 
@@ -59,6 +62,13 @@ module Bot
       Command.run command[:owner], msg, cmd_str, match[:params], &command[:block]
     end
 
+    # Register a new command.
+    #
+    # @raise if `cmd` already exists
+    #
+    # @param owner [Object] object that owns the command's callback or block
+    # @param cmd [String] one-word string that triggers the command
+    # @param help [String] text for end-users to view with a help script
     def self.create owner, cmd, help, &blk
       cmd.downcase!
 
@@ -75,6 +85,14 @@ module Bot
       COMMANDS[cmd] = {:owner => owner, :block => blk, :help => help}
     end
 
+    # Register a new command alias.
+    #
+    # @raise if the aliases `cmd` already exists
+    # @raise if a command `cmd` exists
+    # @raise if `target` does not exist
+    #
+    # @param cmd [String] one-word alias for the command
+    # @param target [String] command for the new alias to represent
     def self.create_alias cmd, target
       cmd.downcase!
       target.downcase!
@@ -96,6 +114,11 @@ module Bot
       ALIASES[cmd] = target
     end
 
+    # Delete a command.
+    #
+    # @raise if `cmd` does not exist.
+    #
+    # @param cmd [String] command
     def self.delete cmd
       cmd.downcase!
 
@@ -108,6 +131,11 @@ module Bot
       COMMANDS.delete cmd
     end
 
+    # Delete a command alias.
+    #
+    # @raise if `cmd` does not exist.
+    #
+    # @param cmd [String] alias to delete
     def self.delete_alias cmd
       cmd.downcase!
 
@@ -118,6 +146,8 @@ module Bot
       ALIASES.delete cmd
     end
 
+    # Delete all aliases which reference `target` command.
+    # @param target [String] command for which to delete aliases
     def self.delete_aliases_for target
       ALIASES.reject! do |a, t|
         t == target
@@ -126,6 +156,8 @@ module Bot
       true
     end
 
+    # Delete commands that belong to `owner`.
+    # @param owner [Object] object whose commands should be deleted
     def self.delete_for owner
       $log.debug("CommandManager.delete_for") { "Unregistering all commands for #{owner.class.name}" }
 
