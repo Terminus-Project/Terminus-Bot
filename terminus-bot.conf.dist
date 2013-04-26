@@ -179,6 +179,7 @@ modules = {
   ignores
 
   http_client = {
+
     # REQUIRED
     # Maximum number of redirections to follow. This should be 10 or less. Setting
     # it too high may cause the bot to hang. It should probably be at least 3.
@@ -219,6 +220,17 @@ modules = {
     # recommended).
     # default: 5
     # max_time = 5
+
+    # OPTIONAL
+    # The user agent to send to web servers when making requests.
+    # default: Terminus-Bot (http://terminus-bot.net/)
+    #user_agent = Terminus-Bot (http://terminus-bot.net/)
+
+    # OPTIONAL
+    # The number of seconds before closing an inactive HTTP socket.
+    # default: 5
+    #timeout = 5
+
   }
 
   # The URL handler module is required for quite a lot of scripts. It allows
@@ -234,25 +246,16 @@ modules = {
 
   }
 
-  # Note: Don't uncomment this for now. The module is unfinished and will
-  # actually prevent the bot from starting,
-  #buffer = {
-  #  # REQUIRED
-  #  # The number of message to keep in the buffer. A larger value here will
-  #  # result in more memory usage, but will allow scripts which use this module
-  #  # to make use of more data.
-  #  max_size = 100
-  #
-  #  # OPTIONAL
-  #  # The user agent to send to web servers when making requests.
-  #  # default: Terminus-Bot (http://terminus-bot.net/)
-  #  #user_agent = Terminus-Bot (http://terminus-bot.net/)
-  #
-  #  # OPTIONAL
-  #  # The number of seconds before closing an inactive HTTP socket.
-  #  # default: 5
-  #  #timeout = 5
-  #}
+  buffer = {
+
+    # OPTIONAL
+    # The number of message to keep in the buffer. A larger value here will
+    # result in more memory usage, but will allow scripts which use this module
+    # to make use of more data.
+    # default: 100
+    #max_size = 100
+
+  }
 }
 
 
