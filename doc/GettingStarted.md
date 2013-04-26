@@ -1,3 +1,5 @@
+# @title Getting Started
+
 # Getting Started with Terminus-Bot
 
 Terminus-Bot is designed to be simple to use, but there are some important
