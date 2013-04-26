@@ -73,6 +73,8 @@ module Bot
 
     # Pass unknown method calls to the command's parent object.
     #
+    # @raise NoMethodError if the method does not exist on the parent
+    #
     # XXX - This sucks.
     def method_missing name, *args, &block
       if @owner.respond_to? name
@@ -147,7 +149,7 @@ module Bot
     # the @params array. If there are more than `count` parameters provided,
     # the remainder are all included in the last element of @params.
     #
-    # If too few parameters are included, an exception is raised.
+    # @raise if too few parameters are included
     #
     # @param count [Integer] minimum parameters required
     # @param syntax [String] optional syntax to include with exception message
@@ -164,7 +166,7 @@ module Bot
     end
 
     # Require the is logged in and has at least the account level specified.
-    # Raises an exception if failed.
+    # @raise if failed
     # @param min [Integer] minimum account level required
     # @return [Boolean] true if account level is greater than or equal to `min`
     def level! min
@@ -175,7 +177,8 @@ module Bot
       raise 'Insufficient access level.'
     end
 
-    # Require the message be sent in a channel. Raises an exception if failed.
+    # Require the message be sent in a channel.
+    # @raise if failed
     # @return [Boolean] true if the message was sent in a channel
     def channel!
       return true unless query?
@@ -183,8 +186,8 @@ module Bot
       raise 'This command may only be used in channels.'
     end
 
-    # Require the message be sent in a private message. Raises an exception if
-    # failed.
+    # Require the message be sent in a private message.
+    # @raise if failed
     # @return [Boolean] true if the message was sent in private
     def query!
       return true if query?
@@ -192,7 +195,8 @@ module Bot
       raise 'This command may only be used in private.'
     end
 
-    # Require the speaker have channel op. Raises an exception if failed.
+    # Require the speaker have channel op.
+    # @raise if failed
     # @return [Boolean] true if op or private message
     def op!
       return true if op?
@@ -200,7 +204,8 @@ module Bot
       raise 'You must be a channel operator to use this command.'
     end
 
-    # Require the speaker have channel half-op. Raises an exception if failed.
+    # Require the speaker have channel half-op.
+    # @raise if failed
     # @return [Boolean] true if half-op or private message
     def half_op!
       return true if half_op?
@@ -208,7 +213,8 @@ module Bot
       raise 'You must be a channel half-operator to use this command.'
     end
 
-    # Require the speaker have channel voice. Raises an exception if failed.
+    # Require the speaker have channel voice.
+    # @raise if failed
     # @return [Boolean] true if voiced or private message
     def voice!
       return true if voice?
