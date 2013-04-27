@@ -98,21 +98,13 @@ module Bot
       nick_canon == @connection.canonize(@connection.nick)
     end
 
-    # Strip IRC formatting data from string.
-    # @todo move to String class
-    # @param str [String] string to strip
-    # @return [String] stripped string
-    def strip str
-      str.gsub /(\x0F|\x1D|\02|\03([0-9]{1,2}(,[0-9]{1,2})?)?)/, ""
-    end
-
     # Return the message with IRC formatting stripped.
     #
     # Stripped text is memoized.
     #
     # @return [String] message text with formatting removed
     def stripped
-      @stripped ||= strip @text
+      @stripped ||= @text.strip_irc_formatting
     end
 
     # Get the canonized nick that owns this message.
