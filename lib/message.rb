@@ -30,7 +30,7 @@ module Bot
   class Message
 
     attr_reader :origin, :type, :text, :parameters,
-      :raw_str, :raw_arr, :nick, :nick_canon, :user, :host, :connection
+      :raw_str, :raw_arr, :nick, :user, :host, :connection
     
     # Create a new {Message} from a raw IRC message.
     #
