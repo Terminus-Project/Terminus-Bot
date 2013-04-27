@@ -31,6 +31,8 @@ module Bot
 
       COMMANDS = {}
       ALIASES  = {}
+
+      private_constant :COMMANDS, :ALIASES
     end
 
     # Event handler for `PRIVMSG` events to identify and handle all commands.

@@ -28,6 +28,10 @@ module Bot
 
   class Channels < Hash
 
+    # Create a new instance of the Channels class for this connection. This
+    # sets up events for all channel-related events on this connection. Event
+    # data is then passed to the appropriate {Channel} objects.
+    # @param connection [IRCConnection] parent connection
     def initialize connection
       @connection = connection
 
@@ -48,7 +52,16 @@ module Bot
       Bot::Events.create :NICK,  self, :on_nick
     end
 
-
+    # Callback for WHO reply (352 numeric).
+    #
+    # If the {Channel} for this reply does not yet exist, it is created. Then,
+    # a new {ChannelUser} is created and added to the correct {Channel}.
+    # Lastly, the modes are parsed out of the WHO reply.
+    #
+    # @see Channel#join
+    # @see Channel#who_modes
+    #
+    # @param msg [Message] message object triggered the callback
     def on_who_reply msg
       return unless msg.connection == @connection
       canon_name = @connection.canonize msg.raw_arr[3]
@@ -67,7 +80,16 @@ module Bot
       self[canon_name].who_modes msg.raw_arr[7], msg.raw_arr[8]
     end
 
-
+    # Callback for JOIN message.
+    #
+    # If the {Channel} for this JOIN does not yet exist, it is created. Then,
+    # if the joining user is the bot, a MODE and WHO are sent for the channel,
+    # just to ensure we have complete information. Lastly, a {ChannelUser} is
+    # created and added to the correct {Channel}.
+    #
+    # @see Channel#join
+    #
+    # @param msg [Message] message that triggered the callback
     def on_join msg
       return unless msg.connection == @connection
 
@@ -87,6 +109,14 @@ module Bot
       ))
     end
 
+    # Callback for PART message.
+    #
+    # If the parting user is the bot, the {Channel} is deleted. Otherwise, the
+    # user is removed from the {Channel} by calling {Channel#part}.
+    #
+    # @see Channel#part
+    #
+    # @param msg [Message] message that triggered the callback
     def on_part msg
       return unless msg.connection == @connection
 
@@ -99,14 +129,31 @@ module Bot
       self[msg.destination_canon].part msg.nick_canon
     end
 
+    # Callback for KICK message.
+    #
+    # Remove the kicked user form the appropriate {Channel} by calling
+    # {Channel#part}.
+    #
+    # @see Channel#part
+    #
+    # @param msg [Message] message that triggered the callback
     def on_kick msg
       return unless msg.connection == @connection
 
       return unless has_key? msg.destination_canon
+      # XXX - delete channel if the bot has been kicked
 
       self[msg.destination_canon].part @connection.canonize msg.raw_arr[3]
     end
 
+    # Callback for MODE message.
+    #
+    # If this is for a channel, update the modes on the {Channel} by calling
+    # {Channel#mode_change}.
+    #
+    # @see Channel#mode_change
+    #
+    # @param msg [Message] message that triggered the callback
     def on_mode msg
       return unless msg.connection == @connection
 
@@ -115,6 +162,13 @@ module Bot
       self[msg.destination_canon].mode_change msg.raw_arr[3..-1]
     end
 
+    # Callback for 324 numeric (channel modes shared on JOIN).
+    #
+    # Update channel modes by calling {Channel#mode_change}.
+    #
+    # @see Channel#mode_change
+    #
+    # @param msg [Message] message that triggered the callback
     def on_modes_on_join msg
       return unless msg.connection == @connection
       canon_name = @connection.canonize msg.raw_arr[3]
@@ -125,6 +179,13 @@ module Bot
     end
 
 
+    # Callback for TOPIC message.
+    #
+    # Update the stored channel topic by calling {Channel#topic}.
+    #
+    # @see Channel#topic
+    #
+    # @param msg [Message] message that triggered the callback
     def on_topic msg
       return unless msg.connection == @connection
 
@@ -133,6 +194,13 @@ module Bot
       self[msg.destination_canon].topic msg.text
     end
 
+    # Callback for 332 numeric (channel topic shared on JOIN).
+    #
+    # Update the stored channel topic by calling {Channel#topic}.
+    #
+    # @see Channel#topic
+    #
+    # @param msg [Message] message that triggered the callback
     def on_topic_on_join msg
       return unless msg.connection == @connection
       canon_name = @connection.canonize msg.raw_arr[3]
@@ -143,6 +211,14 @@ module Bot
     end
 
 
+    # Callback for QUIT message.
+    #
+    # For each {Channel}, call {Channel#quit}. The {Channel#quit} function will
+    # determine whether or not the message applies to it.
+    #
+    # @see Channel#quit
+    #
+    # @param msg [Message] message that triggered the callback
     def on_quit msg
       return unless msg.connection == @connection
 
@@ -153,6 +229,14 @@ module Bot
       end
     end
 
+    # Callback for NICK message.
+    #
+    # For each {Channel}, call {Channel#change_nick}. The {Channel#change_nick}
+    # function will determine whether or not the message applies to it.
+    #
+    # @see Channel#nick
+    #
+    # @param msg [Message] message that triggered the callback
     def on_nick msg
       return unless msg.connection == @connection
 
@@ -171,15 +255,23 @@ module Bot
 
   end
 
-  # TODO: Track channel users in the user objects rather than here.
   class ChannelUser 
     attr_accessor :nick, :user, :host, :modes
 
+    # @param parent [Channel]
+    # @param nick [String]
+    # @param user [String]
+    # @param host [String]
+    # @param modes [String]
     def initialize parent, nick, user, host, modes
       @parent = parent
       @nick, @user, @host, @modes = nick, user, host, modes
     end
 
+    # Return the prefix (such as @ for channel operators) for this channel
+    # user, if they have one. PREFIX from 005 is used, if available.
+    #
+    # @return [String] channel user prefix
     def prefix
       @parent.prefixes.each do |prefix, mode|
         return prefix if @modes.include? mode

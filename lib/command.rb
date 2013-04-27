@@ -30,6 +30,18 @@ module Bot
     include Bot::IRCMacros
 
     class << self
+
+      # Run the command.
+      #
+      # A new {Command} will be instantiated and the command's block will be
+      # evaluated in the context of the new object.
+      # 
+      # @param owner [Object]
+      # @param msg [Message] message that triggered the event
+      # @param cmd [String] command that triggered the event
+      # @param params [String] parameters supplied to the command
+      # @param data [Hash] extra parameters for the event
+      # @param blk [Block] block to eval for the event
       def run owner, msg, cmd, params, data = {}, &blk
         helpers &owner.get_helpers
 
@@ -40,23 +52,35 @@ module Bot
         end
       end
 
+      # Notify to command caller of an error via IRC.
+      #
+      # @param msg [Message] the message that triggered the event which has
+      #   taken an error
+      # @param e [Exception]
       def error msg, e
-          # XXX - this sort of sucks
-          if msg.query?
-            msg.connection.raw "NOTICE #{msg.nick} :Error: #{e.to_s}"
-          else
-            msg.connection.raw "PRIVMSG #{msg.destination} :#{msg.nick}: Error: #{e.to_s}"
-          end
+        # XXX - this sort of sucks
+        if msg.query?
+          msg.connection.raw "NOTICE #{msg.nick} :Error: #{e.to_s}"
+        else
+          msg.connection.raw "PRIVMSG #{msg.destination} :#{msg.nick}: Error: #{e.to_s}"
+        end
 
-          $log.error('Command.run') { e }
-          $log.error('Command.run') { e.backtrace }
+        $log.error('Command.run') { e }
+        $log.error('Command.run') { e.backtrace }
       end
 
+      # Evaluate helpers, if available.
+      # @param blk [Block] block to eval
       def helpers &blk
         class_eval &blk if block_given?
       end
     end
 
+    # @param owner [Object]
+    # @param msg [Message] message that triggered the event
+    # @param cmd [String] command that trigger the event
+    # @param params [String] parameters supplied to the command
+    # @param data [Hash] extra parameters for event
     def initialize owner, msg, cmd, params = "", data = {}
       @owner, @msg, @cmd, @data = owner, msg, cmd, data
 

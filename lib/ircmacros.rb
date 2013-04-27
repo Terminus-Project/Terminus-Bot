@@ -27,22 +27,45 @@ module Bot
 
   module IRCMacros
 
+    # Send a PRIVMSG.
+    # @param dest [String] message destination
+    # @param msg [String] message body
     def send_privmsg dest, msg
       raw "PRIVMSG #{dest} :#{msg}"
     end
 
+    # Send a NOTICE.
+    # @param dest [String] message destination
+    # @param msg [String] message body
     def send_notice dest, msg
       raw "NOTICE #{dest} :#{msg}"
     end
 
+    # Send a MODE.
+    # @param target [String] target channel or user
+    # @param modes [String] modes to apply to target
     def send_mode target, modes
       raw "MODE #{target} #{modes}"
     end
 
+    # Change the bot's nick.
+    # @param nick [String] new nick
     def send_nick nick
       raw "NICK #{nick}"
     end
 
+    # Join one or more channels.
+    #
+    # Accepts several types of parameters:
+    #
+    # * String: Single channel, or comma-separated list of channels to join.
+    #   Sent as-is to server.
+    # * Array: One channel per array item. JOINs are automatically compressed
+    #   to fewer commands.
+    # * Hash: Channel name => channel key pairs. JOINs are automatically
+    #   compressed as they are with the Array type.
+    #
+    # @param channel [String, Array, Hash] channel or channels to join
     def send_join channel
       # TODO: don't dispatch joins for channels we are already in, if possible
       if channel.is_a? Array
@@ -77,18 +100,31 @@ module Bot
       end
     end
 
+    # Leave a channel.
+    # @param channel [String] channel to leave
+    # @param message [String] part reason
     def send_part channel, message = ""
       raw "PART #{channel} :#{message}"
     end
 
+    # Kick a user from a channel.
+    # @param channel [String] channel from which to kick the user
+    # @param target [String] nick of the user to kick
+    # @param message [String] kick reason
     def send_kick channel, target, message = ""
       raw "KICK #{channel} #{target} :#{message}"
     end
 
+    # Send a WHO for the given target.
+    # @param target [String] the channel or user for which you want info
     def send_who target
       raw "WHO #{target}"
     end
 
+    # Send a WHOIS for the given user.
+    # @param target [String] nick of the desired user
+    # @param server [String] server (or nick a second time) to which the whois
+    #   should be sent
     def send_whois target, server = ""
       raw "WHOIS #{target} #{server}"
     end

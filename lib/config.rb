@@ -27,13 +27,28 @@ module Bot
 
   class Configuration < Hash
 
-    # Create a new configuration object.
-    # Read the configuration file now.
+    # Create a new configuration object and immediately read the configuration
+    # file.
+    #
+    # @see Configuration#read_config
     def initialize
       read_config
     end
 
-    # Read the config file named by FILE_NAME.
+    # Read the configuration file according to command line args.
+    #
+    # The configuration file is expected to be in a nested block format. Syntax
+    # is presently very strict.
+    #
+    #     block_name ={
+    #       # ...
+    #     }
+    #
+    #     setting = value
+    #
+    #     #comment
+    # 
+    # @raise if file does not exist
     def read_config
       file_name = $opts[:config_file]
 

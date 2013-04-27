@@ -27,6 +27,8 @@
 module Bot
   class Database
 
+    # XXX - see if this can be removed!
+
     # The YAML library packaged with the current version of Ruby has a bug that
     # causes crashes or data loss when some unicode characters are parsed. Once
     # that is fixed, we can remove this.
@@ -34,7 +36,10 @@ module Bot
 
     require 'psych'
 
+    # TODO: use better relative path
     FILENAME = "var/terminus-bot/data.db"
+
+    private_constant :FILENAME
 
     # Read the database if it exists. Otherwise, write an empty database.
     def initialize
@@ -57,7 +62,7 @@ module Bot
       @data = Psych.load(IO.read(FILENAME))
     end
 
-    # Write @data converted to YAML to FILENAME.
+    # Write database in YAML format.
     def write_database
       # TODO: Use the path from FILENAME.
       Dir.mkdir "var" unless Dir.exists? "var"
@@ -75,22 +80,38 @@ module Bot
     # TODO: Find a way for this class to extend Hash and still play nice with
     #       Psych#load. Right now, it fails because load might not produce a Hash.
 
+
+    # Retrieve database entry.
+    # @param key [Object] entry to retrieve
+    # @return [Object] database entry
     def [] key
       @data[key]
     end
 
+    # Update database entry.
+    # @param key [Object] key of object to update
+    # @param val [Object] new value
+    # @return [Object] set value
     def []= key, val
       @data[key] = val
     end
 
+    # Delete a database entry.
+    # @param key [Object] key to delete
+    # @return [Object] deleted value
     def delete key
       @data.delete key
     end
 
+    # Convert the database to a {String}.
+    # @return [String]
     def to_s
       @data.to_s
     end
 
+    # Check if the database has a key.
+    # @param key [Object] key to check for
+    # @return [Boolean] true if key exists, false if not
     def has_key? key
       @data.has_key? key
     end

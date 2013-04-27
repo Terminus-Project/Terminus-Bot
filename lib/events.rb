@@ -28,9 +28,19 @@ module Bot
 
   class EventManager < Hash
 
-    # Create a new event. The key in the hash table is the event name
-    # which is used to run the event. The value is an array which will store
-    # the multiple events that run are run when the event name is called.
+    # Create a new event.
+    #
+    # Scripts should not call this directly, but should instead use
+    # {Script#event}.
+    #
+    # The key in the hash table is the event name which is used to run the
+    # event. The value is an array which will store the multiple events that
+    # are run when the event name is called.
+    #
+    # @param name [Symbol]
+    # @param owner [Object]
+    # @param func [Symbol]
+    # @param blk [Block]
     def create name, owner, func = nil, &blk
       self[name] ||= []
 
@@ -39,6 +49,10 @@ module Bot
     end
 
     # Run all the events with the given name.
+    #
+    # @param name [Symbol] name of the event to dispatch
+    # @param msg [Message] optional message that triggered the event
+    # @param data [Hash] optional extra data for the event
     def dispatch name, msg = nil, data = {}
       return unless self.has_key? name
 
@@ -58,6 +72,12 @@ module Bot
       end
     end
 
+    # Run an event only for one owner.
+    #
+    # @param owner [Object] owner of the event to dispatch
+    # @param name [Symbol] name of the event to dispatch
+    # @param msg [Message] optional message that triggered the event
+    # @param data [Hash] optional extra data for the event
     def dispatch_for owner, name, msg = nil, data = {}
       return unless self.has_key? name
 
@@ -76,6 +96,8 @@ module Bot
     end
 
     # Delete all the events owned by the given class.
+    #
+    # @param owner [Object]
     def delete_for owner
       self.each do |n, a|
         a.delete_if {|e| e.owner == owner}
@@ -86,6 +108,15 @@ module Bot
 
   class Event < Command
     class << self
+
+      # Dispatch an event.
+      #
+      # @param owner [Object]
+      # @param name [Symbol]
+      # @param func [Symbol]
+      # @param msg [String]
+      # @param data [Hash]
+      # @param blk [Block]
       def dispatch owner, name, func, msg = nil, data = {}, &blk
         helpers &owner.get_helpers if owner.respond_to? :helpers
 
@@ -117,6 +148,10 @@ module Bot
       end
     end
 
+    # @param owner [Object]
+    # @param name [Symbol]
+    # @param msg [String]
+    # @param data [Hash]
     def initialize owner, name, msg = nil, data = {}
       super owner, msg, nil, '', data
     end
