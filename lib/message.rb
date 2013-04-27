@@ -32,7 +32,12 @@ module Bot
     attr_reader :origin, :type, :text, :parameters,
       :raw_str, :raw_arr, :nick, :nick_canon, :user, :host, :connection
     
-    # Parse the str as an IRC message
+    # Create a new {Message} from a raw IRC message.
+    #
+    # @param connection [IRCConnection] connection on which the message was
+    #   sent or received
+    # @param str [String] raw IRC line
+    # @param outgoing [Boolean] true if the bot sent the message, false if not
     def initialize connection, str, outgoing = false
       arr = str.split
 
@@ -87,29 +92,45 @@ module Bot
       @destination.freeze
     end
 
-
-    # Return true if this message's origin appears to be the bot.
+    # Check if the message was sent by or otherwise belongs to the bot.
+    # @return [Boolean] true if the message belongs to the bot, false it not
     def me?
       nick_canon == @connection.canonize(@connection.nick)
     end
 
-
+    # Strip IRC formatting data from string.
+    # @todo move to String class
+    # @param str [String] string to strip
+    # @return [String] stripped string
     def strip str
       str.gsub /(\x0F|\x1D|\02|\03([0-9]{1,2}(,[0-9]{1,2})?)?)/, ""
     end
 
-    # Return the message with formatting stripped.
+    # Return the message with IRC formatting stripped.
+    #
+    # Stripped text is memoized.
+    #
+    # @return [String] message text with formatting removed
     def stripped
       @stripped ||= strip @text
     end
 
-
-    # Apply CASEMAPPING to the nick and return it.
+    # Get the canonized nick that owns this message.
+    #
+    # CASEMAPPING from ISUPPORT is used.
+    #
+    # @see IRCConnection.canonize
+    # @return [String] canonized IRC nick
     def nick_canon
       @nick_canon ||= @connection.canonize @nick
     end
 
-    # Original nick with prefix for the given IRC channel
+    # Get the canonized nick that owns this message with prefix included.
+    #
+    # @param channel [String] channel to check for prefix
+    # @see IRCConnection#canonize
+    # @see ChannelUser#prefix
+    # @return [String] canonized nick with prefix
     def nick_with_prefix channel
       channel = @connection.canonize(channel)
       prefix = @connection.channels[channel].users[nick_canon].prefix || ''
@@ -117,17 +138,27 @@ module Bot
       "#{prefix}#{@nick}"
     end
 
-    # Apply CASEMAPPING to the destination and return it.
+    # Get the canonized message destination. This will (most likely) be a nick
+    # or channel name.
+    #
+    # @see IRCConnection#canonize
+    # @return [String] canonized message destination
     def destination_canon
       @destination_canon ||= @connection.canonize destination
     end
 
-    # some IRCDs like to put a colon in things like JOINs
+    # Get the message's destination. Not all messages necessarily *have* a
+    # destination, but we try to choose a sane answer.
+    #
+    # @return [String] message destination
     def destination
       @destination || @text
     end
 
-    # Return true if this message doesn't appear to have been sent in a channel
+    # Check if the message was sent in private. CHANTYPES is used to determine
+    # if the message was sent in a channel.
+    #
+    # @return [Boolean] false if message was private, true if not
     def query?
       return true if @destination == nil
 
