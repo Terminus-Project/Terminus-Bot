@@ -41,7 +41,7 @@ module Bot
     def self.on_privmsg msg
       prefix = Regexp.escape Bot::Conf[:core][:prefix]
 
-      match = msg.text.match(/^(?<prefix>#{prefix}|#{msg.connection.nick}.? )?(?<command>[^ ]+)( (?<params>.+))?/i)
+      match = msg.text.match(/^(?<prefix>#{prefix}|#{msg.connection.nick}[^ ]* )?(?<command>[^ ]+)( (?<params>.+))?/i)
 
       return unless msg.query? or match[:prefix]
 
