@@ -82,6 +82,17 @@ core = {
   reconwait = 15
 
 
+  # OPTIONAL
+  # Disable or enable the nick prefix included with most replies to channel
+  # commands. We strongly encourage you to leave this on, as disabling it may
+  # allow other users to take advantage of the bot by causing it to trigger
+  # fantasy commands in other bots (for example, causing the bot to say
+  # "!kick Terminus-Bot". If you are certain you want to disable it, set this
+  # to false.
+  # default: true
+  #replyprefix = true
+
+
   # OPTIONAL, RECOMMENDED
   # The number of seconds to wait between each outgoing message. This includes
   # all message types, not just messages to users. Unless the bot is opered and

@@ -455,7 +455,9 @@ module Bot
       #       Just don't try to send it all in multiple messages without
       #       the user asking for it!
       unless msg.query?
-        str = "#{msg.nick}: #{str}" if prefix
+        use_prefix = Bot::Conf[:core][:replyprefix] rescue true
+
+        str = "#{msg.nick}: #{str}" if prefix and use_prefix
 
         send_privmsg msg.destination, str
       else
