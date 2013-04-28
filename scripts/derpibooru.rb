@@ -149,8 +149,12 @@ helpers do
         grimdark grotesque meta text semi-grimdark
     ]
 
+    artist = tags.select {|t| t.start_with? "artist:"}
     rating.select! {|r| tags.include? r}
-    tags.reject! {|t| rating.include? t}
+    tags.reject! {|t| rating.include? t or artist.include? t}
+
+    artist.each_index {|i| artist[i] = artist[i][7..-1]}
+    artist = artist.join(', ')
 
     tags_total = tags.length
 
@@ -170,6 +174,7 @@ helpers do
     data = {
       'Derpibooru' => (include_url ? "https://derpiboo.ru/#{data['id_number']}" : ''),
       'Rating' => rating,
+      'Artist' => artist,
       'Tags' => tags,
       'Uploader' => data['uploader'],
       'Score' => "#{data['score']} (#{data['upvotes']} Up / #{data['downvotes']} Down)",
