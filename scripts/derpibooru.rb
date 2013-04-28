@@ -149,8 +149,12 @@ helpers do
         grimdark grotesque meta text semi-grimdark
     ]
 
+    artist = tags.select {|t| t.start_with? "artist:"}
     rating.select! {|r| tags.include? r}
-    tags.reject! {|t| rating.include? t}
+    tags.reject! {|t| rating.include? t or artist.include? t}
+
+    artist.each_index {|i| artist[i] = artist[i][7..-1]}
+    artist = artist.join(', ')
 
     tags_total = tags.length
 
@@ -167,14 +171,26 @@ helpers do
 
     rating = rating.join(', ')
 
-    data = {
-      'Derpibooru' => (include_url ? "https://derpiboo.ru/#{data['id_number']}" : ''),
-      'Rating' => rating,
-      'Tags' => tags,
-      'Uploader' => data['uploader'],
-      'Score' => "#{data['score']} (#{data['upvotes']} Up / #{data['downvotes']} Down)",
-      "#{data['width']}x#{data['height']}" => data['original_format']
-    }
+    if artist.length > 0
+        data = {
+          'Derpibooru' => (include_url ? "https://derpiboo.ru/#{data['id_number']}" : ''),
+          'Rating' => rating,
+          'Artist' => artist,
+          'Tags' => tags,
+          'Uploader' => data['uploader'],
+          'Score' => "#{data['score']} (#{data['upvotes']} Up / #{data['downvotes']} Down)",
+          "#{data['width']}x#{data['height']}" => data['original_format']
+        }
+    else
+        data = {
+          'Derpibooru' => (include_url ? "https://derpiboo.ru/#{data['id_number']}" : ''),
+          'Rating' => rating,
+          'Tags' => tags,
+          'Uploader' => data['uploader'],
+          'Score' => "#{data['score']} (#{data['upvotes']} Up / #{data['downvotes']} Down)",
+          "#{data['width']}x#{data['height']}" => data['original_format']
+        }
+    end
 
     reply data, false
   end
