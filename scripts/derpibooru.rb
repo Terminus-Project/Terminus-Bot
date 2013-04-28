@@ -171,15 +171,26 @@ helpers do
 
     rating = rating.join(', ')
 
-    data = {
-      'Derpibooru' => (include_url ? "https://derpiboo.ru/#{data['id_number']}" : ''),
-      'Rating' => rating,
-      'Artist' => artist,
-      'Tags' => tags,
-      'Uploader' => data['uploader'],
-      'Score' => "#{data['score']} (#{data['upvotes']} Up / #{data['downvotes']} Down)",
-      "#{data['width']}x#{data['height']}" => data['original_format']
-    }
+    if artist.length > 0
+        data = {
+          'Derpibooru' => (include_url ? "https://derpiboo.ru/#{data['id_number']}" : ''),
+          'Rating' => rating,
+          'Artist' => artist,
+          'Tags' => tags,
+          'Uploader' => data['uploader'],
+          'Score' => "#{data['score']} (#{data['upvotes']} Up / #{data['downvotes']} Down)",
+          "#{data['width']}x#{data['height']}" => data['original_format']
+        }
+    else
+        data = {
+          'Derpibooru' => (include_url ? "https://derpiboo.ru/#{data['id_number']}" : ''),
+          'Rating' => rating,
+          'Tags' => tags,
+          'Uploader' => data['uploader'],
+          'Score' => "#{data['score']} (#{data['upvotes']} Up / #{data['downvotes']} Down)",
+          "#{data['width']}x#{data['height']}" => data['original_format']
+        }
+    end
 
     reply data, false
   end
