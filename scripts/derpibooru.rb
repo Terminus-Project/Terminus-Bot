@@ -149,48 +149,49 @@ helpers do
         grimdark grotesque meta text semi-grimdark
     ]
 
-    artist = tags.select {|t| t.start_with? "artist:"}
-    rating.select! {|r| tags.include? r}
-    tags.reject! {|t| rating.include? t or artist.include? t}
+    artist, display_rating, display_tags = [], [], []
 
-    artist.each_index {|i| artist[i] = artist[i][7..-1]}
-    artist = artist.join(', ')
+    tags.each do |tag|
+      if rating.include? tag
+        display_rating << tag
+        next
+      end
 
-    tags_total = tags.length
+      if tag.start_with? 'artist:'
+        artist << tag[7..-1]
+        next
+      end
+
+      display_tags << tag
+    end
+    
+    artist = artist.empty? ? 'not tagged' : artist.join(', ')
+
+    tags_total = display_tags.length
 
     # TODO: use config for max tags
-    tags = tags[0..10]
+    display_tags = display_tags[0..10]
 
-    tags_remaining = tags_total - tags.length
+    tags_remaining = tags_total - display_tags.length
 
     unless tags_remaining.zero?
-      tags = "#{tags.join(', ')} (and #{tags_remaining} more)"
+      display_tags = "#{display_tags.join(', ')} (and #{tags_remaining} more)"
     else
-      tags = tags.join(', ')
+      display_tags = display_tags.join(', ')
     end
 
-    rating = rating.join(', ')
+    display_rating = display_rating.join(', ')
+    url = include_url ? "https://derpiboo.ru/#{data['id_number']}" : ''
 
-    if artist.length > 0
-        data = {
-          'Derpibooru' => (include_url ? "https://derpiboo.ru/#{data['id_number']}" : ''),
-          'Rating' => rating,
-          'Artist' => artist,
-          'Tags' => tags,
-          'Uploader' => data['uploader'],
-          'Score' => "#{data['score']} (#{data['upvotes']} Up / #{data['downvotes']} Down)",
-          "#{data['width']}x#{data['height']}" => data['original_format']
-        }
-    else
-        data = {
-          'Derpibooru' => (include_url ? "https://derpiboo.ru/#{data['id_number']}" : ''),
-          'Rating' => rating,
-          'Tags' => tags,
-          'Uploader' => data['uploader'],
-          'Score' => "#{data['score']} (#{data['upvotes']} Up / #{data['downvotes']} Down)",
-          "#{data['width']}x#{data['height']}" => data['original_format']
-        }
-    end
+    data = {
+      'Derpibooru'  => url,
+      'Rating'      => display_rating,
+      'Artist'      => artist,
+      'Tags'        => display_tags,
+      'Uploader'    => data['uploader'],
+      'Score'       => "#{data['score']} (#{data['upvotes']} Up / #{data['downvotes']} Down)",
+      "#{data['width']}x#{data['height']}" => data['original_format']
+    }
 
     reply data, false
   end
