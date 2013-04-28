@@ -283,6 +283,19 @@ Commands:
 * DISABLE - Disable scripts in the given server and channel.
 * FLAGS - View flags for given servers, channels, and scripts.
 
+### Flist
+
+Interact with F-list.net.
+
+**Note: for access to character information, the character owner must have
+enabled API access in their account settings.**
+
+Commands:
+
+* F-LIST
+  * CHARACTER - Look up general info about the given character.
+  * COMPARE - Compare the kinks of two characters.
+
 ### Games
 
 Provides a few basic gaming commands.
