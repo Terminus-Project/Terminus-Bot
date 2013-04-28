@@ -177,6 +177,8 @@ module Bot
     #
     # @param count [Integer] minimum parameters required
     # @param syntax [String] optional syntax to include with exception message
+    #
+    # @return [Boolean] true if the minimum parameter count was met
     def argc! count, syntax = nil
       @params = @params_str.split(/\s/, count)
 
