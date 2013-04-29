@@ -34,13 +34,12 @@ event :PRIVMSG do
   tells[@msg.nick_canon].each do |tell|
     time = Time.at(tell[0]).strftime("%Y-%m-%d %H:%M:%S %Z")
 
-    tellString = "Tell from \02#{tell[1]}\02 (#{time}): #{tell[2]}"
-    useNotice = get_config :use_notice, false
+    tell_string = "Tell from \02#{tell[1]}\02 (#{time}): #{tell[2]}"
 
-    if useNotice
-      send_notice @msg.nick_canon, tellString
+    if get_config :use_notice, false
+      send_notice @msg.nick_canon, tell_string
     else
-      reply tellString
+      reply tell_string
     end
   end
   
@@ -62,7 +61,7 @@ command 'tell', 'Have the bot tell the given user something the next time they s
     raise "You cannot leave tells for me."
   end
 
-  if dest == @connection.canonize(@msg.nick)
+  if dest == @msg.nick_canon
     raise "You cannot leave tells for yourself."
   end
   
