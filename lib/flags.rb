@@ -24,7 +24,7 @@
 #
 
 module Bot
-  class ScriptFlags < Hash
+  class Script_Flags < Hash
 
     # TODO: Use IRCConnection#canonize in here.
 
@@ -196,7 +196,7 @@ module Bot
     if DB.has_key? :flags
       Flags = DB[:flags]
     else
-      Flags = ScriptFlags.new
+      Flags = Script_Flags.new
       DB[:flags] = Flags
     end
   end

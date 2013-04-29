@@ -23,11 +23,13 @@
 # SOFTWARE.
 #
 
+
 class Time
 
   # TODO: These need to support longer durations (months and years).
   # Month length is not constant. How should we deal with it? --Kabaka
 
+  
   # convert seconds into [seconds, minutes, hours, days]
   def to_duration_a
     secs = (Time.now - self.to_i).to_i.abs
