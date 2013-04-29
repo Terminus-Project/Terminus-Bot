@@ -26,6 +26,9 @@
 module Bot
   Connections ||= {}
 
+  # Run the bot. This should be called only during start-up, and only once.
+  #
+  # Loggers are set up, signal handlers are added, and connections are started.
   def self.run
     logsize  = Bot::Conf[:core][:logsize]         rescue 1024000 
     logcount = Bot::Conf[:core][:logcount]        rescue 5
@@ -98,6 +101,16 @@ module Bot
     end
   end
 
+  # Attempt to gracefully close all connections and terminate the bot.
+  #
+  # **Note: This will not close the bot immediately, but will queue outgoing
+  # QUIT messages and then wait for sockets to close with {Bot#try_exit}.**
+  #
+  # @see Script#die
+  # @see Bot#try_exit
+  # @see IRCConnection#disconnect
+  #
+  # @param message [String] quit message to send to IRC connections
   def self.quit message = "Terminus-Bot: Terminating"
     $log.debug("Bot.quit") { "Sending disconnection requests." }
 
@@ -110,6 +123,11 @@ module Bot
     try_exit
   end
 
+  # Attempt to close the bot. If EventMachine reports that connectios are still
+  # open, don't exit yet, unless we are out of tries.
+  #
+  # @param tries [Integer] wait this many times (0.1 second increments) for
+  #   sockets to close gracefully before giving up and exiting anyway
   def self.try_exit tries = 0
     count = EM.connection_count
 
@@ -122,6 +140,7 @@ module Bot
     end
   end
 
+  # Stop the event loop if it is running and delete the PID file.
   def self.clean_up
     $log.debug("Bot.clean_up") { "Terminating event loop and deleting PID file." }
 
