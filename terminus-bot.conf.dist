@@ -358,6 +358,12 @@ urbandict = {
 # Derpibooru pony image booru script.
 derpibooru = {
 
+  # Max tags to include in image information output. Some images may have an
+  # unusually large number of tags, so the list may be truncated with the
+  # remaining number of tags indicated at the end.
+  # default: 10
+  #max_tags = 10
+
   # Optional key value. This is your user key, which can be found as part of
   # your RSS feed URL, and other places. By setting this key, searches will
   # be filtered according to your settings. Without it, default filters will

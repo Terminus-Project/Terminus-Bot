@@ -28,8 +28,9 @@ module Bot
 
   class UserManager < Hash
 
-    # Create our users object. These are per-connection, so we're passed
-    # our parent.
+    # Set up user-related event handlers.
+    # 
+    # @param connection [IRCConnection] parent connection
     def initialize connection
       @connection = connection
 
@@ -42,15 +43,22 @@ module Bot
       Events.create :PART,    self, :part
     end
 
-    # User has quit the network. Forget about them.
+    # Callback for QUIT message.
+    #
+    # Forget everything about the user that has quit.
+    #
+    # @param msg [Message] message that triggered the callback
     def quit msg
       return unless msg.connection == @connection
 
       delete_user msg.nick_canon
     end
 
-    # Check if the parting user no longer has any common channels with us.
-    # If they don't, forget about them.
+    # Callback for PART message.
+    #
+    # If the parting user no longer has any common channels, forget about them.
+    #
+    # @param msg [Message] message that triggered the callback
     def part msg
       msg.connection.channels.each_value do |chan|
         unless chan.get_user(msg.nick_canon) == nil
@@ -61,24 +69,36 @@ module Bot
       delete_user msg.nick_canon
     end
 
-    # WHO reply
+    # Callback for WHO message.
+    #
+    # Call {UserManager#add_user} with received data in case this is a the
+    # first time we have seen this user.
+    #
+    # @param msg [Message] message that triggered the callback
     def add_352 msg
       return if msg.connection != @connection
 
       add_user(msg.connection.canonize(msg.raw_arr[7]), msg.raw_arr[4], msg.raw_arr[5])
     end
 
-    # Add the user in the origin (first word) position of a raw message
-    # to our list. Users are here in PRIVMSG and others.
+    # Add the user info from the origin portion of a message to our user list.
+    #
+    # @param msg [Message] message from which to use the origin
     def add_origin msg
       return if msg.connection != @connection
+
+      # XXX - this whole function feels awful
 
       msg.origin =~ /(.+)!(.+)@(.+)/
 
       add_user msg.connection.canonize($1), $2, $3
     end
 
-    # Actually add a nick!user@host to our list.
+    # Add a user to our user list.
+    #
+    # @param nick [String] nick of user to add
+    # @param user [String] user name of user to add
+    # @param host [String] host name of user to add
     def add_user nick, user, host
       return if has_key? nick
 
@@ -87,7 +107,11 @@ module Bot
       self[nick] = User.new @connection, nick, user, host, 0
     end
 
-    # Someone changed nicks. Make the necessary updates.
+    # Callback for NICK message.
+    #
+    # This will update the nick info in our user list.
+    #
+    # @param msg [Message] message that triggered the callback
     def change_nick msg
       return if msg.connection != @connection
       return unless has_key? msg.nick_canon
@@ -105,21 +129,30 @@ module Bot
       self[changed_nick_canon] = temp
     end
 
-    # Remove a user by nick.
+    # Forget the user with the given nick.
+    #
+    # @param nick [String] nick of user to forget
     def delete_user nick
       $log.debug("Users.add_user") { "Removing user #{nick} on #{@connection.name}" }
 
       delete nick
     end
 
-    # Get the level of the user speaking in msg.
-    # Used when checking permissions.
+    # Check a speaker's account level. Typically used when checking permissions
+    # for commands. Adds the speaker to the user list if they do not already
+    # exist.
+    # 
+    # @see Command#level!
+    #
+    # @param msg [Message] message for which to check the speaker's level
+    # @return [Integer] account level of speaker
     def get_level msg
       add_origin msg unless has_key? msg.nick_canon
 
       return self[msg.nick_canon].level
     end
 
+    # @return [String] list of known nicks
     def to_s
       keys.to_s
     end
