@@ -34,7 +34,14 @@ event :PRIVMSG do
   tells[@msg.nick_canon].each do |tell|
     time = Time.at(tell[0]).strftime("%Y-%m-%d %H:%M:%S %Z")
 
-    send_notice @msg.nick_canon, "Tell from \02#{tell[1]}\02 (#{time}): #{tell[2]}"
+    tellString = "Tell from \02#{tell[1]}\02 (#{time}): #{tell[2]}"
+    useNotice = get_config :use_notice, false
+
+    if useNotice
+      send_notice @msg.nick_canon, tellString
+    else
+      reply tellString
+    end
   end
   
   tells.delete @msg.nick_canon
