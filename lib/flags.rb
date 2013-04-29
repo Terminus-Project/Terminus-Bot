@@ -80,7 +80,7 @@ module Bot
     #
     # Always returns true if `owner` is not a {Script}.
     #
-    # @see ScriptFlags#enabled?
+    # @see Script_Flags#enabled?
     #
     # @param owner [Object] message owner
     # @param msg [Message] message for which to perform the check
@@ -122,7 +122,7 @@ module Bot
     # Mark one or more scripts as enabled for one or more channels. Wildcards
     # are supported in any parameter.
     #
-    # @see ScriptFlags#set_flags
+    # @see Script_Flags#set_flags
     #
     # @param server_mask [String] server name (supports wildcard match)
     # @param channel_mask [String] channel name (supports wildcard match)
@@ -146,11 +146,11 @@ module Bot
 
 
     # Change flags for one or more scripts. This should **typically** not be
-    # called directly. Instead, you probably want {ScriptFlags#enable} or
-    # {ScriptFlags#disable}.
+    # called directly. Instead, you probably want {Script_Flags#enable} or
+    # {Script_Flags#disable}.
     #
-    # @see ScriptFlags#enable
-    # @see ScriptFlags#disable
+    # @see Script_Flags#enable
+    # @see Script_Flags#disable
     #
     # @param server_mask [String] server name (supports wildcard match)
     # @param channel_mask [String] channel name (supports wildcard match)
