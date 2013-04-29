@@ -26,20 +26,9 @@
 register 'Let the bot decide for you.'
 
 event :PRIVMSG do
-  next unless @msg.text.start_with? "#{Bot::Conf[:core][:prefix]} " and @msg.text.end_with? "?"
-  
-  choices = @msg.text.split /,?\s+or\s+|,\s+/i
+  next unless @msg.text.match(/#{Bot::Conf[:core][:prefix]} (.*)\?/)
 
-  if choices.length == 1
-    reply ["Yes", "No"].sample
-    next
-  end
-
-  # chop off the prefix and space
-  choices[0] = choices[0][Bot::Conf[:core][:prefix].length+1..-1]
-
-  #chop off the question mark
-  choices[-1] = choices.last[0..choices.last.length-2]
+  choices = ($1 and $1.include?(', ')) ? $1.split(/,?\s+or\s+|,\s+/i) : %w[Yes No]
 
   reply choices.sample
 end
