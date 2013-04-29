@@ -28,6 +28,9 @@ module Bot
 
     # TODO: Use IRCConnection#canonize in here.
 
+
+    # Prepare ScriptFlags object for use. The default flags value is read from
+    # configuration during initialization and stored in a class variable.
     def initialize
       @scripts = []
 
@@ -39,18 +42,31 @@ module Bot
       super
     end
 
-
+    # Create a new flags database for a server if one does not yet exist.
+    #
+    # @param server [String] server name
+    # @return [Hash] flags database for the server
     def add_server server
       self[server] ||= {}
     end
 
-    # When adding a channel, the name MUST be canonized.
+    # Create a new flags database for a channel if one does not yet exist.
+    #
+    # @param server [String] server name
+    # @param channel [String] canonized channel name
+    # @return [Hash] flags database for the channel
     def add_channel server, channel
       self[server][channel] ||= {}
     end
 
-
-    # New script loaded. Add it if we don't already have it.
+    # Add a script to the flags pool if it is not already there. Called any
+    # time a script is loaded.
+    #
+    # Note that scripts are never removed from the database since we don't want
+    # to forget their flags.
+    #
+    # @param name [String] script name
+    # @return [Array] script list
     def add_script name
       return if @scripts.include? name
 
@@ -60,8 +76,15 @@ module Bot
     end
 
 
-    # Determine whether the given event should be sent or not, based on
-    # the event itself and on the contents of the message
+    # Determine if the message is permitted by flags settings.
+    #
+    # Always returns true if `owner` is not a {Script}.
+    #
+    # @see ScriptFlags#enabled?
+    #
+    # @param owner [Object] message owner
+    # @param msg [Message] message for which to perform the check
+    # @return [Boolean] true if caller can proceed, false if not
     def permit_message? owner, msg
       return true unless owner.is_a? Script
 
@@ -75,8 +98,13 @@ module Bot
       enabled? server, channel, name
     end
 
-    # Return true if the script is enabled on the given server/channel. Otherwise,
-    # return false.
+    # Check if a script is enabled for a particular channel. If no flag is set,
+    # the default is returned.
+    #
+    # @param server [String] server name
+    # @param channel [String] canonized channel name
+    # @param script [String] script name
+    # @return [Boolean] true if script is enabled, false if not
     def enabled? server, channel, script
       flag = self[server][channel][script] rescue 0
 
@@ -91,24 +119,45 @@ module Bot
     end
 
 
-    # Enable all matching scripts for all matching servers and channels (by
-    # wildcard match).
+    # Mark one or more scripts as enabled for one or more channels. Wildcards
+    # are supported in any parameter.
+    #
+    # @see ScriptFlags#set_flags
+    #
+    # @param server_mask [String] server name (supports wildcard match)
+    # @param channel_mask [String] channel name (supports wildcard match)
+    # @param script_mask [String] script name (supports wildcard match)
     def enable server_mask, channel_mask, script_mask
       set_flags server_mask, channel_mask, script_mask, 1
     end
 
 
-    # Disable all matching scripts for all matching servers and channels (by
-    # wildcard match).
+    # Mark one or more scripts as disabled for one or more channels. Wildcards
+    # are supported in any parameter.
+    #
+    # @see ScriptFlags#set_flags
+    #
+    # @param server_mask [String] server name (supports wildcard match)
+    # @param channel_mask [String] channel name (supports wildcard match)
+    # @param script_mask [String] script name (supports wildcard match)
     def disable server_mask, channel_mask, script_mask
       set_flags server_mask, channel_mask, script_mask, -1
     end
 
 
-    # Do the hard work for enabling or disabling script flags. The last parameter
-    # is the value which will be used for the flag.
+    # Change flags for one or more scripts. This should **typically** not be
+    # called directly. Instead, you probably want {ScriptFlags#enable} or
+    # {ScriptFlags#disable}.
     #
-    # Returns the number of changed flags.
+    # @see ScriptFlags#enable
+    # @see ScriptFlags#disable
+    #
+    # @param server_mask [String] server name (supports wildcard match)
+    # @param channel_mask [String] channel name (supports wildcard match)
+    # @param script_mask [String] script name (supports wildcard match)
+    # @param flag [Interger] -1 to disable, 0 to reset, 1 to enable
+    #
+    # @return [Interger] number of flags that were changed
     def set_flags server_mask, channel_mask, script_mask, flag
       count = 0
 
