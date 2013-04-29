@@ -432,6 +432,11 @@ tell = {
   # default: 3
   max = 3
 
+  # OPTIONAL
+  # Uncomment this line to send tells via NOTICE instead of sending to where the
+  # user speaks.
+  # default: false
+  #use_notice = true
 }
 
 
