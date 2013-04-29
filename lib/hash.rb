@@ -26,7 +26,25 @@
 
 class Hash
 
-  # Format a hash for use in an IRC message.
+  # Recursively format the Hash for use in an IRC message.
+  #
+  # This is primarily for use by {Bot::Command#reply}.
+  # 
+  # @example
+  #     data = {
+  #       'Foo' => 'bar'
+  #     }
+  #
+  #     data.to_s_irc #=> "\02Foo:\02 bar"
+  #
+  # @example
+  #     data = {
+  #       'Foo' => {
+  #         'Bar' => 'baz'
+  #       }
+  #     }
+  #
+  #     data.to_s_irc #=> "\02Foo:\02 \02Bar:\02 baz"
   def to_s_irc
     each.map do |key, value|
       if value.is_a? Hash
