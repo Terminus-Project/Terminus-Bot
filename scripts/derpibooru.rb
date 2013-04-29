@@ -169,8 +169,8 @@ helpers do
 
     tags_total = display_tags.length
 
-    # TODO: use config for max tags
-    display_tags = display_tags[0..10]
+    max_tags = get_config :max_tags, 10
+    display_tags = display_tags[0..max_tags.to_i]
 
     tags_remaining = tags_total - display_tags.length
 
