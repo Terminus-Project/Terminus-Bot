@@ -106,8 +106,8 @@ module Bot
   # **Note: This will not close the bot immediately, but will queue outgoing
   # QUIT messages and then wait for sockets to close with {Bot#try_exit}.**
   #
-  # @see Script#die
-  # @see Bot#try_exit
+  # @see ScriptManager#die
+  # @see try_exit
   # @see IRCConnection#disconnect
   #
   # @param message [String] quit message to send to IRC connections
