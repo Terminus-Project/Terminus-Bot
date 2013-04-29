@@ -432,11 +432,10 @@ tell = {
   # default: 3
   max = 3
 
-  # OPTIONAL
-  # Uncomment this line to send tells via NOTICE instead of sending to where the
-  # user speaks.
+  # Always send a private NOTICE when delivering tells. Many clients poorly
+  # display private notices, so this is off by default.
   # default: false
-  #use_notice = true
+  #use_notice = false
 }
 
 
