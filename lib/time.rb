@@ -30,7 +30,10 @@ class Time
   # Month length is not constant. How should we deal with it? --Kabaka
 
   
-  # convert seconds into [seconds, minutes, hours, days]
+  # Get an Array which contains a representation of the time between now and
+  # this Time. The Array is in the format `[seconds, minutes, hours, days]`.
+  #
+  # @return [Array] array representing the time difference
   def to_duration_a
     secs = (Time.now - self.to_i).to_i.abs
 
@@ -44,6 +47,14 @@ class Time
     t << secs
   end
 
+  # Get a human-readable {String} describing the difference of the time between
+  # now and this Time.
+  #
+  # @example
+  #     Time.at(1367525900).to_duration_s #=> 3 days, 11 hours, 19 minutes, and
+  #                                       #   6 seconds
+  #
+  # @return [String] human-readable description of time difference
   def to_duration_s
     t = to_duration_a
 
@@ -71,6 +82,13 @@ class Time
     pieces.join "#{"," unless pieces.length == 2} "
   end
 
+  # Get a human-readable {String} describing the difference of the time between
+  # now and this Time.
+  #
+  # @example
+  #     Time.at(1367525900).to_duration_s #=> about 3 days
+  #
+  # @return [String] human-readable description of time difference
   def to_fuzzy_duration_s
     t = to_duration_a
 
