@@ -26,7 +26,7 @@
 register 'Let the bot decide for you.'
 
 event :PRIVMSG do
-  next unless @msg.text.match(/^#{Bot::Conf[:core][:prefix]} (.*)\?/)
+  next unless @msg.text.match(/^#{Bot::Conf[:core][:prefix]} (.*)\?$/)
 
   choices = ($1 and $1.include?(', ')) ? $1.split(/,?\s+or\s+|,\s+/i) : %w[Yes No]
 
