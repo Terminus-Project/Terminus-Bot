@@ -149,7 +149,7 @@ helpers do
         data = {}
 
         choices.each do |choice, stats|
-          data[choice] = "#{stats[:matches]}/#{stats[:total]} (#{stats[:matches]/stats[:total] * 100}% Match)"
+          data[choice] = "#{stats[:matches]}/#{stats[:total]} (#{(stats[:matches].to_f/stats[:total].to_f * 100).to_i}% Match)"
         end
 
         reply data
