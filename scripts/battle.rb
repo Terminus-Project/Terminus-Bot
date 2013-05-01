@@ -54,7 +54,7 @@ command 'battle', 'Start, stop, or reset the battle in the current channel. Para
 
   when "RESTART"
 
-    unless @active.has_key? @msg.destination_canon
+    unless @@active.has_key? @msg.destination_canon
       reply "There is no active battle in \02#{@msg.destination}\02"
       next
     end
@@ -89,7 +89,7 @@ command 'health', 'View the health of all active players in this channel.' do
 end
 
 command 'heal', 'Heal players to maximum health. If no nick is given, all players are reset. Parameters: nick' do
-  channel! and half_op!
+  channel! and half_op! and argc! 1
 
   unless @@active.has_key? @msg.destination_canon
     reply "There is no active battle in \02#{@msg.destination}\02"
