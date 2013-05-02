@@ -96,9 +96,12 @@ helpers do
 
     karma = get_data @connection.name, Hash.new(0)
 
+    # I screwed something up, so now we have to do this for now. Oops.
+    karma[nick] = 0 if karma[nick].nil?
+
     karma[nick] += amount
 
-    $log.debug('karma.add_karma') { "#{target} karma change: #{amount}: #{karma[target]}" }
+    $log.debug('karma.add_karma') { "#{target} karma change: #{amount}: #{karma[nick]}" }
 
     store_data @connection.name, karma
   end
