@@ -85,8 +85,6 @@ helpers do
     uri = URI("https://ajax.googleapis.com/ajax/services/search/#{type}")
     query_hash = {:v => "1.0", :q => query}
 
-    he = HTMLEntities.new
-
     http_get(uri, query_hash) do |http|
 
       response = MultiJson.load http.response
@@ -101,25 +99,25 @@ helpers do
         case type
 
         when :web
-          results << "\02#{he.decode result["titleNoFormatting"]}\02 - #{URI.unescape(result["url"])}"
+          results << "\02#{html_decode result["titleNoFormatting"]}\02 - #{URI.unescape(result["url"])}"
 
         when :images
-          results << "\02#{he.decode result["titleNoFormatting"]}\02 - #{URI.unescape(result["url"])}"
+          results << "\02#{html_decode result["titleNoFormatting"]}\02 - #{URI.unescape(result["url"])}"
 
         when :books
-          results << "\02#{he.decode result["titleNoFormatting"]}\02 by #{he.decode result["authors"]} - #{URI.unescape(result["url"])} - #{result["bookId"]} - Published: #{result["publishedYear"]} - #{result["pageCount"]} Pages"
+          results << "\02#{html_decode result["titleNoFormatting"]}\02 by #{html_decode result["authors"]} - #{URI.unescape(result["url"])} - #{result["bookId"]} - Published: #{result["publishedYear"]} - #{result["pageCount"]} Pages"
 
         when :news
-          results << "\02#{he.decode result["titleNoFormatting"]}\02 - #{URI.unescape(result["url"])}"
+          results << "\02#{html_decode result["titleNoFormatting"]}\02 - #{URI.unescape(result["url"])}"
 
         when :blogs
-          results << "\02#{he.decode result["titleNoFormatting"]}\02 by #{he.decode result["author"]} - #{URI.unescape(result["postUrl"])} - Published #{result["publishedDate"]}"
+          results << "\02#{html_decode result["titleNoFormatting"]}\02 by #{html_decode result["author"]} - #{URI.unescape(result["postUrl"])} - Published #{result["publishedDate"]}"
 
         when :patent
-          results << "\02#{he.decode result["titleNoFormatting"]}\02 - #{URI.unescape(result["url"])} - assigned to #{he.decode result["assignee"]} - #{result["patentNumber"]} (#{result["patentStatus"]}) - Applied for on: #{result["applicationDate"]}"
+          results << "\02#{html_decode result["titleNoFormatting"]}\02 - #{URI.unescape(result["url"])} - assigned to #{html_decode result["assignee"]} - #{result["patentNumber"]} (#{result["patentStatus"]}) - Applied for on: #{result["applicationDate"]}"
 
         when :video
-          results << "\02#{he.decode result["titleNoFormatting"]}\02 - #{result["url"]}"
+          results << "\02#{html_decode result["titleNoFormatting"]}\02 - #{result["url"]}"
 
         end
 

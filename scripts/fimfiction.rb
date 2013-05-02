@@ -44,12 +44,10 @@ url /\/\/(www\.)?fimfiction\.net\/story\/[0-9]+\// do
   http_get(api, args, true) do |http|
     data = MultiJson.load(http.response)['story']
 
-    h = HTMLEntities.new
-
     rating  = data['content_rating_text']
     cats    = data['categories'].select {|cat, value| value }.keys.join(', ')
-    title   = h.decode data['title']
-    desc    = h.decode data['short_description']
+    title   = html_decode data['title']
+    desc    = html_decode data['short_description']
 
     data = {
       "#{title} by #{data['author']['name']}" => [rating, desc, cats].join(' - '),

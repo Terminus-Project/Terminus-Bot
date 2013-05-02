@@ -45,7 +45,7 @@ url do
 
       next if title == nil
 
-      title = HTMLEntities.new.decode title
+      title = html_decode title
 
       len = title.length - 9
       next if len <= 0

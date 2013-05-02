@@ -174,6 +174,6 @@ helpers do
   end
 
   def sanitize str
-    HTMLEntities.new.decode str.gsub(/[\s]+/, " ").gsub(/<\/?[^>]+>/, "")
+    html_decode str.gsub(/[\s]+/, " ").gsub(/<\/?[^>]+>/, "")
   end
 end

@@ -130,8 +130,7 @@ command 'forecast', 'View a short-term forecast for the specified location.' do
     root.elements.each('forecastday') do |element|
       title = element.elements['title'].text
 
-      text = element.elements['fcttext'].text
-      text = HTMLEntities.new.decode(text)
+      text = html_decode element.elements['fcttext'].text
 
       output << "[\02#{title}\02] #{text}"
 
