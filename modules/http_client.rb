@@ -27,9 +27,15 @@ require 'em-http-request'
 module Bot
 
   MODULE_LOADED_HTTP  = true
-  MODULE_VERSION_HTTP = 0.2
+  MODULE_VERSION_HTTP = 0.3
+
+  HTML_ENTITIES ||= HTMLEntities.new
 
   class Command
+
+    def html_decode str
+      Bot::HTML_ENTITIES.decode str
+    end
 
     def http_get uri, query = {}, silent_err = false, opts = {}, &block
       Bot.http_request uri, query, true, @msg, silent_err, opts, &block
