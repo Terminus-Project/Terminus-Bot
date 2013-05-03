@@ -23,6 +23,7 @@
 
 require 'uri'
 require 'em-http-request'
+require 'htmlentities'
 
 module Bot
 

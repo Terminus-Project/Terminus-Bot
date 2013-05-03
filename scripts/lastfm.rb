@@ -24,7 +24,6 @@
 #
 
 require 'multi_json'
-require 'htmlentities'
 
 # TODO: Store account names on bot accounts and use those if available.
 

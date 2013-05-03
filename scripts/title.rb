@@ -27,7 +27,6 @@ need_module! 'http'
 need_module! 'url_handler'
 
 require 'strscan'
-require 'htmlentities'
 
 register 'Fetches titles for URLs spoken in channels.'
 

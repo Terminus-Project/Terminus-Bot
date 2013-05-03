@@ -28,7 +28,6 @@
 need_module! 'http'
 
 require 'rexml/document'
-require 'htmlentities'
 
 register 'Weather information look-ups via Weather Underground (wunderground.com).'
 

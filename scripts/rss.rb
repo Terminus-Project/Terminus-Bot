@@ -26,8 +26,6 @@
 need_module! 'http'
 
 require 'rss'
-require 'htmlentities'
-
 
 register 'Periodically check RSS and ATOM feeds and post the new items to channels.'
 

@@ -25,7 +25,6 @@
 
 need_module! 'http'
 
-require 'htmlentities'
 require 'multi_json'
 
 register 'Look up words on UrbanDictionary.com.'

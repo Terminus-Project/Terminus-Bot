@@ -31,7 +31,6 @@
 require "uri"
 require "net/http"
 require 'multi_json'
-require 'htmlentities'
 
 register 'Search the Internet with Google.'
 
