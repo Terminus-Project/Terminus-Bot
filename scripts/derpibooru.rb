@@ -60,6 +60,9 @@ url /(.+\.)?derpiboo(ru.org|.ru)\/(images\/)?[0-9]+/ do
   api = URI("http://#{"#{host_match[:server]}." if host_match}derpiboo.ru/#{match[:id]}.json")
 
   http_get(api, {}, true) do |http|
+    if http.response.empty?
+      next
+    end
     response = MultiJson.load http.response
 
     reply_with_image response, false
@@ -76,6 +79,9 @@ url /\/\/derpicdn\.net\/media\/[^\/]+\/[0-9]+_/ do
   api = URI("https://derpiboo.ru/#{match[:id]}.json")
 
   http_get(api, {}, true) do |http|
+    if http.response.empty?
+      next
+    end
     response = MultiJson.load http.response
 
     reply_with_image response, false
@@ -95,11 +101,21 @@ helpers do
 
     http_get(uri) do |http|
 
+      if http.response.empty?
+        reply "Connection failed."
+	next
+      end
+
       response = MultiJson.load http.response
 
-      if response.empty?
-        reply "No results."
-        next
+      if response.nil?
+      	reply "No results."
+	next
+      else
+        if response.empty?
+          reply "No results."
+          next
+	end
       end
 
       reply_with_image response
@@ -121,11 +137,21 @@ helpers do
 
     http_get(uri, opts) do |http|
 
+      if http.response.empty?
+        reply "Connection failed."
+	next
+      end
+
       response = MultiJson.load http.response
 
-      if response.empty?
-        reply "No results."
-        next
+      if response.nil?
+      	reply "No results."
+	next
+      else
+        if response.empty?
+          reply "No results."
+          next
+	end
       end
 
       if random
