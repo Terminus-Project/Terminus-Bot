@@ -329,6 +329,15 @@ Commands:
 * UNIGNORE - Remove the given ignore.
 * IGNORES - List all active ignores.
 
+### IsUp
+
+Check the availability and responsiveness of web services.
+
+Commands:
+
+* CHECK
+  * HTTP - Check the given URL's response time and status code.
+
 ### Karma
 
 Track user "karma" based on observed `nick++` and `nick--` messages.
