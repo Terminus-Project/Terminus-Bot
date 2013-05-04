@@ -103,19 +103,19 @@ helpers do
 
       if http.response.empty?
         reply "Connection failed."
-	next
+        next
       end
 
       response = MultiJson.load http.response
 
       if response.nil?
-      	reply "No results."
-	next
+        reply "No results."
+        next
       else
         if response.empty?
           reply "No results."
           next
-	end
+        end
       end
 
       reply_with_image response
@@ -139,19 +139,19 @@ helpers do
 
       if http.response.empty?
         reply "Connection failed."
-	next
+        next
       end
 
       response = MultiJson.load http.response
 
       if response.nil?
-      	reply "No results."
-	next
+        reply "No results."
+        next
       else
         if response.empty?
           reply "No results."
           next
-	end
+        end
       end
 
       if random
