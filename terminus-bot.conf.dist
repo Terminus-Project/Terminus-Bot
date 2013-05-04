@@ -324,7 +324,7 @@ flags = {
 ctcp = {
 
   # Include all CTCP replies you want here. These are static strings.
-  version = Terminus-Bot v0.5-alpha
+  version = Terminus-Bot v0.8
   url = http://terminus-bot.net/
 
 }
