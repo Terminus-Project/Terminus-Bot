@@ -27,7 +27,7 @@ register 'Check if web services are available.'
 
 
 command 'check', 'Check service availability. Syntax: HTTP url' do
-  level! 2 and argc! 2
+  argc! 2
 
   case @params.first.downcase
   when 'http'
