@@ -137,3 +137,4 @@ command 'coin', 'Flip a coin.' do
   reply ['Heads', 'Tails'].sample
 end
 
+# vim: set tabstop=2 expandtab:

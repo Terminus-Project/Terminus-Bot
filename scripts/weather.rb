@@ -145,3 +145,4 @@ command 'forecast', 'View a short-term forecast for the specified location.' do
   end
 end
 
+# vim: set tabstop=2 expandtab:

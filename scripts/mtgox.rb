@@ -47,3 +47,4 @@ command 'btc', 'Get current BTC -> USD exchange rate info.' do
   end
 end
 
+# vim: set tabstop=2 expandtab:

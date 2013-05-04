@@ -32,3 +32,4 @@ event :PRIVMSG do
 
   reply choices.sample
 end
+# vim: set tabstop=2 expandtab:

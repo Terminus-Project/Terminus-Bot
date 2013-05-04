@@ -28,3 +28,4 @@ register 'Provides the SOURCE command.'
 command 'source', 'Share info about the bot and its source code.' do
   reply "I am Terminus-Bot, an EventMachine-powered Ruby IRC bot (version: #{VERSION}). You can find my source code and other information about me at: http://terminus-bot.net/"
 end
+# vim: set tabstop=2 expandtab:

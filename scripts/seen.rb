@@ -81,3 +81,4 @@ command 'seen', 'Check when the given user was last seen \02speaking\02 on IRC.'
   reply "\02#{used_nick}\02 was last seen \02#{time} ago\02: #{text}"
 end
 
+# vim: set tabstop=2 expandtab:

@@ -134,3 +134,4 @@ module Bot
   URL ||= URLHandlers.new
 end
 
+# vim: set tabstop=2 expandtab:

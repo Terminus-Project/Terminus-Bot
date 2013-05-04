@@ -65,3 +65,4 @@ url /\/\/((www|i)\.)?imgur\.com\// do
   end
 end
 
+# vim: set tabstop=2 expandtab:
