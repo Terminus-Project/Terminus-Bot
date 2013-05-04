@@ -34,6 +34,10 @@ helpers do
     uri = URI("http://cleandictionary.com/#{func}/#{URI.encode args}")
 
     http_get(uri) do |http|
+      if http.response.empty?
+        reply "Connection failed - CleanDictionary.com may be down."
+	next
+      end
       yield MultiJson.load http.response
     end
   end
