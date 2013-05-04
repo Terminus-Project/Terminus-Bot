@@ -16,7 +16,7 @@ have encountered, as well as all of those everyone else tells us about.
 * Linux
 * Ruby 1.9.3 or 2.0
 * gems (mandatory)
-    * eventmachine
+    * eventmachine (*should be built with SSL support*)
     * psych (included psych has UTF-8 bugs)
 * gems (for some scripts)
     * htmlentities
@@ -31,38 +31,9 @@ have encountered, as well as all of those everyone else tells us about.
 
 # How to use Terminus-Bot
 
-## Installation
+## Installation and Configuration
 
-Terminus-Bot does not currently support system-wide installation. It may
-eventually be made into a gem, but for now you simply download the code and
-run it from somewhere in your home directory.
-
-To get the latest Terminus-Bot code, type
-
-    git clone git://github.com/kabaka/Terminus-Bot.git
-
-_Once the bot has reached beta version, there will be separate downloads for
-releases of the bot._
-
-## Configuration
-
-Included with the bot is a file called `terminus-bot.conf.dist`. This file
-contains the documentation for and examples of the bot's configuration. Using
-this file as an example, create `terminus-bot.conf` in the same directory.
-
-*Pay close attention to the documentation in the example configuration file!*
-Some configuration values are _required_ for the bot to operate, and many of
-them _must_ be in a specific format. Until configuration validation is added
-(it will be before the first beta), using invalid configuration values or
-leaving out required settings may result in unpredictable behavior or crashes.
-
-By default, the bot will load almost all scripts. The only scripts left out
-are those used by developers for debugging, such as the lograw script which
-logs every message the bot sees. Refer to the [Scripts](#scripts) section of
-this document for a list of scripts and what they do.
-
-Also worth noting are the modules. For a list of modules, refer to the
-[Modules](#modules) section of this document.
+See `doc/GettingStarted.md`.
 
 ## Scripts
 
