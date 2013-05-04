@@ -76,3 +76,4 @@ command 'rdns', 'Perform a reverse DNS look-up.' do
   end
 end
 
+# vim: set tabstop=2 expandtab:

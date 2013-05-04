@@ -76,3 +76,4 @@ command 'rpn', 'Perform calculations using a Reverse Polish notation (postfix) c
   reply stack.last.to_s unless printed
 end
 
+# vim: set tabstop=2 expandtab:

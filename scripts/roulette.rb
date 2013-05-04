@@ -42,3 +42,4 @@ command 'roulette', 'Pull the trigger. You have a 5/6 chance of surviving.' do
 
   end
 end
+# vim: set tabstop=2 expandtab:

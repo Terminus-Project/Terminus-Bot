@@ -103,3 +103,4 @@ helpers do
 
 end
 
+# vim: set tabstop=2 expandtab:

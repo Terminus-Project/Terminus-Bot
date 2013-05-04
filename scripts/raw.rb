@@ -30,3 +30,4 @@ command 'raw', 'Send raw text over the IRC connection.' do
   reply raw(@params.first)
 end
 
+# vim: set tabstop=2 expandtab:

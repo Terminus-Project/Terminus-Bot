@@ -86,3 +86,4 @@ helpers do
     reply "#{data.to_s_irc}", false
   end
 end
+# vim: set tabstop=2 expandtab:

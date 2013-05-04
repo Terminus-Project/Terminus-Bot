@@ -34,3 +34,4 @@ event :raw do
     @msg.user, @msg.host, @connection.name
   }
 end
+# vim: set tabstop=2 expandtab:

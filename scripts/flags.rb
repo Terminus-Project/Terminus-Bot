@@ -85,3 +85,4 @@ command 'flags', 'View flags for the given servers, channels, and scripts. Wildc
   reply buf.empty? ? "No flags set." : buf
 end
 
+# vim: set tabstop=2 expandtab:

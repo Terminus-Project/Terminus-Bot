@@ -156,3 +156,4 @@ puts "Terminus-Bot started as #{pid}. Writing to #{PID_FILE}"
 File.open(PID_FILE, "w") {|f| f.puts pid}
 Process.detach pid
 
+# vim: set tabstop=2 expandtab:

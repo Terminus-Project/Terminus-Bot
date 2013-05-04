@@ -58,3 +58,4 @@ url /\/\/(www\.)?fimfiction\.net\/story\/[0-9]+\// do
   end
 end
 
+# vim: set tabstop=2 expandtab:

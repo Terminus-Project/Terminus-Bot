@@ -150,3 +150,4 @@ command 'rot13', 'Alias for encode/decode rot 13.' do
   reply @params[0].tr "A-Za-z", "N-ZA-Mn-za-m"
 end
 
+# vim: set tabstop=2 expandtab:

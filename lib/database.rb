@@ -119,3 +119,4 @@ module Bot
 
   DB ||= Database.new
 end
+# vim: set tabstop=2 expandtab:

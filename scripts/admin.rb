@@ -123,3 +123,4 @@ command 'load', 'Load the specified script.' do
   }
 end
 
+# vim: set tabstop=2 expandtab:

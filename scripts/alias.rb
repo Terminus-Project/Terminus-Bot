@@ -44,3 +44,4 @@ command 'alias', 'Manipulate the command alias list. Syntax: ADD alias target|DE
   end
 end
 
+# vim: set tabstop=2 expandtab:

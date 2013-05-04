@@ -145,3 +145,4 @@ module Bot
 
   Conf ||= Configuration.new
 end
+# vim: set tabstop=2 expandtab:

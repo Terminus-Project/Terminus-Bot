@@ -159,3 +159,4 @@ module Bot
 
   Events ||= EventManager.new
 end
+# vim: set tabstop=2 expandtab:
