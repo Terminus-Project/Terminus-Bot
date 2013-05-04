@@ -35,6 +35,14 @@ have encountered, as well as all of those everyone else tells us about.
 
 See `doc/GettingStarted.md`.
 
+## Code Documentation and Guides
+
+Documentation is tentatively hosted at
+[http://equine.vacantminded.com/terminus-bot/](http://equine.vacantminded.com/terminus-bot/).
+This URL will change to something more appropriate very shortly, but we wanted
+to get this out there now. Note that this is also where documentation changes
+first appear, so you may encounter unfinished pages or unusual formatting.
+
 ## Scripts
 
 This is a complete list of all official scripts that are distributed with the
