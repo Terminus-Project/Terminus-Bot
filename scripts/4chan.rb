@@ -43,7 +43,7 @@ helpers do
 
                 http_get(api, {}, false) do |http|
                         data = MultiJson.load http.response
-                        $log.info('4chan.response') {data}
+                        reply "4chan.response: #{data[:posts][0]['no']}"
                 end
         end
 end
