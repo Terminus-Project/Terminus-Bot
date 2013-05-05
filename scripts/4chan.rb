@@ -33,10 +33,17 @@ register 'Display the first few lines of the OP in a linked 4chan thread.'
 url /(.+boards\.)4chan\.org\/([a-z0-9]+)\/res\/([1-9][0-9]+)/ do
         $log.info('4chan.url') { @uri.inspect }
         reply @uri.path
+        get_thread_title @uri.path 
 end
 
-#helpers do
-#        def get_thread_title path
-#                api = URL("http(s)://api.4chan.org#{path}.json")
-#
-#                http_get(api, {}
+# TODO - 404 handling
+helpers do
+        def get_thread_title path
+                api = URI("https://api.4chan.org#{path}.json")
+
+                http_get(api, {}, false) do |http|
+                        data = MultiJson.load http.response
+                        $log.info('4chan.response') {data}
+                end
+        end
+end
