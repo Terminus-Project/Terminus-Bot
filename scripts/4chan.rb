@@ -30,7 +30,7 @@ need_module! 'http'
 
 register 'Display the first few lines of the OP in a linked 4chan thread.'
 
-url /(.+\.)4chan\.org\/([a-z0-9]+)\/res\/([1-9][0-9]+)/ do
+url /(.+boards\.)4chan\.org\/([a-z0-9]+)\/res\/([1-9][0-9]+)/ do
         $log.info('4chan.url') { @uri.inspect }
         reply @uri.path
 end
