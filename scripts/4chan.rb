@@ -32,7 +32,6 @@ register 'Display the first few lines of the OP in a linked 4chan thread.'
 
 url /(.+boards\.)4chan\.org\/([a-z0-9]+)\/res\/([1-9][0-9]+)/ do
         $log.info('4chan.url') { @uri.inspect }
-        reply @uri.path
         get_thread_title @uri.path 
 end
 
@@ -43,7 +42,8 @@ helpers do
 
                 http_get(api, {}, false) do |http|
                         data = MultiJson.load http.response
-                        reply "4chan.response: #{data[:posts][0]['no']}"
+                        reply "Thread \02#{data["posts"][0]['no']}\02: #{data["posts"][0]['com']}"
                 end
         end
 end
+# vim: set tabstop=2 expandtab:
