@@ -146,54 +146,54 @@ command 'coin', 'Flip a coin.' do
   reply %w[Heads Tails].sample
 end
 
-command 'rps', 'Play rock/paper/scissors.' do
+command 'rps', 'Play Rock-paper-scissors. Syntax: rock|paper|scissors' do
   argc! 1
 
-  choices = ['rock', 'paper', 'scissors']
+  choices = {
+    'r' => 'rock',
+    'p' => 'paper',
+    's' => 'scissors'
+  }
 
-  user_choice = @params.shift.split[0].downcase
+  user_choice = @params.first.downcase[0]
+
+  unless choices.has_key? user_choice
+    raise 'Valid choices are rock, paper, or scissors.'
+  end
+
+  own_choice = choices.keys.sample
+
   case user_choice
+  when own_choice
+    
+    reply "I picked \02#{choices[own_choice]}\02 - it's a draw!"
+
   when 'r'
-    user_choice = 'rock'
-  when 'p'
-    user_choice = 'paper'
-  when 's'
-    user_choice = 'scissors'
-  end
 
-  if !choices.include? user_choice
-    raise 'Valid choices are rock/paper/scissors.'
-  end
-
-  own_choice = choices.sample
-
-  if user_choice === own_choice
-    reply 'I picked ' + own_choice + ' - it\'s a draw!'
-    next
-  else
-    case user_choice
-    when 'rock'
-      case own_choice
-      when 'paper'
-        reply 'Paper covers rock, I win!'
-      when 'scissors'
-        reply 'Scissors blunted by paper... I lose.'
-      end
-    when 'paper'
-      case own_choice
-      when 'scissors'
-        reply 'Scissors cut paper, I win!'
-      when 'rock'
-        reply 'Rock covered by paper... I lose.'
-      end
-    when 'scissors'
-      case own_choice
-      when 'rock'
-        reply 'Rock blunts scissors, I win!'
-      when 'paper'
-        reply 'Paper cut by scissors... I lose.'
-      end
+    case own_choice
+    when 'p'
+      reply 'Paper covers rock. I win!'
+    when 's'
+      reply 'Scissors blunted by paper... I lose.'
     end
+
+  when 'p'
+
+    case own_choice
+    when 's'
+      reply 'Scissors cut paper. I win!'
+    when 'r'
+      reply 'Rock covered by paper... I lose.'
+    end
+
+  when 's'
+    case own_choice
+    when 'r'
+      reply 'Rock blunts scissors. I win!'
+    when 'p'
+      reply 'Paper cut by scissors... I lose.'
+    end
+
   end
 end
 
