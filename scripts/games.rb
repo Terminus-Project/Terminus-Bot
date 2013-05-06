@@ -1,7 +1,8 @@
 #
 # Terminus-Bot: An IRC bot to solve all of the problems with IRC bots.
 #
-# Copyright (C) 2010-2013 Kyle Johnson <kyle@vacantminded.com>, Alex Iadicicco
+# Copyright (C) 2010-2013 Kyle Johnson <kyle@vacantminded.com>, Alex Iadicicco,
+# David Farrell <shokku.ra@gmail.com>
 # (http://terminus-bot.net/)
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -32,7 +33,7 @@ command 'dice', 'Roll dice. Parameters: <count>d<sides>[+/-<modifier> | s<succes
   order = false
   params = @params.shift.split
 
-  match = params.shift.match(/\A(?<count>[0-9]+)d(?<sides>[0-9]+)((?<mod>[+-][0-9]+)|(s(?<success>[0-9])+(b(?<botch>[0-9])+)?))?\Z/)
+  match = params.shift.match(/\A(?<count>[0-9]+)?(?<specify_sides>d(?<sides>[0-9]+))?((?<mod>[+-][0-9]+)|(s(?<success>[0-9])+(b(?<botch>[0-9])+)?))?\Z/)
 
   unless match
     raise 'Syntax: <count>d<sides>[+/-<modfier> | s<success>[b<botch>]] [order]'
@@ -43,6 +44,14 @@ command 'dice', 'Roll dice. Parameters: <count>d<sides>[+/-<modifier> | s<succes
   mod     = match[:mod].to_i
   success = match[:success].to_i
   botch   = match[:botch].to_i
+
+  if match[:count].nil?
+    count = 1
+  end
+
+  if match[:sides].nil?
+    sides = 6
+  end
 
   if count > 100
     raise 'You may only roll up to 100 dice.'
@@ -135,6 +144,57 @@ end
 
 command 'coin', 'Flip a coin.' do
   reply %w[Heads Tails].sample
+end
+
+command 'rps', 'Play rock/paper/scissors.' do
+  argc! 1
+
+  choices = ['rock', 'paper', 'scissors']
+
+  user_choice = @params.shift.split[0].downcase
+  case user_choice
+  when 'r'
+    user_choice = 'rock'
+  when 'p'
+    user_choice = 'paper'
+  when 's'
+    user_choice = 'scissors'
+  end
+
+  if !choices.include? user_choice
+    raise 'Valid choices are rock/paper/scissors.'
+  end
+
+  own_choice = choices.sample
+
+  if user_choice === own_choice
+    reply 'I picked ' + own_choice + ' - it\'s a draw!'
+    next
+  else
+    case user_choice
+    when 'rock'
+      case own_choice
+      when 'paper'
+        reply 'Paper covers rock, I win!'
+      when 'scissors'
+        reply 'Scissors blunted by paper... I lose.'
+      end
+    when 'paper'
+      case own_choice
+      when 'scissors'
+        reply 'Scissors cut paper, I win!'
+      when 'rock'
+        reply 'Rock covered by paper... I lose.'
+      end
+    when 'scissors'
+      case own_choice
+      when 'rock'
+        reply 'Rock blunts scissors, I win!'
+      when 'paper'
+        reply 'Paper cut by scissors... I lose.'
+      end
+    end
+  end
 end
 
 # vim: set tabstop=2 expandtab:
