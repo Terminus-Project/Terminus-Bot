@@ -412,17 +412,6 @@ google = {
 }
 
 
-# Pandora (pandorabots.com) chatterbot interaction script.
-pandora = {
-
-  # REQUIRED
-  # The botid value to use when communicating with pandorabots.com. This is like
-  # an API key. For information on how to find this, please see the documentation
-  # on pandorabots.com. Yes, a pandorabots.com account and bot is required!
-  #botid =
-
-}
-
 # Tell (mail/memo) script.
 tell = {
 
