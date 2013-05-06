@@ -151,6 +151,14 @@ command 'rps', 'Play rock/paper/scissors.' do
   choices = ['rock', 'paper', 'scissors']
 
   user_choice = @params.shift.split[0].downcase
+  case user_choice
+  when 'r'
+    user_choice = 'rock'
+  when 'p'
+    user_choice = 'paper'
+  when 's'
+    user_choice = 'scissors'
+  end
 
   if !choices.include? user_choice
     raise 'Valid choices are rock/paper/scissors.'
@@ -158,7 +166,7 @@ command 'rps', 'Play rock/paper/scissors.' do
 
   own_choice = choices.sample
 
-  if user_choice == own_choice
+  if user_choice === own_choice
     reply 'I picked ' + own_choice + ' - it\'s a draw!'
     next
   else
