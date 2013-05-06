@@ -42,8 +42,8 @@ helpers do
 
                 http_get(api, {}, false) do |http|
                         if http.response.empty?
-                                reply "\002404\02 - Thread  not found."
-                                return 
+                                reply "\002404\02 - Thread not found."
+                                next 
                         end
 
 
