@@ -57,7 +57,7 @@ module Bot
   end
   
   def self.clean_result result
-    result.strip.gsub(/<[^>]*>/, "").gsub(/[\n\s]+/, " ")
+    result.strip.gsub(/<[^>]*>/, "").gsub(/\s+/, " ")
   end
 
   # Should not be called directly.
