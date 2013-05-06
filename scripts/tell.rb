@@ -82,3 +82,4 @@ command 'tell', 'Have the bot tell the given user something the next time they s
   reply "I will try to deliver your message."
 end
 
+# vim: set tabstop=2 expandtab:

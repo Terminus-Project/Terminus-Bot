@@ -87,8 +87,5 @@ helpers do
     end
   end
 
-  def clean_result result
-    result.strip.gsub(/<[^>]*>/, "").gsub(/[\n\s]+/, " ")
-  end
-
 end
+# vim: set tabstop=2 expandtab:

@@ -164,3 +164,4 @@ command 'spell', 'Check for correct or alternate ways to spell a word.' do
 
   spell @params.first
 end
+# vim: set tabstop=2 expandtab:

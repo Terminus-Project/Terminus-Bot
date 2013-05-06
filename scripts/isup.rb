@@ -1,4 +1,6 @@
-# 
+#
+# Terminus-Bot: An IRC bot to solve all of the problems with IRC bots.
+#
 # Copyright (C) 2010-2013 Kyle Johnson <kyle@vacantminded.com>, Alex Iadicicco
 # (http://terminus-bot.net/)
 #
@@ -19,20 +21,50 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
-# 
+#
 
-module Bot
+register 'Check if web services are available.'
 
-  MODULE_LOADED_IGNORES  = true
-  MODULE_VERSION_IGNORES = 0.5
 
-  # TODO: Create a class and do ignores add, deletes, and checks therein.
+command 'check', 'Check service availability. Syntax: HTTP url' do
+  argc! 2
 
-  if DB.has_key? :ignores
-    Ignores = DB[:ignores]
-  else
-    Ignores = []
-    DB[:ignores] = Ignores
+  case @params.first.downcase
+  when 'http'
+    check_http @params.last
+
+  when 'tcp'
+    # XXX
+    #argc! 3
+    #check_tcp @params.last 2
   end
 end
+
+helpers do
+
+  def check_http url
+    start = Time.now.to_f
+
+    http_get url, {}, false, {:redirects => 0} do |http|
+      if http.error
+        raise http.error.to_s
+      end
+
+      time = ((Time.now.to_f - start) * 1000).to_i
+
+      data = {
+        'Response Time (ms)' => time,
+        'Response Code' => http.response_header.status
+      }
+
+      reply data
+    end
+  end
+
+  def check_tcp host, port
+    # XXX
+  end
+
+end
+
 # vim: set tabstop=2 expandtab:

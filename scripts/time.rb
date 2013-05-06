@@ -35,3 +35,4 @@ command 'time', 'Get the current time with optional time format. Parameters: [fo
     reply Time.now.strftime(@params.join ' ')
   end
 end
+# vim: set tabstop=2 expandtab:

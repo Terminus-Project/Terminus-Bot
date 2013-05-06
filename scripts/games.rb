@@ -143,7 +143,7 @@ command 'eightball', 'Shake the 8-ball.' do
 end
 
 command 'coin', 'Flip a coin.' do
-  reply ['Heads', 'Tails'].sample
+  reply %w[Heads Tails].sample
 end
 
 command 'rps', 'Play rock/paper/scissors.' do
@@ -197,3 +197,4 @@ command 'rps', 'Play rock/paper/scissors.' do
   end
 end
 
+# vim: set tabstop=2 expandtab:

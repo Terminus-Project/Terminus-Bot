@@ -29,3 +29,4 @@ event :PING do
   @connection.raw_fast "PONG :#{@msg.text}"
 end
 
+# vim: set tabstop=2 expandtab:

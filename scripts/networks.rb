@@ -28,3 +28,4 @@ register 'Show information about the networks to which the bot is connected.'
 command 'networks', 'Show a list of networks to which the bot is connected.' do
   reply Bot::Connections.values.join(", ")
 end
+# vim: set tabstop=2 expandtab:

@@ -74,3 +74,4 @@ command 'whois', 'Look up domain registration information.' do
   end
 end
 
+# vim: set tabstop=2 expandtab:

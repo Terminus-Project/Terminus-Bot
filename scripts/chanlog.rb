@@ -167,3 +167,4 @@ event :MODE do
   log_msg @connection.name, @msg.destination, "MODE", @msg.nick, @msg.raw_arr[3..@msg.raw_arr.length-1].join(" ")
 end
 
+# vim: set tabstop=2 expandtab:

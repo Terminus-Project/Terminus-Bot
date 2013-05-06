@@ -521,3 +521,4 @@ helpers do
     $log.info("Markov.read_database") { "Done loading database." }
   end
 end
+# vim: set tabstop=2 expandtab:

@@ -31,3 +31,4 @@ command 'uptime', 'Show how long the bot has been active.' do
   #reply "I was started #{since} ago. \02In:\02 #{Bot.lines_in} lines (#{sprintf("%.4f", Bot.bytes_in / 1024.0)} KiB) \02Out:\02 #{Bot.lines_out} lines (#{sprintf("%.4f", Bot.bytes_out / 1024.0)} KiB)"
   reply "I was started #{since} ago."
 end
+# vim: set tabstop=2 expandtab:

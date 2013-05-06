@@ -80,3 +80,4 @@ module Bot
   Buffer = BufferManager.new
 
 end
+# vim: set tabstop=2 expandtab:

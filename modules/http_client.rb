@@ -25,6 +25,7 @@ require 'uri'
 require 'em-http-request'
 require 'htmlentities'
 
+
 module Bot
 
   MODULE_LOADED_HTTP  = true
@@ -46,6 +47,10 @@ module Bot
       Bot.http_request uri, query, false, @msg, silent_err, opts, &block
     end
 
+    def clean_result result
+      result.strip.gsub(/<[^>]*>/, '').gsub(/\s+/, ' ')
+    end
+
   end
 
   def self.http_get uri, query = {}, msg = nil, silent_err = false, &block
@@ -55,6 +60,8 @@ module Bot
   def self.http_post uri, query = {}, msg = nil, silent_err = false, &block
     Bot.http_request uri, query, false, msg, silent_err, {}, &block
   end
+  
+
 
   # Should not be called directly.
   def self.http_request uri, query, get, msg, silent_err, opts, &block
@@ -150,3 +157,4 @@ module Bot
     end
   end
 end
+# vim: set tabstop=2 expandtab:

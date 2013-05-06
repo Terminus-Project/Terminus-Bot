@@ -101,7 +101,7 @@ helpers do
 
     karma[nick] += amount
 
-    $log.debug('karma.add_karma') { "#{target} karma change: #{amount}: #{karma[nick]}" }
+    $log.debug('karma.add_karma') { "#{nick} karma change: #{amount}: #{karma[nick]}" }
 
     store_data @connection.name, karma
   end
@@ -111,3 +111,4 @@ helpers do
   end
 
 end
+# vim: set tabstop=2 expandtab:

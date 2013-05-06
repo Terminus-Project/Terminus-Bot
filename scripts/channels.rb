@@ -136,3 +136,4 @@ command 'cycle', 'Part and then join a channel.' do
   send_join name
 end
 
+# vim: set tabstop=2 expandtab:

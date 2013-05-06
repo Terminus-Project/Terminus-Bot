@@ -65,3 +65,4 @@ command 'morse', 'Convert text to Morse code.' do
   reply @params.join.chars.map { |c| morse[c.ord] if c.ord < 128 }.join(' ')
 end
 
+# vim: set tabstop=2 expandtab:

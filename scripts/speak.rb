@@ -37,3 +37,4 @@ command 'act', 'Act the given text (CTCP ACTION).' do
 
   reply "\01ACTION #{@params.first}\01", false
 end
+# vim: set tabstop=2 expandtab:

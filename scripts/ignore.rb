@@ -75,3 +75,4 @@ command 'unignore', 'Remove the given ignore.' do
   reply "Ignore removed: #{mask}"
 end
 
+# vim: set tabstop=2 expandtab:

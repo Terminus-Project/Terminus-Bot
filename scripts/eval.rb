@@ -35,3 +35,4 @@ command 'eval', 'Run raw Ruby code.' do
   end
 end
 
+# vim: set tabstop=2 expandtab:
