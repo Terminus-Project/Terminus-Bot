@@ -35,7 +35,6 @@ url /(.+boards\.)4chan\.org\/([a-z0-9]+)\/res\/([1-9][0-9]+)/ do
   get_thread_title @uri.path 
 end
 
-# TODO - 404 handling
 helpers do
   def get_thread_title path
     api = URI("https://api.4chan.org#{path}.json")
@@ -49,7 +48,7 @@ helpers do
 
       data = MultiJson.load http.response
 
-      reply "Thread \02#{clean_result data["posts"][0]['no']}\02: #{clean_result data["posts"][0]['com']}"
+      reply "Thread \02#{data["posts"][0]['no']}\02: #{html_decode clean_result data["posts"][0]['com']}"
     end
   end
 end
