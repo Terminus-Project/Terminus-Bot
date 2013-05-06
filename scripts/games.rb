@@ -33,25 +33,17 @@ command 'dice', 'Roll dice. Parameters: <count>d<sides>[+/-<modifier> | s<succes
   order = false
   params = @params.shift.split
 
-  match = params.shift.match(/\A(?<count>[0-9]+)?(?<specify_sides>d(?<sides>[0-9]+))?((?<mod>[+-][0-9]+)|(s(?<success>[0-9])+(b(?<botch>[0-9])+)?))?\Z/)
+  match = params.shift.match(/\A(?<count>[0-9]+)?(d(?<sides>[0-9]+))?((?<mod>[+-][0-9]+)|(s(?<success>[0-9])+(b(?<botch>[0-9])+)?))?\Z/)
 
   unless match
     raise 'Syntax: <count>d<sides>[+/-<modfier> | s<success>[b<botch>]] [order]'
   end
 
-  count   = match[:count].to_i
-  sides   = match[:sides].to_i
+  count   = (match[:count] or 1).to_i
+  sides   = (match[:sides] or 6).to_i
   mod     = match[:mod].to_i
   success = match[:success].to_i
   botch   = match[:botch].to_i
-
-  if match[:count].nil?
-    count = 1
-  end
-
-  if match[:sides].nil?
-    sides = 6
-  end
 
   if count > 100
     raise 'You may only roll up to 100 dice.'
