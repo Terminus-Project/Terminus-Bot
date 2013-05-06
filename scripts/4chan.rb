@@ -41,9 +41,15 @@ helpers do
                 api = URI("https://api.4chan.org#{path}.json")
 
                 http_get(api, {}, false) do |http|
-                        data = MultiJson.load http.response
-                        reply "Thread \02#{data["posts"][0]['no']}\02: #{data["posts"][0]['com']}"
+                        if http.response.empty?
+                                reply "\002404\02 - Thread  not found."
+                                return 
+                        end
+
+
+                                data = MultiJson.load http.response
+                                reply "Thread \02#{data["posts"][0]['no']}\02: #{data["posts"][0]['com']}"
+                        end
                 end
         end
-end
-# vim: set tabstop=2 expandtab:
+        # vim: set tabstop=2 expandtab:
