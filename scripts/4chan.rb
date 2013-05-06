@@ -21,7 +21,7 @@
 ## LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 ## OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 ## SOFTWARE.
-##
+#
 #
 
 require 'multi_json'
@@ -49,9 +49,9 @@ helpers do
 
       data = MultiJson.load http.response
 
-      reply "Thread \02#{data["posts"][0]['no']}\02: #{data["posts"][0]['com']}"
+      reply "Thread \02#{clean_result data["posts"][0]['no']}\02: #{clean_result data["posts"][0]['com']}"
     end
   end
 end
 
-# vim: set tabstop=2 expandtab:
+# vim: set tabstop=2 expandtab

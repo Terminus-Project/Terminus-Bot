@@ -55,6 +55,10 @@ module Bot
   def self.http_post uri, query = {}, msg = nil, silent_err = false, &block
     Bot.http_request uri, query, false, msg, silent_err, {}, &block
   end
+  
+  def self.clean_result result
+    result.strip.gsub(/<[^>]*>/, "").gsub(/[\n\s]+/, " ")
+  end
 
   # Should not be called directly.
   def self.http_request uri, query, get, msg, silent_err, opts, &block
