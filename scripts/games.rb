@@ -150,7 +150,7 @@ command 'rps', 'Play rock/paper/scissors.' do
 
   choices = ['rock', 'paper', 'scissors']
 
-  user_choice = @params.shift.split[0]
+  user_choice = @params.shift.split[0].downcase
 
   if !choices.include? user_choice
     raise 'Valid choices are rock/paper/scissors.'
