@@ -87,8 +87,8 @@ command 'join', 'Join a channel with optional key.' do
   name = @connection.canonize arr[0]
   key  = arr.length == 2 ? arr[1] : ""
 
-  # TODO: Use CHANTYPES
-  unless name.start_with? "#" or name.start_with? "&"
+  # TODO: Refactor. This is ugly.
+  unless @connection.support('CHANTYPES').include? name[0]
     raise "That does not look like a channel name."
   end
 
