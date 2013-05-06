@@ -31,25 +31,27 @@ need_module! 'http'
 register 'Display the first few lines of the OP in a linked 4chan thread.'
 
 url /(.+boards\.)4chan\.org\/([a-z0-9]+)\/res\/([1-9][0-9]+)/ do
-        $log.info('4chan.url') { @uri.inspect }
-        get_thread_title @uri.path 
+  $log.info('4chan.url') { @uri.inspect }
+  get_thread_title @uri.path 
 end
 
 # TODO - 404 handling
 helpers do
-        def get_thread_title path
-                api = URI("https://api.4chan.org#{path}.json")
+  def get_thread_title path
+    api = URI("https://api.4chan.org#{path}.json")
 
-                http_get(api, {}, false) do |http|
-                        if http.response.empty?
-                                reply "\002404\02 - Thread not found."
-                                next 
-                        end
+    http_get(api, {}, false) do |http|
+      if http.response.empty?
+        reply "\002404\02 - Thread not found."
+        next 
+      end
 
 
-                                data = MultiJson.load http.response
-                                reply "Thread \02#{data["posts"][0]['no']}\02: #{data["posts"][0]['com']}"
-                        end
-                end
-        end
+      data = MultiJson.load http.response
+
+      reply "Thread \02#{data["posts"][0]['no']}\02: #{data["posts"][0]['com']}"
+    end
+  end
+end
+
 # vim: set tabstop=2 expandtab:
