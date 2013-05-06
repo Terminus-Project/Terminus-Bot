@@ -146,7 +146,7 @@ command 'rps', 'Play Rock-paper-scissors. Syntax: rock|paper|scissors' do
     's' => 'scissors'
   }
 
-  user_choice = @params.first.downcase[0]
+  user_choice = @params.first.downcase.chr
 
   unless choices.has_key? user_choice
     raise 'Valid choices are rock, paper, or scissors.'
