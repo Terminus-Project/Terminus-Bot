@@ -179,16 +179,17 @@ helpers do
     stored_arr = stored[:password].split ":"
     calculated = OpenSSL::PKCS5::pbkdf2_hmac_sha1 password, stored_arr[1], 100000, 50
 
-      #Digest::MD5.hexdigest "#{password}:#{stored_arr[1]}"
+    #Digest::MD5.hexdigest "#{password}:#{stored_arr[1]}"
     if stored_arr[0] == calculated
       return true
     else
-      if stored_arr[0] == Digest::MD5.hexdigest "#{password}:#{stored_arr[1]}"
+      if stored_arr[0] == Digest::MD5.hexdigest("#{password}:#{stored_arr[1]}")
         stored[:password] = encrypt_password stored_arr[0]
         $log.info("account.convert_password") { "#{@msg.origin}'s password converted from MD5 to PBKDF2." }
         return true
       end
     end
+    return false
 
   end
 
@@ -196,7 +197,7 @@ helpers do
     o = [('a'..'z'),('A'..'Z'),('0'..'9')].map{|i| i.to_a}.flatten;  
     salt = (1..8).map{ o[rand(o.length)]  }.join;
 
-#    "#{Digest::MD5.hexdigest "#{password}:#{salt}"}:#{salt}"
+    #    "#{Digest::MD5.hexdigest "#{password}:#{salt}"}:#{salt}"
     "#{OpenSSL::PKCS5::pbkdf2_hmac_sha1 password, salt, 100000, 50}:#{salt}"
   end
 end
