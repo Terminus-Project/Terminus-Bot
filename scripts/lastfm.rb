@@ -87,7 +87,7 @@ command 'tasteometer', 'Check the musical compatibility of two Last.fm users.' d
     result = json['comparison']['result']
 
     data = {
-      'Compatibility'  => "#{result['score'].to_f * 100}%",
+      'Compatibility'  => "#{(result['score'].to_f * 100).to_i}%",
       'Common Artists' => (result['artists']['artist'].map {|a| a['name']}.join(', '))
     }
 
