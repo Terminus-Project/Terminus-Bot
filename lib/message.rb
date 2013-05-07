@@ -104,7 +104,7 @@ module Bot
     #
     # @return [String] message text with formatting removed
     def stripped
-      @stripped ||= @text.strip_irc_formatting
+      @stripped ||= Bot.strip_irc_formatting @text
     end
 
     # Get the canonized nick that owns this message.

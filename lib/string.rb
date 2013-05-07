@@ -50,17 +50,5 @@ class String
       :undef   => :replace
   end
 
-  # Strip IRC formatting data from string.
-  # @return [String] stripped string
-  def strip_irc_formatting
-    gsub /(\x0F|\x1D|\02|\03([0-9]{1,2}(,[0-9]{1,2})?)?)/, ''
-  end
-
-  # Strip IRC formatting data from string. Updates this string object.
-  # @return [String] stripped string
-  def strip_irc_formatting!
-    gsub! /(\x0F|\x1D|\02|\03([0-9]{1,2}(,[0-9]{1,2})?)?)/, ''
-  end
-
 end
 # vim: set tabstop=2 expandtab:
