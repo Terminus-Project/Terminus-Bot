@@ -444,6 +444,16 @@ PING from your client.
 Reply to server PINGs. Without this script loaded, the bot will frequently
 disconnect due to ping timeouts.
 
+### Potassium
+
+Track user K intake.
+
+Comands:
+
+* POTASSIUM - Check your potassium or the potassium of another user.
+* HYPERKALAEMIA - Find out who has the most potassium.
+* HYPOKALAEMIA - Find out who has the least potassium.
+
 ### Rainbows
 
 Make text more colorful.
