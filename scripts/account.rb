@@ -184,7 +184,7 @@ helpers do
     else
       if stored_arr[0] == Digest::MD5.hexdigest("#{password}:#{stored_arr[1]}")
         stored[:password] = encrypt_password stored_arr[0]
-        $log.info("account.convert_password") { "#{@msg.origin}'s password converted from MD5 to PBKDF2." }
+        $log.info("account.verify_password") { "#{@msg.origin}'s password converted from MD5 to PBKDF2." }
         return true
       end
     end
