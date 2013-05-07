@@ -142,6 +142,7 @@ core = {
     lograw
     eval
     raw
+    rainbows
   }
 
 }
