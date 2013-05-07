@@ -45,6 +45,7 @@ helpers do
 
 
       data = MultiJson.load http.response
+      #TODO: configurable amount of lines from OP?
       result = html_decode(clean_result(data["posts"][0]['com'].split('<br>')[0]))
       reply "Thread \02#{data["posts"][0]['no']}\02: #{result}", false
     end
