@@ -49,7 +49,7 @@ command 'identify', 'Log in to the bot. Parameters: username password' do
 
     $log.info("account.cmd_identify") { "#{@msg.origin} identifying with override level #{level}" }
   end
-    
+
   @connection.users[@msg.nick_canon].level = level
 
   reply "Logged in with level #{level} authorization."
@@ -89,7 +89,7 @@ command 'password',  'Change your bot account password. Parameters: password' do
   end
 
   stored = get_data @connection.users[@msg.nick_canon].account, nil
-  
+
   if stored.nil?
     raise "Your account no longer exists."
   end
@@ -105,7 +105,7 @@ command 'fpassword', 'Change another user\'s bot account password. Parameters: u
   query! and level! 10 and argc! 2
 
   stored = get_data @params[0], nil
-  
+
   if stored.nil?
     raise "No such account."
   end
@@ -121,7 +121,7 @@ command 'level', 'Change a user\'s account level. Parameters: username level' do
   level! 10 and argc! 2
 
   stored = get_data @params[0], nil
-  
+
   if stored.nil?
     raise "No such account."
   end
@@ -154,7 +154,7 @@ command 'account', 'Display information about a user. Parameters: username' do
   level! 2 and argc! 1
 
   stored = get_data @params[0], nil
-  
+
   if stored.nil?
     raise "No such account."
   end
@@ -177,16 +177,25 @@ helpers do
     return false if stored == nil
 
     stored_arr = stored[:password].split ":"
-    calculated = Digest::MD5.hexdigest "#{password}:#{stored_arr[1]}"
+    calculated = OpenSSL::PKCS5::pbkdf2_hmac_sha1 password, stored_arr[1], 100000, 50 
+    if stored_arr[0] == calculated
+      return true
+    else
+      if stored_arr[0] == Digest::MD5.hexdigest("#{password}:#{stored_arr[1]}")
+        stored[:password] = encrypt_password password
+        $log.info("account.verify_password") { "#{@msg.origin}'s password converted from MD5 to PBKDF2." }
+        return true
+      end
+    end
+    return false
 
-    stored_arr[0] == calculated
   end
 
   def encrypt_password password
     o = [('a'..'z'),('A'..'Z'),('0'..'9')].map{|i| i.to_a}.flatten;  
     salt = (1..8).map{ o[rand(o.length)]  }.join;
 
-    "#{Digest::MD5.hexdigest "#{password}:#{salt}"}:#{salt}"
+    "#{OpenSSL::PKCS5::pbkdf2_hmac_sha1 password, salt, 100000, 50}:#{salt}"
   end
 end
 
