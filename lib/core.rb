@@ -148,5 +148,12 @@ module Bot
     File.delete PID_FILE
   end
 
+  # Strip IRC formatting data from string.
+  # @return [String] stripped string
+  def self.strip_irc_formatting str
+    str.gsub /(\x0F|\x1D|\02|\03([0-9]{1,2}(,[0-9]{1,2})?)?)/, ''
+  end
+
+
 end
 # vim: set tabstop=2 expandtab:
