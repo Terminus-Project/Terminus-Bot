@@ -15,8 +15,6 @@ event :PRIVMSG do
     next unless Buffer[@connection.name].has_key? @msg.destination_canon
 
     rainbows match
-
-    next
   end
 end
 
@@ -31,7 +29,7 @@ helpers do
       search = Regexp.new match[:search].gsub(/\s/, '\s'), opts
 
       Buffer[@connection.name][@msg.destination_canon].reverse.each do |message|
-        next if message[:text].match(/^(r|l|s|g)\/(.+?)\/(.*?)(\/.*)?$/)
+        next if message[:text].match(/^[rsg]{1}\/(.+?)\/(.*?)(\/.*)?$/)
 
         text = Bot.strip_irc_formatting message[:text]
 
@@ -91,11 +89,7 @@ helpers do
   end
 
   def next_color colors, random
-    if random
-      colors.sample
-    else
-      colors.rotate!.first
-    end
+    random ? colors.sample : colors.rotate!.first
   end
 
   def reply_with_match type, nick, message
