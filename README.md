@@ -640,8 +640,9 @@ reloaded. Some are required by some scripts.
 
 ### buffer
 
-A short-term, in-memory message history. It is currently not required by any
-scripts, but will be eventually used by the regex script.
+A short-term, in-memory message history. This is used by the regex script for
+quick searching of recent messages for subtitution, and can easily be used by
+other scripts.
 
 ### caps
 
@@ -649,7 +650,7 @@ Client capability negotiation. With this module loaded, the bot can use modern
 IRC features such as multi-prefix and SASL to help improve security and reduce
 bandwidth usage. Loading this module is strongly recommended.
 
-### http-client
+### http_client
 
 Simplifies HTTP access for scripts. This module handles redirects, timeouts, and
 headers.
