@@ -444,6 +444,20 @@ PING from your client.
 Reply to server PINGs. Without this script loaded, the bot will frequently
 disconnect due to ping timeouts.
 
+### Rainbows
+
+Make text more colorful.
+
+Recent messages are searched by regular expression with `r//`. Please your
+search expression between the slashes. You may include one of the following
+flags after the last slash:
+
+* i - Case-insensitive search.
+* r - Randomize colors.
+* b - Change background color.
+* w - Change colors per word rather than per character.
+* l - Change colors for the entire line rather than per character.
+
 ### Raw
 
 Commands:
