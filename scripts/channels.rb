@@ -103,7 +103,7 @@ end
 command 'part', 'Part a channel.' do
   level! 8
   if argc! 0
-    name = @connection.canonize @msg.destination
+    name = @msg.destination_canon
   else
     name = @connection.canonize @params.first
   end
