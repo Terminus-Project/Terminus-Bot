@@ -61,7 +61,7 @@ helpers do
       search = Regexp.new match[:search].gsub(/\s/, '\s'), opts
 
       Buffer[@connection.name][@msg.destination_canon].reverse.each do |message|
-        next if message[:text].match(/^(s|g)\/(.+?)\/(.*?)(\/.*)?$/)
+        next if message[:text].match(/^[rsg]{1}\/(.+?)\/(.*?)(\/.*)?$/)
 
         if search.match message[:text]
           reply_with_match message[:type], message[:nick], message[:text]
@@ -82,7 +82,7 @@ helpers do
       search = Regexp.new match[:search].gsub(/\s/, '\s'), opts
 
       Buffer[@connection.name][@msg.destination_canon].reverse.each do |message|
-        next if message[:text].match(/^(s|g)\/(.+?)\/(.*?)(\/.*)?$/)
+        next if message[:text].match(/^[rsg]{1}\/(.+?)\/(.*?)(\/.*)?$/)
 
         if search.match message[:text]
           new_msg = ((flags and flags.include?('g')) ? message[:text].gsub(search, replace) : message[:text].sub(search, replace) )
