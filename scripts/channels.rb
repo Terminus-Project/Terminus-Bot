@@ -102,8 +102,11 @@ end
 
 command 'part', 'Part a channel.' do
   level! 8
-
-  name = @connection.canonize @params.first
+  if argc! 0
+    name = @connection.canonize @msg.destination
+  else
+    name = @connection.canonize @params.first
+  end
 
   channels = get_data @connection.name, {}
 
