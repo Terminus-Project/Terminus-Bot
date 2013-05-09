@@ -23,9 +23,6 @@
 # SOFTWARE.
 #
 
-# TODO: Use less terrible password encryption. Add code to convert password on
-#       login.
-
 require 'digest'
 
 register "Provides account log-in and management functionality."
