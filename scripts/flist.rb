@@ -79,7 +79,7 @@ helpers do
 
       data = {
         'Name'        => response['name'],
-        'Description' => response['description'],
+        'Description' => html_decode(response['description']),
         'Views'       => response['pageviews'],
         'Created'     => response['datetime_created'],
         'Updated'     => response['datetime_changed']
