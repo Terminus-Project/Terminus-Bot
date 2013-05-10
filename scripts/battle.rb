@@ -28,7 +28,7 @@ register 'IRC role-play battle tracker.'
 @@active = {}
 
 command 'battle', 'Start, stop, or reset the battle in the current channel. Parameters: START|STOP|RESTART' do
-  channel! and half_op!
+  channel! and half_op! and argc! 1
 
   case @params[0].upcase
 
