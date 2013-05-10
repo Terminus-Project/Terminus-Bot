@@ -597,6 +597,15 @@ idlerpg = {
 
 }
 
+# 4chan script.
+4chan = {
+    # Number of lines from the OP to grab and show in the channel when a 
+    # thread URL is sent to the channel. 
+    #
+    # default: 1
+    lines = 1
+  }
+
 # Wikipedia script.
 wikipedia = {
   
