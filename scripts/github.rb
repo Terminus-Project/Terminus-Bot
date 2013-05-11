@@ -82,7 +82,7 @@ helpers do
 
     branch, path = match[:path].split('/', 2)
     path = "/contents/#{path}"
-    opts = { :head => { 'Accept' => 'application/vnd.github.VERSION.raw' } }
+    opts = { :head => { 'Accept' => 'application/vnd.github.raw' } }
 
     uri = URI("https://api.github.com/repos/#{match[:owner]}/#{match[:project]}#{path}")
 
