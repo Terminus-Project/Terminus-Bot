@@ -44,7 +44,11 @@ url /\/\/(www\.)?github\.com\/[^\/]+\/[^\/]+/ do
     when 'commit'
       get_commit match
     when 'blob'
-      get_file match
+      if @uri.fragment and @uri.fragment.match(/L([0-9]+)/)
+        get_file_line match, $1.to_i
+      else
+        get_file match
+      end
     end
 
   else
@@ -71,6 +75,32 @@ helpers do
     end
   end
 
+  def get_file_line match, line
+    if line < 1 # line numbers are 1+ in url
+      raise 'line number must be > 0'
+    end
+
+    branch, path = match[:path].split('/', 2)
+    path = "/contents/#{path}"
+    opts = { :head => { 'Accept' => 'application/vnd.github.VERSION.raw' } }
+
+    uri = URI("https://api.github.com/repos/#{match[:owner]}/#{match[:project]}#{path}")
+
+    http_get uri, {:ref => branch}, true, opts do |http|
+      lines = http.response.lines
+
+      if line > lines.length
+        raise "line number is too large: #{line} requested, #{lines.length} available"
+      end
+
+      result = lines[line - 1]
+
+      result.gsub! /[[:cntrl:]]/, ''
+
+      reply "\02Line #{line}\02: #{result}", false
+    end
+  end
+
 
   def get_repo match
     api_call match[:owner], match[:project], 'repos' do |data|
@@ -79,10 +109,10 @@ helpers do
   end
 
 
-  def api_call owner, project, type, path = ''
+  def api_call owner, project, type, path = '', opts = {}
     uri = URI("https://api.github.com/#{type}/#{owner}/#{project}#{path}")
 
-    http_get uri, {}, true do |http|
+    http_get uri, opts, true do |http|
       yield MultiJson.load http.response
     end
   end
