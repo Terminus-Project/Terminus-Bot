@@ -49,7 +49,10 @@ url /\/\/(www\.)?fimfiction\.net\/story\/[0-9]+\// do
     title   = html_decode data['title']
     desc    = html_decode data['short_description']
 
-    reply_without_prefix "#{title} by #{data['author']['name']}" => [rating, desc, cats].join(' - '), 'Status' => data['status']
+    info = "#{title} by #{data['author']['name']}"
+
+    reply_without_prefix info => [rating, desc, cats].join(' - '),
+      'Status' => data['status']
   end
 end
 
