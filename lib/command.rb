@@ -118,19 +118,31 @@ module Bot
     # * If the message was sent to a channel, reply in the channel.
     # * If the message was sent in private, reply with a private NOTICE.
     #
-    # @param str [String] the message text to send
+    # `arg` may be a {Hash}, Array, or {String}.
+    #
+    # @param arg [Object] the message text to send
     # @param prefix [Boolean] if true and if the message is a channel message,
     #   include the speaker's nick in the reply
-    def reply str, prefix = true
-      if str.kind_of? Hash
-        reply str.to_s_irc, prefix
-      elsif str.kind_of? Array
-        str.each do |this_str|
+    def reply arg, prefix = true
+      if arg.kind_of? Hash
+        reply arg.to_s_irc, prefix
+      elsif arg.kind_of? Array
+        arg.each do |this_str|
           @connection.send_reply @msg, this_str, prefix
         end
       else
-        @connection.send_reply @msg, str, prefix
+        @connection.send_reply @msg, arg, prefix
       end
+    end
+
+    # Send a reply to the message that triggered this command. Do not include a
+    # nick prefix in the reply text.
+    #
+    # @see Command#reply
+    #
+    # @param arg [Object] the message text to send
+    def reply_without_prefix arg
+      reply arg, false
     end
 
     # Check if the message was sent in private
