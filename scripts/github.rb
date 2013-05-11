@@ -62,7 +62,7 @@ helpers do
     path = "/commits/#{match[:path]}"
 
     api_call match[:owner], match[:project], 'repos', path do |data|
-      reply "\02#{match[:project]}\02: #{data['message'].lines.first} - by #{data['author']['name']} at #{Time.parse(data['author']['date']).to_s}", false
+      reply_without_prefix match[:project] => "#{data['message'].lines.first} - by #{data['author']['name']} at #{Time.parse(data['author']['date']).to_s}"
     end
   end
 
@@ -71,7 +71,7 @@ helpers do
     path = "/contents/#{path}"
 
     api_call match[:owner], match[:project], 'repos', path, ref: branch do |data|
-      reply "\02#{match[:project]}\02: #{data['name']}: #{data['size'].to_f.round / 1024} KiB #{data['type']}", false
+      reply_without_prefix match[:project] => "#{data['name']}: #{data['size'].to_f.round / 1024} KiB #{data['type']}"
     end
   end
 
@@ -97,14 +97,14 @@ helpers do
 
       result.gsub! /[[:cntrl:]]/, ''
 
-      reply ({"Line #{line}" => result}), false
+      reply_without_prefix "Line #{line}" => result
     end
   end
 
 
   def get_repo match
     api_call match[:owner], match[:project], 'repos' do |data|
-      reply "\02#{match[:project]}\02 (#{data['language']}): #{data['description']} - by #{data['owner']['login']}", false
+      reply_without_prefix "#{match[:project]} (#{data['language']})" => "#{data['description']} - by #{data['owner']['login']}"
     end
   end
 
