@@ -52,22 +52,25 @@ end
 
 helpers do
   def get_commit match
-    api = URI("https://api.github.com/repos/#{match[:owner]}/#{match[:project]}/git/commits/#{match[:hash]}")
+    path = "/git/commits/#{match[:hash]}"
 
-    http_get(api, {}, true) do |http|
-      data = MultiJson.load http.response
-
+    api_call match[:owner], match[:project], 'repos', path do |data|
       reply "\02#{match[:project]}\02: #{data["message"].lines.first} - by #{data["author"]["name"]} at #{Time.parse(data["author"]["date"]).to_s}", false
     end
   end
 
   def get_repo match
-    api = URI("https://api.github.com/repos/#{match[:owner]}/#{match[:project]}")
-
-    http_get(api, {}, true) do |http|
-      data = MultiJson.load http.response
-
+    api_call match[:owner], match[:project], 'repos' do |data|
       reply "\02#{match[:project]}\02 (#{data["language"]}): #{data["description"]} - by #{data["owner"]["login"]}", false
+    end
+  end
+
+
+  def api_call owner, project, type, path = ''
+    uri = URI("https://api.github.com/#{type}/#{owner}/#{project}#{path}")
+
+    http_get uri, {}, true do |http|
+      yield MultiJson.load http.response
     end
   end
 end
