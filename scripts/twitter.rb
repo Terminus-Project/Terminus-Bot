@@ -55,7 +55,7 @@ url /\/\/(www\.)?twitter\.com\/.+status/ do
 
     next if json['errors']
 
-    text   = json['text'].gsub(/[\r\n[[:cntrl:]]]/, '')
+    text   = html_decode(json['text']).gsub(/[\r\n[[:cntrl:]]]/, '')
     author = json['user']['screen_name']
 
     reply "\02<@#{author}>\02 #{text}", false
