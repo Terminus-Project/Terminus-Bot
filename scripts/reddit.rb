@@ -70,7 +70,7 @@ helpers do
     http_get(api, {}, true) do |http|
       data = MultiJson.load(http.response, :max_nesting => 100).first['data']['children'].first['data']
 
-      reply "#{"[NSFW] " if data["over18"]}/r/#{data["subreddit"]}: \02#{data["title"]}\02 - \02#{data["score"]}\02 Karma - \02#{data["num_comments"]}\02 Comments", false
+      reply "#{"[NSFW] " if data["over18"]}/r/#{data["subreddit"]}: \02#{html_decode data["title"]}\02 - \02#{data["score"]}\02 Karma - \02#{data["num_comments"]}\02 Comments", false
     end
   end
 
@@ -80,7 +80,7 @@ helpers do
     http_get(api, {}, true) do |http|
       data = MultiJson.load(http.response)['data']
 
-      reply "#{"[NSFW] " if data["over18"]}#{data["url"]}: \02#{data["title"]}\02 - \02#{data["subscribers"]}\02 subscribers - #{data["public_description"]}", false
+      reply "#{"[NSFW] " if data["over18"]}#{data["url"]}: \02#{html_decode data["title"]}\02 - \02#{data["subscribers"]}\02 subscribers - #{html_decode data["public_description"]}", false
     end
   end
 end
