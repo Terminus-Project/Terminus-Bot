@@ -33,7 +33,7 @@ register 'Fetch information from GitHub.'
 url /\/\/(www\.)?github\.com\/[^\/]+\/[^\/]+/ do
   $log.info('github.url') { @uri.inspect }
 
-  match = @uri.path.match(/^\/(?<owner>[^\/]+)\/(?<project>[^\/]+)(\/(?<action>[^\/]+)\/(?<hash>[^\/]+))?/)
+  match = @uri.path.match(/^\/(?<owner>[^\/]+)\/(?<project>[^\/]+)(\/(?<action>[^\/]+)\/(?<path>.*))?/)
 
   # XXX - hmm, might miss some URLs
   next unless match
@@ -43,7 +43,10 @@ url /\/\/(www\.)?github\.com\/[^\/]+\/[^\/]+/ do
     case match[:action]
     when 'commit'
       get_commit match
+    when 'blob'
+      get_file match
     end
+
   else
 
     get_repo match
@@ -52,16 +55,26 @@ end
 
 helpers do
   def get_commit match
-    path = "/git/commits/#{match[:hash]}"
+    path = "/git/commits/#{match[:path]}"
 
     api_call match[:owner], match[:project], 'repos', path do |data|
-      reply "\02#{match[:project]}\02: #{data["message"].lines.first} - by #{data["author"]["name"]} at #{Time.parse(data["author"]["date"]).to_s}", false
+      reply "\02#{match[:project]}\02: #{data['message'].lines.first} - by #{data['author']['name']} at #{Time.parse(data['author']['date']).to_s}", false
     end
   end
 
+  def get_file match
+    branch, path = match[:path].split('/', 2)
+    path = "/contents/#{path}?ref=#{branch}"
+
+    api_call match[:owner], match[:project], 'repos', path do |data|
+      reply "\02#{match[:project]}\02: #{data['name']}: #{data['size'].to_f.round / 1024} KiB #{data['type']}", false
+    end
+  end
+
+
   def get_repo match
     api_call match[:owner], match[:project], 'repos' do |data|
-      reply "\02#{match[:project]}\02 (#{data["language"]}): #{data["description"]} - by #{data["owner"]["login"]}", false
+      reply "\02#{match[:project]}\02 (#{data['language']}): #{data['description']} - by #{data['owner']['login']}", false
     end
   end
 
