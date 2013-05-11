@@ -62,11 +62,7 @@ helpers do
   end
 
   def show_definition json
-    data = {
-      json['word'] => clean_result(json['definition'])
-    }
-
-    reply data, false
+    reply_without_prefix json['word'] => clean_result(json['definition'])
   end
 
   def api_call function, query = {}

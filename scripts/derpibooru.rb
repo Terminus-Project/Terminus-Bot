@@ -207,19 +207,16 @@ helpers do
     end
 
     display_rating = display_rating.join(', ')
-    url = include_url ? "https://derpiboo.ru/#{data['id_number']}" : ''
+    url   = include_url ? "https://derpiboo.ru/#{data['id_number']}" : ''
+    score = "#{data['score']} (#{data['upvotes']} Up / #{data['downvotes']} Down)"
 
-    data = {
-      'Derpibooru'  => url,
-      'Rating'      => display_rating,
-      'Artist'      => artist,
-      'Tags'        => display_tags,
-      'Uploader'    => data['uploader'],
-      'Score'       => "#{data['score']} (#{data['upvotes']} Up / #{data['downvotes']} Down)",
+    reply_without_prefix  'Derpibooru'  => url,
+      'Rating'   => display_rating,
+      'Artist'   => artist,
+      'Tags'     => display_tags,
+      'Uploader' => data['uploader'],
+      'Score'    => score,
       "#{data['width']}x#{data['height']}" => data['original_format']
-    }
-
-    reply data, false
   end
 
 end

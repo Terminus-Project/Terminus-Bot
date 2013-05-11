@@ -58,11 +58,7 @@ command 'np', 'Show the currently playing track for the given Last.fm user.' do
     name   = track['name']
     artist = track['artist']['#text']
 
-    data = {
-      "#{user} is listening to" => "#{artist} - #{name}"
-    }
-
-    reply data, false
+    reply_without_prefix "#{user} is listening to" => "#{artist} - #{name}"
   end
 end
 
@@ -86,12 +82,8 @@ command 'tasteometer', 'Check the musical compatibility of two Last.fm users.' d
   api_call opts do |json|
     result = json['comparison']['result']
 
-    data = {
-      'Compatibility'  => "#{(result['score'].to_f * 100).round}%",
+    reply_without_prefix 'Compatibility' => "#{(result['score'].to_f * 100).round}%",
       'Common Artists' => (result['artists']['artist'].map {|a| a['name']}.join(', '))
-    }
-
-    reply data, false
 
   end
 end

@@ -130,13 +130,8 @@ command 'mpd', 'Interact with MPD. Syntax: mpd next|previous|stop|play|pause|shu
     duration = results.inject(0) {|sum, s| sum + s.time}
     duration = Time.at(Time.now.to_i + duration).to_duration_s
 
-    data = {
-      'Tracks'    => results.length,
-      'Duration'  => duration
-    }
-
-    reply data, false
-
+    reply_without_prefix 'Tracks' => results.length,
+      'Duration' => duration
 
   when :count?
     connect
@@ -144,22 +139,14 @@ command 'mpd', 'Interact with MPD. Syntax: mpd next|previous|stop|play|pause|shu
  
     duration = Time.at(Time.now.to_i + results[:playtime]).to_duration_s
 
-    data = {
-      'Tracks'    => results[:songs],
-      'Duration'  => duration
-    }
-
-    reply data
+    reply_without_prefix 'Tracks' => results[:songs],
+      'Duration' => duration
 
   when :next?
     connect
     song = @@mpd.song_with_id status[:nextsongid]
 
-    data = {
-      'Next Track' => song_to_s(song)
-    }
-
-    reply data, false
+    reply_without_prefix 'Next Track' => song_to_s(song)
 
   when :queue?
     my_queue  = queue
@@ -169,14 +156,10 @@ command 'mpd', 'Interact with MPD. Syntax: mpd next|previous|stop|play|pause|shu
 
     duration = Time.at(Time.now.to_i + duration).to_duration_s
 
-    data = {
-      'Queue' => {
+    reply_without_prefix 'Queue' => {
         'Tracks'    => length,
         'Duration'  => duration
       }
-    }
-
-    reply data, false
 
   when :np?
     say_now_playing
@@ -184,28 +167,20 @@ command 'mpd', 'Interact with MPD. Syntax: mpd next|previous|stop|play|pause|shu
   when :audio?
     audio = status[:audio]
 
-    data = {
-      'Audio' => {
+    reply_without_prefix 'Audio' => {
         'Rate'      => audio.shift,
         'Bits'      => audio.shift,
         'Channels'  => audio.shift
       } 
-    }
-
-    reply data, false
 
   when :database?
     my_stats = stats
 
     playtime = Time.at(Time.now.to_i + my_stats[:db_playtime]).to_duration_s
 
-    data = {
-      'Artists'   => my_stats[:artists],
+    reply_without_prefix 'Artists' => my_stats[:artists],
       'Tracks'    => my_stats[:songs],
       'Play Time' => playtime
-    }
-
-    reply data, false
 
   else
     raise 'Unknown MPD command.'

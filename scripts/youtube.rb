@@ -65,16 +65,12 @@ url /\/\/(youtu\.be\/.+|(www\.)?youtube\.com\/.+[?&]v=.+)/ do
     duration  = json['contentDetails']['duration'].match(/^PT((?<minutes>[0-9]+)M)?(?<seconds>[0-9]+)S$/)
     duration  = duration[:minutes].to_i * 60 + duration[:seconds].to_i
 
-    data = {
-      'YouTube'  => json['snippet']['title'],
+    reply_without_prefix 'YouTube' => json['snippet']['title'],
       'By'       => json['snippet']['channelTitle'],
       'Views'    => json['statistics']['viewCount'],
       'Duration' => Time.at(Time.now.to_i + duration).to_duration_s,
       'Likes'    => json['statistics']['likeCount'],
       'Dislikes' => json['statistics']['dislikeCount']
-    }
-
-    reply data, false
 
   end
 

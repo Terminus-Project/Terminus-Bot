@@ -45,16 +45,11 @@ url /\/\/(www\.)?fimfiction\.net\/story\/[0-9]+\// do
     data = MultiJson.load(http.response)['story']
 
     rating  = data['content_rating_text']
-    cats    = data['categories'].select {|cat, value| value }.keys.join(', ')
+    cats    = data['categories'].keys.join(', ')
     title   = html_decode data['title']
     desc    = html_decode data['short_description']
 
-    data = {
-      "#{title} by #{data['author']['name']}" => [rating, desc, cats].join(' - '),
-      'Status' => data['status']
-    }
-
-    reply data, false
+    reply_without_prefix "#{title} by #{data['author']['name']}" => [rating, desc, cats].join(' - '), 'Status' => data['status']
   end
 end
 
