@@ -120,6 +120,8 @@ module Bot
     #
     # `arg` may be a {Hash}, Array, or {String}.
     #
+    # @see Command#reply_without_prefix
+    #
     # @param arg [Object] the message text to send
     # @param prefix [Boolean] if true and if the message is a channel message,
     #   include the speaker's nick in the reply
