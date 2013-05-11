@@ -33,7 +33,7 @@ register 'Fetch information from GitHub.'
 url /\/\/(www\.)?github\.com\/[^\/]+\/[^\/]+/ do
   $log.info('github.url') { @uri.inspect }
 
-  match = @uri.path.match(/^\/(?<owner>[^\/]+)\/(?<project>[^\/]+)(\/(?<action>[^\/]+)\/(?<path>.*))?/)
+  match = @uri.path.match(/^\/(?<owner>[^\/]+)\/(?<project>[^\/]+)(\/(?<action>[^\/]+)(\/(?<path>.*))?)?/)
 
   # XXX - hmm, might miss some URLs
   next unless match
@@ -48,6 +48,12 @@ url /\/\/(www\.)?github\.com\/[^\/]+\/[^\/]+/ do
         get_file_line match, $1.to_i
       else
         get_file match
+      end
+    when 'issues'
+      if match[:path]
+        get_issue match
+      else
+        get_issues match
       end
     end
 
@@ -65,6 +71,7 @@ helpers do
       reply_without_prefix match[:project] => "#{data['message'].lines.first} - by #{data['author']['name']} at #{Time.parse(data['author']['date']).to_s}"
     end
   end
+
 
   def get_file match
     branch, path = match[:path].split('/', 2)
@@ -105,6 +112,33 @@ helpers do
   def get_repo match
     api_call match[:owner], match[:project], 'repos' do |data|
       reply_without_prefix "#{match[:project]} (#{data['language']})" => "#{data['description']} - by #{data['owner']['login']}"
+    end
+  end
+
+
+  def get_issues match
+    api_call match[:owner], match[:project], 'repos', '/issues' do |data|
+      issues = Hash.new 0
+
+      data.each do |issue|
+        $log.debug('github') { issue.inspect }
+
+        issues[issue['state']] += 1
+      end
+
+      reply_without_prefix match[:project] => issues
+    end
+  end
+
+  def get_issue match
+    path = "/issues/#{match['path']}"
+
+    api_call match[:owner], match[:project], 'repos', path do |data|
+      reply_without_prefix "#{data['title']} (#{data['state']})" => {
+        'Creator' => data['user']['login'],
+        'Labels'  => data['labels'].map {|label| label['name']}.join(', '),
+        'Created' => Time.parse(data['created_at']).to_s
+      }
     end
   end
 
