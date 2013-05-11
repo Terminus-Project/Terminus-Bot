@@ -59,7 +59,7 @@ end
 
 helpers do
   def get_commit match
-    path = "/git/commits/#{match[:path]}"
+    path = "/commits/#{match[:path]}"
 
     api_call match[:owner], match[:project], 'repos', path do |data|
       reply "\02#{match[:project]}\02: #{data['message'].lines.first} - by #{data['author']['name']} at #{Time.parse(data['author']['date']).to_s}", false
@@ -68,9 +68,9 @@ helpers do
 
   def get_file match
     branch, path = match[:path].split('/', 2)
-    path = "/contents/#{path}?ref=#{branch}"
+    path = "/contents/#{path}"
 
-    api_call match[:owner], match[:project], 'repos', path do |data|
+    api_call match[:owner], match[:project], 'repos', path, ref: branch do |data|
       reply "\02#{match[:project]}\02: #{data['name']}: #{data['size'].to_f.round / 1024} KiB #{data['type']}", false
     end
   end
@@ -97,7 +97,7 @@ helpers do
 
       result.gsub! /[[:cntrl:]]/, ''
 
-      reply "\02Line #{line}\02: #{result}", false
+      reply ({"Line #{line}" => result}), false
     end
   end
 
