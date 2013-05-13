@@ -119,5 +119,52 @@ class Time
     return pieces[0]
   end
 
+
+  # Parse a human-readable duration and return the resulting {Time} object.
+  #
+  # Format is a string containing a numeric value followed by a time unit. The
+  # order of durations does not matter. Repeated durations will alter the
+  # {Time} value as they are parsed.
+  #
+  # Valid units include:
+  #
+  # * `s`: seconds
+  # * `m`: minutes
+  # * `h`: hourse
+  # * `d`: days
+  # * `w`: weeks
+  # * `y`: years
+  #
+  # @example
+  #   Time.now                   # => 2013-05-13 10:30:00 +0000
+  #   Time.parse_duration '1y5d' # => 2014-05-18 10:30:00 +0000
+  #
+  # @param str [String] string containing the duration representation
+  def self.parse_duration str
+    t = Time.now
+
+    str.scan /([0-9]+)(\w{1})/ do |s|
+      val = $1.to_i
+      case $2.downcase
+      when 's'
+        t = t + val
+      when 'm'
+        t = t + val * 60
+      when 'h'
+        t = t + val * 3600
+      when 'd'
+        t = t + val * 86400
+      when 'w'
+        t = t + val * 604800
+      when 'y'
+        a = t.to_a
+        a[5] += val
+        t = Time.mktime *a
+      end
+    end
+
+    t
+  end
+
 end
 # vim: set tabstop=2 expandtab:
