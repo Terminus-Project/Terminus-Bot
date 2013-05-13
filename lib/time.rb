@@ -130,7 +130,7 @@ class Time
   #
   # * `s`: seconds
   # * `m`: minutes
-  # * `h`: hourse
+  # * `h`: hours
   # * `d`: days
   # * `w`: weeks
   # * `y`: years
