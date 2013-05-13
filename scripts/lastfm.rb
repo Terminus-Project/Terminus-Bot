@@ -81,7 +81,7 @@ command 'tasteometer', 'Check the musical compatibility of two Last.fm users.' d
 
   api_call opts do |json|
     result = json['comparison']['result']
-    if result['scpre'].nil?
+    if result['score'].nil?
       reply "Error: At least one of those accounts is non-existient."
       next
     end
