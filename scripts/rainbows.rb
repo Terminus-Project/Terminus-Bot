@@ -34,6 +34,11 @@ helpers do
         text = Bot.strip_irc_formatting message[:text]
 
         if search.match text
+          if flags.include? 's'
+            reply_with_match message[:type], message[:nick], text
+            return
+          end
+
           text = rainbowify text, flags
 
           reply_with_match message[:type], message[:nick], text
