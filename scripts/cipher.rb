@@ -139,7 +139,7 @@ end
 command 'decode', 'Decode some text using a particular cipher and key. Parameters: cipher key message' do
   argc! 3
 
-  reply do_decode(@params[0].upcase, @params[1], @params[2]).delete "\n\r\0"
+  reply do_decode(@params[0].upcase, @params[1], @params[2])
 end
 
 
