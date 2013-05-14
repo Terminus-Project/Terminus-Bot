@@ -58,7 +58,7 @@ helpers do
 
       opts |= Regexp::IGNORECASE if flags and flags.include? 'i'
 
-      search = Regexp.new match[:search].gsub(/\s/, '\s'), opts
+      search = Regexp.new match[:search].tr(" \t", '\s'), opts
 
       Buffer[@connection.name][@msg.destination_canon].reverse.each do |message|
         next if message[:text].match(/^[rsg]{1}\/(.+?)\/(.*?)(\/.*)?$/)
@@ -79,7 +79,7 @@ helpers do
 
       opts |= Regexp::IGNORECASE if flags and flags.include? 'i'
 
-      search = Regexp.new match[:search].gsub(/\s/, '\s'), opts
+      search = Regexp.new match[:search].tr(" \t", '\s'), opts
 
       Buffer[@connection.name][@msg.destination_canon].reverse.each do |message|
         next if message[:text].match(/^[rsg]{1}\/(.+?)\/(.*?)(\/.*)?$/)

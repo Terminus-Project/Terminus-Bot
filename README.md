@@ -467,6 +467,7 @@ flags after the last slash:
 * b - Change background color.
 * w - Change colors per word rather than per character.
 * l - Change colors for the entire line rather than per character.
+* s - Remove formatting from matching message.
 
 ### Raw
 

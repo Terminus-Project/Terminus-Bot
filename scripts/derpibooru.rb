@@ -123,7 +123,7 @@ helpers do
   end
 
   def search tags, random = false
-    tags = tags.gsub(/,\s+/, ',').gsub(/\s+/, ' ')
+    tags.tr_s! ', ', ', '
 
     $log.info('derpibooru.search') { "Searching Derpibooru for #{tags}" }
 

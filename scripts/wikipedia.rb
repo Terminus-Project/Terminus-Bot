@@ -72,11 +72,11 @@ helpers do
   end
 
   def output data, include_link
-    link_title = data['title'].gsub(/\s/, "_")
+    link_title = data['title'].tr " \t\r\n\f", '_'
     link = "https://en.wikipedia.org/wiki/#{URI.escape(link_title)}"
 
     # .gsub ALL THE THINGS!
-    snippet = data['snippet'].gsub(/<[^>]+>/, '').gsub(/\s+/, ' ').gsub(/\s([[:punct:]]+)\s/, '\1 ')
+    snippet = data['snippet'].gsub(/<[^>]+>/, '').tr_s(" \t\r\n\f", ' ').gsub(/\s([[:punct:]]+)\s/, '\1 ')
     snippet << link if include_link
 
     data = { 

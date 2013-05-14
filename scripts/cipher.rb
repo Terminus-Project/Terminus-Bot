@@ -39,9 +39,9 @@ helpers do
 
   # Vigenere Cipher
   def vigenere key, text, direction
-    text = text.upcase.gsub /[^A-Z]/, ''
+    text = text.upcase.delete '^A-Z'
 
-    key_it = key.upcase.gsub(/[^A-Z]/, '').chars.cycle
+    key_it = key.upcase.delete('^A-Z').chars.cycle
 
     base = 'A'.ord
     size = 'Z'.ord - base + 1
@@ -99,7 +99,7 @@ helpers do
   end
 
   def xor_encode key, data
-    Base64.encode64(xor_core(key, data)).gsub /[\r\n]*/, ''
+    Base64.encode64(xor_core(key, data)).delete "\r\n"
   end
 
   def xor_decode key, data
@@ -139,7 +139,7 @@ end
 command 'decode', 'Decode some text using a particular cipher and key. Parameters: cipher key message' do
   argc! 3
 
-  reply do_decode(@params[0].upcase, @params[1], @params[2]).gsub(/[\n\r\0]/, '')
+  reply do_decode(@params[0].upcase, @params[1], @params[2])
 end
 
 

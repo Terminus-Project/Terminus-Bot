@@ -26,7 +26,7 @@ helpers do
 
       opts |= Regexp::IGNORECASE if flags and flags.include? 'i'
 
-      search = Regexp.new match[:search].gsub(/\s/, '\s'), opts
+      search = Regexp.new match[:search].tr(" \t", '\s'), opts
 
       Buffer[@connection.name][@msg.destination_canon].reverse.each do |message|
         next if message[:text].match(/^[rsg]{1}\/(.+?)\/(.*?)(\/.*)?$/)
@@ -34,6 +34,11 @@ helpers do
         text = Bot.strip_irc_formatting message[:text]
 
         if search.match text
+          if flags.include? 's'
+            reply_with_match message[:type], message[:nick], text
+            return
+          end
+
           text = rainbowify text, flags
 
           reply_with_match message[:type], message[:nick], text

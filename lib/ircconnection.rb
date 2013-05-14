@@ -237,7 +237,7 @@ module Bot
     def raw str
       return if @disconnecting
 
-      str.delete! "\r\n"
+      str.delete! "\r\n\0"
       $log.debug("IRCConnection.raw #{@name}") { "Queued: #{str}" }
       Events.dispatch(:raw_out, Message.new(self, str, true))
 
@@ -262,7 +262,7 @@ module Bot
     def raw_fast str
       return if @disconnecting
 
-      str.delete! "\r\n"
+      str.delete! "\r\n\0"
       $log.debug("IRCConnection.raw_fast #{@name}") { "Sending: #{str}" }
       Events.dispatch(:raw_out, Message.new(self, str, true))
 

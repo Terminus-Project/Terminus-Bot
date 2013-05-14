@@ -48,7 +48,7 @@ module Bot
     end
 
     def clean_result result
-      result.strip.gsub(/<[^>]*>/, '').gsub(/\s+/, ' ')
+      result.strip.gsub(/<[^>]*>/, '').tr_s " \t\r\f\n", ' '
     end
 
   end

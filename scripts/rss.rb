@@ -140,7 +140,7 @@ helpers do
           send = false
           atom = rss.kind_of? RSS::Atom::Feed
 
-          feed_title = sanitize(atom ? rss.title.to_s : rss.channel.title.to_s)
+          feed_title = clean_result(atom ? rss.title.to_s : rss.channel.title.to_s)
 
           items = rss.items[0..get_config(:max, 3).to_i-1].reverse
 
@@ -150,9 +150,9 @@ helpers do
               send = true
 
             elsif send or feed[1].empty?
-              title = sanitize(item.title.to_s)
+              title = clean_result(item.title.to_s)
 
-              link = sanitize(atom ? item.links.select {|l| l.rel == "alternate"}[0].href.to_s : item.link.to_s)
+              link = clean_result(atom ? item.links.select {|l| l.rel == "alternate"}[0].href.to_s : item.link.to_s)
 
               Bot::Connections[network].send_privmsg channel,
                 "\02[#{feed_title}]\02 #{title} :: #{link}"
@@ -171,8 +171,5 @@ helpers do
     $log.debug("rss.check_feeds") { "Done checking feeds." }
   end
 
-  def sanitize str
-    html_decode str.gsub(/[\s]+/, " ").gsub(/<\/?[^>]+>/, "")
-  end
 end
 # vim: set tabstop=2 expandtab:
