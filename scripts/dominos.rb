@@ -35,7 +35,7 @@ command 'dominos', 'Look up the status for the Domino\'s order associated with t
   argc! 1
 
   # just strip all non-digit input in case someone used weird formatting
-  phone = @params.first.gsub(/[^\d]+/, '')
+  phone = @params.first.delete '^0-9'
 
   unless phone.length == 10
     raise 'Invalid phone number. Please enter ten digits.'

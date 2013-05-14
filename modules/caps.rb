@@ -107,7 +107,7 @@ module Bot
 
         $log.info("ClientCapabilities.on_cap_ack #{@parent.name}") { "Enabled CAP #{cap}" }
 
-        self << cap.gsub(/[^a-z]/, '_').to_sym
+        self << cap.tr('^a-z', '_').to_sym
       end
 
       unless @sasl_pending

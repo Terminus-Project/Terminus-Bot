@@ -300,7 +300,7 @@ helpers do
 
     return if word.nil? and not requested
 
-    word.gsub! /[!?.]/, ''
+    word.delete! '!?.'
 
     chain = chainer word
 
@@ -317,7 +317,7 @@ helpers do
 
     # Strip things that would need to be closed, like parens and quotation
     # marks.
-    chain.gsub! /[()"\[\]{}]/, ""
+    chain.delete! '()"[]{}'
 
     if not chain =~ /[!?.]\Z/
       if chain =~ /[[:punct:]]\Z/
