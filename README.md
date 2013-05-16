@@ -357,6 +357,15 @@ Commands:
 * NP - Show the currently playing track for the given last.fm user.
 * TASTEOMETER - Show the musical compatibility of two users.
 
+### LMGTFY
+
+Generate "Let Me Google That For You" links.
+
+Commands:
+
+* LMGTFY - Output a link to the "Let Me Google That For You" site with the
+  given query.
+
 ### Lograw
 
 Log all messages the bot sees. Messages are logged to the core logger, so
