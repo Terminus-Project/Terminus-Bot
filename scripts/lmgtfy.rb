@@ -1,7 +1,7 @@
 #
 # Terminus-Bot: An IRC bot to solve all of the problems with IRC bots.
 #
-# Copyright (C) 2010-2013 Kyle Johnson <kyle@vacantminded.com>, Alex Iadicicco
+# Copyright (C) 2013 Kyle Johnson <kyle@vacantminded.com>, Alex Iadicicco
 # (http://terminus-bot.net/)
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -23,14 +23,15 @@
 # SOFTWARE.
 #
 
-register 'Let the bot decide for you.'
+require 'uri'
 
-event :PRIVMSG do
-  prefix = Regexp.escaspe Bot::Conf[:core][:prefix]
-  next unless @msg.text.match(/^#{prefix} (.*)\?$/)
+register 'Create "Let Me Google That For You" links.'
 
-  choices = ($1 and ($1.include?(', ') or $1.include?(' or '))) ? $1.split(/,?\s+or\s+|,\s+/i) : %w[Yes No]
+command 'lmgtfy', 'Find an answer to almost any question.' do
+  argc! 1
 
-  reply choices.sample
+  reply "http://lmgtfy.com/?q=#{URI.encode @params.first.tr(" \t", '+')}", false
 end
+
 # vim: set tabstop=2 expandtab:
+
