@@ -42,7 +42,7 @@ module Bot
       prefix = Regexp.escape Bot::Conf[:core][:prefix]
       nick   = Regexp.escape msg.connection.nick
 
-      match = msg.text.match(/^(?<prefix>#{prefix}|#{nick}[^ ]* )?(?<command>[^ ]+)( (?<params>.+))?/i)
+      match = msg.text.match(/^(?<prefix>#{prefix}|#{nick}[^ ]* )?(?<command>[^ ]+)(\s+(?<params>.+))?/i)
 
       return unless msg.query? or match[:prefix]
 
