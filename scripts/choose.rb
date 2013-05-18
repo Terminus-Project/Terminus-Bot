@@ -26,7 +26,7 @@
 register 'Let the bot decide for you.'
 
 event :PRIVMSG do
-  prefix = Regexp.escaspe Bot::Conf[:core][:prefix]
+  prefix = Regexp.escape Bot::Conf[:core][:prefix]
   next unless @msg.text.match(/^#{prefix} (.*)\?$/)
 
   choices = ($1 and ($1.include?(', ') or $1.include?(' or '))) ? $1.split(/,?\s+or\s+|,\s+/i) : %w[Yes No]
