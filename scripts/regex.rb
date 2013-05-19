@@ -75,6 +75,7 @@ helpers do
   def substitute match
     Timeout::timeout(get_config(:run_time, 2).to_i) do
       replace, flags, opts = match[:replace], match[:flags], Regexp::EXTENDED
+      replace = replace.gsub(/(?<!\\)\\\//, "/")
 
       opts |= Regexp::IGNORECASE if flags and flags.include? 'i'
 
