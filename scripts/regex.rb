@@ -1,8 +1,8 @@
 #
 # Terminus-Bot: An IRC bot to solve all of the problems with IRC bots.
 #
-# Copyright (C) 2010-2013 Kyle Johnson <kyle@vacantminded.com>, Alex Iadicicco
-# (http://terminus-bot.net/)
+# Copyright (C) 2010-2013 Kyle Johnson <kyle@vacantminded.com>, Alex Iadicicco,
+# David Farrell <shokku.ra@gmail.com> (http://terminus-bot.net/)
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -32,8 +32,7 @@ register 'Show corrected text with s/regex/replacement/ is used and allow search
 event :PRIVMSG do
   next if query?
 
-  # XXX - fix recognition of escaped slashes
-  match = @msg.text.match(/^(?<action>(s|g))\/(?<search>.+?)\/(?<replace>.*?)(\/(?<flags>.*))?$/)
+  match = @msg.text.match(/^(?<action>(s|g))\/(?<search>((\\\\)|(\\\/)|.)+?)\/(?<replace>((\\\\)|(\\\/)|.)+?)(\/(?<flags>.*))?$/)
 
   if match
     next unless Buffer.has_key? @connection.name
