@@ -194,14 +194,13 @@ Commands:
 
 ### Dictionary
 
-Provides an interface to cleandictionary.com.
+Provides an interface to glosbe.com.
+
+*Note: This script is currently subject to significant change.*
 
 Commands:
 
 * DEFINE - Look up some possibile definitions of a word.
-* SLANG - Look up possibly meanings of a slang word.
-* SYNONYMS - Look up synonyms of a word.
-* ANTONYMS - Look up antonyms of a word.
 
 ### DNS
 
