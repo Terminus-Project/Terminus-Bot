@@ -104,7 +104,7 @@ event :PRIVMSG, :raw_out do
   next if query? or not @msg.type == :PRIVMSG
 
   if @msg.text =~ /\01ACTION (.+)\01/
-    log_msg @connection.name, @msg.destination, "ACTION", @msg.nick, @msg.strip($1)
+    log_msg @connection.name, @msg.destination, "ACTION", @msg.nick, Bot.strip_irc_formatting($1)
   elsif not @msg.text =~ /\01.+\01/
     log_msg @connection.name, @msg.destination, "PRIVMSG", @msg.nick, @msg.stripped
   end
