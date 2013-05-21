@@ -165,6 +165,9 @@ servers = {
   #                    closed; 0 disables the timeout. Must be > 0.)
   #   password        (string)
   #   ssl             (boolean)
+  #   ssl_cert        (string) path to ssl certificate file 
+  #                            (.crt extension, usually)
+  #   ssl_key         (string) path to ssl key file (.key extension usually)
   #   sasl_username   (string)
   #   sasl_password   (string)
   #   sasl_mechanism  (string: auto, plain, or dh-blowfish)
