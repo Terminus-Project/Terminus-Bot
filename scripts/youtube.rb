@@ -61,8 +61,8 @@ url /\/\/(youtu\.be\/.+|(www\.)?youtube\.com\/.+[?&]v=.+)/ do
     if json['error']
       raise json['error']['errors'].first['message']
     end
-
-    duration  = json['contentDetails']['duration'].match(/^PT((?<minutes>[0-9]+)M)?(?<seconds>[0-9]+)S$/)
+      
+    duration  = json['contentDetails']['duration'].match(/^PT((?<minutes>[0-9]+)M)?((?<seconds>[0-9]+)S)?$/)
     duration  = duration[:minutes].to_i * 60 + duration[:seconds].to_i
 
     reply_without_prefix 'YouTube' => json['snippet']['title'],
