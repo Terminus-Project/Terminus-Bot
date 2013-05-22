@@ -33,7 +33,10 @@ module Bot
     attr_reader :script_info
 
     # TODO: Rework this whole file. Stop this stupid string juggling.
-
+    # TODO: Kill all these module-specific things. We need events or something
+    #       to handle script load/unload/reload in modules. The code for that
+    #       already exists in the eventing system, we just need to tie it all
+    #       together.
 
     # Initialize a new ScriptManager object.
     #
@@ -109,6 +112,7 @@ module Bot
 
           Events.delete_for @scripts[name]
           URL.delete_for @scripts[name] if defined? MODULE_LOADED_URL_HANDLER
+          RegexHandlerManager.delete_for @scripts[name] if defined? MODULE_LOADED_REGEX_HANDLER
 
           @scripts[name].unregister_script
           @scripts[name].unregister_commands
@@ -137,6 +141,7 @@ module Bot
 
       Events.delete_for @scripts[name]
       URL.delete_for @scripts[name] if defined? MODULE_LOADED_URL_HANDLER
+      RegexHandlerManager.delete_for @scripts[name] if defined? MODULE_LOADED_REGEX_HANDLER
 
       @scripts[name].unregister_script
       @scripts[name].unregister_commands
@@ -158,6 +163,7 @@ module Bot
 
       Events.delete_for @scripts[name]
       URL.delete_for @scripts[name] if defined? MODULE_LOADED_URL_HANDLER
+      RegexHandlerManager.delete_for @scripts[name] if defined? MODULE_LOADED_REGEX_HANDLER
 
       @scripts[name].unregister_script
       @scripts[name].unregister_commands
