@@ -50,6 +50,8 @@ module Bot
     end
 
     def on_privmsg msg
+      return if msg.me?
+
       @@handlers.each do |regex, handlers|
         match = msg.stripped.match regex
    

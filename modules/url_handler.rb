@@ -63,6 +63,8 @@ module Bot
     end
 
     def on_privmsg msg
+      return if msg.me?
+
       conf = Bot::Conf[:modules][:url_handler]
 
       if conf.nil?
