@@ -283,6 +283,7 @@ Commands:
 * DICE - Roll dice.
 * EIGHTBALL - Shake the 8-ball.
 * COIN - Flip a coin.
+* RPS - Play Rock-paper-scissors against the bot.
 
 ### Google
 
