@@ -23,30 +23,24 @@
 # SOFTWARE.
 #
 
-need_module! 'buffer'
+need_module! 'buffer', 'regex_handler'
 
 require 'timeout'
 
 register 'Show corrected text with s/regex/replacement/ is used and allow searching with g/regex/.'
 
-event :PRIVMSG do
-  next if query?
+regex /^(?<action>(s|g))\/(?<search>((\\\\)|(\\\/)|.)+?)\/(?<replace>((\\\\)|(\\\/)|[^\/])*)(\/(?<flags>.*))?$/ do
+  next unless Buffer.has_key? @connection.name
+  next unless Buffer[@connection.name].has_key? @msg.destination_canon
 
-  match = @msg.text.match(/^(?<action>(s|g))\/(?<search>((\\\\)|(\\\/)|.)+?)\/(?<replace>((\\\\)|(\\\/)|[^\/])*)(\/(?<flags>.*))?$/)
-
-  if match
-    next unless Buffer.has_key? @connection.name
-    next unless Buffer[@connection.name].has_key? @msg.destination_canon
-
-    case match[:action]
-    when 'g'
-      grep match
-    when 's'
-      substitute match
-    end
-
-    next
+  case @match[:action]
+  when 'g'
+    grep @match
+  when 's'
+    substitute @match
   end
+
+  next
 end
 
 helpers do
