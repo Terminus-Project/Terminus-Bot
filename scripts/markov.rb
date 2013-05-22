@@ -208,7 +208,7 @@ event :PRIVMSG do
   next if query?
 
   if @msg.text =~ /\01ACTION (.+)\01/
-    parse_line @msg.strip($1)
+    parse_line Bot.strip_irc_formatting($1)
   elsif @msg.text.include? "\01"
     next
   elsif not @msg.text =~ /^.chain /
