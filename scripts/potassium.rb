@@ -68,7 +68,7 @@ helpers do
   end
 
   def get_k nick
-    get_data(@connection.name, Hash.new(0))[@connection.canonize nick]
+    get_data(@connection.name, Hash.new(0))[@connection.canonize nick] || 0
   end
 
   def add_k nick, amount = 1
