@@ -102,7 +102,7 @@ end
 
 command 'part', 'Part a channel.' do
   level! 8
-  if argc! 0
+  if @params.empty?
     name = @msg.destination_canon
   else
     name = @connection.canonize @params.first
@@ -127,10 +127,13 @@ end
 
 command 'cycle', 'Part and then join a channel.' do
   level! 8
+  if @params.empty?
+    name = @msg.destination_canon
+  else
+    name = @connection.canonize @params.first
+  end
 
   channels = get_data @connection.name, {}
-
-  name = @connection.canonize @params.first
 
   next unless channels.has_key? name
   
