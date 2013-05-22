@@ -240,6 +240,10 @@ module Bot
       str.delete! "\r\n\0"
       $log.debug("IRCConnection.raw #{@name}") { "Queued: #{str}" }
       Events.dispatch(:raw_out, Message.new(self, str, true))
+      
+      if @config[:send_formatting] === false
+        str = Bot.strip_irc_formatting str
+      end
 
       @send_queue << str.freeze
 
@@ -265,6 +269,10 @@ module Bot
       str.delete! "\r\n\0"
       $log.debug("IRCConnection.raw_fast #{@name}") { "Sending: #{str}" }
       Events.dispatch(:raw_out, Message.new(self, str, true))
+
+      if @config[:send_formatting] === false
+        str = Bot.strip_irc_formatting str
+      end
 
       send_data str
 

@@ -71,6 +71,7 @@ command 'register', 'Register a new account on the bot. Parameters: username pas
   end
 
   store_data @params[0], Hash[:password => encrypt_password(@params[1]), :level => level]
+  @connection.users[@msg.nick_canon].level = level
 
   reply "You have now registered an account with the user name #{@params[0]}. You now have level #{level} authorization."
   $log.info("account.cmd_register") { "#{@msg.origin} registered bot account #{@params[0]}" }

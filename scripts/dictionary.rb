@@ -27,141 +27,48 @@ require 'multi_json'
 
 need_module! 'http'
 
-register 'CleanDictionary.com look-ups.'
+register 'Glosbe.com look-ups.'
 
 helpers do
   def api_call func, args
-    uri = URI("http://cleandictionary.com/#{func}/#{URI.encode args}")
+    uri = URI("http://glosbe.com/gapi/#{func}")
 
-    http_get(uri) do |http|
+    http_get(uri, args) do |http|
       if http.response.empty?
-        reply "Connection failed - CleanDictionary.com may be down."
-	next
+        raise 'No response from glosbe.com.'
       end
       yield MultiJson.load http.response
     end
   end
 
-  def show_word json, type
-    case type
-    when :defs
-      data = {
-        "#{json['word']} (#{json['ps']})" => strip_def(json['defs'].first)
-      }
-    when :syn
-      if json['synonyms'].empty?
-        reply "No synonyms found for #{json['word']} (#{json['ps']})"
-        return
-      end
+  def get_definition word
+    args = {
+      'from'   => 'en',
+      'dest'   => 'en',
+      'format' => 'json',
+      'phrase' => word
+    }
 
-      str = strip_def(json['synonyms'][0..10].join(', ')).gsub /;/, '; '
-
-      data = {
-        "#{json['word']} (#{json['ps']})" => str
-      }
-    when :ant
-      if json['antonyms'].empty?
-        reply "No antonyms found for #{json['word']} (#{json['ps']})"
-        return
-      end
-
-      str = strip_def(json['antonyms'][0..10].join(', ')).gsub /;/, '; '
-
-      data = {
-        "#{json['word']} (#{json['ps']})" => str
-      }
-    end
-
-    reply data
-  end
-
-  def strip_def str
-    str.gsub! /\{\{([^\|]+)\|([^\}]+)\}\}/, '(\1: \2)'
-    str.gsub! /\{\{([^\}]+)\}\}/, '(\1)'
-    str.gsub! /[\[\]]|\|\w+/, ''
-    str.gsub! /\\(["'])/, '\1'
-    
-    str.strip.squeeze ' '
-  end
-
-  def slang json
-    found = 0
-    max = get_config :max, 1
-
-    slang = json['result'].each do |result|
-      result['defs'].each do |definition|
-        if definition.start_with? '{{slang}}'
-          found += 1
-
-          data = {
-            "#{result['word']} (#{result['ps']})" => strip_def(definition)
-          }
-
-          reply data
-
-          return if found == max
-        end
-      end
+    api_call 'translate', args do |json|
+      yield json
     end
   end
 
-  def search word, type = :defs
-    api_call('s', word) do |json|
-
-      if type == :slang
-        slang json
-        next
-      end
-
-      json['result'][0..get_config(:max, 1).to_i-1].each do |word|
-        show_word word, type
-      end
-
+  def show_word json
+    if json['tuc'].empty?
+      raise 'No results'
     end
+
+    reply json['phrase'] => html_decode(json['tuc'][0]['meanings'][0]['text'])
   end
 
-  def spell word
-    api_call('c', word) do |json|
-      if json['result'].empty?
-        reply "No results."
-      else
-        data = {
-          json['query'] => json['result'].join(', ')
-        }
-
-        reply data
-      end
-    end
-  end
 end
 
 command 'define', 'Look up some of the possible definitions of a word.' do
   argc! 1
 
-  search @params.first
+  get_definition @params.first do |json|
+    show_word json
+  end
 end
 
-command 'slang', 'Look up slang definitions of a word.' do
-  argc! 1
-
-  search @params.first, :slang
-end
-
-command 'synonyms', 'Look up synonmys of a word.' do
-  argc! 1
-
-  search @params.first, :syn
-end
-
-command 'antonyms', 'Look up antonmys of a word.' do
-  argc! 1
-
-  search @params.first, :ant
-end
-
-command 'spell', 'Check for correct or alternate ways to spell a word.' do
-  argc! 1
-
-  spell @params.first
-end
-# vim: set tabstop=2 expandtab:
