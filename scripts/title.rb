@@ -23,8 +23,7 @@
 # SOFTWARE.
 #
 
-need_module! 'http'
-need_module! 'url_handler'
+need_module! 'http', 'url_handler'
 
 require 'strscan'
 

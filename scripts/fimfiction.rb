@@ -25,8 +25,7 @@
 
 require 'multi_json'
 
-need_module! 'url_handler'
-need_module! 'http'
+need_module! 'url_handler', 'http'
 
 register 'Fetch information from FIMFiction.'
 
