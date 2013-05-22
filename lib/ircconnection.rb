@@ -159,7 +159,7 @@ module Bot
       if @config[:ssl]
         # TODO: Support more options here via the config file.
         if !@config[:ssl_cert].nil? and !@config[:ssl_key].nil?
-          start_tls :private_key_file => @config[:ssl_key], :public_key_file => @config[:ssl_cert], :verify_peer => false
+          start_tls :private_key_file => @config[:ssl_key], :cert_chain_file => @config[:ssl_cert], :verify_peer => false
         else
         start_tls :verify_peer => false
         end
