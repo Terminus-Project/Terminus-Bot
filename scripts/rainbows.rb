@@ -1,21 +1,15 @@
-need_module! 'buffer'
+need_module! 'buffer', 'regex_handler'
 
 require 'timeout'
 
 register 'Make messages prettier.'
 
-event :PRIVMSG do
-  next if query?
-
   # XXX - fix recognition of escaped slashes
-  match = @msg.text.match(/^r\/(?<search>.+?)(\/(?<flags>.*))?$/)
+regex /^r\/(?<search>.+?)(\/(?<flags>.*))?$/ do
+  next unless Buffer.has_key? @connection.name
+  next unless Buffer[@connection.name].has_key? @msg.destination_canon
 
-  if match
-    next unless Buffer.has_key? @connection.name
-    next unless Buffer[@connection.name].has_key? @msg.destination_canon
-
-    rainbows match
-  end
+  rainbows @match
 end
 
 helpers do
