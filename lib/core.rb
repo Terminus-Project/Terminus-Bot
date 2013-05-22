@@ -145,7 +145,9 @@ module Bot
     $log.debug("Bot.clean_up") { "Terminating event loop and deleting PID file." }
 
     EM.stop_event_loop if EM.reactor_running?
-    File.delete PID_FILE
+    if File.exists? PID_FILE
+      File.delete PID_FILE
+    end
   end
 
   # Strip IRC formatting data from string.
