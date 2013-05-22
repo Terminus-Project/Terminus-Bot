@@ -26,26 +26,28 @@
 register 'Check if web services are available.'
 
 
-command 'check', 'Check service availability. Syntax: HTTP url' do
-  argc! 2
+command 'check', 'Check service availability. Syntax: uri' do
+  argc! 1
 
-  case @params.first.downcase
-  when 'http'
-    check_http @params.last
+  uri = URI(@params.first)
 
-  when 'tcp'
-    # XXX
-    #argc! 3
-    #check_tcp @params.last 2
+   # TODO: Support more protocols (TCP, SSH, etc.)
+
+  case uri.scheme
+  when 'http', 'https'
+    check_http uri
+
+  else
+    raise 'unsupported protocol'
   end
 end
 
 helpers do
 
-  def check_http url
+  def check_http uri
     start = Time.now.to_f
 
-    http_get url, {}, false, {:redirects => 0} do |http|
+    http_get uri, {}, false, {:redirects => 0} do |http|
       if http.error
         raise http.error.to_s
       end

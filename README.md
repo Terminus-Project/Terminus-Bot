@@ -335,8 +335,8 @@ Check the availability and responsiveness of web services.
 
 Commands:
 
-* CHECK
-  * HTTP - Check the given URL's response time and status code.
+* CHECK - Check the service at the given URI for proper response and response
+  time.
 
 ### Karma
 
