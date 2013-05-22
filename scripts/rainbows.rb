@@ -29,7 +29,6 @@ require 'timeout'
 
 register 'Make messages prettier.'
 
-  # XXX - fix recognition of escaped slashes
 regex /^r\/(?<search>((\\\\)|(\\\/)|.)+?)(\/(?<flags>.*))?$/ do
   next unless Buffer.has_key? @connection.name
   next unless Buffer[@connection.name].has_key? @msg.destination_canon
@@ -42,6 +41,11 @@ helpers do
     Timeout::timeout(get_config(:run_time, 2).to_i) do
       # match[:replace] is flags because whatever
       search, flags, opts = match[:search], match[:flags], Regexp::EXTENDED
+
+      # set flags to empty string if not a string
+      unless flags.is_a? String
+        flags = ""
+      end
 
       opts |= Regexp::IGNORECASE if flags and flags.include? 'i'
 
