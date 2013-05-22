@@ -30,7 +30,7 @@ require 'timeout'
 register 'Make messages prettier.'
 
   # XXX - fix recognition of escaped slashes
-regex /^r\/(?<search>.+?)(\/(?<flags>.*))?$/ do
+regex /^r\/(?<search>((\\\\)|(\\\/)|.)+?)(\/(?<flags>.*))?$/ do
   next unless Buffer.has_key? @connection.name
   next unless Buffer[@connection.name].has_key? @msg.destination_canon
 
