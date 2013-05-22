@@ -262,6 +262,8 @@ modules = {
 
   }
 
+  regex_handler
+
   buffer = {
 
     # OPTIONAL

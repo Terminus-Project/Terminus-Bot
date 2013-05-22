@@ -32,7 +32,7 @@ register 'Show corrected text with s/regex/replacement/ is used and allow search
 event :PRIVMSG do
   next if query?
 
-  match = @msg.text.match(/^(?<action>(s|g))\/(?<search>((\\\\)|(\\\/)|.)+?)\/(?<replace>((\\\\)|(\\\/)|.)+?)(\/(?<flags>.*))?$/)
+  match = @msg.text.match(/^(?<action>(s|g))\/(?<search>((\\\\)|(\\\/)|.)+?)\/(?<replace>((\\\\)|(\\\/)|[^\/])*)(\/(?<flags>.*))?$/)
 
   if match
     next unless Buffer.has_key? @connection.name

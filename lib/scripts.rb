@@ -197,11 +197,13 @@ module Bot
     # @example
     #     need_module! 'http_client'
     #
-    # @param name [String] name of module that is required
+    # @param names [String] names of modules that is required
     # @raise if the required module is not loaded
-    def need_module! name
-      unless Bot.const_defined? "MODULE_LOADED_#{name.upcase}"
-        raise "#{my_short_name} requires the #{name} module"
+    def need_module! *names
+      names.each do |name|
+        unless Bot.const_defined? "MODULE_LOADED_#{name.upcase}"
+          raise "#{my_short_name} requires the #{name} module. Either add it to your configuration or disable this script."
+        end
       end
     end
 

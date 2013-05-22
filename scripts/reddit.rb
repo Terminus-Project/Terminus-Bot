@@ -25,7 +25,7 @@
 
 require 'multi_json'
 
-need_module! 'url_handler'
+need_module! 'url_handler', 'regex_handler'
 
 register 'Fetch information about posts and users on Reddit.'
 
@@ -51,6 +51,14 @@ url /\/\/(www\.)?redd(it|id\.com)/ do
     get_post @uri.path
 
   end
+end
+
+regex /(^|\s)\/r\/(?<name>[^\/\s]+)\/?(\s|$)/ do
+  get_subreddit @match[:name]
+end
+
+regex /(^|\s)\/u\/(?<name>[^\/\s]+)\/?(\s|$)/ do
+  get_user @match[:name]
 end
 
 helpers do
