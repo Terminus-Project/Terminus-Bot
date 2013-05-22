@@ -694,6 +694,13 @@ headers.
 Allows the bot to ignore other users. This is managed by the
 [ignore script](#ignore).
 
+### regex_handler
+
+Provides an easy-to-use way for scripts to act on messages matching regular
+expressions.
+
+For usage examples, see the Reddit script and others.
+
 ### url_handler
 
 Provides an easy-to-use way for scripts to react to URLs the bot sees in chat.
