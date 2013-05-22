@@ -201,7 +201,7 @@ module Bot
     # @raise if the required module is not loaded
     def need_module! name
       unless Bot.const_defined? "MODULE_LOADED_#{name.upcase}"
-        raise "#{my_short_name} requires the #{name} module"
+        raise "#{my_short_name} requires the #{name} module. Either add it to your configuration or disable this script."
       end
     end
 
