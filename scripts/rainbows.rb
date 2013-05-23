@@ -42,11 +42,6 @@ helpers do
       # match[:replace] is flags because whatever
       search, flags, opts = match[:search], match[:flags], Regexp::EXTENDED
 
-      # set flags to empty string if not a string
-      unless flags.is_a? String
-        flags = ""
-      end
-
       opts |= Regexp::IGNORECASE if flags and flags.include? 'i'
 
       search = Regexp.new match[:search].gsub(/\s/, '\s'), opts
@@ -57,7 +52,7 @@ helpers do
         text = Bot.strip_irc_formatting message[:text]
 
         if search.match text
-          if flags.include? 's'
+          if flags and flags.include? 's'
             reply_with_match message[:type], message[:nick], text
             return
           end
