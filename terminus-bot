@@ -136,6 +136,12 @@ def load_lib
 
 end
 
+def write_pid_file pid
+  # Bot.run changes $log to something else, so just puts this.
+  puts "Terminus-Bot started as #{pid}. Writing to #{PID_FILE}"
+
+  File.open(PID_FILE, "w") {|f| f.puts pid}
+end
 
 load_lib
 
@@ -144,16 +150,23 @@ load_lib
 # Launch!
 
 unless $opts[:fork]
+  write_pid_file Process.pid
+  
   EM.run { Bot.run }
+
+  # Go ahead and try to delete the PID file one more time, just in case EM.run
+  # failed for some reason.
+  if File.exists? PID_FILE
+    File.delete PID_FILE
+  end
+  
   exit
 end
  
 pid = EM.fork_reactor { Bot.run }
 
-# Bot.run changes $log to something else, so just puts this.
-puts "Terminus-Bot started as #{pid}. Writing to #{PID_FILE}"
+write_pid_file pid
 
-File.open(PID_FILE, "w") {|f| f.puts pid}
 Process.detach pid
 
 # vim: set tabstop=2 expandtab:
