@@ -44,7 +44,7 @@ module Bot
 
       match = msg.text.match(/^(?<prefix>#{prefix}|#{nick}\S* )?(?<command>\S+)(\s+(?<params>.+))?/i)
 
-      return if match == nil
+      return if match.nil?
       return unless msg.query? or match[:prefix]
 
       cmd_str = match[:command].downcase
