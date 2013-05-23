@@ -333,6 +333,14 @@ Commands:
 
 Check the availability and responsiveness of web services.
 
+URI syntax is the usual `protocol://hostname:port`. If no port is given and the
+protocol has a default port, it is used.
+
+Supported protocols are currently:
+
+* HTTP
+* HTTPS
+
 Commands:
 
 * CHECK - Check the service at the given URI for proper response and response
