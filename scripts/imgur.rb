@@ -29,39 +29,92 @@ need_module! 'http', 'url_handler'
 
 register 'Fetch information from Imgur.'
 
-# XXX - /gallery/ links fuck this up
 url /\/\/((www|i)\.)?imgur\.com\// do
   $log.info('imgur.url') { @uri.inspect }
 
-  match = @uri.path.match(/\/(?<album>(a|gallery)\/)?(?<hash>[^\.]+)(?<extension>\.[a-z]{3})?/)
+  match = @uri.path.match(/\/((?<type>a|gallery)\/)?(?<id>[^\.\/]+)(?<extension>\.[a-z]{3})?(\/comment\/(?<comment_id>\d+)$)?/)
+  
+  $log.info('imgur.url') { match.inspect }
 
   next unless match
 
-  arg = URI.escape match[:hash]
-  type = match[:album] ? 'album' : 'image'
-  api = URI("https://api.imgur.com/2/#{type}/#{arg}.json")
+  if match[:comment_id]
+    $log.debug('imgur.url') { "comment" }
+    comment match[:comment_id]
+  else
 
-  http_get(api, {}, true) do |http|
-    data = MultiJson.load http.response
+    case match[:type]
+    when nil
+      $log.debug('imgur.url') { "image" }
+      image match[:id]
+    when 'a'
+      $log.debug('imgur.url') { "album" }
+      album match[:id]
+    when 'gallery'
+      $log.debug('imgur.url') { "gallery" }
+      gallery match[:id]
+    end
+  end
+end
 
-    case type
-    when 'image'
-      data = data['image']['image']
+helpers do
+  def image id
+    api_call 'image', id do |data|
+      title = data['title'] || 'No Title'
+      reply "imgur: \02#{title}\02 - #{data['width']}x#{data['height']} #{data['type']}#{' (animated)' if data['animated']}", false
+    end
+  end
 
-      title = data['title'] ? data['title'] : 'No Title'
+  def album id
+    api_call 'album', id do |data|
+      title = data['title'] || 'No Title'
+      reply "imgur album: \02#{title}\02 - #{data['images_count']} images", false
+    end
+  end
 
-      reply "imgur: \02#{title}\02 - #{data["width"]}x#{data["height"]} #{data["type"]}#{" (animated)" if data["animated"] == 'true'}", false
+  def gallery id
+    api_call 'gallery', id do |data|
+      title = data['title'] || 'No Title'
+      if data['is_album']
+        reply "imgur album: \02#{title}\02 - #{data['images_count']} images", false
+      else
+        reply "imgur: \02#{title}\02 - #{data['width']}x#{data['height']} #{data['type']}#{' (animated)' if data['animated']}", false
+      end
+    end
+  end
 
-    when 'album'
-      data = data['album']
+  def comment id
+    api_call 'comment', id do |data|
+      reply "imgur comment: \02<#{data['author']}>\02 #{data['comment']}", false
+    end
+  end
 
-      title = data['title'] ? data['title'] : 'No Title'
-
-      reply "imgur album: \02#{title}\02 - #{data["images"].length} images", false
-
+  def api_call endpoint, path
+    client_id = get_config :client_id, nil
+    
+    if client_id.nil?
+      raise 'client_id must be set for imgur script to operate'
     end
 
+    opts = {
+      :head => {
+        'Authorization' => "Client-ID #{client_id}"
+      }
+    }
+
+    uri = URI("https://api.imgur.com/3/#{endpoint}/#{path}.json")
+
+    http_get uri, {}, true, opts do |http|
+      data = MultiJson.load(http.response)
+
+      unless data['success']
+        raise data['data']['error']
+      end
+
+      yield data['data']
+    end
   end
 end
 
 # vim: set tabstop=2 expandtab:
+

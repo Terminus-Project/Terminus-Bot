@@ -462,6 +462,21 @@ battle = {
 
 }
 
+# Imgur.com script.
+imgur = {
+
+  # Client ID to use for Imgur look-ups. Since only public information is
+  # retrieved via the API, the client secret is not required here. Because of
+  # this, we are willing to use our client ID in the released version of
+  # Terminus-Bot. However, if you would like, you may register with Imgur and
+  # use your own client ID here. This is a good idea if your bot handles a very
+  # large number of requests, of you simply want to have your own.
+  # 
+  # If this is empty or commented out, the Imgur script will not function.
+  client_id = e055d930f90c3da
+
+}
+
 # Music Player Daemon script.
 mpd = {
 
