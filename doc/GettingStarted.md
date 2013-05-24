@@ -9,11 +9,11 @@ covers many of these concerns.
 ## Installation
 
 Currently, it is not possible to install Terminus-Bot system-wide (this is a
-[planned feature](https://github.com/Terminus-IRC/Terminus-Bot/issues/26), but will
-not be ready until 2.0). For now, the recommended install method is to simply
-clone the git repository to a directory under your home directory.
+[planned feature](https://github.com/Terminus-Project/Terminus-Bot/issues/26),
+but will, not be ready until 2.0). For now, the recommended install method is
+to simply clone the git repository to a directory under your home directory.
 
-    git clone git://github.com/Terminus-IRC/Terminus-Bot.git
+    git clone git://github.com/Terminus-Project/Terminus-Bot.git
 
 ### Dependencies
 
