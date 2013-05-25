@@ -27,8 +27,8 @@ register 'Tracks when a user is last seen speaking.'
 
 
 event :PRIVMSG do
-  next unless @msg.destination.start_with? "#" or @msg.destination.start_with? "&"
-
+  next unless channel?
+  
   # This whole process is a bit expensive. Should store
   # this stuff in class instance variables?
 
