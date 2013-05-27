@@ -62,6 +62,10 @@ module Bot
       @@default_handler = nil if @@default_handler[:owner] == parent
     end
 
+    def delete regex
+      @@handlers.delete regex
+    end
+
     def on_privmsg msg
       return if msg.me?
 
