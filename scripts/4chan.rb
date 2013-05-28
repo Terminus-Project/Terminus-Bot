@@ -44,7 +44,7 @@ helpers do
       end
 
       data = MultiJson.load(http.response)['posts'].first
-      #TODO: configurable amount of lines from OP?
+
       num_lines = get_config :lines, 1
         result = html_decode clean_result data['com'].split('<br>').take(num_lines).join(" ")
     
