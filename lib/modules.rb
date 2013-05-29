@@ -25,7 +25,7 @@
 
 module Bot
   if Conf.has_key? :modules
-
+    Modules = Array.new
     Conf[:modules].each_key do |name|
       file_name = "modules/#{name}.rb"
 
@@ -33,6 +33,7 @@ module Bot
 
       if File.exists? file_name
         load file_name
+        Modules << name
       else
         $log.fatal("Modules") { "Attempted to load nonexistent module: #{name}" }
         exit -1
