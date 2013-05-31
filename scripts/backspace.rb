@@ -52,21 +52,27 @@ regex /\^[HWUY]/ do
       when 'H'
         buf.chop!
         caret = false
+
       when 'W'
         buf, clipboard = delete_last_word buf
         caret = false
+      
       when 'U'
         clipboard = buf.dup
         buf.clear
         caret = false
+      
       when 'Y'
         buf << clipboard
         caret = false
+      
       when '^'
         buf << c
+      
       else
         buf << "^#{c}"
         caret = false
+      
       end
 
     else
