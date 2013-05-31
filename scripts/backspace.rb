@@ -23,7 +23,7 @@
 # SOFTWARE.
 #
 
-need_module! 'buffer', 'regex_handler'
+need_module! 'regex_handler'
 
 register 'Fix typos.'
 
