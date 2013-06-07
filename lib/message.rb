@@ -152,9 +152,7 @@ module Bot
     #
     # @return [Boolean] false if message was private, true if not
     def query?
-      return true if @destination == nil
-
-      @query ||= (not @connection.support("CHANTYPES", "#&").include? @destination.chr)
+      @query ||= !@connection.is_channel_name?(@destination)
     end
   end
 end
