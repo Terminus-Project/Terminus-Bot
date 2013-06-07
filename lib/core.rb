@@ -101,7 +101,7 @@ module Bot
     end
 
     EM.add_periodic_timer(30) do
-      EVents.dispatch :periodic
+      Events.dispatch :periodic
     end
   end
 
