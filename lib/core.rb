@@ -99,6 +99,10 @@ module Bot
       end
       
     end
+
+    EM.add_periodic_timer(30) do
+      EVents.dispatch :periodic
+    end
   end
 
   # Attempt to gracefully close all connections and terminate the bot.
