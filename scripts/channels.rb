@@ -49,7 +49,7 @@ event :JOIN do
   send_part @msg.destination, "I am not configured to be in this channel."
 end
 
-event :PING do
+event :periodic do
   leave_channels
   join_channels
 end
