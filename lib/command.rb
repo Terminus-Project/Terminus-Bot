@@ -182,12 +182,23 @@ module Bot
     def voice?
       query? or @connection.channels[@msg.destination_canon].voice? @msg.nick
     end
+
     # Check if the given module is loaded.
     # @return [Boolean] true if module is loaded
-    
     def module_loaded? mod
       Bot::Modules.include? mod
     end
+
+    # If the event is taking place in a channel, get the related {Channel}
+    # object.
+    #
+    # @return [Object] {Channel} if exists, nil otherwise
+    def channel
+      return nil if @msg.query?
+      
+      @connection.channels[@msg.destination_canon]
+    end
+
     # Require at least `count` command parameters and split the parameters into
     # the @params array. If there are more than `count` parameters provided,
     # the remainder are all included in the last element of @params.
