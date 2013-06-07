@@ -61,15 +61,8 @@ helpers do
       end
 
       destinations.reject! do |destination, reminders|
-        $log.debug('Script.reminders') { "#{reminders.length} reminders for #{destination} on #{network}" }
-        
         reminders.reject! do |reminder|
-        
-          $log.debug('Script.reminders') { reminder.inspect }
-
           next if now < reminder[:time]
-
-          $log.debug('Script.reminders') { 'not skipped' }
 
           send_reminder network, destination,
             reminder[:time], reminder[:creator], reminder[:message]
