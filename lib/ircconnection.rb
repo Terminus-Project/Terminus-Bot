@@ -502,6 +502,16 @@ module Bot
 
       message
     end
+    
+    # Check if the given string is a channel name. CHANTYPES from ISUPPORT is
+    # used if available.
+    #
+    # @return [Boolean] true if the string appears to be a channel name
+    def is_channel_name? str
+      return false if str.nil? or str.include? ' ' #XXX
+
+      return support('CHANTYPES', '#&').include? str.chr
+    end
 
     # Retrieve ISUPPORT data.
     #
