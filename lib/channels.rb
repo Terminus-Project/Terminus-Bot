@@ -191,7 +191,7 @@ module Bot
 
       return unless has_key? msg.destination_canon
 
-      self[msg.destination_canon].topic msg.text
+      self[msg.destination_canon].topic = msg.text
     end
 
     # Callback for 332 numeric (channel topic shared on JOIN).
@@ -206,8 +206,10 @@ module Bot
       canon_name = @connection.canonize msg.raw_arr[3]
 
       return unless has_key? canon_name
+      
+      match = msg.raw_str.match(/^(\S+ ){4}:(?<topic>.*)$/)
 
-      self[canon_name].topic msg.text
+      self[canon_name].topic = match[:topic]
     end
 
 
@@ -284,7 +286,8 @@ module Bot
 
   class Channel
 
-    attr_reader :name, :topic, :modes, :users, :lists, :prefixes
+    attr_reader :name, :modes, :users, :lists, :prefixes
+    attr_accessor :topic
 
     # Create the channel object. Since all we know when we join is the name,
     # that's all we're going to store here.
@@ -462,11 +465,6 @@ module Bot
       return true if op? nick or half_op? nick
 
       @users[nick].modes.include? "v"
-    end
-
-    # Store the topic.
-    def topic str
-      @topic = str
     end
 
     # Add a user to our channel's user list.
