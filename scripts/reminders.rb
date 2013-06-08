@@ -54,7 +54,9 @@ helpers do
   def run_reminders
     now = Time.now.to_i
 
-    get_all_data.reject! do |network, destinations|
+    data = get_all_data
+
+    data.reject! do |network, destinations|
       unless Bot::Connections.has_key? network
         $log.warn('Script.reminders') { "Skipping reminders for offline network #{network}" }
         next
@@ -73,6 +75,8 @@ helpers do
 
       destinations.empty?
     end
+
+    store_all_data data
   end
 
   def send_reminder network, destination, time, nick, message
