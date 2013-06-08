@@ -439,6 +439,22 @@ module Bot
       Bot::DB[my_name][key] = value
     end
 
+    # Store data at the root of the script's database. Useful when dealing with
+    # data acquired from {Scripts#get_all_data}.
+    # 
+    # @raise when value is not a Hash
+    #
+    # @param value [Hash] data to store in database
+    def store_all_data value
+      unless value.is_a? Hash
+        raise 'database root for scripts must be a Hash object'
+      end
+
+      init_data
+
+      Bot::DB[my_name] = value
+    end
+
     # Delete data under the given key, if it exists.
     # @param key [Object] database key to delete
     def delete_data key
