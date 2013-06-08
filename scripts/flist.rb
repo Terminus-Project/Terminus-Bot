@@ -29,7 +29,7 @@ need_module! 'http'
 
 register 'Interact with F-list.net'
 
-command 'f-list', 'Interact with F-list. Parameters: CHARACTER name|' do
+command 'f-list', 'Interact with F-list. Parameters: CHARACTER name | COMPARE name1 name2' do
   argc! 2
 
   case @params.shift.downcase.to_sym
