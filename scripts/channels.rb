@@ -57,17 +57,21 @@ end
 helpers do
 
   def leave_channels
-    channels = get_data @connection.name, {}
+    Bot::Connections.each do |name, connection|
+      channels = get_data name, {}
 
-    @connection.channels.each_key do |chan|
-      next if channels.has_key? chan
+      connection.channels.each_key do |chan|
+        next if channels.has_key? chan
 
-      send_part chan, "I am not configured to be in this channel."
+        send_part chan, "I am not configured to be in this channel."
+      end
     end
   end
 
   def join_channels
-    send_join get_data(@connection.name, {})
+    Bot::Connections.each do |name, connection|
+      send_join get_data(name, {})
+    end
   end 
 
 end
