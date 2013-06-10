@@ -44,9 +44,9 @@ helpers do
       end
 
       data = MultiJson.load(http.response)['posts'].first
-
+      # TODO: Make this output suck less
       num_lines = get_config :lines, 1
-        result = html_decode clean_result data['com'].split('<br>').take(num_lines).join(" ")
+      result = html_decode clean_result data['com'].split('<br>').take(num_lines).join(" ") rescue result = ""
     
 
       reply "Thread \02#{data['no']}\02: #{result}", false
