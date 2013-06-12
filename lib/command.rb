@@ -221,6 +221,47 @@ module Bot
       end
     end
 
+    # Require at least `count` command parameters and split the parameters into
+    # the @params array. If there are more than `count` parameters provided,
+    # the remainder are all included in the last element of @params.
+    # 
+    # Additionally, the first item in @params will always be a channel name.
+    # For messages sent in private, the channel name must be provided by the
+    # user. For messages sent in a channel, the destination channel name will
+    # always be used.
+    #
+    # @raise if too few parameters are included
+    #
+    # @param count [Integer] minimum parameters required
+    # @param syntax [String] optional syntax to include with exception message
+    #
+    # @return [Boolean] true if the minimum parameter count was met
+    def argc_channel! count, presence_required = false, syntax = nil
+      if @msg.query?
+        @params = @params_str.split(/\s/, count + 1)
+
+        unless @connection.is_channel_name? @params.first
+          raise 'The first parameter must be a valid channel name.'
+        end
+      else
+        @params.unshift @msg.destination
+      end
+
+      if presence_required
+        unless @connection.channels.include? @connection.canonize @params.first
+          raise 'I must be in the channel to use this command.'
+        end
+      end
+
+      return true if @params.length >= count
+
+      if syntax
+        raise "At least #{count} parameters required: #{syntax}"
+      else
+        raise "At least #{count} parameters required."
+      end
+    end
+
     # Require the is logged in and has at least the account level specified.
     # @raise if failed
     # @param min [Integer] minimum account level required
