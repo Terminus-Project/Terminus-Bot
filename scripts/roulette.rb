@@ -35,10 +35,10 @@ command 'roulette', 'Pull the trigger. You have a 5/6 chance of surviving.' do
       reply "Bang!"
     end
 
-    reply "\01ACTION chambers another round and spins the cylinder.\01", false
+    send_action @msg.destination, "chambers another round and spins the cylinder."
 
   else
-    reply "\01ACTION spins the cylinder after #{@msg.nick} pulled the trigger on an empty chamber.\01", false
+    send_action @msg.destination, "spins the cylinder after #{@msg.nick} pulled the trigger on an empty chamber."
 
   end
 end
