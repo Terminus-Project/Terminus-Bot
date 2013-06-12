@@ -147,7 +147,11 @@ helpers do
   def attack_player target, weapon
     original = target
     target = @connection.canonize target
-
+    
+    if target == @connection.canonize(@connection.nick)
+      reply "You can't attack me!"
+      return
+    end
     unless @connection.channels[@msg.destination_canon].users.has_key? target
       reply "There is no such user in the channel."
       return
