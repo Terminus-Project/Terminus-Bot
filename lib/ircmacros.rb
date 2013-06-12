@@ -33,6 +33,13 @@ module Bot
     def send_privmsg dest, msg
       raw "PRIVMSG #{dest} :#{msg}"
     end
+    
+    # Send a CTCP ACTION.
+    # @param dest [String] message destination
+    # @param msg [String] message body
+    def send_action dest, msg
+      raw "PRIVMSG #{dest} :\001ACTION #{msg}\001"
+    end
 
     # Send a NOTICE.
     # @param dest [String] message destination
