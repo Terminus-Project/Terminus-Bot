@@ -187,6 +187,9 @@ helpers do
 
       if new == 0
         reply "#{original} has been defeated!", false
+        if half_op? @connection.nick and get_config(:kick_on_death, false) 
+          send_kick @msg.destination, original, "You've just been slain by #{@msg.nick} with #{weapon}!"
+        end
 
       else 
         reply "#{original} has \02#{new}\02 health remaining.", false

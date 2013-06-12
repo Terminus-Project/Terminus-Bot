@@ -460,6 +460,9 @@ battle = {
   # default: 5
   #absorb = 5
 
+  # Will Terminus-Bot kick users who run out of health?
+  # default: false
+  #kick_on_death = false
 }
 
 # Imgur.com script.
