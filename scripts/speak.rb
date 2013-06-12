@@ -27,14 +27,14 @@ register 'Provides SAY and ACT commands for making the bot speak in channel.'
 
 
 command 'say', 'Speak the given text.' do
-  level! 8 and argc! 1
+  level! 8 and argc_channel! 1
 
-  reply @params.first, false
+  send_privmsg *@params
 end
 
 command 'act', 'Act the given text (CTCP ACTION).' do
-  level! 8 and argc! 1
+  level! 8 and argc_channel! 1
 
-  reply "\01ACTION #{@params.first}\01", false
+  send_action *@params
 end
 # vim: set tabstop=2 expandtab:
