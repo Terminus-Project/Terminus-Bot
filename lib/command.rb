@@ -167,20 +167,20 @@ module Bot
 
     # Check if the speaker is op or better.
     # @return [Boolean] true if op or private message
-    def op?
-      query? or half_op? or voice? or @connection.channels[@msg.destination_canon].op? @msg.nick
+    def op? nick = @msg.nick
+      query? or half_op? or voice? or @connection.channels[@msg.destination_canon].op? nick
     end
 
     # Check if the speaker is a half-op or better.
     # @return [Boolean] true if half-op or private message
-    def half_op?
-      query? or voice? or @connection.channels[@msg.destination_canon].half_op? @msg.nick
+    def half_op? nick = @msg.nick
+      query? or voice? or @connection.channels[@msg.destination_canon].half_op? nick
     end
 
     # Check if the speaker is voiced or better.
     # @return [Boolean] true if voiced or private message
-    def voice?
-      query? or @connection.channels[@msg.destination_canon].voice? @msg.nick
+    def voice? nick = @msg.nick
+      query? or @connection.channels[@msg.destination_canon].voice? nick
     end
 
     # Check if the given module is loaded.
