@@ -174,10 +174,11 @@ module Bot
     #
     # Cancel the message queue timer, and attempt to reconnect (if necessary).
     def unbind
-      return if @disconnecting or @reconnecting
-
-      # XXX - should this be before the return?
       EM.cancel_timer @timer
+      
+      @registered = false
+
+      return if @disconnecting or @reconnecting
 
       reconnect true
     end
@@ -313,7 +314,7 @@ module Bot
       now = Time.now.to_i
       delay = Bot::Conf[:core][:throttle]
 
-      unless @send_queue.empty? or @reconnecting
+      unless @send_queue.empty?
         str = @send_queue.pop
 
         if str.length > 512
