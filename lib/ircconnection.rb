@@ -148,11 +148,11 @@ module Bot
     def connection_completed
       $log.info("IRCConnection.post_init #{@name}") { "Connection established." }
 
-      @users      = UserManager.new self
-      @channels   = Channels.new self
-      @registered = false
-
-      @disconnecting, @reconnecting = false, false
+      @users          = UserManager.new self
+      @channels       = Channels.new self
+      @registered     = false
+      @reconnecting   = false
+      @disconnecting  = false
 
       bind = Bot::Conf[:core][:bind]
       @client_host = bind == nil ? "" : bind
@@ -160,9 +160,11 @@ module Bot
       if @config[:ssl]
         # TODO: Support more options here via the config file.
         if !@config[:ssl_cert].nil? and !@config[:ssl_key].nil?
-          start_tls :private_key_file => @config[:ssl_key], :cert_chain_file => @config[:ssl_cert], :verify_peer => false
+          start_tls :private_key_file => @config[:ssl_key],
+            :cert_chain_file          => @config[:ssl_cert],
+            :verify_peer              => false
         else
-        start_tls :verify_peer => false
+          start_tls :verify_peer => false
         end
       end
 
