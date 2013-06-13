@@ -30,7 +30,8 @@ module Bot
 
     include Bot::IRCMacros
 
-    attr_reader :config, :name, :channels, :users, :client_host, :caps, :nick, :user, :realname
+    attr_reader :config, :name, :channels, :users,
+      :client_host, :caps, :nick, :user, :realname
 
     # Create a new IRC connection.
     #
