@@ -25,8 +25,6 @@
 
 register 'Manage the list of channels the bot occupies.'
 
-@@canonized = Hash.new false
-
 # TODO: All channel names in here need to use proper casemapping.
 # TODO: Handle 405?
 
