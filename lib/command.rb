@@ -25,7 +25,7 @@
 
 module Bot
   class Command
-    #attr_reader :owner, :cmd, :func, :argc, :level, :chan_level, :help
+    attr_reader :connection, :msg, :params
 
     include Bot::IRCMacros
 
@@ -42,11 +42,11 @@ module Bot
       # @param params [String] parameters supplied to the command
       # @param data [Hash] extra parameters for the event
       # @param blk [Block] block to eval for the event
-      def run owner, msg, cmd, params, data = {}, &blk
+      def run owner, msg, cmd, cmd_params, data = {}, &blk
         helpers &owner.get_helpers
 
         begin
-          self.new(owner, msg, cmd, params, data).instance_eval &blk
+          self.new(owner, msg, cmd, cmd_params, data).instance_eval &blk
         rescue Exception => e
           error msg, e
         end
@@ -81,18 +81,18 @@ module Bot
     # @param cmd [String] command that trigger the event
     # @param params [String] parameters supplied to the command
     # @param data [Hash] extra parameters for event
-    def initialize owner, msg, cmd, params = "", data = {}
-      @owner, @msg, @cmd, @data = owner, msg, cmd, data
+    def initialize owner, cmd_msg, cmd, cmd_params = "", data = {}
+      @owner, @msg, @cmd, @data = owner, cmd_msg, cmd, data
 
-      if params.nil?
+      if cmd_params.nil?
         @params     = []
         @params_str = ""
       else
-        @params_str = params
-        @params     = params.split(/\s/)
+        @params_str = cmd_params
+        @params     = cmd_params.split(/\s/)
       end
 
-      @connection = msg.connection unless msg.nil?
+      @connection = cmd_msg.connection unless cmd_msg.nil?
     end
 
     # Pass unknown method calls to the command's parent object.
@@ -130,10 +130,10 @@ module Bot
         reply arg.to_s_irc, prefix
       elsif arg.kind_of? Array
         arg.each do |this_str|
-          @connection.send_reply @msg, this_str, prefix
+          connection.send_reply msg, this_str, prefix
         end
       else
-        @connection.send_reply @msg, arg, prefix
+        connection.send_reply msg, arg, prefix
       end
     end
 
