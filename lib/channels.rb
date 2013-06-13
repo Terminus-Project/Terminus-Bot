@@ -40,6 +40,7 @@ module Bot
       Bot::Events.create :KICK,  self, :on_kick
       Bot::Events.create :MODE,  self, :on_mode
       Bot::Events.create :"324", self, :on_modes_on_join
+      Bot::Events.create :"442", self, :on_not_in_channel
 
       Bot::Events.create :QUIT,  self, :on_quit
 
@@ -127,6 +128,23 @@ module Bot
       end
 
       self[msg.destination_canon].part msg.nick_canon
+    end
+
+    # Callback for 442 messsage.
+    #
+    # If this message is received, the bot has tried to do something in a
+    # channel it is not in. Just in case, the channel is removed from the
+    # channels list, if it is present.
+    #
+    # *Generally, this should not be necessary.*
+    #
+    # @param msg [Message] message that triggered the callback
+    def on_not_in_channel msg
+      return unless msg.connection == @connection
+
+      return unless has_key? msg.destination_canon
+
+      delete msg.destination_canon
     end
 
     # Callback for KICK message.
