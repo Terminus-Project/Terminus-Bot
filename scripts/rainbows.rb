@@ -31,7 +31,7 @@ register 'Make messages prettier.'
 
 regex /^r\/(?<search>((\\\\)|(\\\/)|.)+?)(\/(?<flags>.*))?$/ do
   next unless Buffer.has_key? @connection.name
-  next unless Buffer[@connection.name].has_key? @msg.destination_canon
+  next unless Buffer[@connection.name].has_key? @msg.destination
 
   rainbows @match
 end
@@ -46,7 +46,7 @@ helpers do
 
       search = Regexp.new match[:search].gsub(/\s/, '\s'), opts
 
-      Buffer[@connection.name][@msg.destination_canon].reverse.each do |message|
+      Buffer[@connection.name][@msg.destination].reverse.each do |message|
         next if message[:text].match(/^[rsg]{1}\/(.+?)\/(.*?)(\/.*)?$/)
 
         text = Bot.strip_irc_formatting message[:text]

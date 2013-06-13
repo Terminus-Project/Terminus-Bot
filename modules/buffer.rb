@@ -37,7 +37,7 @@ module Bot
     end
 
     def on_part msg
-      self[msg.connection.name].delete(msg.destination_canon)
+      self[msg.connection.name].delete msg.destination
     end
 
     def record_message msg
@@ -58,20 +58,20 @@ module Bot
         type = msg.type
       end
 
-      self[msg.connection.name] ||= {}
-      self[msg.connection.name][msg.destination_canon] ||= []
+      self[msg.connection.name] ||= IRCHash.new(msg.connection)
+      self[msg.connection.name][msg.destination] ||= []
 
-      self[msg.connection.name][msg.destination_canon] << {:type => type,
-                                                           :text => text,
-                                                           :nick => msg.nick}
+      self[msg.connection.name][msg.destination] << {:type => type,
+                                                     :text => text,
+                                                     :nick => msg.nick}
      
       max = Conf[:modules][:buffer][:max_size] rescue 100
 
       # TODO: This is nasty. I am using a loop here because we might be
       # rehashed with a smaller value and have to shift it down to size. There
       # are better ways of doing this.
-      while self[msg.connection.name][msg.destination_canon].length > (Conf[:modules][:buffer][:max_size].to_i rescue 100)
-        self[msg.connection.name][msg.destination_canon].shift
+      while self[msg.connection.name][msg.destination].length > (Conf[:modules][:buffer][:max_size].to_i rescue 100)
+        self[msg.connection.name][msg.destination].shift
       end
     end
 

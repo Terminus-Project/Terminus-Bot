@@ -31,7 +31,7 @@ register 'Show corrected text with s/regex/replacement/ is used and allow search
 
 regex /^(?<action>(s|g))\/(?<search>((\\\\)|(\\\/)|.)+?)\/(?<replace>((\\\\)|(\\\/)|[^\/])*)(\/(?<flags>.*))?$/ do
   next unless Buffer.has_key? @connection.name
-  next unless Buffer[@connection.name].has_key? @msg.destination_canon
+  next unless Buffer[@connection.name].has_key? @msg.destination
 
   case @match[:action]
   when 'g'
@@ -53,7 +53,7 @@ helpers do
 
       search = Regexp.new match[:search].gsub(/\s/, '\s'), opts
 
-      Buffer[@connection.name][@msg.destination_canon].reverse.each do |message|
+      Buffer[@connection.name][@msg.destination].reverse.each do |message|
         next if message[:text].match(/^[rsg]{1}\/(.+?)\/(.*?)(\/.*)?$/)
 
         if search.match message[:text]
@@ -77,7 +77,7 @@ helpers do
 
       $log.debug('regex') { search }
 
-      Buffer[@connection.name][@msg.destination_canon].reverse.each do |message|
+      Buffer[@connection.name][@msg.destination].reverse.each do |message|
         next if message[:text].match(/^[rsg]{1}\/(.+?)\/(.*?)(\/.*)?$/)
 
         if search.match message[:text]
