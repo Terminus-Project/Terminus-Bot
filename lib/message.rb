@@ -124,8 +124,7 @@ module Bot
     # @see ChannelUser#prefix
     # @return [String] canonized nick with prefix
     def nick_with_prefix channel
-      channel = @connection.canonize(channel)
-      prefix = @connection.channels[channel].users[nick_canon].prefix || ''
+      prefix = @connection.channels[channel].users[nick].prefix || ''
 
       "#{prefix}#{@nick}"
     end

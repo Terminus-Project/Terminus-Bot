@@ -26,7 +26,7 @@
 
 module Bot
 
-  class Channels < Hash
+  class Channels < IRCHash
 
     # Create a new instance of the Channels class for this connection. This
     # sets up events for all channel-related events on this connection. Event
@@ -51,6 +51,8 @@ module Bot
       Bot::Events.create :NAMES, self, :on_names
 
       Bot::Events.create :NICK,  self, :on_nick
+
+      super(connection)
     end
 
     # Callback for WHO reply (352 numeric).
@@ -65,20 +67,20 @@ module Bot
     # @param msg [Message] message object triggered the callback
     def on_who_reply msg
       return unless msg.connection == @connection
-      canon_name = @connection.canonize msg.raw_arr[3]
+      channel = msg.raw_arr[3]
 
-      unless has_key? canon_name
-        self[canon_name] = Channel.new canon_name, @connection
+      unless has_key? channel
+        self[channel] = Channel.new channel, @connection
       end
 
-      self[canon_name].join(ChannelUser.new(
-        self[canon_name],
+      self[channel].join(ChannelUser.new(
+        self[channel],
         @connection.canonize(msg.raw_arr[7]),
         msg.raw_arr[4],
         msg.raw_arr[5],
         []))
 
-      self[canon_name].who_modes msg.raw_arr[7], msg.raw_arr[8]
+      self[channel].who_modes msg.raw_arr[7], msg.raw_arr[8]
     end
 
     # Callback for JOIN message.
@@ -94,9 +96,9 @@ module Bot
     def on_join msg
       return unless msg.connection == @connection
 
-      unless has_key? msg.destination_canon
-        self[msg.destination_canon] = Channel.new msg.destination_canon, @connection
-        Bot::Flags.add_channel @connection.name.to_s, msg.destination_canon
+      unless has_key? msg.destination
+        self[msg.destination] = Channel.new msg.destination, @connection
+        Bot::Flags.add_channel @connection.name.to_s, msg.destination
       end
 
       if msg.me?
@@ -104,9 +106,9 @@ module Bot
         @connection.raw "WHO #{msg.destination}"
       end
 
-      self[msg.destination_canon].join(ChannelUser.new(
-        self[msg.destination_canon],
-        msg.nick_canon, msg.user, msg.host, []
+      self[msg.destination].join(ChannelUser.new(
+        self[msg.destination],
+        msg.nick, msg.user, msg.host, []
       ))
     end
 
@@ -121,13 +123,13 @@ module Bot
     def on_part msg
       return unless msg.connection == @connection
 
-      return unless has_key? msg.destination_canon
+      return unless has_key? msg.destination
 
       if msg.me?
-        return delete msg.destination_canon
+        return delete msg.destination
       end
 
-      self[msg.destination_canon].part msg.nick_canon
+      self[msg.destination].part msg.nick
     end
 
     # Callback for 442 messsage.
@@ -142,7 +144,7 @@ module Bot
     def on_not_in_channel msg
       return unless msg.connection == @connection
 
-      channel = @connection.canonize msg.raw_arr[3]
+      channel = msg.raw_arr[3]
 
       return unless has_key? channel
 
@@ -160,10 +162,10 @@ module Bot
     def on_kick msg
       return unless msg.connection == @connection
 
-      return unless has_key? msg.destination_canon
+      return unless has_key? msg.destination
       # XXX - delete channel if the bot has been kicked
 
-      self[msg.destination_canon].part @connection.canonize msg.raw_arr[3]
+      self[msg.destination].part @connection.canonize msg.raw_arr[3]
     end
 
     # Callback for MODE message.
@@ -177,9 +179,9 @@ module Bot
     def on_mode msg
       return unless msg.connection == @connection
 
-      return unless has_key? msg.destination_canon
+      return unless has_key? msg.destination
 
-      self[msg.destination_canon].mode_change msg.raw_arr[3..-1]
+      self[msg.destination].mode_change msg.raw_arr[3..-1]
     end
 
     # Callback for 324 numeric (channel modes shared on JOIN).
@@ -191,11 +193,11 @@ module Bot
     # @param msg [Message] message that triggered the callback
     def on_modes_on_join msg
       return unless msg.connection == @connection
-      canon_name = @connection.canonize msg.raw_arr[3]
+      channel = msg.raw_arr[3]
 
-      return unless has_key? canon_name
+      return unless has_key? channel
 
-      self[canon_name].mode_change msg.raw_arr[4..-1]
+      self[channel].mode_change msg.raw_arr[4..-1]
     end
 
 
@@ -209,9 +211,9 @@ module Bot
     def on_topic msg
       return unless msg.connection == @connection
 
-      return unless has_key? msg.destination_canon
+      return unless has_key? msg.destination
 
-      self[msg.destination_canon].topic = msg.text
+      self[msg.destination].topic = msg.text
     end
 
     # Callback for 332 numeric (channel topic shared on JOIN).
@@ -223,13 +225,13 @@ module Bot
     # @param msg [Message] message that triggered the callback
     def on_topic_on_join msg
       return unless msg.connection == @connection
-      canon_name = @connection.canonize msg.raw_arr[3]
+      channel = msg.raw_arr[3]
 
-      return unless has_key? canon_name
+      return unless has_key? channel
       
       match = msg.raw_str.match(/^(\S+ ){4}:(?<topic>.*)$/)
 
-      self[canon_name].topic = match[:topic]
+      self[channel].topic = match[:topic]
     end
 
 
@@ -315,7 +317,7 @@ module Bot
       @name, @connection = name, connection
       @name.freeze
 
-      @topic, @users = "", {}
+      @topic, @users = "", IRCHash.new(connection)
       @modes = {}
       @lists = {} # bans, exempts, etc.
 
@@ -454,8 +456,6 @@ module Bot
     end
 
     def op? nick
-      nick = @connection.canonize nick
-
       return false unless @users.has_key? nick
 
       return true if @users[nick].modes.include? "q"
@@ -468,8 +468,6 @@ module Bot
     end
 
     def half_op? nick
-      nick = @connection.canonize nick
-
       return false unless @users.has_key? nick
 
       return true if op? nick
@@ -478,8 +476,6 @@ module Bot
     end
 
     def voice? nick
-      nick = @connection.canonize nick
-
       return false unless @users.has_key? nick
 
       return true if op? nick or half_op? nick
@@ -496,8 +492,6 @@ module Bot
 
     # Remove a user from our channel's user list.
     def part nick
-      nick = @connection.canonize nick
-
       return nil unless @users.include? nick
 
       $log.debug("Channel.part") { "#{nick} parted #{@name}" }
@@ -507,47 +501,41 @@ module Bot
 
     # Remove a user from our channel's user list.
     def quit msg
-      return nil unless @users.include? msg.nick_canon
+      return nil unless @users.include? msg.nick
 
       $log.debug("Channel.quit") { "#{msg.nick} quit #{@name}" }
 
       Events.dispatch :QUIT_CHANNEL, msg, {:channel => self}
 
-      @users.delete msg.nick_canon
+      @users.delete msg.nick
     end
 
     # Retrieve the channel user object for the named user, or return nil
     # if none exists.
     def get_user nick
-      nick = @connection.canonize nick
-
-      @users.has_key?(nick) ? @users[nick] : nil
+      @users.fetch nick, nil
     end
 
     # Someone changed nicks. Make the necessary updates.
     def change_nick msg
-      return unless @users.has_key? msg.nick_canon
+      return unless @users.has_key? msg.nick
 
       $log.debug("Channel.change_nick") { "Renaming user #{msg.nick} on #{@name}" }
-
-      changed_nick_canon = msg.connection.canonize msg.text
 
       # Apparently structs don't let you change values. So just make a
       # new user.
       changed_user = ChannelUser.new self,
-                                     changed_nick_canon,
-                                     @users[msg.nick_canon].user,
-                                     @users[msg.nick_canon].host,
-                                     @users[msg.nick_canon].modes
+                                     msg.text,
+                                     @users[msg.nick].user,
+                                     @users[msg.nick].host,
+                                     @users[msg.nick].modes
 
-      @users.delete msg.nick_canon
-      @users[changed_nick_canon] = changed_user
+      @users.delete msg.nick
+      @users[msg.text] = changed_user
     end
 
     def who_modes nick, info
       $log.debug("Channel.who_modes") { "#{nick} => #{info}" }
-
-      nick = @connection.canonize nick
 
       info.each_char do |c|
 
@@ -565,4 +553,5 @@ module Bot
     end
   end
 end
+
 # vim: set tabstop=2 expandtab:

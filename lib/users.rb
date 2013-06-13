@@ -26,7 +26,7 @@
 module Bot
   User = Struct.new(:connection, :nick, :user, :host, :level, :account)
 
-  class UserManager < Hash
+  class UserManager < IRCHash
 
     # Set up user-related event handlers.
     # 
@@ -41,6 +41,8 @@ module Bot
       Events.create :NICK,    self, :change_nick
       Events.create :QUIT,    self, :quit
       Events.create :PART,    self, :part
+
+      super(connection)
     end
 
     # Callback for QUIT message.
@@ -51,7 +53,7 @@ module Bot
     def quit msg
       return unless msg.connection == @connection
 
-      delete_user msg.nick_canon
+      delete_user msg.nick
     end
 
     # Callback for PART message.
@@ -61,12 +63,12 @@ module Bot
     # @param msg [Message] message that triggered the callback
     def part msg
       msg.connection.channels.each_value do |chan|
-        unless chan.get_user(msg.nick_canon) == nil
+        unless chan.get_user(msg.nick) == nil
           return
         end
       end
 
-      delete_user msg.nick_canon
+      delete_user msg.nick
     end
 
     # Callback for WHO message.
@@ -78,7 +80,7 @@ module Bot
     def add_352 msg
       return if msg.connection != @connection
 
-      add_user(msg.connection.canonize(msg.raw_arr[7]), msg.raw_arr[4], msg.raw_arr[5])
+      add_user(msg.raw_arr[7], msg.raw_arr[4], msg.raw_arr[5])
     end
 
     # Add the user info from the origin portion of a message to our user list.
@@ -91,7 +93,7 @@ module Bot
 
       msg.origin =~ /(.+)!(.+)@(.+)/
 
-      add_user msg.connection.canonize($1), $2, $3
+      add_user $1, $2, $3
     end
 
     # Add a user to our user list.
@@ -114,19 +116,17 @@ module Bot
     # @param msg [Message] message that triggered the callback
     def change_nick msg
       return if msg.connection != @connection
-      return unless has_key? msg.nick_canon
+      return unless has_key? msg.nick
 
       $log.debug("Users.add_user") { "Renaming user #{msg.nick} on #{@connection.name}" }
 
-      changed_nick_canon = msg.connection.canonize msg.text
+      temp = self[msg.nick]
 
-      temp = self[msg.nick_canon]
+      delete msg.nick
 
-      delete msg.nick_canon
+      temp.nick = msg.text
 
-      temp.nick = changed_nick_canon
-
-      self[changed_nick_canon] = temp
+      self[msg.text] = temp
     end
 
     # Forget the user with the given nick.
@@ -147,9 +147,9 @@ module Bot
     # @param msg [Message] message for which to check the speaker's level
     # @return [Integer] account level of speaker
     def get_level msg
-      add_origin msg unless has_key? msg.nick_canon
+      add_origin msg unless has_key? msg.nick
 
-      return self[msg.nick_canon].level
+      return self[msg.nick].level
     end
 
     # @return [String] list of known nicks
