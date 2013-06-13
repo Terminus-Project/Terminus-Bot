@@ -63,14 +63,14 @@ helpers do
       connection.channels.each_key do |chan|
         next if channels.has_key? chan
 
-        send_part chan, "I am not configured to be in this channel."
+        connection.send_part chan, "I am not configured to be in this channel."
       end
     end
   end
 
   def join_channels
     Bot::Connections.each do |name, connection|
-      send_join get_data(name, {})
+      connection.send_join get_data(name, {})
     end
   end 
 
