@@ -48,7 +48,7 @@ helpers do
     api_call('profile', gamertag) do |json|
       data = {
         json['Gamertag'] => {
-        'Status' => json['OnlineStatus'].tr_s(" \t\r\n", ' '),
+        'Status' => html_decode(json['OnlineStatus'].tr_s(" \t\r\n", ' ')),
         'Gamer Score' => json['GamerScore'],
         'Tier' => json['Tier'].capitalize
         }
