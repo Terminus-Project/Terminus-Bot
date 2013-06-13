@@ -194,9 +194,16 @@ module Bot
     #
     # @return [Object] {Channel} if exists, nil otherwise
     def channel
-      return nil if @msg.query?
+      return nil if msg.query?
       
-      @connection.channels[@msg.destination_canon]
+      connection.channels[msg.destination_canon]
+    end
+
+    # Return the {Channels} object for the current connection.
+    #
+    # @return [Channels] channels object for the current {IRCConnection}
+    def channels
+      connection.channels
     end
 
     # Require at least `count` command parameters and split the parameters into

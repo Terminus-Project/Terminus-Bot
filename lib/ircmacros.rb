@@ -68,17 +68,19 @@ module Bot
     # * String: Single channel, or comma-separated list of channels to join.
     #   Sent as-is to server.
     # * Array: One channel per array item. JOINs are automatically compressed
-    #   to fewer commands.
+    #   to fewer commands. Channels which the bot is already in are omitted.
     # * Hash: Channel name => channel key pairs. JOINs are automatically
-    #   compressed as they are with the Array type.
+    #   compressed as they are with the Array type. Channels which the bot is
+    #   already in are omitted.
     #
     # @param channel [String, Array, Hash] channel or channels to join
     def send_join channel
-      # TODO: don't dispatch joins for channels we are already in, if possible
       if channel.is_a? Array
         buf = []
 
         channel.each do |c|
+          next if channels.include? c
+
           buf << c
           
           if buf.length == 4
@@ -92,6 +94,8 @@ module Bot
         buf, keys = [], []
 
         channel.each do |c, k|
+          next if channels.include? c
+
           buf << c
           keys << (k.empty? ? k : 'x')
           
