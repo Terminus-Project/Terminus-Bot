@@ -82,12 +82,12 @@ helpers do
   end
 
   def add_karma nick, amount = 1
-    nick = @connection.canonize nick
-
-    unless @connection.channels[@msg.destination_canon].users.has_key? nick
+    unless channel.users.has_key? nick
       $log.debug('karma.add_karma') { "Skipping nonexistent target #{nick}" }
       return
     end
+
+    nick = @connection.canonize nick
 
     if @msg.nick_canon == nick
       $log.debug('karma.add_karma') { "Skipping self karma change attempt for #{nick}" }

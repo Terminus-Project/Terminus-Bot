@@ -32,17 +32,13 @@ register "Announce away status when away users are highlighted."
 event :PRIVMSG do
   next if query? or not get_data([@connection.name, @msg.destination], false)
 
-  chan = @connection.channels[@msg.destination_canon]
-
   # TODO: This is going to fail for nicks that end with punctuation. Do it a
   # different way.
   @msg.text.split(" ").each do |word|
     word.sub! /[[:punct:]]*\Z/, ""
 
-    nick = @connection.canonize word
-
-    if chan.users.has_key? nick
-      check_away nick
+    if channel.users.has_key? word
+      check_away word
     end
   end
 end
