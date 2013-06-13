@@ -357,9 +357,7 @@ module Bot
       name_key = my_short_name.to_sym
 
       if Bot::Conf.has_key? name_key
-        if Bot::Conf[name_key].has_key? key
-          return Bot::Conf[name_key][key]
-        end
+        return Bot::Conf[name_key].fetch key, default
       end
 
       default
@@ -393,7 +391,7 @@ module Bot
     def get_data key, default = nil
       init_data
 
-      Bot::DB[my_name][key] or default
+      Bot::DB[my_name].fetch key, default
     end
 
     # Get the entire database for this script.
