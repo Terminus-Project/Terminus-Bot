@@ -142,9 +142,11 @@ module Bot
     def on_not_in_channel msg
       return unless msg.connection == @connection
 
-      return unless has_key? msg.destination_canon
+      channel = @connection.canonize msg.raw_arr[3]
 
-      delete msg.destination_canon
+      return unless has_key? channel
+
+      delete channel
     end
 
     # Callback for KICK message.
