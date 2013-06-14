@@ -31,7 +31,8 @@ module Bot
     include Bot::IRCMacros
 
     attr_reader :config, :name, :channels, :users,
-      :client_host, :caps, :nick, :user, :realname
+      :client_host, :caps, :nick, :user, :realname,
+      :bytes_sent, :bytes_received, :lines_sent, :lines_received
 
     # Create a new IRC connection.
     #
@@ -52,7 +53,15 @@ module Bot
       @isupport      = {}
       @buf           = BufferedTokenizer.new
       @client_host   = ""
+
+      @bytes_sent     = 0
+      @bytes_received = 0
+      @lines_sent     = 0
+      @lines_received = 0
+
+      bind = Bot::Conf[:core][:bind]
       
+      # XXX
       @caps = ClientCapabilities.new self if defined? MODULE_LOADED_CLIENT_CAPABILITIES
 
       @name = name
@@ -154,6 +163,11 @@ module Bot
       @reconnecting   = false
       @disconnecting  = false
 
+      @bytes_sent     = 0
+      @bytes_received = 0
+      @lines_sent     = 0
+      @lines_received = 0
+
       bind = Bot::Conf[:core][:bind]
       @client_host = bind == nil ? "" : bind
 
@@ -194,6 +208,9 @@ module Bot
     # @param data [String]
     def receive_data data
       @buf.extract(data).each do |line|
+        @lines_received += 1
+        @bytes_received += line.bytesize
+
         receive_line line.chomp
       end
     end
@@ -297,6 +314,9 @@ module Bot
     # @param data [String]
     def send_data data
       super "#{data}\n"
+        
+      @lines_sent += 1
+      @bytes_sent += data.bytesize + 1
 
       $log.debug("IRCConnection.send_data #{@name}") { data }
     end
