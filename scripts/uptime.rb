@@ -26,7 +26,9 @@
 register 'Show bot uptime and usage information.'
 
 command 'uptime', 'Show how long the bot has been active.' do
-  since = File.ctime(PID_FILE).to_duration_s
+  ctime         = File.ctime PID_FILE
+  ctime_seconds = Time.now.to_i - ctime.to_i
+  since         = ctime.to_duration_s
 
   lines_received, lines_sent = 0, 0
   bytes_received, bytes_sent = 0, 0
@@ -38,9 +40,12 @@ command 'uptime', 'Show how long the bot has been active.' do
     bytes_sent     += connection.bytes_sent
   end
 
+  received_speed = bytes_received / ctime_seconds
+  sent_speed     = bytes_sent / ctime_seconds
+
   reply 'Started' => "#{since} ago",
-    'Received'  => "#{lines_received} lines, #{bytes_received.format_bytesize}",
-    'Sent'      => "#{lines_sent} lines, #{bytes_sent.format_bytesize}"
+    'Received'  => "#{lines_received} lines, #{bytes_received.format_bytesize} (#{received_speed.format_bytesize}/second)",
+    'Sent'      => "#{lines_sent} lines, #{bytes_sent.format_bytesize} (#{sent_speed.format_bytesize}/second)"
 
 end
 
