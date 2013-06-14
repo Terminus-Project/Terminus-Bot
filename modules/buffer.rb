@@ -58,7 +58,7 @@ module Bot
         type = msg.type
       end
 
-      self[msg.connection.name] ||= IRCHash.new(msg.connection)
+      self[msg.connection.name] ||= CanonizedHash.new(msg.connection)
       self[msg.connection.name][msg.destination] ||= []
 
       self[msg.connection.name][msg.destination] << {:type => type,

@@ -26,7 +26,7 @@
 
 module Bot
 
-  class Channels < IRCHash
+  class Channels < CanonizedHash
 
     # Create a new instance of the Channels class for this connection. This
     # sets up events for all channel-related events on this connection. Event
@@ -317,7 +317,7 @@ module Bot
       @name, @connection = name, connection
       @name.freeze
 
-      @topic, @users = "", IRCHash.new(connection)
+      @topic, @users = "", CanonizedHash.new(connection)
       @modes = {}
       @lists = {} # bans, exempts, etc.
 

@@ -22,7 +22,7 @@
 # SOFTWARE.
 #
 
-# Dummy canonization class for {IRCHash}. Only works for {String} keys by using
+# Dummy canonization class for {CanonizedHash}. Only works for {String} keys by using
 # String#upcase.
 class DummyCanonizer
   def self.canonize str
@@ -31,15 +31,15 @@ class DummyCanonizer
 end
 
 # Hash implementation that can use an external canonizer for keys.
-class IRCHash < Hash
+class CanonizedHash < Hash
 
-  # Create a new IRCHash object.
+  # Create a new CanonizedHash object.
   #
   # Use as a normal {Hash}, but include a object in the declaration that has a
   # `canonizer` function. All keys will be passed to the canonizer before use.
   #
   # @example
-  #   channels = IRCHash.new @connection
+  #   channels = CanonizedHash.new @connection
   #   channels['#terminus-bot'] = 'bar'
   #   channels                            # => {"#TERMINUS-BOT" => "bar"}
   #

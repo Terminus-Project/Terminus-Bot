@@ -111,7 +111,7 @@ $log.info("preload") { "Loading core files." }
 def load_lib
 
   # These have to be first.
-  load "lib/irchash.rb"
+  load "lib/canonizedhash.rb"
   load "lib/flags.rb"
   #load "lib/database.rb"
   load "lib/ircmacros.rb"

@@ -26,7 +26,7 @@
 module Bot
   User = Struct.new(:connection, :nick, :user, :host, :level, :account)
 
-  class UserManager < IRCHash
+  class UserManager < CanonizedHash
 
     # Set up user-related event handlers.
     # 
