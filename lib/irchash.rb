@@ -22,6 +22,14 @@
 # SOFTWARE.
 #
 
+# Dummy canonization class for {IRCHash}. Only works for {String} keys by using
+# String#upcase.
+class DummyCanonizer
+  def self.canonize str
+    str.upcase
+  end
+end
+
 # Hash implementation that can use an external canonizer for keys.
 class IRCHash < Hash
 
@@ -36,7 +44,7 @@ class IRCHash < Hash
   #   channels                            # => {"#TERMINUS-BOT" => "bar"}
   #
   # @param canonizer [Object] instance of a class which has a canonize function
-  def initialize canonizer, *args
+  def initialize canonizer = DummyCanonizer, *args
     @canonizer = canonizer
     super(*args)
   end
