@@ -32,7 +32,11 @@ end
 command 'remind', 'Schedule a relayed reminder. The delay is specified by a string where x1y1x2y2..xnyn where x is a number and y is a time unit (any of: s m h d w y) Syntax: delay message' do
   channel! and argc! 2
 
-  time = Time.parse_duration(@params.shift)
+  time = Time.parse_duration @params.shift
+
+  if time.to_i <= Time.now.to_i
+    raise 'reminders must be set for a time in the future'
+  end
 
   reminder = {
     time: time.to_i,
