@@ -123,6 +123,7 @@ def load_lib
   load "lib/hash.rb"
   load "lib/string.rb"
   load "lib/time.rb"
+  load "lib/numeric.rb"
 
   load "lib/users.rb"
   load "lib/ircconnection.rb"
