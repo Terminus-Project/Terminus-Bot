@@ -39,8 +39,8 @@ command 'uptime', 'Show how long the bot has been active.' do
   end
 
   reply 'Started' => "#{since} ago",
-    'Received'  => "#{lines_received} lines, #{'%.2f' % [bytes_received / 1024.0]} KiB",
-    'Sent'      => "#{lines_sent} lines, #{'%.2f' % [bytes_sent / 1024.0]} KiB"
+    'Received'  => "#{lines_received} lines, #{bytes_received.format_bytesize}",
+    'Sent'      => "#{lines_sent} lines, #{bytes_sent.format_bytesize}"
 
 end
 
