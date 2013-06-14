@@ -27,8 +27,21 @@ register 'Show bot uptime and usage information.'
 
 command 'uptime', 'Show how long the bot has been active.' do
   since = File.ctime(PID_FILE).to_duration_s
-  # XXX
-  #reply "I was started #{since} ago. \02In:\02 #{Bot.lines_in} lines (#{sprintf("%.4f", Bot.bytes_in / 1024.0)} KiB) \02Out:\02 #{Bot.lines_out} lines (#{sprintf("%.4f", Bot.bytes_out / 1024.0)} KiB)"
-  reply "I was started #{since} ago."
+
+  lines_received, lines_sent = 0, 0
+  bytes_received, bytes_sent = 0, 0
+
+  Bot::Connections.each do |name, connection|
+    lines_received += connection.lines_received
+    bytes_received += connection.bytes_received
+    lines_sent     += connection.lines_sent
+    bytes_sent     += connection.bytes_sent
+  end
+
+  reply 'Started' => "#{since} ago",
+    'Received'  => "#{lines_received} lines, #{'%.2f' % [bytes_received / 1024.0]} KiB",
+    'Sent'      => "#{lines_sent} lines, #{'%.2f' % [bytes_sent / 1024.0]} KiB"
+
 end
+
 # vim: set tabstop=2 expandtab:
