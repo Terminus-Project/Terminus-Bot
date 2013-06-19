@@ -294,6 +294,17 @@ Commands:
 * COIN - Flip a coin.
 * RPS - Play Rock-paper-scissors against the bot.
 
+### Gizoogle
+
+"Translate" text using [Gizoogle](http://www.gizoogle.net/).
+
+*Note: Gizoogle has no API as of the time of writing, so this script scrapes
+the web page. Because of this, it may be prone to breakage.*
+
+Commands:
+
+* GIZOOGLE - Translate the given text.
+
 ### Google
 
 Search the Internet with Google.

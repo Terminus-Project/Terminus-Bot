@@ -23,52 +23,41 @@
 # SOFTWARE.
 #
 
-require 'multi_json'
+require 'strscan'
 
 need_module! 'http'
 
-register 'Glosbe.com look-ups.'
+register 'Translate text using Gizoogle.'
 
-helpers do
-  def api_call func, args
-    uri = URI("http://glosbe.com/gapi/#{func}")
-
-    http_get(uri, args) do |http|
-      if http.response.empty?
-        raise 'No response from glosbe.com.'
-      end
-      yield MultiJson.load http.response
-    end
-  end
-
-  def get_definition word
-    args = {
-      'from'   => 'en',
-      'dest'   => 'en',
-      'format' => 'json',
-      'phrase' => word
-    }
-
-    api_call 'translate', args do |json|
-      yield json
-    end
-  end
-
-  def show_word json
-    if json['tuc'].empty?
-      raise 'No results'
-    end
-
-    reply json['phrase'] => html_decode(json['tuc'][0]['meanings'][0..2].map {|m| m['text']}.join(' - '))
-  end
-
-end
-
-command 'define', 'Look up some of the possible definitions of a word.' do
+command 'gizoogle', 'Translate text using Gizoogle' do
   argc! 1
 
-  get_definition @params.first do |json|
-    show_word json
+  uri  = URI('http://www.gizoogle.net/textilizer.php')
+  
+  text = URI.encode @params.first
+  body = "translatetext=#{text}"
+
+  opts = {
+    :head => {
+      'Content-Type'    => 'application/x-www-form-urlencoded',
+      'Content-Length'  => body.length
+    },
+    :body => body
+  }
+
+  http_post(uri, {}, false, opts) do |http|
+    page = StringScanner.new http.response
+
+    page.skip_until /<textarea[^>]*>/ix
+    text = page.scan_until /<\/textarea[^>]*>/ix
+
+    next if text == nil
+
+    text = html_decode text[0..-12]
+
+    text = text.gsub(/[[[:cntrl:]]\s]+/, ' ').strip
+
+    reply text
   end
 end
 
