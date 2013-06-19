@@ -251,6 +251,7 @@ module Bot
           raise 'The first parameter must be a valid channel name.'
         end
       else
+        @params = @params_str.split(/\s/, count)
         @params.unshift @msg.destination
       end
 
