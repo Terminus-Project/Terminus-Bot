@@ -54,7 +54,7 @@ url do
 
       reply "\02Title on #{last.host}#{' (redirected)' unless http.redirects.zero?}:\02 #{title}", false
     rescue => e
-      $log.error('title.get_title') { "Error getting title for #{uri}: #{e} #{e.backtrace.join("\n")}" }
+      $log.error('title.get_title') { "Error getting title for #{@uri}: #{e} #{e.backtrace.join("\n")}" }
     end
   end
 
