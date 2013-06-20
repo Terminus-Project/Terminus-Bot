@@ -45,7 +45,7 @@ class String
   end
 
   def fix_encoding!
-    encode! 'ASCII-8BIT',
+    encode! (Bot::Conf[:core][:encoding] || 'ASCII-8BIT'),
       :invalid => :replace,
       :undef   => :replace
   end

@@ -65,6 +65,15 @@ core = {
 
 
   # OPTIONAL
+  # When dealing with text from external sources, such as web sites, the bot
+  # will often need to re-encode some characters. Depending on your system
+  # configuration and your language needs, you may need to change this value.
+  # If you are having problems, try changing this to UTF-8.
+  # default: ASCII-8BIT
+  #encoding = ASCII-8BIT
+
+
+  # OPTIONAL
   # If your bot is running on a machine with multiple IP addresses, you should use
   # this setting to force the bot to bind to a certain connection. If you are
   # running the bot on a shell account or some other shared hosting platform, your
