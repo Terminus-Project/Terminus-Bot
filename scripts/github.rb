@@ -79,7 +79,7 @@ helpers do
     path = "/contents/#{path}"
 
     api_call match[:owner], match[:project], 'repos', path, ref: branch do |data|
-      reply_without_prefix match[:project] => "#{data['name']}: #{data['size'].to_f.round / 1024} KiB #{data['type']}"
+      reply_without_prefix match[:project] => "#{data['name']}: #{data['size'].to_f.format_bytesize} #{data['type']}"
     end
   end
 
