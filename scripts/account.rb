@@ -175,7 +175,7 @@ helpers do
     return false if stored == nil
 
     stored_arr = stored[:password].split ":"
-    calculated = OpenSSL::PKCS5::pbkdf2_hmac_sha1 password, stored_arr[1], 100000, 50 
+    calculated = OpenSSL::PKCS5::pbkdf2_hmac_sha1 password, stored_arr[1], get_config(:iterations, 100000).to_i, 50 
     if stored_arr[0] == calculated
       return true
     else
@@ -193,7 +193,7 @@ helpers do
     o = [('a'..'z'),('A'..'Z'),('0'..'9')].map{|i| i.to_a}.flatten;  
     salt = (1..8).map{ o[rand(o.length)]  }.join;
 
-    "#{OpenSSL::PKCS5::pbkdf2_hmac_sha1 password, salt, 100000, 50}:#{salt}"
+    "#{OpenSSL::PKCS5::pbkdf2_hmac_sha1 password, salt, get_config(:iterations, 100000).to_i, 50}:#{salt}"
   end
 end
 

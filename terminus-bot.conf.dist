@@ -304,6 +304,24 @@ admins = {
 }
 
 
+# Account management settings.
+account = {
+
+  # READ ME!!!!
+  #
+  # This is the number of PBKDF2 iterations to use when storing passwords.
+  #
+  # If you change this from the default after your users already have
+  # accounts, they will be unable to log in! 
+  #
+  # Example:
+  #
+  #   iterations = 100000
+  # Default: 100000
+  #
+  # iterations = 100000
+  #
+}
 # Flag table configuration
 flags = {
 
