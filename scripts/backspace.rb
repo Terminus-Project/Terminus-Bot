@@ -79,6 +79,9 @@ regex /\^[HWUY]/ do
       buf << c
 
     end
+
+    # prevent excessively huge buffers (possible denial of service)
+    buf = buf[0..512]
   end
 
   buf << '^' if caret
