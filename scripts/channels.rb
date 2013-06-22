@@ -83,6 +83,7 @@ end
 
 command 'join', 'Join a channel with optional key.' do
   level! 8
+  argc! 1
 
   arr = @params.first.split /\s+/, 2
 
