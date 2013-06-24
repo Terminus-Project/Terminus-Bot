@@ -55,11 +55,18 @@ helpers do
   end
 
   def show_word json
-    if json['tuc'].empty?
+    unless json.has_key? 'tuc'
       raise 'No results'
     end
 
-    reply json['phrase'] => html_decode(json['tuc'][0]['meanings'][0..2].map {|m| m['text']}.join(' - '))
+    json['tuc'].each do |val|
+      if val.has_key? 'meanings'
+        reply json['phrase'] => html_decode(val['meanings'][0..2].map {|m| m['text']}.join(' - '))
+        return
+      end
+    end
+
+    raise 'No results'
   end
 
 end
