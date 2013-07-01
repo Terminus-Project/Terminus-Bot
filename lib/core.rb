@@ -93,7 +93,7 @@ module Bot
       $log.debug("Bot.run") { config.to_s }
 
       unless bind == nil or bind.empty?
-        EM.bind_connect bind, config[:address], config[:port], IRCConnection, name
+        EM.bind_connect bind, nil, config[:address], config[:port], IRCConnection, name
       else
         EM.connect config[:address], config[:port], IRCConnection, name
       end
