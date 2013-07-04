@@ -31,34 +31,34 @@ module Bot
     # @param dest [String] message destination
     # @param msg [String] message body
     def send_privmsg dest, msg
-      raw "PRIVMSG #{dest} :#{msg}"
+      send_command 'PRIVMSG', dest, msg
     end
     
     # Send a CTCP ACTION.
     # @param dest [String] message destination
     # @param msg [String] message body
     def send_action dest, msg
-      raw "PRIVMSG #{dest} :\001ACTION #{msg}\001"
+      send_privmsg dest, "\001ACTION #{msg}\001"
     end
 
     # Send a NOTICE.
     # @param dest [String] message destination
     # @param msg [String] message body
     def send_notice dest, msg
-      raw "NOTICE #{dest} :#{msg}"
+      send_command 'NOTICE', dest, msg
     end
 
     # Send a MODE.
     # @param target [String] target channel or user
     # @param modes [String] modes to apply to target
     def send_mode target, modes
-      raw "MODE #{target} #{modes}"
+      send_command 'MODE', [target, modes]
     end
 
     # Change the bot's nick.
     # @param nick [String] new nick
     def send_nick nick
-      raw "NICK #{nick}"
+      send_command 'NICK', nick
     end
 
     # Join one or more channels.
@@ -107,7 +107,7 @@ module Bot
         end
         send_join "#{buf.join(',')} #{keys.join(',')}" unless buf.empty?
       else
-        raw "JOIN #{channel}"
+        send_command 'JOIN', channel
       end
     end
 
@@ -115,7 +115,7 @@ module Bot
     # @param channel [String] channel to leave
     # @param message [String] part reason
     def send_part channel, message = ""
-      raw "PART #{channel} :#{message}"
+      send_command 'PART', channel, message
     end
 
     # Kick a user from a channel.
@@ -123,13 +123,13 @@ module Bot
     # @param target [String] nick of the user to kick
     # @param message [String] kick reason
     def send_kick channel, target, message = ""
-      raw "KICK #{channel} #{target} :#{message}"
+      send_command 'KICK', [channel, target], message
     end
 
     # Send a WHO for the given target.
     # @param target [String] the channel or user for which you want info
     def send_who target
-      raw "WHO #{target}"
+      send_command 'WHO', target
     end
 
     # Send a WHOIS for the given user.
@@ -137,7 +137,7 @@ module Bot
     # @param server [String] server (or nick a second time) to which the whois
     #   should be sent
     def send_whois target, server = ""
-      raw "WHOIS #{target} #{server}"
+      send_command 'WHOIS', [target, server]
     end
 
     # Send a command to the server.
@@ -150,7 +150,9 @@ module Bot
     def send_command command, params = nil, text = nil
       buf = []
 
-      buf << command.upcase
+      command.upcase!
+
+      buf << command
       
       if params
         if params.is_a? Array
@@ -169,8 +171,10 @@ module Bot
       buf = buf.join ' '
 
       case command
-      when 'PRIVMSG'
+      when 'PRIVMSG', 'NOTICE'
         raw buf
+      when 'PONG'
+        raw_fast buf
       else
         raw buf
       end
