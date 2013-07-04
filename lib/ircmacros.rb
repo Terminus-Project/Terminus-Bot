@@ -140,6 +140,41 @@ module Bot
       raw "WHOIS #{target} #{server}"
     end
 
+    # Send a command to the server.
+    #
+    # Based on the command being sent, the message may be scheduled for certain
+    # delivery priorities.
+    # @param command [String] command to send
+    # @param params [String, Array] list of parameters for the command
+    # @param text [String] trailing argument, sent after a colon
+    def send_command command, params = nil, text = nil
+      buf = []
+
+      buf << command.upcase
+      
+      if params
+        if params.is_a? Array
+          buf.concat params
+        elsif params.is_a? String
+          buf << params
+        else
+          raise "params (second function parameter) must be a String or Array"
+        end
+      end
+
+      if text
+        buf << ":#{text}"
+      end
+
+      buf = buf.join ' '
+
+      case command
+      when 'PRIVMSG'
+        raw buf
+      else
+        raw buf
+      end
+    end
   end
 
 end
