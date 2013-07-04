@@ -331,6 +331,11 @@ module Bot
     def raw *args
       @connection.raw *args
     end
+
+    # @see IRCConnection#raw_fast
+    def raw_fast *args
+      @connection.raw_fast *args
+    end
   end
 end
 # vim: set tabstop=2 expandtab:
