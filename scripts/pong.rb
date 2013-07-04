@@ -26,7 +26,7 @@
 register 'Reply to server pings.'
 
 event :PING do
-  @connection.raw_fast "PONG :#{@msg.text}"
+  send_command 'PONG', @msg.text
 end
 
 # vim: set tabstop=2 expandtab:
