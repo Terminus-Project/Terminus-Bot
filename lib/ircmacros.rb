@@ -172,11 +172,11 @@ module Bot
 
       case command
       when 'PRIVMSG', 'NOTICE'
-        raw buf
-      when 'PONG'
-        raw_fast buf
+        raw buf, :fast
+      when 'PONG', 'QUIT'
+        raw buf, :immediate
       else
-        raw buf
+        raw buf, :slow
       end
     end
   end
