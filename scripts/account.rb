@@ -109,7 +109,7 @@ command 'fpassword', 'Change another user\'s bot account password. Parameters: u
   end
 
   stored[:password] = encrypt_password @params[1]
-  store_data @connection.users[@msg.nick_canon].account, stored
+  store_data @connection.users[@params[0]].account, stored
 
   reply "The account password has been changed"
   $log.info("account.cmd_fpassword") { "#{@msg.origin} changed account password for #{@params[0]}" }
