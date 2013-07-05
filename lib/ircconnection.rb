@@ -278,7 +278,7 @@ module Bot
       when :fast
         @send_queue_fast << str.freeze
       when :immediate
-        raw_fast str
+        send_data str
       else
         @send_queue_slow << str.freeze
       end
