@@ -46,13 +46,14 @@ module Bot
     def initialize name
       Bot::Connections[name] = self
 
-      @disconnecting = false
-      @reconnecting  = false
-      @send_queue    = Queue.new
-      @history       = []
-      @isupport      = {}
-      @buf           = BufferedTokenizer.new
-      @client_host   = ""
+      @disconnecting   = false
+      @reconnecting    = false
+      @send_queue_slow = Queue.new
+      @send_queue_fast = Queue.new
+      @history         = []
+      @isupport        = {}
+      @buf             = BufferedTokenizer.new
+      @client_host     = ""
 
       @bytes_sent     = 0
       @bytes_received = 0
@@ -257,9 +258,10 @@ module Bot
     # the outgoing queue.
     #
     # @param str [String] string to send over the socket
+    # @param priority [Symbol] :slow, :fast, or :immediate
     #
     # @return [String] the string that was actually queued (after sanitization)
-    def raw str
+    def raw str, priority = :slow
       return if @disconnecting
 
       str.delete! "\r\n\0"
@@ -270,7 +272,16 @@ module Bot
         str = Bot.strip_irc_formatting str
       end
 
-      @send_queue << str.freeze
+      case priority
+      when :slow
+        @send_queue_slow << str.freeze
+      when :fast
+        @send_queue_fast << str.freeze
+      when :immediate
+        raw_fast str
+      else
+        @send_queue_slow << str.freeze
+      end
 
       str
     end
@@ -325,8 +336,12 @@ module Bot
     # should be used with great care, as it is presently quite simple to cause
     # a bot to continuously flood itself offline until the queue is empty.
     def flush_queue
-      until @send_queue.empty?
-        send_data @send_queue.pop
+      until @send_queue_fast.empty?
+        send_data @send_queue_fast.pop
+      end
+
+      until @send_queue_slow.empty?
+        send_data @send_queue_slow.pop
       end
     end
 
@@ -336,9 +351,13 @@ module Bot
       now = Time.now.to_i
       delay = Bot::Conf[:core][:throttle]
 
-      unless @send_queue.empty?
-        str = @send_queue.pop
+      if not @send_queue_fast.empty?
+        str = @send_queue_fast.pop
+      elsif not @send_queue_slow.empty?
+        str = @send_queue_slow.pop
+      end
 
+      if str
         if str.length > 512
           $log.error("IRCConnection.send_single_message #{@name}") { "Message too large: #{str}" }
 
