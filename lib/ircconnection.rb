@@ -265,8 +265,6 @@ module Bot
       return if @disconnecting
 
       str.delete! "\r\n\0"
-      $log.debug("IRCConnection.raw #{@name}") { "Queued: #{str}" }
-      Events.dispatch(:raw_out, Message.new(self, str, true))
       
       if @config[:send_formatting] === false
         str = Bot.strip_irc_formatting str
@@ -274,12 +272,16 @@ module Bot
 
       case priority
       when :slow
+        $log.debug("IRCConnection.raw #{@name}") { "Queued (slow): #{str}" }
         @send_queue_slow << str.freeze
       when :fast
+        $log.debug("IRCConnection.raw #{@name}") { "Queued (fast): #{str}" }
         @send_queue_fast << str.freeze
       when :immediate
+        $log.debug("IRCConnection.raw #{@name}") { "Sent without queuing: #{str}" }
         send_data str
       else
+        $log.debug("IRCConnection.raw #{@name}") { "Queued (slow): #{str}" }
         @send_queue_slow << str.freeze
       end
 
@@ -300,19 +302,7 @@ module Bot
     #
     # @return [String] the string that was actually sent (after sanitization)
     def raw_fast str
-      return if @disconnecting
-
-      str.delete! "\r\n\0"
-      $log.debug("IRCConnection.raw_fast #{@name}") { "Sending: #{str}" }
-      Events.dispatch(:raw_out, Message.new(self, str, true))
-
-      if @config[:send_formatting] === false
-        str = Bot.strip_irc_formatting str
-      end
-
-      send_data str
-
-      str
+      raw str, :immediate
     end
 
 
@@ -325,13 +315,13 @@ module Bot
     # @param data [String]
     def send_data data
       super "#{data}\n"
+      Events.dispatch(:raw_out, Message.new(self, data, true))
         
       @lines_sent += 1
       @bytes_sent += data.bytesize + 1
 
       $log.debug("IRCConnection.send_data #{@name}") { data }
     end
-
     # Quickly flush the outgoing queue without throttling any messages. This
     # should be used with great care, as it is presently quite simple to cause
     # a bot to continuously flood itself offline until the queue is empty.
