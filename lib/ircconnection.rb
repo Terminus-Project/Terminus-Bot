@@ -95,7 +95,7 @@ module Bot
     # @param quit_message [String] message to send as the bot's quit
     #   message/reason
     def disconnect quit_message = "Terminus-Bot: Terminating"
-      raw "QUIT :#{quit_message}"
+      send_command 'QUIT', [], quit_message
 
       @disconnecting = true
 
@@ -113,7 +113,7 @@ module Bot
     # @param lost_connection [Boolean]
     def reconnect lost_connection = false
       unless lost_connection
-        raw "QUIT :Reconnecting"
+        send_command 'QUIT', [], 'Reconnecting'
         #flush_queue
       else
         $log.warn("IRCConnection.reconnect #{@name}") { "Lost connection." }
@@ -135,7 +135,7 @@ module Bot
     # data that wouldn't otherwise be cleaned up, including connection events.
     def destroy
       unless @disconnecting
-        raw "QUIT"
+        send_command 'QUIT'
         flush_queue
       end
 
