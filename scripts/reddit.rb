@@ -29,7 +29,7 @@ need_module! 'url_handler', 'regex_handler'
 
 register 'Fetch information about posts and users on Reddit.'
 
-url /\/\/(www\.)?redd(it|id\.com)/ do
+url /\/\/((www|pay)\.)?redd(it|id\.com)/ do
   $log.info('reddit.url') { @uri.inspect }
 
   match = @uri.path.match(/\/(?<type>[^\/]+)\/(?<target>[^?\/]+)(\/comments\/(?<post_id>[^\/]+\/.+))?/)
