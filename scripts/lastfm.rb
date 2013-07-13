@@ -57,8 +57,9 @@ command 'np', 'Show the currently playing track for the given Last.fm user.' do
 
     name   = track['name']
     artist = track['artist']['#text']
+    album  = track['album']['#text']
 
-    reply_without_prefix "#{user} is listening to" => "#{artist} - #{name}"
+    reply_without_prefix "#{user} is listening to" => "#{artist} - #{name}#{" (#{album})" unless album.empty?}"
   end
 end
 
