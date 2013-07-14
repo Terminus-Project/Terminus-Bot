@@ -73,8 +73,11 @@ helpers do
 
   def add_k nick, amount = 1
     return if amount.zero?
-
+  
     potassium = get_data @connection.name, Hash.new(0)
+    if potassium[nick].nil?
+      potassium[nick] = 0
+    end
     potassium[nick] += amount
 
     $log.debug('potassium.add_k') { "#{nick} potassium change: #{amount}: #{potassium[nick]}" }
