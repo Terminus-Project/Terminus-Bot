@@ -25,7 +25,7 @@
 
 register 'RPN calculator script.'
 
-command 'rpn', 'Perform calculations using a Reverse Polish notation (postfix) calculator. Operations: add + sub - mul * exp ** div / f p' do
+command 'rpn', 'Perform calculations using a Reverse Polish notation (postfix) calculator. Operations: add + sub - mul * exp ** div / mod % f p' do
   argc! 1
 
   max_prints = get_config(:max_prints, 3).to_i
