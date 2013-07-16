@@ -487,7 +487,7 @@ module Bot
     def join user
       $log.debug("Channel.join") { "#{user.nick} joined #{@name}" }
 
-      @users[@connection.canonize user.nick] = user
+      @users[user.nick] = user
     end
 
     # Remove a user from our channel's user list.
