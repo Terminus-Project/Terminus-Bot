@@ -70,7 +70,11 @@ helpers do
   end
 
   def api_call type, from, to
+    from = CGI.escape from
+
     if to
+      to = CGI.escape to
+
       uri = URI("https://foaas.herokuapp.com/#{type}/#{to}/#{from}")
     else
       uri = URI("https://foaas.herokuapp.com/#{type}/#{from}")
