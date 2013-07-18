@@ -40,7 +40,7 @@ command 'fuck', 'Retrieve data from FOAAS.' do
     off you donut linus
   ]
   
-  type, to = @params.first.split /\s+/, 2
+  type, to = @params.first.strip.split /\s+/, 2
 
   type.downcase!
 
@@ -51,6 +51,10 @@ command 'fuck', 'Retrieve data from FOAAS.' do
 
   unless from_and_to.include? type
     raise 'unknown type'
+  end
+
+  unless to
+    raise 'for that action, please include a recipient'
   end
 
   foaas type, @msg.nick, to
