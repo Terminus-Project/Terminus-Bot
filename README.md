@@ -283,6 +283,25 @@ Commands:
   * CHARACTER - Look up general info about the given character.
   * COMPARE - Compare the kinks of two characters.
 
+### FOAAS
+
+Interact with the FOAAS service at
+[foaas.herokuapp.com](https://foaas.herokuapp.com/).
+
+Commands:
+
+* FUCK
+  * OFF - Tell someone how much you are enjoying talking with them.
+  * YOU - Express your feelings for someone.
+  * THIS - Declare your dislike of something.
+  * THAT - Declare your dislike of something else.
+  * EVERYTHING - Declare your hatred for the world.
+  * EVERYONE - Announce your displeasure with the people around you.
+  * DONUT - Give someone a helpful suggestion.
+  * LINUS - Direct a useful quotation from Linus at someone.
+  * PINK - The best color.
+
+
 ### Games
 
 Provides a few basic gaming commands.
