@@ -404,6 +404,14 @@ Commands:
 * NP - Show the currently playing track for the given last.fm user.
 * TASTEOMETER - Show the musical compatibility of two users.
 
+### Lorem
+
+Retrieve Lorem Ipsum placeholder text from [loripsum.net](http://loripsum.net).
+
+Commands:
+
+* LOREM - Retrieve and display one paragraph of Lorem Ipsum text.
+
 ### LMGTFY
 
 Generate "Let Me Google That For You" links.
