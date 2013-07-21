@@ -33,11 +33,13 @@ command 'fuck', 'Retrieve data from FOAAS.' do
   argc! 1
 
   from_only = %w[
-    this that everything everyone pink
+    this        that  everything
+    everyone    pink  thanks     life
   ]
 
   from_and_to = %w[
-    off you donut linus
+    off         you   donut      linus
+    shakespeare king  chainsaw   outside
   ]
   
   type, to = @params.first.strip.split /\s+/, 2
@@ -50,7 +52,8 @@ command 'fuck', 'Retrieve data from FOAAS.' do
   end
 
   unless from_and_to.include? type
-    raise 'unknown type'
+    foaas type, @msg.nick
+    next
   end
 
   unless to
@@ -58,7 +61,6 @@ command 'fuck', 'Retrieve data from FOAAS.' do
   end
 
   foaas type, @msg.nick, to
-
 end
 
 
