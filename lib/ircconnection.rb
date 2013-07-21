@@ -90,7 +90,7 @@ module Bot
 
     # Cleanly disconnect from IRC.
     #
-    # A quit message is added to the outgoing queue, which is then flushed.
+    # A quit message is added to the outgoing queue.
     #
     # @param quit_message [String] message to send as the bot's quit
     #   message/reason
@@ -98,8 +98,6 @@ module Bot
       send_command 'QUIT', [], quit_message
 
       @disconnecting = true
-
-      flush_queue
     end
 
     # Reconnect to IRC.
@@ -114,7 +112,6 @@ module Bot
     def reconnect lost_connection = false
       unless lost_connection
         send_command 'QUIT', [], 'Reconnecting'
-        #flush_queue
       else
         $log.warn("IRCConnection.reconnect #{@name}") { "Lost connection." }
       end
@@ -136,7 +133,6 @@ module Bot
     def destroy
       unless @disconnecting
         send_command 'QUIT'
-        flush_queue
       end
 
       unless @caps == nil
@@ -207,7 +203,6 @@ module Bot
     # @see IRCConnection#receive_line
     #
     # @param data [String]
-    def receive_data data
       @buf.extract(data).each do |line|
         @lines_received += 1
         @bytes_received += line.bytesize
@@ -321,18 +316,6 @@ module Bot
       @bytes_sent += data.bytesize + 1
 
       $log.debug("IRCConnection.send_data #{@name}") { data }
-    end
-    # Quickly flush the outgoing queue without throttling any messages. This
-    # should be used with great care, as it is presently quite simple to cause
-    # a bot to continuously flood itself offline until the queue is empty.
-    def flush_queue
-      until @send_queue_fast.empty?
-        send_data @send_queue_fast.pop
-      end
-
-      until @send_queue_slow.empty?
-        send_data @send_queue_slow.pop
-      end
     end
 
     # Internal method for sending one message from the outgoing queue.
