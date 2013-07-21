@@ -203,6 +203,7 @@ module Bot
     # @see IRCConnection#receive_line
     #
     # @param data [String]
+    def receive_data data
       @buf.extract(data).each do |line|
         @lines_received += 1
         @bytes_received += line.bytesize
