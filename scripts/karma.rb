@@ -42,7 +42,7 @@ end
 event :PRIVMSG do
   next if query?
 
-  match = @msg.text.match(/^(?<target>[^ ]+)(?<change>\+\+|--)(\s|;|$)/)
+  match = @msg.text.match(/^(?<target>\S+)(?<change>\+\+|--)(\s|,|;|$)/)
 
   next unless match
 
