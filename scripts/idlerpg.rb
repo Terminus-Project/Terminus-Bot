@@ -74,7 +74,7 @@ helpers do
     ttl   = root.elements["//ttl"].text.to_i
     idled = root.elements["//totalidled"].text.to_i
     klass = root.elements["//class"].text
-    rank  = root.elements["//rank"].text # Not available on all most networks
+    rank  = root.elements["//rank"].text unless root.elements["//rank"].nil? # Not available on all most networks
 
     raise 'Player info not found.' if level.nil? or level.empty?
 
@@ -83,7 +83,7 @@ helpers do
 
     data = {
       'Level'         => level,
-      'Rank'          => ((rank != nil and not rank.empty?) ? rank : nil),
+      'Rank'          => rank,
       'Class'         => klass,
       'Time to Level' => ttl,
       'Time Idled'    => idled
