@@ -160,6 +160,8 @@ module Bot
       raise "Cannot unload: No such script #{name}" unless @scripts.has_key? name
 
       @scripts[name].die if @scripts[name].respond_to? "die"
+      
+      Events.dispatch_for @scripts[name], :unloading
 
       Events.delete_for @scripts[name]
       URL.delete_for @scripts[name] if defined? MODULE_LOADED_URL_HANDLER
