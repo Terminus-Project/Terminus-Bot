@@ -37,6 +37,7 @@ module Bot
     end
 
     def on_part msg
+      return unless msg.me?
       self[msg.connection.name].delete msg.destination
     end
 
@@ -77,7 +78,7 @@ module Bot
 
   end
 
-  Buffer = BufferManager.new
+  Buffer ||= BufferManager.new
 
 end
 # vim: set tabstop=2 expandtab:
