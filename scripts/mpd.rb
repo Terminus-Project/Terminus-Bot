@@ -192,6 +192,11 @@ event :done_loading do
   start if EM.reactor_running?
 end
 
+event :unloading do
+  @@mpd.disconnect if @@mpd
+  @@timer.cancel   if @@timer
+end
+
 event :em_started do
   start
 end
@@ -319,11 +324,6 @@ helpers do
     s << song.file   if s.empty?
 
     s.join(' - ')
-  end
-
-  def die
-    @@mpd.disconnect
-    @@timer.cancel
   end
 end
 
