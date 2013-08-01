@@ -33,5 +33,10 @@ command 'lmgtfy', 'Find an answer to almost any question.' do
   reply "http://lmgtfy.com/?q=#{URI.encode @params.first.tr(" \t", '+')}", false
 end
 
+command 'lmddgtfy', 'Find an answer to almost any question with DuckDuckGo.' do
+  argc! 1
+
+  reply "http://lmddgtfy.net/?q=#{URI.encode @params.first.tr(" \t", '+')}", false
+end
 # vim: set tabstop=2 expandtab:
 
