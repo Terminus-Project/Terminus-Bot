@@ -349,6 +349,15 @@ Commands:
 * HELP - Show help for the given command or a list of all commands.
 * SCRIPT - Show a description of the given script or a list of all scripts.
 
+### ICNDB
+
+Get jokes from the Internet Chuck Norris Database.
+
+Commands:
+
+* NORRIS - Get a joke. Optionally, include a first and last name to use instead
+  of "Chuck Norris."
+
 ### IdleRPG
 
 Allows the bot to play Idle RPG and/or interface with an XML API to look-up
