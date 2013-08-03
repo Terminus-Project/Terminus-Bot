@@ -107,6 +107,7 @@ helpers do
       'q'           => query,
       'format'      => 'json',
       'no_redirect' => '1',
+      'no_html'     => '1',
       'kp'          => '-1'
     }
 
