@@ -495,6 +495,15 @@ Commands:
 
 * NETWORKS - Show a list of networks to which the bot is connected.
 
+### Numbers
+
+Retrieve interesting number facts from numbersapi.com.
+
+Commands:
+
+* NUMBERS - Show a fact about the given number. Optionally, include a type,
+  such as "date".
+
 ### Ping
 
 Allows users to check the round-trip time for a CTCP PING with the bot.
