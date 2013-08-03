@@ -64,7 +64,7 @@ helpers do
           source = " (Source: #{json['AbstractSource']})"
         end
 
-        buf << "\002(#{buf.length + 1})\002 #{json['Abstract']}#{source}"
+        buf << "\002(#{buf.length + 1})\002 #{html_decode json['Abstract']}#{source}"
       end
 
       unless json['Definition'].empty?
@@ -74,14 +74,14 @@ helpers do
           source = " (Source: #{json['DefinitionSource']})"
         end
 
-        buf << "\002(#{buf.length + 1})\002 #{json['Definition']}#{source}"
+        buf << "\002(#{buf.length + 1})\002 #{html_decode json['Definition']}#{source}"
       end
 
       unless json['RelatedTopics'].empty?
         json['RelatedTopics'].each do |topic|
           break if buf.length == 3
 
-          buf << "\002(#{buf.length + 1})\002 #{topic['Text']}"
+          buf << "\002(#{buf.length + 1})\002 #{html_decode topic['Text']}"
         end
       end
 
