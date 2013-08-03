@@ -682,6 +682,14 @@ Commands:
 
 * TRANSLATE - Translate words using glosbe.com.
 
+### UPC
+
+Look up UPC codes on upcdatabase.org.
+
+Commands:
+
+* UPC - Look up a UPC code.
+
 ### Uptime
 
 Commands:

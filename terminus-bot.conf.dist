@@ -639,6 +639,16 @@ tell = {
 }
 
 
+# UPC look-up script (upcdatabase.org).
+upc = {
+
+  # The API key for upcdatabase.org. This is required to perform look-ups with
+  # this script. You may register for free at: http://upcdatabase.org/signup
+  #apikey = 
+
+}
+
+
 # Urban Dictionary (urbandictionary.com) look-up script.
 urbandict = {
 
