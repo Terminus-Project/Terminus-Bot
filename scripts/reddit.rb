@@ -32,7 +32,11 @@ register 'Fetch information about posts and users on Reddit.'
 url /\/\/((www|pay)\.)?redd(it|id\.com)/ do
   $log.info('reddit.url') { @uri.inspect }
 
-  match = @uri.path.match(/\/(?<type>[^\/]+)\/(?<target>[^?\/]+)(\/comments\/(?<post_id>[^\/]+\/.+))?/)
+  match = @uri.path.match(
+    /\/(?<type>[^\/]+)\/(?<target>[^?\/]+)(\/comments\/(?<long_id>(?<post_id>[^\/]+)\/(?<post_name>[^\/]+)(\/(?<comment_id>[^\/]+))?)?)?/
+  )
+
+  $log.debug('reddit.url') { match.inspect }
 
   case match[:type]
   when 'u', 'user'
@@ -40,8 +44,9 @@ url /\/\/((www|pay)\.)?redd(it|id\.com)/ do
 
   when 'r'
 
-    # TODO: get comments
-    if match[:post_id]
+    if match[:comment_id]
+      get_comment match[:long_id]
+    elsif match[:post_id]
       get_post match[:post_id]
     else
       get_subreddit match[:target]
@@ -79,6 +84,35 @@ helpers do
       data = MultiJson.load(http.response, :max_nesting => 100).first['data']['children'].first['data']
 
       reply "#{"[NSFW] " if data["over18"]}/r/#{data["subreddit"]}: \02#{html_decode data["title"]}\02 - \02#{data["score"]}\02 Karma - \02#{data["num_comments"]}\02 Comments", false
+    end
+  end
+
+  def get_comment id
+    api = URI("http://www.reddit.com/comments/#{URI.escape id}.json")
+
+    http_get(api, {}, true) do |http|
+      data = MultiJson.load(http.response, :depth => 1)[1]['data']['children'].first['data']
+
+      score = data['ups'].to_i - data['downs'].to_i
+
+      buf, attributes = [], []
+
+      buf << '[NSFW] ' if data['over_18']
+      buf << "Comment by #{data['author']}:"
+      buf << "\02#{score}\02 Karma"
+      
+      attributes << 'Gilded' if data['gilded']
+      attributes << 'Edited' if data['edited']
+    
+      unless attributes.empty?
+        buf << "(#{attributes.join(', ')})"
+      end
+
+      buf << '-'
+
+      buf << data['body']
+     
+      reply_without_prefix buf.join ' '
     end
   end
 
