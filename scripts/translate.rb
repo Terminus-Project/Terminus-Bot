@@ -27,30 +27,26 @@ require 'multi_json'
 
 need_module! 'http'
 
-register 'Glosbe.com look-ups.'
+register 'Glosbe.com look-ups and translations.'
+
+command 'translate', 'Translate text using glosbe.com.' do
+  argc! 3
+
+  translate *@params
+end
 
 helpers do
-  def api_call func, args
-    uri = URI("http://glosbe.com/gapi/#{func}")
 
-    http_get(uri, args) do |http|
-      if http.response.empty?
-        raise 'No response from glosbe.com.'
-      end
-      yield MultiJson.load http.response
-    end
-  end
-
-  def get_definition word
+  def translate from, to, text
     args = {
-      'from'   => 'en',
-      'dest'   => 'en',
+      'from'   => from,
+      'dest'   => to,
       'format' => 'json',
-      'phrase' => word
+      'phrase' => text
     }
 
     api_call 'translate', args do |json|
-      yield json
+      show_word json
     end
   end
 
@@ -59,23 +55,37 @@ helpers do
       raise 'No results'
     end
 
+    buf = []
+
     json['tuc'].each do |val|
       if val.has_key? 'meanings'
-        reply json['phrase'] => html_decode(val['meanings'][0..2].map {|m| m['text']}.join(' - '))
-        return
+        break if buf.length == 3
+        buf << "\002(#{buf.length + 1})\002 #{html_decode(val['phrase']['text'])}"
       end
     end
 
-    raise 'No results'
+    if buf.empty?
+      raise 'No results'
+    end
+
+    reply json['phrase'] => buf.join(', ')
   end
 
-end
+  def api_call func, args
+    uri = URI("http://glosbe.com/gapi/#{func}")
 
-command 'define', 'Look up some of the possible definitions of a word.' do
-  argc! 1
+    http_get(uri, args) do |http|
+      if http.response.empty?
+        raise 'No response from glosbe.com.'
+      end
 
-  get_definition @params.first do |json|
-    show_word json
+      begin
+        yield MultiJson.load http.response
+      rescue Exception => e
+        raise 'There was an error performing that look-up.'
+      end
+    end
   end
+
 end
 
