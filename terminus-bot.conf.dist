@@ -335,10 +335,19 @@ flags = {
 }
 
 
+# 4chan script.
+4chan = {
+  # Number of lines from the original post to grab and show in the channel when
+  # a thread URL is sent to the channel. 
+  #default: 1
+  lines = 1
+}
+
+
 # Account management script.
 account = {
 
-# The number of PBKDF2 iterations to use when storing passwords.
+  # The number of PBKDF2 iterations to use when storing passwords.
   #
   # Please be aware: If you change this after accounts have been created,
   # nobody will be able to log in. Changing it back will resolve this.
@@ -642,14 +651,6 @@ idlerpg = {
 
 }
 
-# 4chan script.
-4chan = {
-    # Number of lines from the OP to grab and show in the channel when a 
-    # thread URL is sent to the channel. 
-    #
-    # default: 1
-    lines = 1
-  }
 
 # Wikipedia script.
 wikipedia = {
