@@ -210,6 +210,15 @@ Commands:
 * DNS - Perform a DNS look-up.
 * RDNS - Perform a reverse DNS look-up.
 
+### DuckDuckGo
+
+Query DuckDuckGo.com.
+
+Commands:
+
+* DDG - Retrieve the first instant search result from DuckDuckGo.
+* DEFINE - Fetch a short definition or other information about a given term.
+
 ### Eval
 
 Commands:
