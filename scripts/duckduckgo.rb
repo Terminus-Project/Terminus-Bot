@@ -41,6 +41,12 @@ command 'define', 'Define a term with duckduckgo.com.' do
   define @params.first
 end
 
+command 'ask', 'Ask duckduckgo.com to complete a complex query.' do
+  argc! 1
+
+  answer @params.first
+end
+
 
 helpers do
   def bang type, query
@@ -50,6 +56,16 @@ helpers do
       end
 
       reply json['Redirect']
+    end
+  end
+
+  def answer query
+    api_call query do |json|
+      if json['Answer'].empty?
+        raise 'No results.'
+      end
+
+      reply json['Answer']
     end
   end
 

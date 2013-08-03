@@ -216,6 +216,8 @@ Query DuckDuckGo.com.
 
 Commands:
 
+* ASK - Ask DuckDuckGo to complete a complex query. See 
+  https://duckduckgo.com/goodies
 * DDG - Retrieve the first instant search result from DuckDuckGo.
 * DEFINE - Fetch a short definition or other information about a given term.
 
