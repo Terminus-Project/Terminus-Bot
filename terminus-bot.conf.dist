@@ -337,10 +337,12 @@ flags = {
 
 # 4chan script.
 4chan = {
-  # Number of lines from the original post to grab and show in the channel when
+
+# Number of lines from the original post to grab and show in the channel when
   # a thread URL is sent to the channel. 
   #default: 1
   lines = 1
+
 }
 
 
@@ -351,18 +353,40 @@ account = {
   #
   # Please be aware: If you change this after accounts have been created,
   # nobody will be able to log in. Changing it back will resolve this.
-  # default: 100000
-  
+  # default: 100000  
   iterations = 100000
+
 }
 
 
-# CTCP reply script.
-ctcp = {
+# Role-play battle assistance script.
+battle = {
 
-  # Include all CTCP replies you want here. These are static strings.
-  version = Terminus-Bot v0.8
-  url = http://terminus-bot.net/
+  # Starting player health.
+  # default: 100
+  #start_health = 100
+
+
+  # The minimum damage an account can cause, if it hits.
+  # default: 5
+  #min_dmg = 5
+
+
+  # The maximum damage an account can cause, if it hits.
+  # default: 25
+  #max_dmg = 25
+
+  # The chance (out of 100) that an attack will miss.
+  # default: 10
+  #miss = 10
+  
+  # The chance damage will be absorbed and will heal the target.
+  # default: 5
+  #absorb = 5
+
+  # Will Terminus-Bot kick users who run out of health?
+  # default: false
+  #kick_on_death = false
 
 }
 
@@ -380,14 +404,12 @@ channels = {
 }
 
 
-# Urban Dictionary (urbandictionary.com) look-up script.
-urbandict = {
+# CTCP reply script.
+ctcp = {
 
-  # Max definitions to include when replying to a look-up request. Each reply is
-  # sent in a separate message, so setting this any higher than 1 will make the
-  # bot seem very spammy!
-  # default: 1
-  max = 1
+  # Include all CTCP replies you want here. These are static strings.
+  version = Terminus-Bot v0.8
+  url = http://terminus-bot.net/
 
 }
 
@@ -422,16 +444,6 @@ dictionary = {
 }
 
 
-# Link title fetching script.
-youtube = {
-
-  # Post a shortened version of YouTube links which are not already short.
-  # default: false
-  #shorten_links = false
-
-}
-
-
 # Google search script.
 google = {
 
@@ -445,180 +457,6 @@ google = {
   # bot seem very spammy!
   # default: 1
   resultlimit = 1
-
-}
-
-
-# Tell (mail/memo) script.
-tell = {
-
-  # The maximum number of tells that can be left for a nick. This should probably
-  # be less than 5. Every tell is posted in a separate message, so letting users
-  # leave too many messages could result in a channel flood when tells are sent!
-  # default: 3
-  max = 3
-
-  # Always send a private NOTICE when delivering tells. Many clients poorly
-  # display private notices, so this is off by default.
-  # default: false
-  #use_notice = false
-}
-
-
-# Role-play battle assistance script.
-battle = {
-
-  # Starting player health.
-  # default: 100
-  #start_health = 100
-
-
-  # The minimum damage an account can cause, if it hits.
-  # default: 5
-  #min_dmg = 5
-
-
-  # The maximum damage an account can cause, if it hits.
-  # default: 25
-  #max_dmg = 25
-
-  # The chance (out of 100) that an attack will miss.
-  # default: 10
-  #miss = 10
-  
-  # The chance damage will be absorbed and will heal the target.
-  # default: 5
-  #absorb = 5
-
-  # Will Terminus-Bot kick users who run out of health?
-  # default: false
-  #kick_on_death = false
-}
-
-# Imgur.com script.
-imgur = {
-
-  # Client ID to use for Imgur look-ups. Since only public information is
-  # retrieved via the API, the client secret is not required here. Because of
-  # this, we are willing to use our client ID in the released version of
-  # Terminus-Bot. However, if you would like, you may register with Imgur and
-  # use your own client ID here. This is a good idea if your bot handles a very
-  # large number of requests, of you simply want to have your own.
-  # 
-  # If this is empty or commented out, the Imgur script will not function.
-  client_id = e055d930f90c3da
-
-}
-
-# Music Player Daemon script.
-mpd = {
-
-  # Host name or IP of the MPD server.
-  # default: localhost
-  #addres = localhost
-
-  # Port number for the MPD server.
-  # default: 6600
-  #port = 6600
-
-  # Password for the MPD server.
-  #password = 
-  
-  # You may announce track and state changes on IRC. If you want to enable this
-  # feature, you must set both announce_server and announce_channel. It is up
-  # to you to make sure the bot is on the given server and in the given channel
-  # in order for this to work -- **IT WILL NOT JOIN BASED ON THIS SETTING**.
-  
-  # IRC server name on which to announce MPD status. This must match the server
-  # name configured in this file.
-  #announce_server = 
-  
-  # IRC channel on which to announce MPD status. Again, you must ensure the bot
-  # will join, such as through the channels script.
-  #announce_channel = 
-  
-  # The interval (in seconds) at which the MPD server should be polled for
-  # track changes or state changes for annoucement.
-  # default: 5
-  #announce_check_interval = 5
-}
-
-# Channel relay script.
-relay = {
-
-  # Show the channel name in relay output.
-  #   Example:
-  #     Enabled: [freenode:#Terminus-Bot] <Kabaka> Hello!
-  #     Disabled: [freenode] <Kabaka> Hello!
-  # default: true
-  #show_channel = true
- 
-}
-
-# RSS/ATOM feed reader script.
-rss = {
-
-  # Interval (in seconds) to check for new feed items. This is approximate, since
-  # checks are triggered by server pings.
-  # default: 1800
-  #interval = 1800
-
-  # Maximum number of feed items to show when new items are found. If more than
-  # this many items are new, the older items will not be shown. Each item is
-  # posted in its own message, so setting this very high could cause the bot to be
-  # spammy.
-  # default: 3
-  #max = 3
-
-}
-
-
-# Regular Expression script.
-regex = {
-  
-  # The number of message to keep in the buffer. A larger value here will of
-  # course mean more memory usage, but it also means regular expression searches
-  # (g/foo/) and replacements (s/foo/bar) will work for older messages.
-  #
-  # If the search function is not important to you, a very small value (10 or
-  # 20) is probably fine.
-  #
-  # default: 100
-  #buffer = 100
-
-  # The maximum about of time (in seconds) that the regular expression script
-  # may spend attempting to match a regular expression. This is to mitigate
-  # denial of service attacks by cutting them off before the bot times out.
-  #
-  # default: 2
-  #run_time = 2
-
-}
-
-
-# Reverse Polish notation calculator script.
-rpn = {
-
-  # The maximum number of times the p (print top of stack) or f (print whole
-  # stack) operators may be used in a command. After the last print has been
-  # used, calculation will immediately and silently end.
-  #
-  # This should be kept very low, as higher values mean users can cause more
-  # spam.
-  #
-  # default: 3
-  #max_prints = 3
-
-}
-
-
-# Last.fm script.
-lastfm = {
-  
-  # REQUIRED
-  # lastfm.com API key. Without this, the bot cannot perform any look-ups!
-  # acquire at: http://www.last.fm/api
-  #apikey = 
 
 }
 
@@ -652,6 +490,167 @@ idlerpg = {
 }
 
 
+# Imgur.com script.
+imgur = {
+
+  # Client ID to use for Imgur look-ups. Since only public information is
+  # retrieved via the API, the client secret is not required here. Because of
+  # this, we are willing to use our client ID in the released version of
+  # Terminus-Bot. However, if you would like, you may register with Imgur and
+  # use your own client ID here. This is a good idea if your bot handles a very
+  # large number of requests, of you simply want to have your own.
+  # 
+  # If this is empty or commented out, the Imgur script will not function.
+  client_id = e055d930f90c3da
+
+}
+
+
+# Last.fm script.
+lastfm = {
+  
+  # REQUIRED
+  # lastfm.com API key. Without this, the bot cannot perform any look-ups!
+  # acquire at: http://www.last.fm/api
+  #apikey = 
+
+}
+
+
+# Music Player Daemon script.
+mpd = {
+
+  # Host name or IP of the MPD server.
+  # default: localhost
+  #addres = localhost
+
+  # Port number for the MPD server.
+  # default: 6600
+  #port = 6600
+
+  # Password for the MPD server.
+  #password = 
+  
+  # You may announce track and state changes on IRC. If you want to enable this
+  # feature, you must set both announce_server and announce_channel. It is up
+  # to you to make sure the bot is on the given server and in the given channel
+  # in order for this to work -- **IT WILL NOT JOIN BASED ON THIS SETTING**.
+  
+  # IRC server name on which to announce MPD status. This must match the server
+  # name configured in this file.
+  #announce_server = 
+  
+  # IRC channel on which to announce MPD status. Again, you must ensure the bot
+  # will join, such as through the channels script.
+  #announce_channel = 
+  
+  # The interval (in seconds) at which the MPD server should be polled for
+  # track changes or state changes for annoucement.
+  # default: 5
+  #announce_check_interval = 5
+
+}
+
+
+# Regular Expression script.
+regex = {
+  
+  # The number of message to keep in the buffer. A larger value here will of
+  # course mean more memory usage, but it also means regular expression searches
+  # (g/foo/) and replacements (s/foo/bar) will work for older messages.
+  #
+  # If the search function is not important to you, a very small value (10 or
+  # 20) is probably fine.
+  #
+  # default: 100
+  #buffer = 100
+
+  # The maximum about of time (in seconds) that the regular expression script
+  # may spend attempting to match a regular expression. This is to mitigate
+  # denial of service attacks by cutting them off before the bot times out.
+  #
+  # default: 2
+  #run_time = 2
+
+}
+
+
+# Channel relay script.
+relay = {
+
+  # Show the channel name in relay output.
+  #   Example:
+  #     Enabled: [freenode:#Terminus-Bot] <Kabaka> Hello!
+  #     Disabled: [freenode] <Kabaka> Hello!
+  # default: true
+  #show_channel = true
+ 
+}
+
+
+# RSS/ATOM feed reader script.
+rss = {
+
+  # Interval (in seconds) to check for new feed items. This is approximate, since
+  # checks are triggered by server pings.
+  # default: 1800
+  #interval = 1800
+
+  # Maximum number of feed items to show when new items are found. If more than
+  # this many items are new, the older items will not be shown. Each item is
+  # posted in its own message, so setting this very high could cause the bot to be
+  # spammy.
+  # default: 3
+  #max = 3
+
+}
+
+
+# Reverse Polish notation calculator script.
+rpn = {
+
+  # The maximum number of times the p (print top of stack) or f (print whole
+  # stack) operators may be used in a command. After the last print has been
+  # used, calculation will immediately and silently end.
+  #
+  # This should be kept very low, as higher values mean users can cause more
+  # spam.
+  #
+  # default: 3
+  #max_prints = 3
+
+}
+
+
+# Tell (mail/memo) script.
+tell = {
+
+  # The maximum number of tells that can be left for a nick. This should probably
+  # be less than 5. Every tell is posted in a separate message, so letting users
+  # leave too many messages could result in a channel flood when tells are sent!
+  # default: 3
+  max = 3
+
+  # Always send a private NOTICE when delivering tells. Many clients poorly
+  # display private notices, so this is off by default.
+  # default: false
+  #use_notice = false
+
+}
+
+
+# Urban Dictionary (urbandictionary.com) look-up script.
+urbandict = {
+
+  # Max definitions to include when replying to a look-up request. Each reply is
+  # sent in a separate message, so setting this any higher than 1 will make the
+  # bot seem very spammy!
+  # default: 1
+  max = 1
+
+}
+
+
 # Wikipedia script.
 wikipedia = {
   
@@ -665,3 +664,14 @@ wikipedia = {
   #site = en
 
 }
+
+
+# Link title fetching script.
+youtube = {
+
+  # Post a shortened version of YouTube links which are not already short.
+  # default: false
+  #shorten_links = false
+
+}
+
