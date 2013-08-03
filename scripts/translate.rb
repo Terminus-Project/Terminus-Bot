@@ -29,8 +29,8 @@ need_module! 'http'
 
 register 'Glosbe.com look-ups and translations.'
 
-command 'translate', 'Translate text using glosbe.com.' do
-  argc! 3
+command 'translate', 'Translate text using glosbe.com. Use ISO 639 codes.' do
+  argc! 3, 'from to text'
 
   translate *@params
 end

@@ -201,16 +201,6 @@ Commands:
   * SEARCH - Look up the most recent image with the given tags.
   * RANDOM - Show a random, somewhat recent image with the given tags.
 
-### Dictionary
-
-Provides an interface to glosbe.com.
-
-*Note: This script is currently subject to significant change.*
-
-Commands:
-
-* DEFINE - Look up some possibile definitions of a word.
-
 ### DNS
 
 Perform DNS look-ups.
@@ -663,6 +653,14 @@ In addition to basic title retrieval, the bot handles several special cases:
 * Derpibooru posts
 
 More sites may be added later.
+
+### Translate
+
+Provides an interface to glosbe.com.
+
+Commands:
+
+* TRANSLATE - Translate words using glosbe.com.
 
 ### Uptime
 
