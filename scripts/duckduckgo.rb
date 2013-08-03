@@ -78,10 +78,19 @@ helpers do
       end
 
       unless json['RelatedTopics'].empty?
-        json['RelatedTopics'].each do |topic|
-          break if buf.length == 3
+        json['RelatedTopics'].each do |related_topic|
 
-          buf << "\002(#{buf.length + 1})\002 #{html_decode topic['Text']}"
+          if related_topic['Topics']
+            related_topic['Topics'].each do |topic|
+              break if buf.length == 3
+
+              buf << "\002(#{buf.length + 1})\002 #{html_decode topic['Text']}"
+            end
+          else
+            break if buf.length == 3
+
+            buf << "\002(#{buf.length + 1})\002 #{html_decode related_topic['Text']}"
+          end
         end
       end
 
