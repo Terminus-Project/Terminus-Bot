@@ -227,6 +227,15 @@ Commands:
 
 * EVAL - Run raw Ruby code.
 
+### Exchange
+
+Get up-to-date exchange rates from openexhangerates.org. Requires an API key.
+Sign up free: https://openexchangerates.org/signup/free
+
+Commands:
+
+* EXCHANGE - Get the current exchange rate for the given currencies.
+
 ### Factoids
 
 Remember and recall short "factoids." Factoids are short blocks of text. For example:

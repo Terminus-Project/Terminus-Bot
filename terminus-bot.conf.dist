@@ -444,6 +444,15 @@ dictionary = {
 }
 
 
+# Exchange rates script.
+exchange = {
+
+  # API key to use for authentication. Required for all queries. A free or paid
+  # API key can be acquired here: https://openexchangerates.org/signup/
+  #apikey = 
+
+}
+
 # Google search script.
 google = {
 
