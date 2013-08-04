@@ -47,6 +47,33 @@ module Bot
       Bot.http_request uri, query, false, @msg, silent_err, opts, &block
     end
 
+    def json_get uri, query = {}, silent_err = false, opts = {}, &block
+      http_get uri, query, silent_err, opts do |http|
+        handle_json http.response, &block
+      end
+    end
+
+    def json_get uri, query = {}, silent_err = false, opts = {}, &block
+      http_post uri, query, silent_err, opts do |http|
+        handle_json http.response, &block
+      end
+    end
+
+    def handle_json response, &block
+      begin
+        json = MultiJson.load response
+
+        unless json
+          raise 'empty response'
+        end
+
+        block.call json
+
+      rescue Exception => e
+        raise "Error processing reply from server: #{e}"
+      end
+    end
+
     def clean_result result
       result.strip.gsub(/<[^>]*>/, '').tr_s " \t\r\f\n", ' '
     end
