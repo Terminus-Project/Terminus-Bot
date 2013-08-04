@@ -53,7 +53,7 @@ module Bot
       end
     end
 
-    def json_get uri, query = {}, silent_err = false, opts = {}, &block
+    def json_post uri, query = {}, silent_err = false, opts = {}, &block
       http_post uri, query, silent_err, opts do |http|
         handle_json http.response, &block
       end
@@ -61,7 +61,7 @@ module Bot
 
     def handle_json response, &block
       begin
-        json = MultiJson.load response
+        json = MultiJson.load(response, max_nesting: 100)
 
         unless json
           raise 'empty response'
@@ -101,8 +101,8 @@ module Bot
     # TODO: Let callers add headers in a more sane way.
 
     conn_opts = {
-      :connect_timeout    => (conf[:timeout] or 5),
-      :inactivity_timeout => (conf[:timeout] or 5)
+      :connect_timeout    => (conf[:timeout].to_i or 5),
+      :inactivity_timeout => (conf[:timeout].to_i or 5)
     }
 
     if conf[:proxy_address]
