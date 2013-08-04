@@ -101,7 +101,7 @@ helpers do
       buf << "Comment by #{data['author']}:"
       buf << "\02#{score}\02 Karma"
       
-      attributes << 'Gilded' if data['gilded']
+      attributes << 'Gilded' unless data['gilded'].zero?
       attributes << 'Edited' if data['edited']
     
       unless attributes.empty?
