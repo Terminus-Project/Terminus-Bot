@@ -25,8 +25,6 @@
 
 need_module! 'http'
 
-require 'multi_json'
-
 register 'Get jokes from the Internet Chuck Norris Database.'
 
 command 'norris', 'Get a joke from the Internet Chuck Norris Database.' do
@@ -62,17 +60,7 @@ helpers do
   def api_call query
     uri = URI('http://api.icndb.com/jokes/random')
 
-    http_get uri, query do |http|
-      begin
-        json = MultiJson.load http.response
-      rescue Exception => e
-        raise 'The server did not give a valid reply. Please try again.'
-      end
-
-      unless json
-        raise 'The server did not give a valid reply. Please try again.'
-      end
-
+    json_get uri, query do |json|
       yield json
     end
   end

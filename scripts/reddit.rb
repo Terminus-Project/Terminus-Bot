@@ -23,8 +23,6 @@
 # SOFTWARE.
 #
 
-require 'multi_json'
-
 need_module! 'url_handler', 'regex_handler'
 
 register 'Fetch information about posts and users on Reddit.'
@@ -70,8 +68,8 @@ helpers do
   def get_user username
     api = URI("http://www.reddit.com/user/#{URI.escape username}/about.json")
 
-    http_get(api, {}, true) do |http|
-      data = MultiJson.load(http.response)['data']
+    json_get api, {}, true do |json|
+      data = json['data']
 
       reply "\02#{data['name']}\02 - \02#{data['link_karma']}\02 Link Karma - \02#{data['comment_karma']}\02 Comment Karma - Joined #{Time.at(data['created_utc']).to_s}", false
     end
@@ -80,8 +78,8 @@ helpers do
   def get_post id
     api = URI("http://www.reddit.com/comments/#{URI.escape id}.json")
 
-    http_get(api, {}, true) do |http|
-      data = MultiJson.load(http.response, :max_nesting => 100).first['data']['children'].first['data']
+    json_get api, {}, true do |json|
+      data = json.first['data']['children'].first['data']
 
       reply "#{"[NSFW] " if data["over_18"]}/r/#{data["subreddit"]}: \02#{html_decode data["title"]}\02 - \02#{data["score"]}\02 Karma - \02#{data["num_comments"]}\02 Comments", false
     end
@@ -90,8 +88,10 @@ helpers do
   def get_comment id
     api = URI("http://www.reddit.com/comments/#{URI.escape id}.json")
 
-    http_get(api, {}, true) do |http|
-      data = MultiJson.load(http.response, :depth => 1)[1]['data']['children'].first['data']
+    query = { 'depth' => 1 }
+
+    json_get api, query, true do |json|
+      data = json[1]['data']['children'].first['data']
 
       score = data['ups'].to_i - data['downs'].to_i
 
@@ -119,8 +119,8 @@ helpers do
   def get_subreddit name
     api = URI("http://www.reddit.com/r/#{URI.escape name}/about.json")
 
-    http_get(api, {}, true) do |http|
-      data = MultiJson.load(http.response)['data']
+    json_get api, {}, true do |json|
+      data = json['data']
 
       reply "#{"[NSFW] " if data["over_18"]}#{data["url"]}: \02#{html_decode data["title"]}\02 - \02#{data["subscribers"]}\02 subscribers - #{html_decode data["public_description"]}", false
     end

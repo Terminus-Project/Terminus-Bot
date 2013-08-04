@@ -46,12 +46,10 @@ url /\/\/(www\.)?twitter\.com\/.+status/ do
     return false unless match
   end
 
-  id = URI.escape match[:id]
-  api = URI("https://api.twitter.com/1/statuses/show.json?id=#{id}")
+  query = { 'id' =>  match[:id] }
+  api = URI('https://api.twitter.com/1/statuses/show.json')
 
-  http_get(api, {}, true) do |http|
-    json = MultiJson.load(http.response)
-
+  json_get api, query, true do |json|
     next if json['errors']
 
     text   = html_decode(json['text']).gsub(/[\r\n[[:cntrl:]]]/, '')

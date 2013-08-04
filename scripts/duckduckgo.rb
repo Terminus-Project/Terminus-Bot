@@ -25,8 +25,6 @@
 
 need_module! 'http'
 
-require 'multi_json'
-
 register 'Perform searches on duckduckgo.com.'
 
 command 'ddg', 'Search the Internet using duckduckgo.com.' do
@@ -129,13 +127,7 @@ helpers do
 
     uri = URI('https://api.duckduckgo.com/')
 
-    http_get(uri, opts) do |http|
-      json = MultiJson.load http.response
-
-      unless json
-        raise 'The server did not give a valid reply. Please try again.'
-      end
-
+    json_get uri, opts do |json|
       yield json
     end
   end

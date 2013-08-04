@@ -23,8 +23,6 @@
 # SOFTWARE.
 #
 
-require 'multi_json'
-
 need_module! 'url_handler', 'http'
 
 register 'Fetch information from FIMFiction.'
@@ -40,8 +38,8 @@ url /\/\/(www\.)?fimfiction\.net\/story\/[0-9]+\// do
 
   api = URI('http://www.fimfiction.net/api/story.php')
 
-  http_get(api, args, true) do |http|
-    data = MultiJson.load(http.response)['story']
+  json_get api, args, true do |json|
+    data = json['story']
 
     rating  = data['content_rating_text']
     cats    = data['categories'].keys.join(', ')

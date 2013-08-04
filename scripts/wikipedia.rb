@@ -25,7 +25,6 @@
 
 need_module! 'url_handler', 'http'
 
-require 'multi_json'
 require 'uri'
 
 register 'Perform Wikipedia look-ups.'
@@ -58,9 +57,7 @@ helpers do
       :list     => :search
     }
 
-    http_get(uri, opts, hide_errors) do |http|
-      response = MultiJson.load http.response
-
+    json_get uri, opts, hide_errors do |response|
       if not response['query'] or response['query']['search'].empty?
         reply 'No results.' unless hide_errors
         next

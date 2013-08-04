@@ -23,8 +23,6 @@
 # SOFTWARE.
 #
 
-require 'multi_json'
-
 need_module! 'http', 'url_handler'
 
 register 'Fetch information from Imgur.'
@@ -104,9 +102,7 @@ helpers do
 
     uri = URI("https://api.imgur.com/3/#{endpoint}/#{path}.json")
 
-    http_get uri, {}, true, opts do |http|
-      data = MultiJson.load(http.response)
-
+    json_get uri, {}, true, opts do |json|
       unless data['success']
         raise data['data']['error']
       end

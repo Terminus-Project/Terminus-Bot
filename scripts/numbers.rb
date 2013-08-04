@@ -25,8 +25,6 @@
 
 need_module! 'http'
 
-require 'multi_json'
-
 register 'Fetch facts about numbers from numbersapi.com.'
 
 command 'number', 'Fetch a fact about the given number.' do
@@ -55,17 +53,7 @@ helpers do
   def api_call query
     uri = URI("http://numbersapi.com/#{query}?json")
 
-    http_get uri do |http|
-      begin
-        json = MultiJson.load http.response
-      rescue Exception => e
-        raise 'The server did not give a valid reply. Please try again.'
-      end
-
-      unless json
-        raise 'The server did not give a valid reply. Please try again.'
-      end
-
+    json_get uri do |json|
       yield json
     end
   end

@@ -23,8 +23,6 @@
 # SOFTWARE.
 #
 
-require 'multi_json'
-
 need_module! 'http'
 
 register 'Glosbe.com look-ups and translations.'
@@ -74,16 +72,8 @@ helpers do
   def api_call func, args
     uri = URI("http://glosbe.com/gapi/#{func}")
 
-    http_get(uri, args) do |http|
-      if http.response.empty?
-        raise 'No response from glosbe.com.'
-      end
-
-      begin
-        yield MultiJson.load http.response
-      rescue Exception => e
-        raise 'There was an error performing that look-up.'
-      end
+    json_get uri, args do |json|
+      yield json
     end
   end
 

@@ -25,8 +25,6 @@
 
 need_module! 'http'
 
-require 'multi_json'
-
 register 'Look up product information by UPC using upcdatabase.org.'
 
 command 'exchange', 'Get exchange rates from openexchangerates.org.' do
@@ -65,17 +63,7 @@ helpers do
 
     query['app_id'] = key
 
-    http_get uri, query do |http|
-      begin
-        json = MultiJson.load http.response
-      rescue Exception => e
-        raise 'The server did not give a valid reply. Please try again.'
-      end
-
-      unless json
-        raise 'The server did not give a valid reply. Please try again.'
-      end
-
+    json_get uri, query do |json|
       if json['error']
         raise json['description']
       end

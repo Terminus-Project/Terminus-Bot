@@ -25,8 +25,6 @@
 
 need_module! 'http'
 
-require 'multi_json'
-
 register 'Interface with FOAAS.'
 
 command 'fuck', 'Retrieve data from FOAAS.' do
@@ -88,13 +86,7 @@ helpers do
       }
     }
 
-    http_get uri, {}, false, opts  do |http|
-      json = MultiJson.load http.response
-
-      unless json
-        raise 'The server did not give a valid reply. Please try again.'
-      end
-
+    json_get uri, {}, false, opts  do |json|
       if json['result_type'] == 'no_results'
         raise 'No results.'
       end

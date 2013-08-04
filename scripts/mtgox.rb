@@ -25,16 +25,12 @@
 
 need_module! 'http'
 
-require 'multi_json'
-
 register 'Interface with Mt.Gox Bitcoin Exchange.'
 
 command 'btc', 'Get current BTC -> USD exchange rate info.' do
   uri = URI('http://data.mtgox.com/api/2/BTCUSD/money/ticker')
 
-  http_get(uri) do |http|
-    json = MultiJson.load http.response
-
+  json_get uri do |json|
     data = {
       'BTC to USD Trade Value (Mt.Gox)' => {
         'Average' => json['data']['avg']['display'],

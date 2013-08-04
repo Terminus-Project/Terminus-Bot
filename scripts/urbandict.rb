@@ -25,8 +25,6 @@
 
 need_module! 'http'
 
-require 'multi_json'
-
 register 'Look up words on UrbanDictionary.com.'
 
 command 'ud', 'Fetch the definition of a word from UrbanDictionary.com. If no parameter is given, fetch a random definition.' do
@@ -68,13 +66,7 @@ helpers do
   def api_call function, query = {}
     uri = URI("http://api.urbandictionary.com/v0/#{function}")
 
-    http_get(uri, query) do |http|
-      json = MultiJson.load http.response
-
-      unless json
-        raise 'The server did not give a valid reply. Please try again.'
-      end
-
+    json_get uri, query do |json|
       if json['result_type'] == 'no_results'
         raise 'No results.'
       end

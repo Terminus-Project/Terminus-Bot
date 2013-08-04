@@ -23,8 +23,6 @@
 # SOFTWARE.
 #
 
-require 'multi_json'
-
 # TODO: Store account names on bot accounts and use those if available.
 
 need_module! 'http'
@@ -105,10 +103,7 @@ helpers do
     opt[:api_key] = api_key
     opt[:format]  = 'json'
 
-    http_get(URI(api_url), opt) do |http|
-      json = MultiJson.load http.response
-
-      raise 'invalid JSON respon' unless json
+    json_get URI(api_url), opt do |json|
       raise json['message'] if json['error']
 
       yield json

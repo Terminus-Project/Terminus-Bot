@@ -25,8 +25,6 @@
 
 need_module! 'http'
 
-require 'multi_json'
-
 register 'Look up product information by UPC using upcdatabase.org.'
 
 command 'upc', 'Look up a product on upcdatabase.org.' do
@@ -64,17 +62,7 @@ helpers do
 
     uri = URI("http://api.upcdatabase.org/json/#{key}/#{query}")
 
-    http_get uri do |http|
-      begin
-        json = MultiJson.load http.response
-      rescue Exception => e
-        raise 'The server did not give a valid reply. Please try again.'
-      end
-
-      unless json
-        raise 'The server did not give a valid reply. Please try again.'
-      end
-
+    json_get uri do |json|
       yield json
     end
   end

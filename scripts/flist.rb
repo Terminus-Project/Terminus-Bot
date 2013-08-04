@@ -23,8 +23,6 @@
 # SOFTWARE.
 #
 
-require 'multi_json'
-
 need_module! 'http'
 
 register 'Interact with F-list.net'
@@ -64,9 +62,7 @@ helpers do
       'name' => name
     }
 
-    http_get uri, opts do |http|
-      response = MultiJson.load http.response
-
+    json_get uri, opts do |response|
       if response.empty?
         raise 'No results.'
       end
@@ -96,9 +92,7 @@ helpers do
       'name' => name1
     }
 
-    http_get uri, opts do |http|
-      response = MultiJson.load http.response
-
+    json_get uri, opts do |response|
       if response.empty?
         raise "(#{name1}) Unknown error performing look-up."
       end
@@ -122,9 +116,7 @@ helpers do
         'name' => name2
       }
 
-      http_get uri, opts do |http|
-        response = MultiJson.load http.response
-
+      json_get uri, opts do |response|
         if response.empty?
           raise "(#{name2}) Unknown error performing look-up."
         end
