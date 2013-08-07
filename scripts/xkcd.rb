@@ -27,7 +27,7 @@ need_module! 'http'
 
 register 'Interface with the XKCD API.'
 
-url /xkcd\.com\/[0-9]+/ do
+url /\/\/(www\.)?xkcd\.com\/[0-9]+/ do
   match = @uri.path.match(/^\/(?<id>[0-9]+)\/?/)
 
   if match
