@@ -64,7 +64,7 @@ regex /(^|\s)\/u\/(?<name>[^\/\s]+)\/?(\s|$)/ do
   get_user @match[:name]
 end
 
-command 'serendipity', 'Get a random redit post.' do
+command 'serendipity', 'Get a random reddit post.' do
   get_random
 end
 
