@@ -25,7 +25,7 @@
 
 need_module! 'url_handler', 'regex_handler'
 
-register 'Fetch information about posts and users on Reddit.'
+register 'Fetch information about posts and users on reddit.'
 
 url /\/\/((www|pay)\.)?redd(it|id\.com)/ do
   $log.info('reddit.url') { @uri.inspect }
@@ -64,6 +64,10 @@ regex /(^|\s)\/u\/(?<name>[^\/\s]+)\/?(\s|$)/ do
   get_user @match[:name]
 end
 
+command 'serendipity', 'Get a random redit post.' do
+  get_random
+end
+
 helpers do
   def get_user username
     api = URI("http://www.reddit.com/user/#{URI.escape username}/about.json")
@@ -82,6 +86,16 @@ helpers do
       data = json.first['data']['children'].first['data']
 
       reply "#{"[NSFW] " if data["over_18"]}/r/#{data["subreddit"]}: \02#{html_decode data["title"]}\02 - \02#{data["score"]}\02 Karma - \02#{data["num_comments"]}\02 Comments", false
+    end
+  end
+
+  def get_random
+    api = URI("http://www.reddit.com/random/.json")
+
+    json_get api, {}, true do |json|
+      data = json.first['data']['children'].first['data']
+
+      reply "#{"[NSFW] " if data["over_18"]}http://redd.it/#{data['id']} - /r/#{data["subreddit"]}: \02#{html_decode data["title"]}\02 - \02#{data["score"]}\02 Karma - \02#{data["num_comments"]}\02 Comments", false
     end
   end
 

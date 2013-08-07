@@ -567,6 +567,14 @@ Commands:
 
 * RAW - Send raw text over the IRC connection.
 
+### Reddit
+
+Handle reddit URLs and interact with reddit.
+
+Commands:
+
+* SERENDIPITY - Get a random reddit post.
+
 ### Regex
 
 Perform regular expression substitutions and searches on recent messages.
