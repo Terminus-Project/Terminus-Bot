@@ -102,7 +102,7 @@ helpers do
 
     uri = URI("https://api.imgur.com/3/#{endpoint}/#{path}.json")
 
-    json_get uri, {}, true, opts do |json|
+    json_get uri, {}, true, opts do |data|
       unless data['success']
         raise data['data']['error']
       end
