@@ -26,17 +26,17 @@
 #
 
 # Don't comment this out. No, really.
-unless RUBY_VERSION.start_with? "1.9" or RUBY_VERSION.start_with? "2.0"
-  abort "Ruby version 1.9 or better is required."
+unless RUBY_VERSION.start_with? '1.9' or RUBY_VERSION.start_with? '2.0'
+  abort 'Ruby version 1.9 or better is required.'
 end
 
-unless FileTest.exists?("terminus-bot.conf")
-  abort "No config file found."
+unless FileTest.exists? 'terminus-bot.conf'
+  abort 'No config file found.'
 end
 
-VERSION  = "Terminus-Bot v0.8"
-PID_FILE = "var/terminus-bot.pid"
-LICENSE  = "MIT"
+VERSION  = 'Terminus-Bot v0.8'
+PID_FILE = 'var/terminus-bot.pid'
+LICENSE  = 'MIT'
 
 # Load the rest later. This will make --help much lighter.
 require 'optparse'
@@ -46,26 +46,26 @@ $opts = {}
 OptionParser.new do |opts|
   opts.banner = "Usage: #{$0} [options]"
 
-  opts.separator ""
-  opts.separator "Options:"
-  opts.separator ""
+  opts.separator ''
+  opts.separator 'Options:'
+  opts.separator ''
 
   $opts[:verbose] = false
-  opts.on("-v", "--verbose", "Output a lot of info while starting") do |v|
+  opts.on '-v', '--verbose', 'Output a lot of info while starting' do |v|
     $opts[:verbose] = true
   end
 
-  $opts[:config_file] = "terminus-bot.conf"
-  opts.on("-c", "--config FILE", "Use another config file (default: terminus-bot.conf") do |v|
+  $opts[:config_file] = 'terminus-bot.conf'
+  opts.on '-c', '--config FILE', 'Use another config file (default: terminus-bot.conf' do |v|
     $opts[:config_file] = v
   end
 
   $opts[:fork] = true
-  opts.on("-f", "--no-fork", "Don't run in the background") do |v|
+  opts.on '-f', '--no-fork', 'Don\'t run in the background' do |v|
     $opts[:fork] = false
   end
 
-  opts.on_tail("-h", "--help", "Show this message") do
+  opts.on_tail '-h', '--help', 'Show this message' do
     puts opts
     exit
   end
@@ -80,12 +80,12 @@ $log = Logger.new(STDOUT)
 $log.level = $opts[:verbose] ? Logger::DEBUG : Logger::INFO
 
 $log.info('preload') { VERSION }
-$log.info('preload') { "<http://terminus-bot.net/>" }
+$log.info('preload') { '<http://terminus-bot.net/>' }
 $log.info('preload') { "Released under #{LICENSE}." }
 
 
-Dir.chdir(File.dirname(__FILE__))
-Dir.mkdir "var" unless Dir.exists? "var"
+Dir.chdir File.dirname __FILE__
+Dir.mkdir 'var' unless Dir.exists? 'var'
 
 if File.exists? PID_FILE
   begin
@@ -101,40 +101,40 @@ if File.exists? PID_FILE
     # We're good to go. I think.
   end
 
-  $log.warn('preload') { "PID file appears to be stale. Deleting." }
-  File.delete(PID_FILE)
+  $log.warn('preload') { 'PID file appears to be stale. Deleting.' }
+  File.delete PID_FILE
 end
 
 
-$log.info("preload") { "Loading core files." }
+$log.info('preload') { 'Loading core files.' }
 
 def load_lib
 
   # These have to be first.
-  load "lib/canonizedhash.rb"
-  load "lib/flags.rb"
-  #load "lib/database.rb"
-  load "lib/ircmacros.rb"
+  load 'lib/canonizedhash.rb'
+  load 'lib/flags.rb'
+  #load 'lib/database.rb'
+  load 'lib/ircmacros.rb'
 
-  load "lib/config.rb"
-  load "lib/command.rb"
-  load "lib/events.rb"
+  load 'lib/config.rb'
+  load 'lib/command.rb'
+  load 'lib/events.rb'
 
-  load "lib/hash.rb"
-  load "lib/string.rb"
-  load "lib/time.rb"
-  load "lib/numeric.rb"
+  load 'lib/hash.rb'
+  load 'lib/string.rb'
+  load 'lib/time.rb'
+  load 'lib/numeric.rb'
 
-  load "lib/users.rb"
-  load "lib/ircconnection.rb"
-  load "lib/message.rb"
-  load "lib/channels.rb"
-  load "lib/commands.rb"
+  load 'lib/users.rb'
+  load 'lib/ircconnection.rb'
+  load 'lib/message.rb'
+  load 'lib/channels.rb'
+  load 'lib/commands.rb'
 
   # These have to be last (in this order).
-  load "lib/modules.rb"
-  load "lib/scripts.rb"
-  load "lib/core.rb"
+  load 'lib/modules.rb'
+  load 'lib/scripts.rb'
+  load 'lib/core.rb'
 
 end
 
@@ -142,7 +142,7 @@ def write_pid_file pid
   # Bot.run changes $log to something else, so just puts this.
   puts "Terminus-Bot started as #{pid}. Writing to #{PID_FILE}"
 
-  File.open(PID_FILE, "w") {|f| f.puts pid}
+  File.open(PID_FILE, 'w') {|f| f.puts pid}
 end
 
 load_lib
