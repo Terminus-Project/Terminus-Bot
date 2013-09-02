@@ -70,7 +70,7 @@ module Bot
         block.call json
 
       rescue Exception => e
-        raise "Error processing reply from server: #{e}"
+        raise e
       end
     end
 
