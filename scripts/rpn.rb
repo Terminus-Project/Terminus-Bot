@@ -49,7 +49,7 @@ command 'rpn', 'Perform calculations using a Reverse Polish notation (postfix) c
       s = '/'
 
     when 'f'
-      reply stack.join(', ')
+      reply stack.join ', '
       max_prints -= 1 and max_prints.zero? and return
       printed = true
       next
