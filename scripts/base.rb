@@ -2,7 +2,7 @@
 #
 # Copyright (C) 2010-2013 Kyle Johnson <kyle@vacantminded.com>, Alex Iadicicco,
 # Marshall Fowler (http://terminus-bot.net/), Jade Rain,
-# shockkolate <shokku.ra@gmail.com>
+# Shockk <shokku.ra@gmail.com>
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
