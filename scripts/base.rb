@@ -1,8 +1,6 @@
 # Terminus-Bot: An IRC bot to solve all of the problems with IRC bots.
 #
-# Copyright (C) 2010-2013 Kyle Johnson <kyle@vacantminded.com>, Alex Iadicicco,
-# Marshall Fowler (http://terminus-bot.net/), Jade Rain,
-# Shockk <shokku.ra@gmail.com>
+# Copyright (C) 2010-2013 Jade Rain, Shockk <shokku.ra@gmail.com>
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
