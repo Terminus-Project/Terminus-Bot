@@ -101,6 +101,15 @@ React to `^H`, `^W`, `^U`, and `^Y` by displaying the resulting text.
 * `^U` - Delete line
 * `^Y` - Paste buffer (from `^W` or `^U`)
 
+### Base
+
+Convert a number from one numeric base to another.
+
+Commands:
+
+* BASE - Convert a number from the specified base to another specified base.
+* HEX - Convert a number between decimal and hexadecimal.
+
 ### Battle
 
 Facilitate PRNG-based role-play battle games. No turn-based enforcement is done,
