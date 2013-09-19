@@ -25,7 +25,7 @@ register 'Converts a number from one base to another base.'
 command 'hex', 'Converts a number from decimal to hex or vice versa if prefixed with 0x or suffixed with h. Parameters: [number]' do
   argc! 1
 
-  number = @params.first
+  number = @params.first.downcase()
 
   if(number.start_with?("0x") or number.end_with?("h"))
     number.slice! "0x"
