@@ -25,7 +25,7 @@
 
 
 module Bot
-  INCOMING_REGEX = /^(:(?<prefix>((?<nick>[^!]+)!(?<user>[^@]+)@(?<host>[^ ]+)|[^ ]+)) )?((?<numeric>[0-9]{3})|(?<command>[^ ]+))( (?<destination>[^:][^ ]*))?( :(?<text>.*)| (?<parameters>.*))?$/
+  INCOMING_REGEX = /^(:(?<prefix>((?<nick>[^! ]+)!(?<user>[^@ ]+)@(?<host>[^ ]+)|[^ ]+)) )?((?<numeric>[0-9]{3})|(?<command>[^ ]+))( (?<destination>[^:][^ ]*))?( :(?<text>.*)| (?<parameters>.*))?$/
 
   class Message
 
