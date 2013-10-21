@@ -52,6 +52,10 @@ command 'dominos', 'Look up the status for the Domino\'s order associated with t
       raise 'Order not found.'
     end
 
+    unless status
+      raise 'Order not found.'
+    end
+
     status_text = status.elements['OrderStatus'].text
     status_time = status.elements['AsOfTime'].text
     status_time = DateTime.parse(status_time).to_time.strftime('%F %r')
