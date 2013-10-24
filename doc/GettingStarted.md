@@ -40,6 +40,8 @@ You only need to install gems for scripts you will be loading.
 * htmlentities - fimfiction, gizoogle, google, rss, title, weather
 * multi_json - derpibooru, deviantart, dictionary, fimfiction, github, google,
   imgur, lastfm, mtgox, reddit, twitter, urbandict, wikipedia, xbox, youtube
+* ruby-mpd - mpd
+* em-whois - whois
 
 #### Script System Utility Requirements
 
