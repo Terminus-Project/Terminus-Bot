@@ -36,23 +36,27 @@ url /\/\/((www|pay)\.)?redd(it|id\.com)/ do
 
   $log.debug('reddit.url') { match.inspect }
 
-  case match[:type]
-  when 'u', 'user'
-    get_user match[:target]
+  if match
+    case match[:type]
+    when 'u', 'user'
+      get_user match[:target]
 
-  when 'r'
+    when 'r'
 
-    if match[:comment_id]
-      get_comment match[:long_id]
-    elsif match[:post_id]
-      get_post match[:post_id]
+      if match[:comment_id]
+        get_comment match[:long_id]
+      elsif match[:post_id]
+        get_post match[:post_id]
+      else
+        get_subreddit match[:target]
+      end
+
     else
-      get_subreddit match[:target]
-    end
+      get_post @uri.path
 
+    end
   else
     get_post @uri.path
-
   end
 end
 
