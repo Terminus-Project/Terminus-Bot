@@ -25,7 +25,7 @@
 
 register 'RPN calculator script.'
 
-command 'rpn', 'Perform calculations using a Reverse Polish notation (postfix) calculator. Operations: add + sub - mul * exp ** div / mod % f p' do
+command 'rpn', 'Perform calculations using a Reverse Polish notation (postfix) calculator. Operations: add + sub - mul * exp ** div / mod % f p dup swap' do
   argc! 1
 
   max_prints = get_config(:max_prints, 3).to_i
@@ -47,6 +47,22 @@ command 'rpn', 'Perform calculations using a Reverse Polish notation (postfix) c
       s = '**'
     when 'div'
       s = '/'
+
+    when 'dup'
+      if stack.length > 0
+        stack << stack.last
+      else
+        raise "Cannot dup on an empty stack"
+      end
+      next
+    when 'swap'
+      if stack.length > 1
+        x, y = stack.pop 2
+        stack << y << x
+      else
+        raise "Cannot swap a stack with fewer than 2 items"
+      end
+      next
 
     when 'f'
       reply stack.join ', '
