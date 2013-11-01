@@ -1,7 +1,5 @@
 ![Terminus-Bot: The IRC Bot to End All Others](http://terminus-project.org/static-assets/terminus-bot-logo.png)
 
-# Terminus-Bot
-
 chat.freenode.net #Terminus-Bot         http://terminus-bot.net/
 
 # About the Bot
