@@ -660,6 +660,10 @@ Commands:
 
 * SEEN - Check when the given user was last seen speaking on IRC.
 
+### SoFurry
+
+Retrieve submission information and other data from sofurry.com.
+
 ### Source
 
 Provides a link to the bot's home page.
