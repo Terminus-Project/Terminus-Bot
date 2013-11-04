@@ -27,7 +27,7 @@ need_module! 'url_handler', 'http'
 
 register 'Fetch information from SoFurry.'
 
-url /\/\/(www\.)?sofurry\.com\/view\/[0-9]+/ do
+url /\/\/((www|wiki)\.)?sofurry\.com\/view\/[0-9]+/ do
   $log.info('sofurry.url') { @uri.inspect }
 
   match = @uri.to_s.match(/\/view\/(?<id>[0-9]+)(#(?<comment_id>[0-9]+)?)?$/)
@@ -37,10 +37,95 @@ url /\/\/(www\.)?sofurry\.com\/view\/[0-9]+/ do
   else
     get_submission match
   end
+end
 
+url /\/\/((?!(www|wiki)\.).+)\.sofurry\.com\/?$/ do
+  match = @uri.to_s.match(/\/\/(?<user_name>(?!(www|wiki)\.).+)\.sofurry\.com\/?$/)
+
+  get_profile match
 end
 
 helpers do
+
+  def get_profile match
+    api = URI('http://api2.sofurry.com/std/getUserProfile')
+
+    args = {
+      'username' => match[:user_name],
+      'format' => 'json'
+    }
+
+    json_get api, args, true do |json|
+      data, country, city = {}, '', ''
+
+      # yeah, a loop is kind of a fucko way to do this,
+      # but the code is easier to read/write --Kabaka
+      json.each do |key, value|
+        unless !!value == value
+          next if value.nil? or value.empty? or value == '0'
+        end
+
+        case key
+
+        when 'species'
+          data['Species'] = value
+
+        when 'gender'
+          case value
+          when '1'
+            data['Gender'] = 'Male'
+          when '2'
+            data['Gender'] = 'Female'
+          when '3'
+            data['Gender'] = 'Herm'
+          end
+
+        when 'orientation'
+          case value
+          when '1'
+            data['Orientation'] = 'Heterosexual'
+          when '2'
+            data['Orientation'] = 'Homosexual'
+          when '3'
+            data['Orientation'] = 'Bisexual'
+          when '4'
+            data['Orientation'] = 'Omnisexual'
+          end
+
+        when 'description'
+          data['Description'] = value unless value.empty?
+
+        when 'submissionCount'
+          data['Submissions']       = value
+        when 'submissionViewCount'
+          data['Submission Views']  = value
+        when 'commentCount'
+          data['Comments Received'] = value
+
+        when 'commentPostedCount'
+          data['Comments Posted']   = value
+
+        when 'country'
+          country = value
+        when 'city'
+          city = value
+
+        when 'registrationDate'
+          data['Registered'] = DateTime.parse(value).strftime('%F')
+        end
+      end
+
+      if not country.empty? and not city.empty?
+        data['Location'] = "#{city}, #{country}"
+      elsif not country.empty?
+        data['Location'] = country
+      elsif not city.empty?
+        data['Location'] = city
+      end
+
+      reply_without_prefix json['username'] => data
+    end
+  end
 
   def get_comment match
     api = URI('http://api2.sofurry.com/api/getComments')
