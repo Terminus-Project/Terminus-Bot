@@ -92,6 +92,20 @@ helpers do
             data['Orientation'] = 'Omnisexual'
           end
 
+        when 'mateshipStatus'
+          case value
+          when '1'
+            data['Mateship Status'] = 'Single, Uninterested'
+          when '2'
+            data['Mateship Status'] = 'Single, Seeking Casual'
+          when '3'
+            data['Mateship Status'] = 'Single, Seeking Permanent'
+          when '4'
+            data['Mateship Status'] = 'Mated, Open'
+          when '5'
+            data['Mateship Status'] = 'Mated, Closed'
+          end
+
         when 'description'
           data['Description'] = value unless value.empty?
 
