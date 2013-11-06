@@ -24,7 +24,7 @@
 require 'uri'
 require 'em-http-request'
 require 'htmlentities'
-
+require 'multi_json'
 
 module Bot
 
