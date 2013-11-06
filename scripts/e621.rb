@@ -140,31 +140,16 @@ helpers do
   def reply_with_image data, include_url = true
     tags = data['tags'].split
 
-    artist, display_tags = [], []
-
-    tags.each do |tag|
-      if tag.end_with? '_(artist)'
-        artist << tag[0..-10]
-        next
-      end
-
-      display_tags << tag
-    end
-
-    tags_total = display_tags.length
-
     max_tags = get_config :max_tags, 10
-    display_tags = display_tags[0..max_tags.to_i]
+    display_tags = tags[0..max_tags.to_i]
 
-    tags_remaining = tags_total - display_tags.length
+    tags_remaining = tags.length - display_tags.length
 
     unless tags_remaining.zero?
       display_tags = "#{display_tags.join(', ')} (and #{tags_remaining} more)"
     else
       display_tags = display_tags.join(', ')
     end
-    
-    artist = artist.empty? ? 'not tagged' : artist.join(', ')
 
     case data['rating']
     when 'e'
@@ -181,7 +166,6 @@ helpers do
 
     reply_without_prefix  'e621'  => url,
       'Rating'   => display_rating,
-      'Artist'   => artist,
       'Tags'     => display_tags,
       'Uploader' => data['author'],
       'Score'    => data['score'],
