@@ -230,6 +230,18 @@ Commands:
 * DDG - Retrieve the first instant search result from DuckDuckGo.
 * DEFINE - Fetch a short definition or other information about a given term.
 
+### e621
+
+Search for and look up iamges on [e621](https://e621.net). Search syntax is
+identical to that on the site.
+
+Commands:
+
+* E621
+  * IMAGE - Display information about the given image ID.
+  * SEARCH - Look up the most recent image with the given tags.
+  * RANDOM - Show a random, somewhat recent image with the given tags.
+
 ### Eval
 
 Commands:

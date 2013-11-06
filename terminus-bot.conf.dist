@@ -444,6 +444,29 @@ dictionary = {
 }
 
 
+# e621.net image booru script.
+e621 = {
+
+  # Your user name. This, and your password hash (below), are only required for
+  # retrieval of comments.
+  #login =
+
+  # Your SHA1 password hash. This, and your user name (above), are only
+  # required for retrieval of comments. To get your password hash, go to:
+  # https://e621.net/user/login.xml?name=USERNAMEHERE&password=PASSWORDHERE
+  # Storing your password in plain text on any computer is unwise, which is why
+  # this step is required.
+  #password_hash = 
+  
+  # Max tags to include in image information output. Some images may have an
+  # unusually large number of tags, so the list may be truncated with the
+  # remaining number of tags indicated at the end.
+  # default: 10
+  #max_tags = 10
+
+}
+
+
 # Exchange rates script.
 exchange = {
 
