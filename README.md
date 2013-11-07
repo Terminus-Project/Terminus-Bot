@@ -474,6 +474,7 @@ Create Markov chains based on word statistics collected by the bot.
 This script is experimental and will be subject to change before beta.
 
 *If you are in a low-memory environment, _do not_ use this script!*
+
 Commands:
 
 * MARKOV - Manage the Markov script.
