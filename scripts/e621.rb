@@ -30,15 +30,17 @@ register 'Interact with e621.'
 command 'e621', 'Interact with e621. Parameters: SEARCH tags|RANDOM tags|IMAGE id' do
   argc! 2
 
-  case @params.shift.downcase.to_sym
-  when :search
+  first = @params.shift
+
+  case first.downcase
+  when 'search'
     search @params.shift
-  when :random
+  when 'random'
     search @params.shift, true
-  when :image
+  when 'image'
     image @params.shift
   else
-    raise 'unknown action'
+    search "#{first} #{@params.shift}"
   end
 end
 
