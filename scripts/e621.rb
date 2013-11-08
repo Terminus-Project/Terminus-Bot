@@ -88,11 +88,9 @@ helpers do
 
     $log.info('e621.image') { id }
 
-    api = URI("https://e621.net/post/show/#{id}.json")
-
-    json_get api, {}, silent_err do |json|
-      raise 'No results.' if json.empty?
-
+    path = "post/show/#{id}.json"
+  
+    api_call path, {}, silent_err do |json|
       reply_with_image json, include_url
     end
   end
@@ -107,11 +105,9 @@ helpers do
 
     $log.info('e621.comment') { id }
 
-    api = URI("https://e621.net/comment/show/#{id}.json")
+    path = "comment/show/#{id}.json"
 
-    json_get api, login_args, silent_err do |json|
-      raise 'No results.' if json.empty?
-
+    api_call path, login_args, silent_err do |json|
       reply_with_comment json
     end
   end
@@ -120,15 +116,11 @@ helpers do
   def search tags, random = false, include_url = true, silent_err = false
     $log.info('e621.search') { tags }
 
-    api = URI('https://e621.net/post/index.json')
-
     args = {
       'tags' => tags
     }
 
-    json_get api, args, silent_err do |json|
-      raise 'No results.' if json.empty?
-
+    api_call 'post/index.json', args, silent_err do |json|
       if random
         reply_with_image json.sample, include_url
       else
@@ -176,6 +168,21 @@ helpers do
 
   def reply_with_comment data
     reply_without_prefix "\002<#{data['creator']}>\002 #{clean_result data['body']}"
+  end
+
+  def api_call path, args = {}, silent_err = false
+    uri = URI("https://e621.net/#{path}")
+
+    json_get uri, args, silent_err do |json|
+      raise 'No results' if json.empty?
+
+      if json.is_a? Hash
+        raise json['reason'] if json['success'] === false
+      end
+
+      yield json
+    end
+
   end
 
 end
