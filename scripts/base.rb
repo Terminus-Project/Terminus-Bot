@@ -1,6 +1,7 @@
 # Terminus-Bot: An IRC bot to solve all of the problems with IRC bots.
 #
 # Copyright (C) 2010-2013 Jade Rain, Shockk <shokku.ra@gmail.com>
+# Copyright (C) 2013 Kyle Johnson <kyle@vacantminded.com>
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -25,23 +26,21 @@ register 'Converts a number from one base to another base.'
 command 'hex', 'Converts a number from decimal to hex or vice versa if prefixed with 0x or suffixed with h. Parameters: number' do
   argc! 1
 
-  number = @params.first.downcase()
+  number = @params.first.downcase
 
-  if(number.start_with?("0x") or number.end_with?("h"))
-    number.slice! "0x"
-    number.slice! "h"
+  if number.start_with? '0x' or number.end_with? 'h'
+    number.slice! '0x'
+    number.slice! 'h'
+
     reply number.to_i(16).to_s(10)
   else
-    reply "0x" + number.to_i(10).to_s(16).upcase()
+    reply "0x#{number.to_i(10).to_s(16).upcase}"
   end
 end
 
 command 'base', 'Converts a base to another base. Parameters: number original-base new-base' do
   argc! 3
 
-  number = @params[0]
-  old_base = @params[1]
-  new_base = @params[2]
-
+  number, old_base, new_base = @params
   reply number.to_i(old_base.to_i).to_s(new_base.to_i)
 end
