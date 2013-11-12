@@ -22,7 +22,7 @@
 
 register 'Converts a number from one base to another base.'
 
-command 'hex', 'Converts a number from decimal to hex or vice versa if prefixed with 0x or suffixed with h. Parameters: [number]' do
+command 'hex', 'Converts a number from decimal to hex or vice versa if prefixed with 0x or suffixed with h. Parameters: number' do
   argc! 1
 
   number = @params.first.downcase()
@@ -36,7 +36,7 @@ command 'hex', 'Converts a number from decimal to hex or vice versa if prefixed 
   end
 end
 
-command 'base', 'Converts a base to another base. Parameters: [number] [base of number] [new base]' do
+command 'base', 'Converts a base to another base. Parameters: number original-base new-base' do
   argc! 3
 
   number = @params[0]
