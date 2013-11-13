@@ -859,8 +859,7 @@ The bot should inform you that you've been logged in. Go ahead and have it join
 a channel using the channel script's `join` command.
 
 Remember, you can use the help script's `help` command to get a list of commands
-and help with specific commands. The command list will only show you commands
-you are authorized to use.
+and help with specific commands.
 
 ## Reporting Problems
 
