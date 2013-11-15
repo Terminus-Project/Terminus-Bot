@@ -1,6 +1,8 @@
 ![Terminus-Bot: The IRC Bot to End All Others](http://terminus-project.org/static-assets/terminus-bot-logo-for-white-bg.png)
 
-chat.freenode.net #Terminus-Bot         http://terminus-bot.net/
+[chat.freenode.net #Terminus-Bot](irc://chat.freenode.net/Terminus-Bot)
+
+[terminus-bot.net](http://terminus-bot.net/)
 
 # About the Bot
 
