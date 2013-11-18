@@ -137,10 +137,14 @@ helpers do
         Bot.http_get(URI(feed[0])) do |http|
           rss = RSS::Parser.parse(http.response)
 
+          next if rss.nil?
+
           send = false
           atom = rss.kind_of? RSS::Atom::Feed
 
           feed_title = clean_result(atom ? rss.title.to_s : rss.channel.title.to_s)
+
+          next if rss.items.nil? or rss.items.empty?
 
           items = rss.items[0..get_config(:max, 3).to_i-1].reverse
 
