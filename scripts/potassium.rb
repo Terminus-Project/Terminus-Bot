@@ -39,6 +39,7 @@ command 'hypokalaemia', 'Find out who was the most severe hypokalaemia.' do
   reply bottom
 end
 
+# TODO: use regex handler?
 event :PRIVMSG do
   next if query?
 
@@ -49,10 +50,8 @@ helpers do
 
   def top n = 3
     potassium = get_data(@connection.name, Hash.new(0)).sort_by {|n, k| k}
-
-    if potassium.empty?
-      return 'Nobody has any potassium, yet.'
-    end
+    
+    raise 'Nobody has any potassium, yet.' if potassium.empty?
 
     Hash[potassium.last(n).reverse]
   end
@@ -60,9 +59,7 @@ helpers do
   def bottom n = 3
     potassium = get_data(@connection.name, Hash.new(0)).sort_by {|n, k| k}
 
-    if potassium.empty?
-      return 'Nobody has any potassium, yet.'
-    end
+    raise 'Nobody has any potassium, yet.' if potassium.empty?
 
     Hash[potassium.first(n).reverse]
   end
@@ -75,9 +72,10 @@ helpers do
     return if amount.zero?
   
     potassium = get_data @connection.name, Hash.new(0)
-    if potassium[nick].nil?
-      potassium[nick] = 0
-    end
+
+    # here to fix something... this will be removed eventually
+    potassium[nick] = 0  if potassium[nick].nil?
+
     potassium[nick] += amount
 
     $log.debug('potassium.add_k') { "#{nick} potassium change: #{amount}: #{potassium[nick]}" }
