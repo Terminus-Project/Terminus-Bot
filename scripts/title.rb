@@ -35,6 +35,8 @@ url do
   http_get(@uri, {}, true) do |http|
     last = http.last_effective_url
 
+    # http://stackoverflow.com/questions/1732348/regex-match-open-tags-except-xhtml-self-contained-tags
+
     begin
       page = StringScanner.new http.response
 
@@ -43,12 +45,8 @@ url do
 
       next if title == nil
 
-      title = html_decode title
-
-      len = title.length - 9
-      next if len <= 0
-
-      title = title[0..len].strip.gsub(/[[[:cntrl:]]\s]+/, ' ').strip
+      title = title.match(/(?<title>.*)<\/title[^>]*>/)[:title]
+      title = html_decode(title).gsub(/[[[:cntrl:]]\s]+/, ' ').strip
 
       next if title.empty?
 
