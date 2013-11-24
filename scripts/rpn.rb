@@ -32,8 +32,6 @@ command 'rpn', 'Perform calculations using a Reverse Polish notation (postfix) c
   stack, printed = [], false
 
   @params.first.split.each do |s|
-    printed = false
-
     case s
     when 'add'
       s = "+"
@@ -49,31 +47,38 @@ command 'rpn', 'Perform calculations using a Reverse Polish notation (postfix) c
       s = '/'
 
     when 'dup'
-      if stack.length > 0
-        stack << stack.last
-      else
-        raise "Cannot dup on an empty stack"
-      end
+      raise 'Cannot dup on an empty stack.' if stack.empty?
+      
+      stack << stack.last
       next
+
     when 'swap'
-      if stack.length > 1
-        x, y = stack.pop 2
-        stack << y << x
-      else
-        raise "Cannot swap a stack with fewer than 2 items"
+      unless stack.length > 1
+        raise 'Cannot swap a stack with fewer than 2 items.'
       end
+      
+      x, y = stack.pop 2
+      stack << y << x
       next
 
     when 'f'
-      reply stack.join ', '
-      max_prints -= 1 and max_prints.zero? and return
-      printed = true
+      unless max_prints.zero?
+        reply stack.join ', '
+        max_prints -= 1
+        printed = true
+      end
+
       next
+
     when 'p'
-      reply stack.last.to_s
-      max_prints -= 1 and max_prints.zero? and return
-      printed = true
+      unless max_prints.zero?
+        reply stack.last.to_s
+        max_prints -= 1
+        printed = true
+      end
+
       next
+
     end
 
     stack << begin
