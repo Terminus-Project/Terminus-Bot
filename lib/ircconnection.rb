@@ -395,11 +395,12 @@ module Bot
       if @nick == Bot::Conf[:core][:nick]
 
         if Bot::Conf[:core].has_key? :altnick
-          raw "NICK #{Bot::Conf[:core][:altnick]}"
+          @nick =Bot::Conf[:core][:altnick]
         else
-          raw "NICK TerminusBot"
+          @nick = 'TerminusBot'
         end
 
+        raw "NICK #{@nick}"
         return
       end
 
