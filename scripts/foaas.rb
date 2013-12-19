@@ -71,6 +71,7 @@ helpers do
 
   def api_call type, from, to
     from = CGI.escape from
+    type = CGI.escape type
 
     if to
       to = CGI.escape to
