@@ -138,6 +138,8 @@ module Bot
       raise "Script file for #{name} does not exist (#{filename})." unless File.exists? filename
 
       @scripts[name].die if @scripts[name].respond_to? "die"
+      
+      Events.dispatch_for @scripts[name], :unloading
 
       Events.delete_for @scripts[name]
       URL.delete_for @scripts[name] if defined? MODULE_LOADED_URL_HANDLER
