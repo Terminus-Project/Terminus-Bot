@@ -138,11 +138,15 @@ helpers do
           end
         end
 
-        data = {}
+        data, overall_matches, overall_total = {}, 0, 0
 
         choices.each do |choice, stats|
           data[choice] = "#{stats[:matches]}/#{stats[:total]} (#{(stats[:matches].to_f/stats[:total].to_f * 100).to_i}% Match)"
+          overall_matches += stats[:matches]
+          overall_total   += stats[:total]
         end
+
+        data['overall'] = "#{overall_matches}/#{overall_total} (#{(overall_matches.to_f/overall_total.to_f * 100).to_i}% Match)"
 
         reply data
       end
