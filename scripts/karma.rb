@@ -78,7 +78,7 @@ helpers do
   end
 
   def get_karma nick
-    get_data(@connection.name, Hash.new(0))[@connection.canonize nick]
+    get_data(@connection.name, Hash.new(0)).fetch @connection.canonize(nick), 0
   end
 
   def add_karma nick, amount = 1
