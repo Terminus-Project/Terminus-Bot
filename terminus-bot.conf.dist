@@ -1,4 +1,3 @@
-
 # syntax:
 #
 #   block_name = {
@@ -554,7 +553,7 @@ mpd = {
 
   # Host name or IP of the MPD server.
   # default: localhost
-  #addres = localhost
+  #address = localhost
 
   # Port number for the MPD server.
   # default: 6600
