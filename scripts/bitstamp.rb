@@ -25,7 +25,7 @@ need_module! 'http'
 
 register 'interface with the bitstamp bitcoin API'
 
-command 'bitstamp', 'Get the current BTC -> USD exchange rate from BitStamp' do
+command 'btc', 'Get the current BTC -> USD exchange rate from BitStamp' do
   uri = URI('https://www.bitstamp.net/api/ticker/')
 
   json_get uri do |json|
