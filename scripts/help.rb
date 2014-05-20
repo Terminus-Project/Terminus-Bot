@@ -67,7 +67,18 @@ end
 
 helpers do
   def list_commands
-    reply Bot::Commands::COMMANDS.keys.sort.join(', ')
+    if get_config :multi_line, false
+      s = Bot::Commands::COMMANDS.keys.sort.join(', ').chars
+      cmd_ary = []
+      until s.empty?
+        cmd_ary <<  s.shift(400).join
+      end
+      cmd_ary.each do |cmd|
+        reply cmd
+      end
+    else
+      reply Bot::Commands::COMMANDS.keys.sort.join(', ')
+    end
   end
 
   def list_scripts
