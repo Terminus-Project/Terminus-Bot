@@ -68,7 +68,7 @@ end
 helpers do
   def list_commands
     if get_config :multi_line, false
-      s = Bot::Commands::COMMANDS.keys.sort.join(', ').chars
+      s = Bot::Commands::COMMANDS.keys.sort.join(', ').chars.to_a
       cmd_ary = []
       until s.empty?
         cmd_ary <<  s.shift(400).join
