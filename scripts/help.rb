@@ -82,7 +82,18 @@ helpers do
   end
 
   def list_scripts
-    reply Bot::Scripts.script_info.sort_by {|s| s.name}.map{|s| s.name}.join(', ')
+    if get_config :multi_line, false
+      s = Bot::Scripts.script_info.sort_by {|s| s.name}.map{|s| s.name}.join(', ').chars.to_a
+      script_ary = []
+      until s.empty?
+        script_ary <<  s.shift(400).join
+      end
+      script_ary.each do |script|
+        reply script
+      end
+    else
+      reply Bot::Scripts.script_info.sort_by {|s| s.name}.map{|s| s.name}.join(', ')
+    end
   end
 end
 
