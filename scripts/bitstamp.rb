@@ -42,3 +42,4 @@ command 'btc', 'Get the current BTC -> USD exchange rate from BitStamp' do
     reply data
   end
 end
+# vim: set tabstop=2 expandtab:
