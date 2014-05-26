@@ -140,7 +140,7 @@ helpers do
     json_get api, {}, true do |json|
       data = json['data']
 
-      reply "#{"[NSFW] " if data["over_18"]}#{data["url"]}: \02#{html_decode data["title"]}\02 - \02#{data["subscribers"]}\02 subscribers - #{html_decode data["public_description"]}", false
+      reply "#{"[NSFW] " if data["over_18"]}#{data["url"]}: \02#{html_decode data["title"]}\02 - \02#{data["subscribers"]}\02 subscribers - #{html_decode data["public_description"]}".slice(0, 512), false
     end
   end
 end
