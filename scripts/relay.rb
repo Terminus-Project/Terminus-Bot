@@ -232,7 +232,7 @@ helpers do
     if get_config(:show_channel, true)
       "[\02#{network}:#{channel}\02]"
     else
-      "[\02#{network.to_s.chars.first}\02]"
+      "[\02#{network}\02]"
     end
   end
 
