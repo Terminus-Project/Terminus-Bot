@@ -677,6 +677,11 @@ help = {
   # messages per invocation of the help command.
   # default: false
   #multi_line = false
+  #
+  # Number of characters max in one line before splitting, if the above 
+  # multi_line is true. 
+  # default: 400
+  split_length = 400
 }
 
 
