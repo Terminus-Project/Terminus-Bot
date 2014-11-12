@@ -42,6 +42,7 @@ command 'dice', 'Roll dice.' do
   @params.each do |die_str|
     # TODO verify
     count, token_str = die_str.scan(/(\d+)(.*)/).first
+    next unless count
     tokens           = token_str.scan(/(\S)(\d+)/)
 
     dice_spec = { count: count, tokens: tokens }
