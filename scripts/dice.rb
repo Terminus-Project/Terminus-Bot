@@ -71,7 +71,7 @@ helpers do
     params = OpenStruct.new
 
     params.count = dice_spec[:count].to_i # TODO check this
-    params.sides = 1
+    params.sides = 6
     params.keep  = nil
     params.mul   = 1
     params.add   = 0
