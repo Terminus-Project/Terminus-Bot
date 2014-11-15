@@ -23,6 +23,7 @@
 #
 
 require 'ostruct'
+require 'securerandom'
 
 # TODO:
 #   - Configurable max dice.
@@ -83,11 +84,11 @@ helpers do
 
     # Rolling.
     dice = Array.new(params.count).map do
-      rand(params.sides) + 1
+      SecureRandom.random_number(params.sides) + 1
     end
 
     if params.keep
-      dice = dice.sort.first params.keep
+      dice = dice.sort.last params.keep
     end
 
     result = dice.reduce &:+
