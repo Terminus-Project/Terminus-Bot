@@ -40,12 +40,20 @@ command 'dice', 'Roll dice.' do
     raise 'You may not request more than 5 dice simulations at a time.'
   end
 
+  # TODO: Streamline rolling dice and outputting for clarity
+
+  results = []
+
+  i = 1
   dice_strs.each do |dice_str|
     rolls = roll_dice dice_str
     sum = 0
     rolls.each { |roll| sum += roll }
-    reply "Results for #{dice_str}: [#{rolls.join(', ')}] \02Sum: #{sum}\02"
+    results << "Dice set #{i}: result: #{sum} dice: [#{rolls.join(', ')}]"
+    i = i + 1
   end
+
+  reply results.join(' ')
 end
 
 helpers do
@@ -56,9 +64,9 @@ helpers do
 
     settings = Hash.new()
     type_map = {
-      :count => /^(\d+)/,        # Number of dice to roll
-      :sides => /d(\d+)/,        # Number of sides on the dice
-      :keep => /k(\d+)/,         # Number of dice to keep
+      :count => /^(\d+)/,                 # Number of dice to roll
+      :sides => /d(\d+)/,                 # Number of sides on the dice
+      :keep => /k(\d+)/,                  # Number of dice to keep
       :mod => /((?:[#{operators}]\d+)*)$/ # Expression to add to every roll
     }
 
