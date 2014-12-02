@@ -2,6 +2,7 @@
 # Terminus-Bot: An IRC bot to solve all of the problems with IRC bots.
 #
 # Copyright (C) 2014 Rylee Fowler <rylee@rylee.me>
+#                    Justin Kaufman <akaritakai@gmail.com>
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -22,83 +23,91 @@
 # SOFTWARE.
 #
 
-require 'ostruct'
-require 'securerandom'
-
 # TODO:
 #   - Configurable max dice.
 #   - MORE TOKENS (consult the roll20 dice reference if in need of ideas)
-#   - SANITY CHECKS ABOUND
-
-# Input of the form 'd10' or 'k3' or 's20' is accepted through this regex.
 
 # TODO: Add ability to T-b to define constants for your scripts.
-
 
 register 'Provides a high-flexibility dice simulator.'
 
 command 'dice', 'Roll dice.' do
-  dice = []
+  argc! 1
 
-  @params.each do |die_str|
-    # TODO verify
-    count, token_str = die_str.scan(/(\d+)(.*)/).first
-    next unless count
-    tokens           = token_str.scan(/(\S)(\d+)/)
+  dice_strs = @params.first.scan /\S+/
 
-    dice_spec = { count: count, tokens: tokens }
-
-    dice << roll_dice(dice_spec)
-
+  if dice_strs.size > 5
+    raise 'You may not request more than 5 dice simulations at a time.'
   end
 
-  reply = {}
+  # TODO: Streamline rolling dice and outputting for clarity
 
-  dice.each.with_index do |die, index|
-    reply["Dice set #{index + 1}"] = die.to_s_irc
+  results = []
+
+  i = 1
+  dice_strs.each do |dice_str|
+    rolls = roll_dice dice_str
+    sum = 0
+    rolls.each { |roll| sum += roll }
+    results << "Dice set #{i}: result: #{sum} dice: [#{rolls.join(', ')}]"
+    i = i + 1
   end
-  reply reply
+
+  reply results.join(' ')
 end
 
 helpers do
-  def roll_dice dice_spec
-    tokens = {
-      'd' => :sides,
-      'k' => :keep,
-      '*' => :mul,
-      '+' => :add
+  def roll_dice dice_str
+    operators = Regexp.escape '+-*'
+
+    raise 'Simulation format must be [count]d<sides>[k<keep>][+/-/*<modifier>]' if dice_str.match(/^(\d+)?d\d+(k\d+)?([#{operators}]\d+)*$/).nil?
+
+    settings = Hash.new()
+    type_map = {
+      :count => /^(\d+)/,                 # Number of dice to roll
+      :sides => /d(\d+)/,                 # Number of sides on the dice
+      :keep => /k(\d+)/,                  # Number of dice to keep
+      :mod => /((?:[#{operators}]\d+)*)$/ # Expression to add to every roll
     }
 
-    params = OpenStruct.new
-
-    params.count = dice_spec[:count].to_i # TODO check this
-    params.sides = 6
-    params.keep  = nil
-    params.mul   = 1
-    params.add   = 0
-
-    dice_spec[:tokens].each do |type, val|
-      type = tokens[type]
-      params.send(:"#{type.to_s}=", val.to_i)
+    # Get settings from dice string
+    type_map.each do |setting, regex|
+      parsed = dice_str.scan(regex).first.first.to_s rescue nil
+      settings[setting] = (parsed.match(/^\d+$/).nil?) ? parsed : Integer(parsed) rescue nil
     end
 
-    # Rolling.
-    dice = Array.new(params.count).map do
-      SecureRandom.random_number(params.sides) + 1
+    # Sanity checks
+    settings[:count] = 1 if settings[:count].nil?
+    raise 'You may only roll up to 100 dice.' if settings[:count] > 100
+    raise 'You must roll a positive number of dice.' if settings[:count] <= 0
+
+    raise 'You must specify a number of sides.' if settings[:sides].nil?
+    raise 'You may only roll dice of up to 100 sides.' if settings[:sides] > 100
+    raise 'You must only roll dice with a positive number of sides.' if settings[:sides] <= 0
+
+    if !settings[:keep].nil?
+      raise 'You must choose to keep a positive number of dice if specified.' if settings[:keep] <= 0
+      raise 'You must not choose to keep more dice than you have chosen to roll.' if settings[:keep] > settings[:count]
     end
 
-    if params.keep
-      dice = dice.sort.last params.keep
+    rolls = []
+
+    # Make the rolls
+    settings[:count].times { rolls << rand(settings[:sides]) + 1 }
+
+    # Remove lowest dice according to keep
+    settings[:keep] = Integer(settings[:keep]) rescue 0
+    settings[:keep] = rolls.size - settings[:keep] unless settings[:keep] == 0
+    settings[:keep].times { rolls.delete_at rolls.index rolls.min }
+
+    # Add the modifier
+    rolls.collect! do |roll|
+      unless settings[:mod].nil?
+        mod = settings[:mod].match(/[\d#{operators}]*/)
+        eval(roll.to_s + mod.to_s).to_i
+      end
     end
 
-    result = dice.reduce &:+
-
-    result = result * params.mul
-    result = result + params.add
-
-    {
-      result: result,
-      dice:   dice
-    }
+    rolls
   end
 end
