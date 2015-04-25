@@ -45,7 +45,7 @@ end
 command 'forget', 'Forget this factoid.' do
   argc! 1
 
-  key = @params.first.downcase
+  key = @params.first.downcase.rstrip
 
   if get_data(key) == nil
     raise "No such factoid."
@@ -58,7 +58,7 @@ end
 command 'factoid', 'Retrieve a factoid.' do
   argc! 1
 
-  key = @params.first.downcase
+  key = @params.first.downcase.rstrip
 
   factoid = get_data key
 
