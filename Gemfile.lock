@@ -1,0 +1,41 @@
+GEM
+  remote: https://rubygems.org/
+  specs:
+    addressable (2.3.8)
+    cookiejar (0.3.2)
+    dnsruby (1.58.0)
+    em-http-request (1.1.2)
+      addressable (>= 2.3.4)
+      cookiejar
+      em-socksify (>= 0.3)
+      eventmachine (>= 1.0.3)
+      http_parser.rb (>= 0.6.0)
+    em-socksify (0.3.0)
+      eventmachine (>= 1.0.0.beta.4)
+    em-synchrony (1.0.4)
+      eventmachine (>= 1.0.0.beta.1)
+    em-whois (0.3.0)
+      em-synchrony
+      whois (= 2.7.0)
+    eventmachine (1.0.7)
+    htmlentities (4.3.3)
+    http_parser.rb (0.6.0)
+    json (1.8.2)
+    multi_json (1.11.0)
+    psych (2.0.13)
+    ruby-mpd (0.3.1)
+    whois (2.7.0)
+
+PLATFORMS
+  ruby
+
+DEPENDENCIES
+  dnsruby
+  em-http-request
+  em-whois
+  eventmachine
+  htmlentities
+  json
+  multi_json
+  psych
+  ruby-mpd
