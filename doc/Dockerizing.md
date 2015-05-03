@@ -23,7 +23,8 @@ a recommended way to run Terminus-Bot within Docker.
  - If you didn't choose to use `/var/lib/terminus-bot` as your persistence
    location, modify the `runit` script in `doc/runit/` to point to the correct
    locations.
- - ```
+ - Run:
+ ```shell
  docker build -t terminus-bot .
  docker run -v /var/lib/terminus-bot:/var/lib/terminus-bot -d terminus-bot
  ```
@@ -46,7 +47,8 @@ a recommended way to run Terminus-Bot within Docker.
  - If you didn't choose to use `/var/lib/terminus-bot` as your persistence
    location, modify the `runit` script in `doc/runit/` to point to the correct
    locations.
- - ```
+ - Run:
+ ```shell
  docker build -t terminus-bot .
  docker run -v /var/lib/terminus-bot:/var/lib/terminus-bot -d terminus-bot
  ```
