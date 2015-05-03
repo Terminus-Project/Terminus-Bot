@@ -37,15 +37,17 @@ module Bot
     require 'psych'
 
     # TODO: use better relative path
-    FILENAME = "var/terminus-bot/data.db"
+    DEFAULT_FILENAME = "var/terminus-bot/data.db"
 
-    private_constant :FILENAME
+    private_constant :DEFAULT_FILENAME
 
     # Read the database if it exists. Otherwise, write an empty database.
-    def initialize
+    def initialize filename=nil
+      filename ||= DEFAULT_FILENAME
       @data = Hash.new
+      @filename = filename
 
-      if File.exists? FILENAME
+      if File.exists? @filename
         read_database
       else
         write_database
@@ -59,21 +61,19 @@ module Bot
     # a hash table, since we initialize it as one and write it the first
     # time we run.
     def read_database
-      @data = Psych.load(IO.read(FILENAME))
+      @data = Psych.load(IO.read(@filename))
     end
 
     # Write database in YAML format.
     def write_database
-      # TODO: Use the path from FILENAME.
-      Dir.mkdir "var" unless Dir.exists? "var"
-      Dir.mkdir "var/terminus-bot" unless Dir.exists? "var/terminus-bot"
+      FileUtils.mkdir_p File.dirname(@filename) unless Dir.exists? File.dirname(@filename)
 
-      temp = "#{FILENAME}.tmp"
+      temp = "#{@filename}.tmp"
 
-      $log.debug("Database.write_database") { "Marshaling data and writing to #{FILENAME}" }
+      $log.debug("Database.write_database") { "Marshaling data and writing to #{@filename}" }
 
       File.open(temp, "w") { |f| f.write(@data.to_yaml)}
-      File.rename temp, FILENAME
+      File.rename temp, @filename
     end
 
     # Implement a few Hash methods.
@@ -117,6 +117,7 @@ module Bot
     end
   end
 
-  DB ||= Database.new
+  DB ||= Database.new $opts[:database_file]
+
 end
 # vim: set tabstop=2 expandtab:

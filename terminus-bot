@@ -60,6 +60,11 @@ OptionParser.new do |opts|
     $opts[:config_file] = v
   end
 
+  $opts[:database_file] = 'var/terminus-bot/data.db'
+  opts.on '-d', '--database FILE', 'Use another database file (default: var/terminus-bot/data.db)' do |v|
+    $opts[:database_file] = v
+  end
+
   $opts[:fork] = true
   opts.on '-f', '--no-fork', 'Don\'t run in the background' do |v|
     $opts[:fork] = false
