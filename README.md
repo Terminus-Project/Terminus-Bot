@@ -37,6 +37,9 @@ have encountered, as well as all of those everyone else tells us about.
 
 See `doc/GettingStarted.md`.
 
+After that, if you are interested in running Terminus-Bot in a Docker
+container, see `doc/Dockerizing.md`.
+
 ## Code Documentation and Guides
 
 Documentation is tentatively hosted at
