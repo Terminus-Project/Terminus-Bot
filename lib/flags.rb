@@ -194,7 +194,15 @@ module Bot
 
   unless defined? Flags
     if DB.has_key? :flags
-      Flags = DB[:flags]
+      old_flags = DB[:flags]
+
+      Flags = Script_Flags.new
+
+      old_flags.each do |k, v|
+        Flags[k] = v
+      end
+
+      DB[:flags] = Flags
     else
       Flags = Script_Flags.new
       DB[:flags] = Flags
