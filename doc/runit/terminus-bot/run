@@ -1,0 +1,5 @@
+#!/bin/sh
+chmod -R a+rw /terminus-bot
+cd /terminus-bot
+setuser terminus-bot ruby /terminus-bot/terminus-bot -f \
+  -c /var/lib/terminus-bot/terminus-bot.conf -d /var/lib/terminus-bot/data.db
