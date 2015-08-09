@@ -143,6 +143,7 @@ helpers do
       end
 
       response = MultiJson.load http.response
+      response = response['search']
 
       if response.nil?
         reply "No results."
