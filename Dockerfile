@@ -1,4 +1,4 @@
-FROM phusion/baseimage:0.9.16
+FROM phusion/baseimage:0.9.17
 
 RUN apt-get -y update && \
   apt-get -y install ruby ruby-dev build-essential ruby-bundler git libssl-dev
