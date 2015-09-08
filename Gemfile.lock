@@ -17,13 +17,13 @@ GEM
     em-whois (0.3.0)
       em-synchrony
       whois (= 2.7.0)
-    eventmachine (1.0.7)
-    htmlentities (4.3.3)
+    eventmachine (1.0.8)
+    htmlentities (4.3.4)
     http_parser.rb (0.6.0)
-    json (1.8.2)
-    multi_json (1.11.0)
-    psych (2.0.13)
-    ruby-mpd (0.3.1)
+    json (1.8.3)
+    multi_json (1.11.2)
+    psych (2.0.15)
+    ruby-mpd (0.3.3)
     whois (2.7.0)
 
 PLATFORMS
