@@ -684,6 +684,16 @@ help = {
   split_length = 400
 }
 
+# Generic link title announcer.
+title = {
+
+  # Maximum HTTP title length, anything longer than this gets trunacated with
+  # '...'
+  # default: 350
+
+  max_title_length = 350
+}
+
 
 # UPC look-up script (upcdatabase.org).
 upc = {

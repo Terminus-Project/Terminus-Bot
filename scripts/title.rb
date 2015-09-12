@@ -32,6 +32,8 @@ register 'Fetches titles for URLs spoken in channels.'
 url do
   $log.info('title.url') { @uri.inspect }
 
+  max_title_length = get_config(:max_title_length, 350).to_i
+
   http_get(@uri, {}, true) do |http|
     last = http.last_effective_url
 
@@ -49,6 +51,10 @@ url do
       title = html_decode(title).gsub(/[[[:cntrl:]]\s]+/, ' ').strip
 
       next if title.empty?
+
+      if title.length > max_title_length
+        title = title[0..(max_title_length - 3)] + '...'
+      end
 
       reply "\02Title on #{last.host}#{' (redirected)' unless http.redirects.zero?}:\02 #{title}", false
     rescue => e
