@@ -132,7 +132,7 @@ helpers do
       val.each do |feed|
         next if feed == nil
 
-        $log.debug("rss.check_feeds") { "Checking %s for %s on %s" % [feed, channel, network] }
+        $log.info("rss.check_feeds") { "Checking %s for %s on %s" % [feed, channel, network] }
 
         Bot.http_get(URI(feed[0])) do |http|
           rss = RSS::Parser.parse(http.response)

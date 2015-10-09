@@ -622,8 +622,7 @@ relay = {
 # RSS/ATOM feed reader script.
 rss = {
 
-  # Interval (in seconds) to check for new feed items. This is approximate, since
-  # checks are triggered by server pings.
+  # Interval (in seconds) to check for new feed items.
   # default: 1800
   #interval = 1800
 
