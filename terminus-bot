@@ -52,7 +52,7 @@ OptionParser.new do |opts|
   end
 
   $opts[:config_file] = 'terminus-bot.conf'
-  opts.on '-c', '--config FILE', 'Use another config file (default: terminus-bot.conf' do |v|
+  opts.on '-c', '--config FILE', 'Use another config file (default: terminus-bot.conf)' do |v|
     $opts[:config_file] = v
   end
 
