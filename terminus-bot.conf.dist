@@ -24,9 +24,9 @@
 # sane defaults so that nothing _really_ needs to be added here.
 
 
-# Core bot configuration. If this section and the require settings inside aren't
-# here, the bot may somehow erase your hard drive and kick your dog. Read and
-# pay attention!
+# Core bot configuration. If this section and the require settings inside
+# aren't here, the bot may somehow erase your hard drive and kick your dog.
+# Read and pay attention!
 core = {
 
   # OPTIONAL, RECOMMENDED
@@ -43,23 +43,23 @@ core = {
   user = Terminus
 
   # OPTIONAL
-  # The bot's "real name" or "gecos." This can be arbitrary text, and appears in
-  # various places, such as WHOIS results.
+  # The bot's "real name" or "gecos." This can be arbitrary text, and appears
+  # in various places, such as WHOIS results.
   # default: http://terminus-bot.net/
   realname = http://terminus-bot.net/
 
   # OPTIONAL, RECOMMENDED
-  # The bot's alternative IRC nick. This is used if the main nick (above) is taken
-  # when the bot is connecting. If this one fails, underscores will be added. If
-  # that somehow fails enough times to max out nick length, the bot will probably
-  # hang right now.
+  # The bot's alternative IRC nick. This is used if the main nick (above) is
+  # taken when the bot is connecting. If this one fails, underscores will be
+  # added. If that somehow fails enough times to max out nick length, the bot
+  # will probably hang right now.
   # default: TerminusBot
   altnick = TerminusBot
 
   # REQUIRED
-  # When running commands in IRC channels, messages must begin with this prefix.
-  # For example, if the prefix is ! then the PING command could be run with: !ping
-  # This can be longer than one character.
+  # When running commands in IRC channels, messages must begin with this
+  # prefix.  For example, if the prefix is ! then the PING command could be run
+  # with: !ping This can be longer than one character.
   prefix = ;
 
 
@@ -73,12 +73,13 @@ core = {
 
 
   # OPTIONAL
-  # If your bot is running on a machine with multiple IP addresses, you should use
-  # this setting to force the bot to bind to a certain connection. If you are
-  # running the bot on a shell account or some other shared hosting platform, your
-  # provider will likely *require* you set this value correctly. It may also be
-  # used to take advantage of vanity host names, if you know how.
-  #bind = 
+  # If your bot is running on a machine with multiple IP addresses, you should
+  # use this setting to force the bot to bind to a certain connection. If you
+  # are running the bot on a shell account or some other shared hosting
+  # platform, your provider will likely *require* you set this value correctly.
+  # It may also be used to take advantage of vanity host names, if you know
+  # how.
+  #bind =
 
 
   # OPTIONAL
@@ -106,7 +107,8 @@ core = {
   # all message types, not just messages to users. Unless the bot is opered and
   # is immune to flood protection, this should be something greater than zero!
   # In many cases, a value of 1 or 2 may be necessary. The default is very low
-  # since smaller values will generally be better for a bot that feels responsive.
+  # since smaller values will generally be better for a bot that feels
+  # responsive.
   # default: 0.25
   throttle = 0.25
 
@@ -141,9 +143,9 @@ core = {
 
 
   # OPTIONAL
-  # Scripts in this list will not be loaded during start, but can still be loaded
-  # manually. Script names should be the same as the file name without an
-  # extension.List one script per line.
+  # Scripts in this list will not be loaded during start, but can still be
+  # loaded manually. Script names should be the same as the file name without
+  # an extension.List one script per line.
   #
   # The defaults included here are developer modules (lograw).
   noload = {
@@ -173,7 +175,7 @@ servers = {
   #                    closed; 0 disables the timeout. Must be > 0.)
   #   password        (string)
   #   ssl             (boolean)
-  #   ssl_cert        (string) path to ssl certificate file 
+  #   ssl_cert        (string) path to ssl certificate file
   #                            (.crt extension, usually)
   #   ssl_key         (string) path to ssl key file (.key extension usually)
   #   sasl_username   (string)
@@ -205,8 +207,9 @@ modules = {
   http_client = {
 
     # REQUIRED
-    # Maximum number of redirections to follow. This should be 10 or less. Setting
-    # it too high may cause the bot to hang. It should probably be at least 3.
+    # Maximum number of redirections to follow. This should be 10 or less.
+    # Setting it too high may cause the bot to hang. It should probably be at
+    # least 3.
     redirects = 10
 
     # OPTIONAL
@@ -227,12 +230,12 @@ modules = {
     # OPTIONAL
     # The user name to use to authenticate with your proxy. If you set this,
     # remember to set proxy_password as well.
-    # proxy_username = 
+    # proxy_username =
 
     # OPTIONAL
     # The password to use to authenticate with your proxy. Set this if you set
     # a user name in proxy_username.
-    # proxy_password = 
+    # proxy_password =
 
     # OPTIONAL
     # The maximum duration in seconds for an HTTP request. This will prevent
@@ -262,9 +265,10 @@ modules = {
   # generally used for title fetchers. It must be loaded after http_client.
   url_handler = {
 
-    # Maximum number of URLs to match per message. If a user posts a message with
-    # many URLs, we will look up the titles for this many of them (from the first
-    # one found to the last) and post the titles, each in a separate message.
+    # Maximum number of URLs to match per message. If a user posts a message
+    # with many URLs, we will look up the titles for this many of them (from
+    # the first one found to the last) and post the titles, each in a separate
+    # message.
     # default: 3
     max = 3
 
@@ -288,9 +292,9 @@ modules = {
 # Account level override.
 admins = {
 
-  # Here you can include account names and their authorization level, overriding
-  # whatever level they have in the account database. This is useful for
-  # creating administrative accounts by setting the level to 10.
+  # Here you can include account names and their authorization level,
+  # overriding whatever level they have in the account database. This is useful
+  # for creating administrative accounts by setting the level to 10.
   #
   # Warning: If you set an account to level 10 and that account doesn't exist,
   # anyone can register it and immediately have full access to the bot. This
@@ -314,7 +318,7 @@ flags = {
   # The only script included by default is the channels script. Without that
   # script, the bot's behavior when joining or parting channels may be
   # unpredicable.
-  # 
+  #
   # Default: channels
   privileged = {
     channels
@@ -326,8 +330,8 @@ flags = {
   # explicitly enabled through the flags management script. If is set to true,
   # all scripts will operate in all channels until explicitly disabled.
   #
-  # When used in private, all scripts are always operational, regardless of this
-  # setting for any flags.
+  # When used in private, all scripts are always operational, regardless of
+  # this setting for any flags.
   # default: true
   default = true
 
@@ -338,7 +342,7 @@ flags = {
 4chan = {
 
 # Number of lines from the original post to grab and show in the channel when
-  # a thread URL is sent to the channel. 
+  # a thread URL is sent to the channel.
   #default: 1
   lines = 1
 
@@ -352,7 +356,7 @@ account = {
   #
   # Please be aware: If you change this after accounts have been created,
   # nobody will be able to log in. Changing it back will resolve this.
-  # default: 100000  
+  # default: 100000
   iterations = 100000
 
 }
@@ -378,7 +382,7 @@ battle = {
   # The chance (out of 100) that an attack will miss.
   # default: 10
   #miss = 10
-  
+
   # The chance damage will be absorbed and will heal the target.
   # default: 5
   #absorb = 5
@@ -393,10 +397,10 @@ battle = {
 # Channel occupation management script.
 channels = {
 
-  # Leave channels we join if the channels script isn't configured to include it.
-  # This is useful for dealing with undesired forcejoin/sajoin attempts. In most
-  # cases, channels are parted immediately. If that isn't possible, we'll
-  # periodically check for extra channels and try to part.
+  # Leave channels we join if the channels script isn't configured to include
+  # it.  This is useful for dealing with undesired forcejoin/sajoin attempts.
+  # In most cases, channels are parted immediately. If that isn't possible,
+  # we'll periodically check for extra channels and try to part.
   # default: false
   antiforce = false
 
@@ -426,7 +430,7 @@ derpibooru = {
   # your RSS feed URL, and other places. By setting this key, searches will
   # be filtered according to your settings. Without it, default filters will
   # apply, meaning that explicit and other images will not appear.
-  #key = 
+  #key =
 
 }
 
@@ -434,9 +438,9 @@ derpibooru = {
 # Dictionary (cleandictionary.com) look-up script.
 dictionary = {
 
-  # Max definitions to include when replying to a look-up request. Each reply is
-  # sent in a separate message, so setting this any higher than 1 will make the
-  # bot seem very spammy!
+  # Max definitions to include when replying to a look-up request. Each reply
+  # is sent in a separate message, so setting this any higher than 1 will make
+  # the bot seem very spammy!
   # default: 1
   max = 1
 
@@ -455,8 +459,8 @@ e621 = {
   # https://e621.net/user/login.xml?name=USERNAMEHERE&password=PASSWORDHERE
   # Storing your password in plain text on any computer is unwise, which is why
   # this step is required.
-  #password_hash = 
-  
+  #password_hash =
+
   # Max tags to include in image information output. Some images may have an
   # unusually large number of tags, so the list may be truncated with the
   # remaining number of tags indicated at the end.
@@ -471,7 +475,7 @@ exchange = {
 
   # API key to use for authentication. Required for all queries. A free or paid
   # API key can be acquired here: https://openexchangerates.org/signup/
-  #apikey = 
+  #apikey =
 
 }
 
@@ -508,7 +512,7 @@ idlerpg = {
   # don't want the bot to play but you want it to be able to retrieve player
   # information.
   #
-  # Example: 
+  # Example:
   #
   # ponychat = {
   #   channel = #idlerpg
@@ -530,7 +534,7 @@ imgur = {
   # Terminus-Bot. However, if you would like, you may register with Imgur and
   # use your own client ID here. This is a good idea if your bot handles a very
   # large number of requests, of you simply want to have your own.
-  # 
+  #
   # If this is empty or commented out, the Imgur script will not function.
   client_id = e055d930f90c3da
 
@@ -539,11 +543,11 @@ imgur = {
 
 # Last.fm script.
 lastfm = {
-  
+
   # REQUIRED
   # lastfm.com API key. Without this, the bot cannot perform any look-ups!
   # acquire at: http://www.last.fm/api
-  #apikey = 
+  #apikey =
 
 }
 
@@ -560,21 +564,21 @@ mpd = {
   #port = 6600
 
   # Password for the MPD server.
-  #password = 
-  
+  #password =
+
   # You may announce track and state changes on IRC. If you want to enable this
   # feature, you must set both announce_server and announce_channel. It is up
   # to you to make sure the bot is on the given server and in the given channel
   # in order for this to work -- **IT WILL NOT JOIN BASED ON THIS SETTING**.
-  
+
   # IRC server name on which to announce MPD status. This must match the server
   # name configured in this file.
-  #announce_server = 
-  
+  #announce_server =
+
   # IRC channel on which to announce MPD status. Again, you must ensure the bot
   # will join, such as through the channels script.
-  #announce_channel = 
-  
+  #announce_channel =
+
   # The interval (in seconds) at which the MPD server should be polled for
   # track changes or state changes for annoucement.
   # default: 5
@@ -585,10 +589,11 @@ mpd = {
 
 # Regular Expression script.
 regex = {
-  
+
   # The number of message to keep in the buffer. A larger value here will of
-  # course mean more memory usage, but it also means regular expression searches
-  # (g/foo/) and replacements (s/foo/bar) will work for older messages.
+  # course mean more memory usage, but it also means regular expression
+  # searches (g/foo/) and replacements (s/foo/bar) will work for older
+  # messages.
   #
   # If the search function is not important to you, a very small value (10 or
   # 20) is probably fine.
@@ -615,7 +620,7 @@ relay = {
   #     Disabled: [freenode] <Kabaka> Hello!
   # default: true
   #show_channel = true
- 
+
 }
 
 
@@ -628,8 +633,8 @@ rss = {
 
   # Maximum number of feed items to show when new items are found. If more than
   # this many items are new, the older items will not be shown. Each item is
-  # posted in its own message, so setting this very high could cause the bot to be
-  # spammy.
+  # posted in its own message, so setting this very high could cause the bot to
+  # be spammy.
   # default: 3
   #max = 3
 
@@ -655,9 +660,10 @@ rpn = {
 # Tell (mail/memo) script.
 tell = {
 
-  # The maximum number of tells that can be left for a nick. This should probably
-  # be less than 5. Every tell is posted in a separate message, so letting users
-  # leave too many messages could result in a channel flood when tells are sent!
+  # The maximum number of tells that can be left for a nick. This should
+  # probably be less than 5. Every tell is posted in a separate message, so
+  # letting users leave too many messages could result in a channel flood when
+  # tells are sent!
   # default: 3
   max = 3
 
@@ -677,8 +683,8 @@ help = {
   # default: false
   #multi_line = false
   #
-  # Number of characters max in one line before splitting, if the above 
-  # multi_line is true. 
+  # Number of characters max in one line before splitting, if the above
+  # multi_line is true.
   # default: 400
   split_length = 400
 }
@@ -699,7 +705,7 @@ upc = {
 
   # The API key for upcdatabase.org. This is required to perform look-ups with
   # this script. You may register for free at: http://upcdatabase.org/signup
-  #apikey = 
+  #apikey =
 
 }
 
@@ -707,9 +713,9 @@ upc = {
 # Urban Dictionary (urbandictionary.com) look-up script.
 urbandict = {
 
-  # Max definitions to include when replying to a look-up request. Each reply is
-  # sent in a separate message, so setting this any higher than 1 will make the
-  # bot seem very spammy!
+  # Max definitions to include when replying to a look-up request. Each reply
+  # is sent in a separate message, so setting this any higher than 1 will make
+  # the bot seem very spammy!
   # default: 1
   max = 1
 
@@ -718,7 +724,7 @@ urbandict = {
 
 # Wikipedia script.
 wikipedia = {
-  
+
   # Wikipedia site to use for look-ups. This setting allows you to change what
   # language your Wikipedia results are displayed in, and which site is
   # searched. This is the short set of letters that appears before the
