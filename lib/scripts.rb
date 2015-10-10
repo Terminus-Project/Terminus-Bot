@@ -138,7 +138,7 @@ module Bot
       raise "Script file for #{name} does not exist (#{filename})." unless File.exists? filename
 
       @scripts[name].die if @scripts[name].respond_to? "die"
-      
+
       Events.dispatch_for @scripts[name], :unloading
 
       Events.delete_for @scripts[name]
@@ -162,7 +162,7 @@ module Bot
       raise "Cannot unload: No such script #{name}" unless @scripts.has_key? name
 
       @scripts[name].die if @scripts[name].respond_to? "die"
-      
+
       Events.dispatch_for @scripts[name], :unloading
 
       Events.delete_for @scripts[name]
@@ -203,7 +203,7 @@ module Bot
 
     # Enforce module requirements in scripts. Should be the first code in
     # scripts that require any modules.
-    # 
+    #
     # @example
     #     need_module! 'http_client'
     #
@@ -219,7 +219,7 @@ module Bot
 
     # Create a new event handler. Multiple event names can be specified to
     # handle multiple events with one block.
-    # 
+    #
     # @example Handle one type of event
     #     event :PRIVMSG do
     #       # ...
@@ -319,16 +319,16 @@ module Bot
 
     # Dunno if these should be functions or variables. Feel free to change.
 
-    
+
     # Get the script's long name, such as `Script_help`.
     # @return [String] script name
-    def my_name 
+    def my_name
       @my_name ||= self.class.name.split("::").last
     end
 
     # Get the script's short name, such as `help`.
     # @return [String] short script name
-    def my_short_name 
+    def my_short_name
       @my_short_name ||= self.class.name.split("_").last
     end
 
@@ -407,7 +407,7 @@ module Bot
     end
 
     # Store the given value in the database if one isn't already set.
-    # 
+    #
     # @example Setting default values.
     #     default_data :messages_seen, 0
     #
@@ -443,7 +443,7 @@ module Bot
 
     # Store data at the root of the script's database. Useful when dealing with
     # data acquired from {Scripts#get_all_data}.
-    # 
+    #
     # @raise when value is not a Hash
     #
     # @param value [Hash] data to store in database

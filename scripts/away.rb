@@ -47,7 +47,7 @@ end
 # should.
 event :"301" do
   next unless @@pending.has_key? msg.raw_arr[3]
-  
+
   dat = @@pending[@msg.raw_arr[3]]
   @@pending.delete @msg.raw_arr[3] # Delete it immediately so we never end up
                                  # with duplicate reports (that can happen

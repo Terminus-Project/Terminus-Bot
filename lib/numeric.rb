@@ -53,7 +53,7 @@ class Numeric
   # thousands separators.
   #
   # **Note: this presently makes no effort to use localization of any kind.**
-  # 
+  #
   # @return [String] number with thousands separators added
   #def format_thousands_seperator
     # XXX

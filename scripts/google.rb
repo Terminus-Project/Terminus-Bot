@@ -84,7 +84,7 @@ helpers do
     uri = URI("https://ajax.googleapis.com/ajax/services/search/#{type}")
     query_hash = {:v => "1.0", :q => query}
 
-    http_get(uri, query_hash) do |http| 
+    http_get(uri, query_hash) do |http|
       if http.response.empty?
         raise 'No response from google.com.'
       end

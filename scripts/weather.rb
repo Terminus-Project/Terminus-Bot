@@ -56,7 +56,7 @@ command 'weather', 'View current conditions for the specified location.' do
     pressure        = root.elements['//pressure_string'].text
     dewpoint        = root.elements['//dewpoint_string'].text
     link            = root.elements['//forecast_url'].text
-    
+
     updated = "#{Time.at(updatedTime).to_fuzzy_duration_s} ago"
 
     data = {

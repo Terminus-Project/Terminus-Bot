@@ -1,4 +1,4 @@
-# 
+#
 # Copyright (C) 2010-2013 Kyle Johnson <kyle@vacantminded.com>, Alex Iadicicco
 # (http://terminus-bot.net/)
 #
@@ -19,7 +19,7 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
-# 
+#
 
 require 'uri'
 require 'em-http-request'
@@ -87,7 +87,7 @@ module Bot
   def self.http_post uri, query = {}, msg = nil, silent_err = false, &block
     Bot.http_request uri, query, false, msg, silent_err, {}, &block
   end
-  
+
 
 
   # Should not be called directly.
@@ -121,12 +121,12 @@ module Bot
       if conf[:proxy_type]
         proxy[:type] = conf[:proxy_type].to_sym
       end
-    
+
       conn_opts[:proxy] = proxy
     end
 
     http = EventMachine::HttpRequest.new uri, conn_opts
-    
+
     args = {
       :query              => query,
       :head               => { 'User-agent' => ua },

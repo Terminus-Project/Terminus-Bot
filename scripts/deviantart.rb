@@ -37,10 +37,10 @@ end
 
 url /\/[\w-]+_by_[\w-]+-d[0-9A-Za-z]{5,8}+.\w{3}$/ do
   $log.info('deviantart.url') { @uri.inspect }
-  
+
   match = @uri.to_s.match(/_by_.+-(?<id>d[0-9A-Za-z]{5,8})\.\w{3}/)
 
-  next unless match 
+  next unless match
 
   title_handler "http://fav.me/#{match[:id]}", true
 end

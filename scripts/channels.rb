@@ -40,7 +40,7 @@ event :JOIN do
 
   # Are we configured to be in this channel?
   next if channels.has_key? channel
- 
+
   $log.debug("channels.on_join") { "Parting channel #{@msg.destination} since we are not configured to be in it." }
 
   # It doesn't look like we should be here. Part!
@@ -70,7 +70,7 @@ helpers do
     Bot::Connections.each do |name, connection|
       connection.send_join get_data(name, {})
     end
-  end 
+  end
 
 end
 
@@ -139,7 +139,7 @@ command 'cycle', 'Part and then join a channel.' do
   channels = get_data @connection.name, {}
 
   next unless channels.has_key? name
-  
+
   send_part name, "Be right back!"
   send_join name
 end

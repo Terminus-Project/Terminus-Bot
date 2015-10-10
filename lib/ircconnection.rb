@@ -61,7 +61,7 @@ module Bot
       @lines_received = 0
 
       bind = Bot::Conf[:core][:bind]
-      
+
       # XXX
       @caps = ClientCapabilities.new self if defined? MODULE_LOADED_CLIENT_CAPABILITIES
 
@@ -122,7 +122,7 @@ module Bot
 
       EM.add_timer(Bot::Conf[:core][:reconwait]) do
         $log.warn("IRCConnection.reconnect #{@name}") { "Attempting to reconnect." }
-      
+
         @config = Bot::Conf[:servers][name]
         super @config[:address], @config[:port]
       end
@@ -188,7 +188,7 @@ module Bot
     # Cancel the message queue timer, and attempt to reconnect (if necessary).
     def unbind
       EM.cancel_timer @timer
-      
+
       @registered = false
 
       return if @disconnecting or @reconnecting
@@ -261,7 +261,7 @@ module Bot
       return if @disconnecting
 
       str.delete! "\r\n\0"
-      
+
       if @config[:send_formatting] === false
         str = Bot.strip_irc_formatting str
       end
@@ -312,7 +312,7 @@ module Bot
     def send_data data
       super "#{data}\n"
       Events.dispatch(:raw_out, Message.new(self, data, true))
-        
+
       @lines_sent += 1
       @bytes_sent += data.bytesize + 1
 
@@ -339,7 +339,7 @@ module Bot
             send_single_message
           end
         end
-        
+
         send_data str
 
         if @registereed
@@ -520,7 +520,7 @@ module Bot
 
       message
     end
-    
+
     # Check if the given string is a channel name. CHANTYPES from ISUPPORT is
     # used if available.
     #

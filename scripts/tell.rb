@@ -42,7 +42,7 @@ event :PRIVMSG do
       reply tell_string
     end
   end
-  
+
   tells.delete @msg.nick_canon
 end
 
@@ -64,7 +64,7 @@ command 'tell', 'Have the bot tell the given user something the next time they s
   if dest == @msg.nick_canon
     raise "You cannot leave tells for yourself."
   end
-  
+
   if tells.has_key? dest
     if tells[dest].length > get_config(:max, 5).to_i
       raise "No more tells can be left for that nick."

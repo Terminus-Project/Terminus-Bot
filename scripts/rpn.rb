@@ -48,7 +48,7 @@ command 'rpn', 'Perform calculations using a Reverse Polish notation (postfix) c
 
     when 'dup'
       raise 'Cannot dup on an empty stack.' if stack.empty?
-      
+
       stack << stack.last
       next
 
@@ -56,7 +56,7 @@ command 'rpn', 'Perform calculations using a Reverse Polish notation (postfix) c
       unless stack.length > 1
         raise 'Cannot swap a stack with fewer than 2 items.'
       end
-      
+
       x, y = stack.pop 2
       stack << y << x
       next

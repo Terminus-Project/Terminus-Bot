@@ -27,7 +27,7 @@
 class String
 
   def wildcard_match s
- 
+
     # TODO: This probably needs to obey CASEMAPPING since it will be used for
     # hostname matching and probably nothing else. --Kabaka
 

@@ -31,7 +31,7 @@ module Bot
 
     attr_reader :origin, :type, :text, :parameters,
       :raw_str, :raw_arr, :nick, :user, :host, :connection
-    
+
     # Create a new {Message} from a raw IRC message.
     #
     # @param connection [IRCConnection] connection on which the message was

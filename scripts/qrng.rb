@@ -28,7 +28,7 @@ need_module! 'http'
 register 'Retrieve random numbers from ANU\'s quantum random number generator.'
 
 command 'qrng', 'Get truly random numbers from a quantum random number generator. Syntax: [uint8|uint16|hex16 [count]]' do
-  
+
   type, count = @params_str.split
 
   if type

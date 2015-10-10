@@ -30,7 +30,7 @@ register 'Display the first few lines of the OP in a linked 4chan thread.'
 
 url /(.+boards\.)4chan\.org\/([a-z0-9]+)\/res\/([1-9][0-9]+)/ do
   $log.info('4chan.url') { @uri.inspect }
-  get_thread_title @uri.path 
+  get_thread_title @uri.path
 end
 
 helpers do
@@ -40,14 +40,14 @@ helpers do
     http_get(api, {}, false) do |http|
       if http.response.empty?
         reply "\002404\02 - Thread not found."
-        next 
+        next
       end
 
       data = MultiJson.load(http.response)['posts'].first
       # TODO: Make this output suck less
       num_lines = get_config :lines, 1
       result = html_decode clean_result data['com'].split('<br>').take(num_lines).join(" ") rescue result = ""
-    
+
 
       reply "Thread \02#{data['no']}\02: #{result}", false
     end

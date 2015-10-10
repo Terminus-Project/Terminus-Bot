@@ -59,13 +59,13 @@ command 'mpd', 'Interact with MPD. Syntax: mpd next|previous|stop|play|pause|shu
 
     reply 'Playback stopped.'
     check_status
-  
+
   when :play
     level! 4
 
     connect
     @@mpd.play
-    
+
     reply 'Playback started/resumed.'
     check_status
 
@@ -74,10 +74,10 @@ command 'mpd', 'Interact with MPD. Syntax: mpd next|previous|stop|play|pause|shu
 
     connect
     @@mpd.pause
-    
+
     reply 'Playback paused.'
     check_status
-    
+
   when :shuffle
     level! 4
 
@@ -108,14 +108,14 @@ command 'mpd', 'Interact with MPD. Syntax: mpd next|previous|stop|play|pause|shu
     connect
 
     @@mpd.search :any, args.join(' '), :add => true
-    
+
     reply 'Added matching tracks to queue.'
 
   when :addplay
     level! 4
 
     connect
-    
+
     add_pos = queue.length
 
      @@mpd.search :any, args.join(' '), :add => true
@@ -126,7 +126,7 @@ command 'mpd', 'Interact with MPD. Syntax: mpd next|previous|stop|play|pause|shu
   when :search?
     connect
     results = @@mpd.search :any, args.join(' ')
-    
+
     duration = results.inject(0) {|sum, s| sum + s.time}
     duration = Time.at(Time.now.to_i + duration).to_duration_s
 
@@ -136,7 +136,7 @@ command 'mpd', 'Interact with MPD. Syntax: mpd next|previous|stop|play|pause|shu
   when :count?
     connect
     results = @@mpd.count args.shift.downcase.to_sym, args.join(' ')
- 
+
     duration = Time.at(Time.now.to_i + results[:playtime]).to_duration_s
 
     reply_without_prefix 'Tracks' => results[:songs],
@@ -171,7 +171,7 @@ command 'mpd', 'Interact with MPD. Syntax: mpd next|previous|stop|play|pause|shu
         'Rate'      => audio.shift,
         'Bits'      => audio.shift,
         'Channels'  => audio.shift
-      } 
+      }
 
   when :database?
     my_stats = stats

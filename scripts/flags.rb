@@ -55,7 +55,7 @@ command 'flags', 'View flags for the given servers, channels, and scripts. Wildc
 
     channels.each_pair do |channel, scripts|
       next unless channel.wildcard_match @params[1]
-      
+
       scripts.each_pair do |script, flag|
         next unless script.wildcard_match @params[2]
 

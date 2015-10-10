@@ -118,10 +118,10 @@ helpers do
       buf << '[NSFW] ' if data['over_18']
       buf << "Comment by #{data['author']}:"
       buf << "\02#{score}\02 Karma"
-      
+
       attributes << 'Gilded' unless data['gilded'].zero?
       attributes << 'Edited' if data['edited']
-    
+
       unless attributes.empty?
         buf << "(#{attributes.join(', ')})"
       end
@@ -129,7 +129,7 @@ helpers do
       buf << '-'
 
       buf << data['body']
-     
+
       reply_without_prefix buf.join ' '
     end
   end

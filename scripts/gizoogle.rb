@@ -33,7 +33,7 @@ command 'gizoogle', 'Translate text using Gizoogle' do
   argc! 1
 
   uri  = URI('http://www.gizoogle.net/textilizer.php')
-  
+
   text = URI.encode @params.first
   body = "translatetext=#{text}"
 

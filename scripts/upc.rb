@@ -29,7 +29,7 @@ register 'Look up product information by UPC using upcdatabase.org.'
 
 command 'upc', 'Look up a product on upcdatabase.org.' do
   argc! 1
-  
+
   lookup @params.first
 end
 

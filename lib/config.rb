@@ -47,14 +47,14 @@ module Bot
     #     setting = value
     #
     #     #comment
-    # 
+    #
     # @raise if file does not exist
     def read_config
       file_name = $opts[:config_file]
 
       raise "No Config File" unless File.exists? file_name
 
-      $log.info("Configuration.read_config") { "Loading the configuration file." } 
+      $log.info("Configuration.read_config") { "Loading the configuration file." }
 
       fi = File.open file_name, 'r'
 
@@ -66,7 +66,7 @@ module Bot
       while line = fi.gets
         line.strip!
         line_number += 1
-          
+
         # Skip comments and empty lines.
         next if line[0] == "#" or line.empty?
 
@@ -88,7 +88,7 @@ module Bot
           value.strip!
 
         end
-        
+
         key = key.to_sym
 
         if value == "{"
@@ -132,7 +132,7 @@ module Bot
         current[key] = value
       end
 
-      $log.debug("Configuration.read_config") { "Done loading the configuration file." } 
+      $log.debug("Configuration.read_config") { "Done loading the configuration file." }
 
       fi.close
     end

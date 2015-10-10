@@ -33,7 +33,7 @@ module Bot
     def send_privmsg dest, msg
       send_command 'PRIVMSG', dest, msg
     end
-    
+
     # Send a CTCP ACTION.
     # @param dest [String] message destination
     # @param msg [String] message body
@@ -82,7 +82,7 @@ module Bot
           next if channels.include? c
 
           buf << c
-          
+
           if buf.length == 4
             send_join channel.join(',')
             buf.clear
@@ -98,7 +98,7 @@ module Bot
 
           buf << c
           keys << (k.empty? ? k : 'x')
-          
+
           if buf.length == 4
             send_join "#{buf.join(',')} #{keys.join(',')}"
             buf.clear
@@ -153,7 +153,7 @@ module Bot
       command.upcase!
 
       buf << command
-      
+
       if params
         if params.is_a? Array
           buf.concat params

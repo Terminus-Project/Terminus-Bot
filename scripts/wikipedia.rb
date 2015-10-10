@@ -75,7 +75,7 @@ helpers do
     snippet = data['snippet'].gsub(/<[^>]+>/, '').tr_s(" \t\r\n\f", ' ').gsub(/\s([[:punct:]]+)\s/, '\1 ')
     snippet << link if include_link
 
-    data = { 
+    data = {
       data['title'] => snippet
     }
 

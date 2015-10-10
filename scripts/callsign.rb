@@ -29,7 +29,7 @@ register 'Look up amateur radio callsigns on calllook.info.'
 
 command 'callsign', 'Look up an amateur radio callsign using calllook.info.' do
   argc! 1
-  
+
   lookup @params.first
 end
 

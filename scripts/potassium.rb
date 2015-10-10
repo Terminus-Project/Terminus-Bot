@@ -50,7 +50,7 @@ helpers do
 
   def top n = 3
     potassium = get_data(@connection.name, Hash.new(0)).sort_by {|n, k| k}
-    
+
     raise 'Nobody has any potassium, yet.' if potassium.empty?
 
     Hash[potassium.last(n).reverse]
@@ -70,7 +70,7 @@ helpers do
 
   def add_k nick, amount = 1
     return if amount.zero?
-  
+
     potassium = get_data @connection.name, Hash.new(0)
 
     # here to fix something... this will be removed eventually

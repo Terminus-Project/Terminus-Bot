@@ -191,7 +191,7 @@ helpers do
 
       display_tags << tag
     end
-    
+
     artist = artist.empty? ? 'not tagged' : artist.join(', ')
 
     tags_total = display_tags.length

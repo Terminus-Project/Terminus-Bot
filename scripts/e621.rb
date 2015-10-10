@@ -89,7 +89,7 @@ helpers do
     $log.info('e621.image') { id }
 
     path = "post/show/#{id}.json"
-  
+
     api_call path, {}, silent_err do |json|
       reply_with_image json, include_url
     end

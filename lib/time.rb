@@ -29,7 +29,7 @@ class Time
   # TODO: These need to support longer durations (months and years).
   # Month length is not constant. How should we deal with it? --Kabaka
 
-  
+
   # Get an Array which contains a representation of the time between now and
   # this Time. The Array is in the format `[seconds, minutes, hours, days]`.
   #
@@ -78,7 +78,7 @@ class Time
     pieces.compact!
 
     pieces[-1] = "and " << pieces[-1] unless pieces.length <= 1
- 
+
     pieces.join "#{"," unless pieces.length == 2} "
   end
 

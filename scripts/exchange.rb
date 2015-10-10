@@ -29,7 +29,7 @@ register 'Look up product information by UPC using upcdatabase.org.'
 
 command 'exchange', 'Get exchange rates from openexchangerates.org.' do
   argc! 2, 'base target'
-  
+
   lookup *@params
 end
 

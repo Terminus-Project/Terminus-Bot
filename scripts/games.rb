@@ -64,7 +64,7 @@ command 'rps', 'Play Rock-paper-scissors. Syntax: rock|paper|scissors' do
 
   case user_choice
   when own_choice
-    
+
     reply "I picked \02#{choices[own_choice]}\02 - it's a draw!"
 
   when 'r'

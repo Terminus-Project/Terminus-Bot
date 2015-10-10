@@ -30,7 +30,7 @@ module Bot
   #
   # Loggers are set up, signal handlers are added, and connections are started.
   def self.run
-    logsize  = Bot::Conf[:core][:logsize]         rescue 1024000 
+    logsize  = Bot::Conf[:core][:logsize]         rescue 1024000
     logcount = Bot::Conf[:core][:logcount]        rescue 5
     loglevel = Bot::Conf[:core][:loglevel].upcase rescue "INFO"
 
@@ -97,7 +97,7 @@ module Bot
       else
         EM.connect config[:address], config[:port], IRCConnection, name
       end
-      
+
     end
 
     EM.add_periodic_timer(30) do

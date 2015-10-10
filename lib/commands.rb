@@ -54,7 +54,7 @@ module Bot
       end
 
       return unless COMMANDS.has_key? cmd_str
-        
+
       command = COMMANDS[cmd_str]
 
       return unless Bot::Flags.permit_message? command[:owner], msg
@@ -165,7 +165,7 @@ module Bot
     def self.delete_for owner
       $log.debug("CommandManager.delete_for") { "Unregistering all commands for #{owner.class.name}" }
 
-      COMMANDS.reject! do |n,c| 
+      COMMANDS.reject! do |n,c|
         c[:owner] == owner and delete_aliases_for n
       end
     end

@@ -39,7 +39,7 @@ command 'fuck', 'Retrieve data from FOAAS.' do
     off         you   donut      linus
     shakespeare king  chainsaw   outside
   ]
-  
+
   type, to = @params.first.strip.split /\s+/, 2
 
   type.downcase!

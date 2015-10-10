@@ -37,7 +37,7 @@ command 'relay', 'Manage channel relays. Parameters: ON|OFF source-network sourc
   source_channel = @params[2]
   target_network = @params[3].to_sym
   target_channel = @params[4]
-  
+
   next unless relay_points_exist? source_network, source_channel, target_network, target_channel
 
   source_channel = Bot::Connections[source_network].canonize source_channel
@@ -194,7 +194,7 @@ event :QUIT_CHANNEL do
   channel = @data[:channel].name_canon
 
   matches = get_relays network, channel
-  
+
   next if matches.empty?
 
   matches.each do |relay|

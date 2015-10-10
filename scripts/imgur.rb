@@ -31,7 +31,7 @@ url /\/\/((www|i)\.)?imgur\.com\// do
   $log.info('imgur.url') { @uri.inspect }
 
   match = @uri.path.match(/\/((?<type>a|gallery)\/)?(?<id>[^\.\/]+)(?<extension>\.[a-z]{3})?(\/comment\/(?<comment_id>\d+)$)?/)
-  
+
   $log.info('imgur.url') { match.inspect }
 
   next unless match
@@ -89,7 +89,7 @@ helpers do
 
   def api_call endpoint, path
     client_id = get_config :client_id, nil
-    
+
     if client_id.nil?
       raise 'client_id must be set for imgur script to operate'
     end

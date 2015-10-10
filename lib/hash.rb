@@ -29,7 +29,7 @@ class Hash
   # Recursively format the Hash for use in an IRC message.
   #
   # This is primarily for use by {Bot::Command#reply}.
-  # 
+  #
   # @example
   #     data = {
   #       'Foo' => 'bar'

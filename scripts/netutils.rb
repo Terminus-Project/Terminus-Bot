@@ -34,7 +34,7 @@ command 'icmp', 'Check if the given host is up and answering pings.' do
     reply "Invalid host name."
     next
   end
-  
+
   #EM.defer(proc { do_ping host })
   do_ping host
 end
@@ -75,7 +75,7 @@ command 'mtr6', 'Show data about the route to the given IPv6 host.' do
     reply "Invalid host name."
     return
   end
-    
+
   EM.defer(proc { do_mtr host, true })
 end
 

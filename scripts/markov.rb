@@ -251,7 +251,7 @@ helpers do
       links[bar].score = score
     end
 
-    foo.split.each do|w| 
+    foo.split.each do|w|
       @@words[w] ||= []
       @@words[w] << @@nodes[foo]
     end
@@ -503,12 +503,12 @@ helpers do
 
         links[linked] = @@link.new @@nodes[word], @@nodes[linked], score
 
-        word.split.each do|w| 
+        word.split.each do|w|
           @@words[w] ||= []
           @@words[w] << @@nodes[word]
         end
 
-        linked.split.each do|w| 
+        linked.split.each do|w|
           @@words[w] ||= []
           @@words[w] << @@nodes[linked]
         end

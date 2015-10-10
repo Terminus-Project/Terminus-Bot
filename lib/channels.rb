@@ -228,7 +228,7 @@ module Bot
       channel = msg.raw_arr[3]
 
       return unless has_key? channel
-      
+
       match = msg.raw_str.match(/^(\S+ ){4}:(?<topic>.*)$/)
 
       self[channel].topic = match[:topic]
@@ -279,7 +279,7 @@ module Bot
 
   end
 
-  class ChannelUser 
+  class ChannelUser
     attr_accessor :nick, :user, :host, :modes
 
     # @param parent [Channel]

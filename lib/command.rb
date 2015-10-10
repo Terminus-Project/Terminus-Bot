@@ -35,7 +35,7 @@ module Bot
       #
       # A new {Command} will be instantiated and the command's block will be
       # evaluated in the context of the new object.
-      # 
+      #
       # @param owner [Object]
       # @param msg [Message] message that triggered the event
       # @param cmd [String] command that triggered the event
@@ -195,7 +195,7 @@ module Bot
     # @return [Object] {Channel} if exists, nil otherwise
     def channel
       return nil if msg.query?
-      
+
       connection.channels[msg.destination]
     end
 
@@ -231,7 +231,7 @@ module Bot
     # Require at least `count` command parameters and split the parameters into
     # the @params array. If there are more than `count` parameters provided,
     # the remainder are all included in the last element of @params.
-    # 
+    #
     # Additionally, the first item in @params will always be a channel name.
     # For messages sent in private, the channel name must be provided by the
     # user. For messages sent in a channel, the destination channel name will

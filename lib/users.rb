@@ -29,7 +29,7 @@ module Bot
   class UserManager < CanonizedHash
 
     # Set up user-related event handlers.
-    # 
+    #
     # @param connection [IRCConnection] parent connection
     def initialize connection
       @connection = connection
@@ -141,7 +141,7 @@ module Bot
     # Check a speaker's account level. Typically used when checking permissions
     # for commands. Adds the speaker to the user list if they do not already
     # exist.
-    # 
+    #
     # @see Command#level!
     #
     # @param msg [Message] message for which to check the speaker's level

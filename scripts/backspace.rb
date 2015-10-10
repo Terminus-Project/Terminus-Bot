@@ -39,7 +39,7 @@ regex /\^[HWUY]/ do
     text = @msg.text
     type = @msg.type
   end
-  
+
   text.each_char do |c|
     if c == '^' and not caret
       caret = true
@@ -56,23 +56,23 @@ regex /\^[HWUY]/ do
       when 'W'
         buf, clipboard = delete_last_word buf
         caret = false
-      
+
       when 'U'
         clipboard = buf.dup
         buf.clear
         caret = false
-      
+
       when 'Y'
         buf << clipboard
         caret = false
-      
+
       when '^'
         buf << c
-      
+
       else
         buf << "^#{c}"
         caret = false
-      
+
       end
 
     else

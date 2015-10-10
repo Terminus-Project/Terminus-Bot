@@ -67,7 +67,7 @@ end
 
 command 'reload', 'Reload one or more scripts.' do
   level! 9 and argc! 1
-  
+
   EM.defer proc {
     arr, buf = @params.first.split, []
 
@@ -82,14 +82,14 @@ command 'reload', 'Reload one or more scripts.' do
       end
 
     end
-    
+
     reply "Reloaded script#{"s" if buf.length > 1} \02#{buf.join(", ")}\02" unless buf.empty?
   }
 end
 
 command 'unload', 'Unload one or more scripts.' do
   level! 9 and argc! 1
-  
+
   EM.defer proc {
     arr, buf = @params.first.split, []
 
@@ -104,14 +104,14 @@ command 'unload', 'Unload one or more scripts.' do
       end
 
     end
-    
+
     reply "Unloaded script#{"s" if buf.length > 1} \02#{buf.join(", ")}\02" unless buf.empty?
   }
 end
 
 command 'load', 'Load the specified script.' do
   level! 9 and argc! 1
-  
+
   EM.defer proc {
     begin
       Bot::Scripts.load_file "#{Bot::SCRIPTS_PATH}/#{@params.first}.rb"

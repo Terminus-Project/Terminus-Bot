@@ -48,7 +48,7 @@ command 'ignore', 'Ignore the given hostmask.' do
   end
 
   mask << "!*@*" unless mask =~ /[!@*]/
- 
+
   if Ignores.include? mask
     raise "Already ignoring #{mask}"
   end

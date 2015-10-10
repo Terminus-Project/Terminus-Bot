@@ -1,4 +1,4 @@
-# 
+#
 # Copyright (C) 2010-2013 Kyle Johnson <kyle@vacantminded.com>, Alex Iadicicco
 # (http://terminus-bot.net/)
 #
@@ -22,7 +22,7 @@
 #
 
 module Bot
-  
+
   MODULE_LOADED_BUFFER  = true
   MODULE_VERSION_BUFFER = 0.1
 
@@ -65,7 +65,7 @@ module Bot
       self[msg.connection.name][msg.destination] << {:type => type,
                                                      :text => text,
                                                      :nick => msg.nick}
-     
+
       max = Conf[:modules][:buffer][:max_size] rescue 100
 
       # TODO: This is nasty. I am using a loop here because we might be
