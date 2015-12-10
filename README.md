@@ -44,11 +44,12 @@ container, see `doc/Dockerizing.md`.
 
 ## Code Documentation and Guides
 
-Documentation is tentatively hosted at
-[http://equine.vacantminded.com/terminus-bot/](http://equine.vacantminded.com/terminus-bot/).
-This URL will change to something more appropriate very shortly, but we wanted
-to get this out there now. Note that this is also where documentation changes
-first appear, so you may encounter unfinished pages or unusual formatting.
+Documentation, including most internal and scripting APIs, is hosted at
+[http://terminus-project.org/terminus-bot/doc/index.html](http://terminus-project.org/terminus-bot/doc/index.html).
+These docs are a work in progress; contributions are welcome!
+
+You may also generate these docs by running `yard` from the project root
+(this requires the yard and redcarpet gems).
 
 ## Scripts
 
