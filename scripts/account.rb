@@ -177,18 +177,26 @@ helpers do
     return false if stored == nil
 
     stored_arr = stored[:password].split ":"
-    calculated = OpenSSL::PKCS5::pbkdf2_hmac_sha1 password, stored_arr[1], get_config(:iterations, 100000).to_i, 50
+
+    calculated = OpenSSL::PKCS5::pbkdf2_hmac_sha1 password,
+      stored_arr[1], get_config(:iterations, 100000).to_i, 50
+
     if stored_arr[0] == calculated
       return true
+
     else
       if stored_arr[0] == Digest::MD5.hexdigest("#{password}:#{stored_arr[1]}")
         stored[:password] = encrypt_password password
         $log.info("account.verify_password") { "#{@msg.origin}'s password converted from MD5 to PBKDF2." }
         return true
       end
-    end
-    return false
 
+    end
+
+    false
+
+  rescue
+    false
   end
 
   def encrypt_password password
