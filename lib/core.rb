@@ -64,7 +64,10 @@ module Bot
 
     trap("INT")  { self.quit "Interrupted by host system. Exiting!" }
     trap("TERM") { self.quit "Terminated by host system. Exiting!" }
-    trap("KILL") { exit }
+
+    unless RUBY_VERSION[0..2].to_f >= 2.2
+      trap("KILL") { exit }
+    end
 
     at_exit { self.clean_up }
 
