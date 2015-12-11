@@ -33,7 +33,7 @@ command 'identify', 'Log in to the bot. Parameters: username password' do
   stored = get_data @params[0], nil
 
   unless verify_password stored, @params[1]
-    raise "Incorrect log-in information."
+    raise 'Incorrect log-in information.'
   end
 
   @connection.users[@msg.nick_canon].account = @params[0]
@@ -57,11 +57,11 @@ command 'register', 'Register a new account on the bot. Parameters: username pas
   query! and argc! 2
 
   unless @connection.users[@msg.nick_canon].account == nil
-    raise "You are already logged in to a bot account."
+    raise 'You are already logged in to a bot account.'
   end
 
   unless get_data(@params[0], nil) == nil
-    raise "That user name is already registered."
+    raise 'That user name is already registered.'
   end
 
   if Bot::Conf[:admins] and Bot::Conf[:admins].has_key? @params[0]
@@ -83,19 +83,20 @@ command 'password',  'Change your bot account password. Parameters: password' do
   account = @connection.users[@msg.nick_canon].account
 
   if account.nil?
-    raise "You must be logged in to change your password."
+    raise 'You must be logged in to change your password.'
   end
 
   stored = get_data @connection.users[@msg.nick_canon].account, nil
 
   if stored.nil?
-    raise "Your account no longer exists."
+    raise 'Your account no longer exists.'
   end
 
   stored[:password] = encrypt_password(@params[0])
   store_data @connection.users[@msg.nick_canon].account, stored
 
-  reply "Your password has been changed"
+  reply 'Your password has been changed.'
+
   $log.info("account.cmd_password") { "#{@msg.origin} changed account password" }
 end
 
@@ -105,13 +106,14 @@ command 'fpassword', 'Change another user\'s bot account password. Parameters: u
   stored = get_data @params[0], nil
 
   if stored.nil?
-    raise "No such account."
+    raise 'No such account.'
   end
 
   stored[:password] = encrypt_password @params[1]
   store_data @connection.users[@params[0]].account, stored
 
-  reply "The account password has been changed"
+  reply 'The account password has been changed.'
+
   $log.info("account.cmd_fpassword") { "#{@msg.origin} changed account password for #{@params[0]}" }
 end
 
@@ -121,7 +123,7 @@ command 'level', 'Change a user\'s account level. Parameters: username level' do
   stored = get_data @params[0], nil
 
   if stored.nil?
-    raise "No such account."
+    raise 'No such account.'
   end
 
   level = @params[1].to_i
@@ -154,7 +156,7 @@ command 'account', 'Display information about a user. Parameters: username' do
   stored = get_data @params[0], nil
 
   if stored.nil?
-    raise "No such account."
+    raise 'No such account.'
   end
 
   reply 'Account' => @params[0], 'Level' => stored[:level]
@@ -164,7 +166,7 @@ command 'whoami', 'Display your current user information if you are logged in.' 
   u = @connection.users[@msg.nick_canon]
 
   if u.account.nil?
-    raise "You are not logged in."
+    raise 'You are not logged in.'
   end
 
   reply "\02Account:\02 #{u.account} \02Level:\02 #{u.level}"
