@@ -805,8 +805,6 @@ Commands:
 
 * XBOX - Display inforation about Xbox Live players.
   * PROFILE - Show the current status and information about the given gamer tag.
-  * ACHIEVEMENTS - Show achievements for the given gamer tag with optional game.
-  * FRIENDS - Show a list of friends for the given gamer tag, if available.
 
 ## Modules
 

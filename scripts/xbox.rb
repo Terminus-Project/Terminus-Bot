@@ -29,91 +29,27 @@ require 'multi_json'
 
 register 'Retrieve information about Xbox Live players.'
 
-command 'xbox', 'Retrieve information about Xbox Live players. Syntax: PROFILE gamertag|ACHIEVEMENTS gamertag [game]|FRIENDS gamertag' do
+command 'xbox', 'Retrieve information about Xbox Live players. Syntax: PROFILE gamertag' do
   argc! 2
 
   case @params.first.downcase.to_sym
   when :profile
     profile @params.last
-  when :achievements
-    achievements *@params.last.split(/\s/, 2)
-  when :friends
-    friends @params.last
   end
 end
 
 
 helpers do
+
   def profile gamertag
     api_call('profile', gamertag) do |json|
       data = {
-        json['Gamertag'] => {
-        'Status' => html_decode(json['OnlineStatus'].tr_s(" \t\r\n", ' ')),
-        'Gamer Score' => json['GamerScore'],
-        'Tier' => json['Tier'].capitalize
+        json['gamertag'] => {
+          'Subscription' => json['status'].capitalize,
+          'Gamer Score'  => json['gamerscore'],
+          'Reputation'   => json['reputation'],
+          'Cheater'      => json['cheater']
         }
-      }
-
-      reply data
-    end
-  end
-
-  def achievements gamertag, game = nil
-    api_call('games', gamertag) do |json|
-      catch :game_found do
-
-        unless game.nil?
-          game.downcase!
-
-          json['PlayedGames'].each do |game_json|
-
-            if game_json['Title'].downcase == game
-              game_achievements game_json
-              throw :game_found
-            end
-
-          end
-
-          raise "That game has not been played."
-        end
-
-        data = {
-          'Games Played' => json['GameCount'],
-          'Gamer Score'  => "#{json['TotalEarnedGamerScore']}/#{json['TotalPossibleGamerScore']}",
-          'Achievements' => "#{json['TotalEarnedAchievements']}/#{json['TotalPossibleAchievements']}",
-          'Completion'   => "#{json['TotalPercentCompleted']}%"
-        }
-
-        reply data
-
-      end
-    end
-  end
-
-  def game_achievements json
-      data = {
-        'Title' => json['Title'],
-        'Gamer Score'  => "#{json['EarnedGamerScore']}/#{json['PossibleGamerScore']}",
-        'Achievements' => "#{json['EarnedAchievements']}/#{json['PossibleAchievements']}",
-        'Completion'   => "#{json['PercentageCompleted']}%",
-        'Last Played'  => "#{Time.at(json['LastPlayed']).to_duration_s} ago"
-      }
-
-      reply data
-  end
-
-  def friends gamertag
-    api_call('friends', gamertag) do |json|
-      arr = []
-
-      json['Friends'].each do |friend|
-        online = friend['IsOnline'] ? 'Online' : 'Offline'
-
-        arr << "#{friend['Gamertag']} (#{online})"
-      end
-
-      data = {
-        "#{json['TotalFriends']} Friends" => arr.join(', ')
       }
 
       reply data
@@ -131,11 +67,11 @@ helpers do
     http_get(uri, query) do |http|
       json = MultiJson.load(http.response)
 
-      unless json.has_key? 'Data'
+      unless json['exists']
         raise 'Player not found.'
       end
 
-      yield json['Data']
+      yield json
     end
   end
 end
