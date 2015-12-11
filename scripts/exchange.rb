@@ -25,7 +25,7 @@
 
 need_module! 'http'
 
-register 'Look up product information by UPC using upcdatabase.org.'
+register 'Look up exchange rates on openexchangerates.org.'
 
 command 'exchange', 'Get exchange rates from openexchangerates.org.' do
   argc! 2, 'base target'
