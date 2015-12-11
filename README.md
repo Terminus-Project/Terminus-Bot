@@ -373,8 +373,6 @@ Commands:
 * GIMAGE - Search for images using Google.
 * GVIDEO - Search for videos using Google.
 * GBOOK - Search books using Google.
-* GPATENT - Search patents using Google.
-* GBLOG - Search blogs using Google.
 * GNEWS - Search news using Google.
 
 
