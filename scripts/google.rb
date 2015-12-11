@@ -53,12 +53,6 @@ command 'gvideo', 'Search for videos using Google.' do
   get_result(@params[0], :video) {|r| reply r}
 end
 
-command 'gpatent', 'Search patents using Google.' do
-  argc! 1
-
-  get_result(@params[0], :patent) {|r| reply r}
-end
-
 command 'gbook', 'Search books using Google.' do
   argc! 1
 
@@ -69,12 +63,6 @@ command 'gnews', 'Search news using Google.' do
   argc! 1
 
   get_result(@params[0], :news) {|r| reply r}
-end
-
-command 'gblog', 'Search blogs using Google.' do
-  argc! 1
-
-  get_result(@params[0], :blogs) {|r| reply r}
 end
 
 helpers do
@@ -111,12 +99,6 @@ helpers do
 
         when :news
           results << "\02#{html_decode result["titleNoFormatting"]}\02 - #{URI.unescape(result["url"])}"
-
-        when :blogs
-          results << "\02#{html_decode result["titleNoFormatting"]}\02 by #{html_decode result["author"]} - #{URI.unescape(result["postUrl"])} - Published #{result["publishedDate"]}"
-
-        when :patent
-          results << "\02#{html_decode result["titleNoFormatting"]}\02 - #{URI.unescape(result["url"])} - assigned to #{html_decode result["assignee"]} - #{result["patentNumber"]} (#{result["patentStatus"]}) - Applied for on: #{result["applicationDate"]}"
 
         when :video
           results << "\02#{html_decode result["titleNoFormatting"]}\02 - #{result["url"]}"
