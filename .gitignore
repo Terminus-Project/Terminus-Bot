@@ -9,6 +9,8 @@ tags
 
 # Created by https://www.gitignore.io
 
+doc/yard/
+
 ### Vim ###
 [._]*.s[a-w][a-z]
 [._]s[a-w][a-z]
