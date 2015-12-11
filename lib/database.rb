@@ -42,10 +42,11 @@ module Bot
     private_constant :DEFAULT_FILENAME
 
     # Read the database if it exists. Otherwise, write an empty database.
-    def initialize filename=nil
+    def initialize filename = nil
       filename ||= DEFAULT_FILENAME
-      @data = Hash.new
-      @filename = filename
+
+      @data     = Hash.new
+      @filename = File.expand_path filename
 
       if File.exists? @filename
         read_database
@@ -61,7 +62,7 @@ module Bot
     # a hash table, since we initialize it as one and write it the first
     # time we run.
     def read_database
-      @data = Psych.load(IO.read(@filename))
+      @data = Psych.load IO.read @filename
     end
 
     # Write database in YAML format.
@@ -72,7 +73,8 @@ module Bot
 
       $log.debug("Database.write_database") { "Marshaling data and writing to #{@filename}" }
 
-      File.open(temp, "w") { |f| f.write(@data.to_yaml)}
+      File.open(temp, "w") { |f| f.write(@data.to_yaml) }
+
       File.rename temp, @filename
     end
 
