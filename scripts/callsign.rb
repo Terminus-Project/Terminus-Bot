@@ -34,19 +34,17 @@ command 'callsign', 'Look up an amateur radio callsign using calllook.info.' do
 end
 
 helpers do
+
   def lookup callsign
     api_call callsign do |json|
       unless json['status'] == 'VALID'
         raise 'Not a valid callsign.'
       end
 
-      buf = {
-        'Name'      => json['name'],
-        'Latitude'  => json['location']['latitude'],
-        'Longitude' => json['location']['longitude']
-      }
+      reply 'Name' => json['name'],
+        'Class'    => json['current']['operClass'],
+        'Location' => "#{json['location']['latitude']}, #{json['location']['longitude']} (https://www.google.com/maps/place/#{URI.encode json['address'].values[0..1].join ' '}/@#{URI.encode json['location'].values[0..1].join ','},18z/)"
 
-      reply buf
     end
   end
 
