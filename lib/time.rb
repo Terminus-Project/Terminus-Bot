@@ -143,7 +143,7 @@ class Time
   def self.parse_duration str
     t = Time.now
 
-    str.scan /(-?[0-9]+)(\w{1})/ do |s|
+    str.scan(/(-?[0-9]+)(\w{1})/) do
       val = $1.to_i
       case $2.downcase
       when 's'
@@ -159,7 +159,7 @@ class Time
       when 'y'
         a = t.to_a
         a[5] += val
-        t = Time.mktime *a
+        t = Time.mktime(*a)
       end
     end
 

@@ -29,13 +29,13 @@ need_module! 'http', 'url_handler'
 
 register 'Fetch information from deviantART.'
 
-url /\/\/([^\.]+)\.deviantart\.com\/art\/.+|fav\.me/ do
+url(/\/\/([^\.]+)\.deviantart\.com\/art\/.+|fav\.me/) do
   $log.info('deviantart.url') { @uri.inspect }
 
   title_handler @uri
 end
 
-url /\/[\w-]+_by_[\w-]+-d[0-9A-Za-z]{5,8}+.\w{3}$/ do
+url(/\/[\w-]+_by_[\w-]+-d[0-9A-Za-z]{5,8}+.\w{3}$/) do
   $log.info('deviantart.url') { @uri.inspect }
 
   match = @uri.to_s.match(/_by_.+-(?<id>d[0-9A-Za-z]{5,8})\.\w{3}/)
