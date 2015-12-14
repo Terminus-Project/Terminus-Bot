@@ -42,52 +42,65 @@ command 'dice', 'Roll dice.' do
 
   # TODO: Streamline rolling dice and outputting for clarity
 
-  results = []
-
-  i = 1
-  dice_strs.each do |dice_str|
+  buf = dice_strs.map.with_index 1 do |dice_str, set|
     rolls = roll_dice dice_str
-    sum = 0
-    rolls.each { |roll| sum += roll }
-    results << "Dice set #{i}: result: #{sum} dice: [#{rolls.join(', ')}]"
-    i = i + 1
-  end
 
-  reply results.join(' ')
+    sum = rolls.inject :+
+
+    "Dice set #{set}: result: #{sum} dice: [#{rolls.join(', ')}]"
+  end.join ' '
+
+  reply buf
 end
 
 helpers do
   def roll_dice dice_str
     operators = Regexp.escape '+-*'
 
-    raise 'Simulation format must be [count]d<sides>[k<keep>][+/-/*<modifier>]' if dice_str.match(/^(\d+)?d\d+(k\d+)?([#{operators}]\d+)*$/).nil?
+    if dice_str.match(/^(\d+)?d\d+(k\d+)?([#{operators}]\d+)*$/).nil?
+      raise 'Simulation format must be [count]d<sides>[k<keep>][+/-/*<modifier>]'
+    end
 
-    settings = Hash.new()
+    settings = {}
+
     type_map = {
-      :count => /^(\d+)/,                 # Number of dice to roll
-      :sides => /d(\d+)/,                 # Number of sides on the dice
-      :keep => /k(\d+)/,                  # Number of dice to keep
-      :mod => /((?:[#{operators}]\d+)*)$/ # Expression to add to every roll
+      :count => /^(\d+)/,                   # Number of dice to roll
+      :sides => /d(\d+)/,                   # Number of sides on the dice
+      :keep  => /k(\d+)/,                   # Number of dice to keep
+      :mod   => /((?:[#{operators}]\d+)*)$/ # Expression to add to every roll
     }
 
     # Get settings from dice string
     type_map.each do |setting, regex|
       parsed = dice_str.scan(regex).first.first.to_s rescue nil
+
       settings[setting] = (parsed.match(/^\d+$/).nil?) ? parsed : Integer(parsed) rescue nil
     end
 
     # Sanity checks
-    settings[:count] = 1 if settings[:count].nil?
-    raise 'You may only roll up to 100 dice.' if settings[:count] > 100
-    raise 'You must roll a positive number of dice.' if settings[:count] <= 0
 
-    raise 'You must specify a number of sides.' if settings[:sides].nil?
-    raise 'You may only roll dice of up to 100 sides.' if settings[:sides] > 100
-    raise 'You must only roll dice with a positive number of sides.' if settings[:sides] <= 0
+    if settings[:count].nil?
+      settings[:count] = 1
+    elsif settings[:count] > 100
+      raise 'You may only roll up to 100 dice.'
+    elsif settings[:count] <= 0
+      raise 'You must roll a positive number of dice.'
+    end
 
-    if !settings[:keep].nil?
-      raise 'You must choose to keep a positive number of dice if specified.' if settings[:keep] <= 0
-      raise 'You must not choose to keep more dice than you have chosen to roll.' if settings[:keep] > settings[:count]
+    if settings[:sides].nil?
+      raise 'You must specify a number of sides.'
+    elsif settings[:sides] > 100
+      raise 'You may only roll dice of up to 100 sides.'
+    elsif settings[:sides] <= 0
+      raise 'You must only roll dice with a positive number of sides.'
+    end
+
+    unless settings[:keep].nil?
+      if settings[:keep] <= 0
+        raise 'You must choose to keep a positive number of dice if specified.'
+      elsif settings[:keep] > settings[:count]
+        raise 'You must not choose to keep more dice than you have chosen to roll.'
+      end
     end
 
     rolls = []
