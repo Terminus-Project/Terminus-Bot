@@ -59,8 +59,6 @@ module Bot
 
       return unless Bot::Flags.permit_message? command[:owner], msg
 
-      level = msg.connection.users.get_level msg
-
       $log.debug("CommandManager.on_privmsg") { "Match for command #{cmd_str} in #{command[:owner]}" }
 
       Command.run command[:owner], msg, cmd_str, match[:params], &command[:block]
