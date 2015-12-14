@@ -71,7 +71,7 @@ helpers do
           next if now < reminder[:time]
 
           send_reminder network, destination,
-            reminder[:time], reminder[:creator], reminder[:message]
+            reminder[:creator], reminder[:message]
         end
 
         reminders.empty?
@@ -83,7 +83,7 @@ helpers do
     store_all_data data
   end
 
-  def send_reminder network, destination, time, nick, message
+  def send_reminder network, destination, nick, message
     connection = Bot::Connections[network]
 
     unless connection.channels.has_key? connection.canonize(destination)
