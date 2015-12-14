@@ -71,6 +71,8 @@ module Bot
 
       conf = Bot::Conf[:modules][:url_handler]
 
+      # TODO: fix this super weird way of using max
+
       if conf.nil?
         max = 3
       else

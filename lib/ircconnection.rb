@@ -239,6 +239,7 @@ module Bot
         Events.dispatch :raw,     msg
         Events.dispatch msg.type, msg
 
+        # TODO: no `rescue Exception` here
       rescue Exception => e
         $log.error("IRC.receive_line") { "#{@name}: Uncaught error in message handler: #{e}" }
         $log.error("IRC.receive_line") { "#{@name}: Backtrace: #{e.backtrace}" }

@@ -48,6 +48,7 @@ module Bot
         begin
           self.new(owner, msg, cmd, cmd_params, data).instance_eval(&blk)
         rescue Exception => e
+          # TODO: rescue subset of Exception, if possible
           error msg, e
         end
       end

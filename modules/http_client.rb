@@ -70,6 +70,7 @@ module Bot
         block.call json
 
       rescue Exception => e
+        # TODO: don't catch Exception
         raise e
       end
     end
