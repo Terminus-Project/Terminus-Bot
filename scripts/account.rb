@@ -138,7 +138,7 @@ command 'level', 'Change a user\'s account level. Parameters: username level' do
 
   # if they are logged in, update the live data too
 
-  Connections.each do |_ conn|
+  Connections.each do |_, conn|
     conn.users.each do |_, user|
       if user.account == @params[0]
         user.level = level
