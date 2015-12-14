@@ -149,8 +149,6 @@ command 'mpd', 'Interact with MPD. Syntax: mpd next|previous|stop|play|pause|shu
     reply_without_prefix 'Next Track' => song_to_s(song)
 
   when :queue?
-    my_queue  = queue
-
     length    = queue.length
     duration  = queue.inject(0) {|sum, s| sum + s.time}
 
