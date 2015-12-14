@@ -61,9 +61,9 @@ module Bot
       def error msg, e
         # XXX - this sort of sucks
         if msg.query?
-          msg.connection.raw "NOTICE #{msg.nick} :Error: #{e.to_s}"
+          msg.connection.raw "NOTICE #{msg.nick} :Error: #{e}"
         else
-          msg.connection.raw "PRIVMSG #{msg.destination} :#{msg.nick}: Error: #{e.to_s}"
+          msg.connection.raw "PRIVMSG #{msg.destination} :#{msg.nick}: Error: #{e}"
         end
 
         $log.error('Command.run') { e }

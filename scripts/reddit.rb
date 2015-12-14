@@ -79,7 +79,7 @@ helpers do
     json_get api, {}, true do |json|
       data = json['data']
 
-      reply "\02#{data['name']}\02 - \02#{data['link_karma']}\02 Link Karma - \02#{data['comment_karma']}\02 Comment Karma - Joined #{Time.at(data['created_utc']).to_s}", false
+      reply "\02#{data['name']}\02 - \02#{data['link_karma']}\02 Link Karma - \02#{data['comment_karma']}\02 Comment Karma - Joined #{Time.at(data['created_utc'])}", false
     end
   end
 

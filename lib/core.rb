@@ -152,7 +152,8 @@ module Bot
     $log.debug("Bot.clean_up") { "Terminating event loop and deleting PID file." }
 
     EM.stop_event_loop if EM.reactor_running?
-    if File.exists? PID_FILE
+
+    if File.exist? PID_FILE
       File.delete PID_FILE
     end
   end

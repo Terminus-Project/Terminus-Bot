@@ -69,7 +69,7 @@ helpers do
     api_call match[:owner], match[:project], 'repos', path do |data|
       data = data['commit']
 
-      reply_without_prefix match[:project] => "#{data['message'].lines.first} - by #{data['author']['name']} at #{Time.parse(data['author']['date']).to_s}"
+      reply_without_prefix match[:project] => "#{data['message'].lines.first} - by #{data['author']['name']} at #{Time.parse(data['author']['date'])}"
     end
   end
 
