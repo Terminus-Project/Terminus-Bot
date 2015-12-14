@@ -32,8 +32,6 @@ register 'Fetch information from YouTube.'
 url(/\/\/((www\.)?youtu\.be\/.+|(www\.)?youtube\.com\/.+[?&]v=.+)/) do
   $log.info('youtube.url') { @uri.inspect }
 
-  link, vid = '', ''
-
   if @uri.host == 'youtu.be' or @uri.host == 'www.youtu.be'
     vid = @uri.path[1..@uri.path.length-1].split("&")[0]
   else
@@ -43,7 +41,7 @@ url(/\/\/((www\.)?youtu\.be\/.+|(www\.)?youtube\.com\/.+[?&]v=.+)/) do
 
     vid = query.split('=')[1]
 
-    link = " - https://youtu.be/#{vid}" if get_config(:shorten_links, false)
+    link = "https://youtu.be/#{vid}" if get_config(:shorten_links, false)
   end
 
   api = URI('https://www.googleapis.com/youtube/v3/videos')
@@ -64,13 +62,18 @@ url(/\/\/((www\.)?youtu\.be\/.+|(www\.)?youtube\.com\/.+[?&]v=.+)/) do
     duration  = json['contentDetails']['duration'].match(/^PT((?<minutes>[0-9]+)M)?((?<seconds>[0-9]+)S)?$/)
     duration  = duration[:minutes].to_i * 60 + duration[:seconds].to_i
 
-    reply_without_prefix 'YouTube' => json['snippet']['title'],
+    data = {
+      'YouTube'  => json['snippet']['title'],
       'By'       => json['snippet']['channelTitle'],
       'Views'    => json['statistics']['viewCount'],
       'Duration' => Time.at(Time.now.to_i + duration).to_duration_s,
       'Likes'    => json['statistics']['likeCount'],
       'Dislikes' => json['statistics']['dislikeCount']
+    }
 
+    data['Link'] = link if link
+
+    reply_without_prefix data
   end
 
 end
