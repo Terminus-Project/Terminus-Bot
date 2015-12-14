@@ -60,8 +60,6 @@ module Bot
       @lines_sent     = 0
       @lines_received = 0
 
-      bind = Bot::Conf[:core][:bind]
-
       # XXX
       @caps = ClientCapabilities.new self if defined? MODULE_LOADED_CLIENT_CAPABILITIES
 
