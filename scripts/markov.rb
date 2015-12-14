@@ -336,7 +336,7 @@ helpers do
     return nil unless @@nodes.has_key? word
 
     # Get the top 20 most likely words.
-    choices = @@nodes[word].links.sort_by {|n, l| l.score }.shift(20)
+    choices = @@nodes[word].links.sort_by {|_, l| l.score }.shift(20)
 
     # Then return one of them, or nil if we don't have anything.
     choices.empty? ? nil : choices.sample[0]
@@ -453,7 +453,7 @@ helpers do
     @@nodes.each do |word, node|
       fi << "#{word}\t"
 
-      node.links.each do |n, l|
+      node.links.each do |_, l|
         fi << "#{l.target.word}\t#{l.score}\t"
       end
 
