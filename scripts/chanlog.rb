@@ -41,7 +41,7 @@ event :em_started do
   # to see the JOIN events we need to start the loggers. So we have to do
   # it the hard way, just in case.
 
-  Bot::Connections.each do |name, connection|
+  Bot::Connections.each_value do |connection|
     connection.channels.each_key do |channel|
       new_logger connection.name, channel
     end
@@ -80,7 +80,7 @@ helpers do
 
     @@loggers[network][channel] = Logger.new "#{@@log_dir}#{network}.#{channel}.log"
 
-    @@loggers[network][channel].formatter = proc do |severity, datetime, progname, msg|
+    @@loggers[network][channel].formatter = proc do |_severity, datetime, progname, msg|
       "#{datetime}\t#{progname}\t#{msg}\n"
     end
 

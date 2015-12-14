@@ -62,7 +62,7 @@ OptionParser.new do |opts|
   end
 
   $opts[:fork] = true
-  opts.on '-f', '--no-fork', 'Don\'t run in the background' do |v|
+  opts.on '-f', '--no-fork', 'Don\'t run in the background' do
     $opts[:fork] = false
   end
 

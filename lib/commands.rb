@@ -151,7 +151,7 @@ module Bot
     # Delete all aliases which reference `target` command.
     # @param target [String] command for which to delete aliases
     def self.delete_aliases_for target
-      ALIASES.reject! do |a, t|
+      ALIASES.reject! do |_, t|
         t == target
       end
 

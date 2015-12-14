@@ -49,7 +49,7 @@ end
 helpers do
 
   def top n = 3
-    potassium = get_data(@connection.name, Hash.new(0)).sort_by {|n, k| k}
+    potassium = get_data(@connection.name, Hash.new(0)).sort_by {|_, k| k}
 
     raise 'Nobody has any potassium, yet.' if potassium.empty?
 
@@ -57,7 +57,7 @@ helpers do
   end
 
   def bottom n = 3
-    potassium = get_data(@connection.name, Hash.new(0)).sort_by {|n, k| k}
+    potassium = get_data(@connection.name, Hash.new(0)).sort_by {|_, k| k}
 
     raise 'Nobody has any potassium, yet.' if potassium.empty?
 

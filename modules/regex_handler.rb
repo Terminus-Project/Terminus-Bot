@@ -40,7 +40,7 @@ module Bot
     end
 
     def delete_for parent
-      @@handlers.reject! do |regex, handlers|
+      @@handlers.reject! do |_regex, handlers|
         handlers.reject! do |handler|
           handler[:owner] == parent
         end

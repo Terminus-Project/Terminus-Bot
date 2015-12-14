@@ -48,13 +48,13 @@ command 'weather', 'View current conditions for the specified location.' do
 
     credit          = root.elements['//credit'].text
     updatedTime     = root.elements['//observation_epoch'].text.to_i
-    localTime       = root.elements['//local_time'].text
+    #localTime       = root.elements['//local_time'].text
     stationLocation = root.elements['//observation_location/full'].text
     temperature     = root.elements['//temperature_string'].text
     humidity        = root.elements['//relative_humidity'].text
     wind            = root.elements['//wind_string'].text
-    pressure        = root.elements['//pressure_string'].text
-    dewpoint        = root.elements['//dewpoint_string'].text
+    #pressure        = root.elements['//pressure_string'].text
+    #dewpoint        = root.elements['//dewpoint_string'].text
     link            = root.elements['//forecast_url'].text
 
     updated = "#{Time.at(updatedTime).to_fuzzy_duration_s} ago"

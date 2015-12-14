@@ -33,7 +33,7 @@ command 'uptime', 'Show how long the bot has been active.' do
   lines_received, lines_sent = 0, 0
   bytes_received, bytes_sent = 0, 0
 
-  Bot::Connections.each do |name, connection|
+  Bot::Connections.each_value do |connection|
     lines_received += connection.lines_received
     bytes_received += connection.bytes_received
     lines_sent     += connection.lines_sent

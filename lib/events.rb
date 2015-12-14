@@ -99,8 +99,8 @@ module Bot
     #
     # @param owner [Object]
     def delete_for owner
-      self.each do |n, a|
-        a.delete_if {|e| e.owner == owner}
+      self.each_value do |array|
+        array.delete_if { |event| event.owner == owner }
       end
     end
 
@@ -152,7 +152,7 @@ module Bot
     # @param name [Symbol]
     # @param msg [String]
     # @param data [Hash]
-    def initialize owner, name, msg = nil, data = {}
+    def initialize owner, _name, msg = nil, data = {}
       super owner, msg, nil, '', data
     end
   end

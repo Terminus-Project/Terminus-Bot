@@ -93,7 +93,7 @@ helpers do
   def xor_core key, data
     key_it = key.chars.cycle
 
-    data.each_char.map.each_with_index { |c, i|
+    data.each_char.map.each { |c|
       (c.ord ^ key_it.next.ord).chr
     }.join
   end

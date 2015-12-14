@@ -42,7 +42,7 @@ url(/\/\/(www\.)?fimfiction\.net\/story\/[0-9]+\//) do
     data = json['story']
 
     rating  = data['content_rating_text']
-    cats    = data['categories'].select {|k,v| v}.keys.join(', ')
+    cats    = data['categories'].select {|_,v| v}.keys.join(', ')
     title   = html_decode data['title']
     desc    = html_decode data['short_description']
 
