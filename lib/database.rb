@@ -67,13 +67,13 @@ module Bot
 
     # Write database in YAML format.
     def write_database
-      FileUtils.mkdir_p File.dirname(@filename) unless Dir.exists? File.dirname(@filename)
+      FileUtils.mkdir_p File.dirname @filename
 
       temp = "#{@filename}.tmp"
 
-      $log.debug("Database.write_database") { "Marshaling data and writing to #{@filename}" }
+      $log.debug('Database.write_database') { "Marshaling data and writing to #{@filename}" }
 
-      File.open(temp, "w") { |f| f.write(@data.to_yaml) }
+      File.open(temp, 'w') { |f| f.write(@data.to_yaml) }
 
       File.rename temp, @filename
     end

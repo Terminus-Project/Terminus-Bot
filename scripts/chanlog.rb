@@ -31,10 +31,7 @@ register 'Logs channel activity to disk.'
 
 @@loggers = {}
 
-unless Dir.exists? @@log_dir
-  Dir.mkdir @@log_dir
-end
-
+FileUtils.mkdir_p @@log_dir
 
 event :em_started do
   # If we're being loaded on a bot that's already running, we're not going
