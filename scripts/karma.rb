@@ -82,7 +82,7 @@ helpers do
   end
 
   def add_karma nick, amount = 1
-    unless channel.users.has_key? nick
+    unless channel.users.key? nick
       $log.debug('karma.add_karma') { "Skipping nonexistent target #{nick}" }
       return
     end

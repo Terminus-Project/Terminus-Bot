@@ -61,7 +61,7 @@ class CanonizedHash < Hash
     super(@canonizer.canonize key)
   end
 
-  def has_key? key
+  def key? key
     super(@canonizer.canonize key)
   end
 

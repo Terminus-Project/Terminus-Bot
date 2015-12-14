@@ -353,7 +353,7 @@ module Bot
     # Send all registration and pre-registration commands, such as PASS, NICK,
     # and USER.
     def register
-      raw "PASS #{@config[:password]}" if @config.has_key? :password
+      raw "PASS #{@config[:password]}" if @config.key? :password
       raw "CAP LS" if defined? MODULE_LOADED_CLIENT_CAPABILITIES
 
       raw "NICK #{@nick}"
@@ -370,7 +370,7 @@ module Bot
 
       @isupport, @registered = {}, true
 
-      raw "MODE #{@nick} +#{@config[:umodes]}" if @config.has_key? :umodes
+      raw "MODE #{@nick} +#{@config[:umodes]}" if @config.key? :umodes
     end
 
     # Callback for the nick in use numeric.
@@ -388,7 +388,7 @@ module Bot
 
       if @nick == Bot::Conf[:core][:nick]
 
-        if Bot::Conf[:core].has_key? :altnick
+        if Bot::Conf[:core].key? :altnick
           @nick =Bot::Conf[:core][:altnick]
         else
           @nick = 'TerminusBot'
@@ -535,7 +535,7 @@ module Bot
     def support param, default = nil
       param.upcase!
 
-      @isupport.has_key?(param) ? @isupport[param] : default
+      @isupport.key?(param) ? @isupport[param] : default
     end
 
     # Create a human-readable string with info about the connection.

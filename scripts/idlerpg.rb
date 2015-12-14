@@ -40,7 +40,7 @@ command 'idlerpg', 'Get information about players on this network\'s IdleRPG gam
 
   name = @params.empty? ? @msg.nick : @params[0]
 
-  unless config.has_key? :xml_url
+  unless config.key? :xml_url
     raise "I don't know where to get player info on this network."
   end
 
@@ -54,7 +54,7 @@ event :JOIN do
 
   next unless config[:channel].downcase == @msg.destination.downcase
 
-  next unless config.has_key? :login_command and config.has_key? :nick
+  next unless config.key? :login_command and config.key? :nick
 
   next if not @msg.me? or not @msg.nick != config[:nick]
 

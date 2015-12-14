@@ -49,11 +49,11 @@ module Bot
 
       cmd_str = match[:command].downcase
 
-      if ALIASES.has_key? cmd_str
+      if ALIASES.key? cmd_str
         cmd_str = ALIASES[cmd_str]
       end
 
-      return unless COMMANDS.has_key? cmd_str
+      return unless COMMANDS.key? cmd_str
 
       command = COMMANDS[cmd_str]
 
@@ -74,11 +74,11 @@ module Bot
     def self.create owner, cmd, help, &blk
       cmd.downcase!
 
-      if COMMANDS.has_key? cmd
+      if COMMANDS.key? cmd
         raise "attempted to register duplicate command #{cmd} for #{owner.class.name}"
       end
 
-      if ALIASES.has_key? cmd
+      if ALIASES.key? cmd
         raise "attempted to register command #{cmd} for #{owner.class.name} but an alias by that name already exists"
       end
 
@@ -99,15 +99,15 @@ module Bot
       cmd.downcase!
       target.downcase!
 
-      if COMMANDS.has_key? cmd
+      if COMMANDS.key? cmd
         raise "attempted to register alias #{cmd} but a command by that name already exists"
       end
 
-      if ALIASES.has_key? cmd
+      if ALIASES.key? cmd
         raise "attempted to register duplicate alias #{cmd}"
       end
 
-      unless COMMANDS.has_key? target
+      unless COMMANDS.key? target
         raise "target command #{target} does not exist"
       end
 
@@ -124,7 +124,7 @@ module Bot
     def self.delete cmd
       cmd.downcase!
 
-      raise "attemped to delete non-existent command #{cmd}" unless COMMANDS.has_key? cmd
+      raise "attemped to delete non-existent command #{cmd}" unless COMMANDS.key? cmd
 
       $log.debug("CommandManager.delete") { "Deleting command: #{cmd}" }
 
@@ -141,7 +141,7 @@ module Bot
     def self.delete_alias cmd
       cmd.downcase!
 
-      raise "attempted to delete non-existent alias #{cmd}" unless ALIASES.has_key? cmd
+      raise "attempted to delete non-existent alias #{cmd}" unless ALIASES.key? cmd
 
       $log.debug("CommandManager.delete_alias") { "Deleting alias: #{cmd}" }
 

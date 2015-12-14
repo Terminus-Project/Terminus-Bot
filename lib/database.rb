@@ -114,8 +114,8 @@ module Bot
     # Check if the database has a key.
     # @param key [Object] key to check for
     # @return [Boolean] true if key exists, false if not
-    def has_key? key
-      @data.has_key? key
+    def key? key
+      @data.key? key
     end
   end
 

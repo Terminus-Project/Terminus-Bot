@@ -24,7 +24,7 @@
 #
 
 module Bot
-  if Conf.has_key? :modules
+  if Conf.key? :modules
     Modules = Array.new
     Conf[:modules].each_key do |name|
       file_name = "modules/#{name}.rb"

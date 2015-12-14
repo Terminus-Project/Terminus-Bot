@@ -37,7 +37,7 @@ event :PRIVMSG do
   @msg.text.split(" ").each do |word|
     word.sub!(/[[:punct:]]*\Z/, '')
 
-    if channel.users.has_key? word
+    if channel.users.key? word
       check_away word
     end
   end
@@ -46,7 +46,7 @@ end
 # We got a 301 (away status in WHOIS reply). Announce it if we
 # should.
 event :"301" do
-  next unless @@pending.has_key? msg.raw_arr[3]
+  next unless @@pending.key? msg.raw_arr[3]
 
   dat = @@pending[@msg.raw_arr[3]]
   @@pending.delete @msg.raw_arr[3] # Delete it immediately so we never end up
@@ -59,7 +59,7 @@ end
 # End of WHOIS! If we have a pending request for this nick, remove it.
 
 event :"318" do
-  @@pending.delete @msg.raw_arr[3] if @@pending.has_key? @msg.raw_arr[3]
+  @@pending.delete @msg.raw_arr[3] if @@pending.key? @msg.raw_arr[3]
 end
 
 command 'away', 'Enable or disable away status announcements for the current channel. Parameters: ON|OFF' do
@@ -88,7 +88,7 @@ helpers do
   def check_away nick
     now = Time.now.to_i
 
-    if @@pending.has_key? nick
+    if @@pending.key? nick
       return if now - @@pending[nick][0] < 30
     end
 

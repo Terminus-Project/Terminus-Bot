@@ -93,7 +93,7 @@ module Bot
 
         if value == "{"
 
-          if current.has_key? key
+          if current.key? key
             $log.warn("Configuration.read_config") { "Duplicate configuration block #{key} on line #{line_number}" }
           else
             current[key] = {}
@@ -105,7 +105,7 @@ module Bot
           next
         end
 
-        if current.has_key? key
+        if current.key? key
           $log.warn("Configuration.read_config") { "Duplicate configuration option #{key} on line #{line_number}" }
         end
 

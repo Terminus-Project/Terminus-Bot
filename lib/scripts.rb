@@ -97,7 +97,7 @@ module Bot
         "end",
         "Script_#{name}.new"].join "\n"
 
-      if @scripts.has_key? name
+      if @scripts.key? name
         raise "Attempted to load script that is already loaded."
       end
 
@@ -108,7 +108,7 @@ module Bot
       rescue Exception => e
         $log.error('ScriptManager.load_file') { "Problem loading script #{name}. Clearing data and aborting..." }
 
-        if @scripts.has_key? name
+        if @scripts.key? name
 
           Events.delete_for @scripts[name]
           URL.delete_for @scripts[name] if defined? MODULE_LOADED_URL_HANDLER
@@ -131,7 +131,7 @@ module Bot
     # @param name [String] script short name
     # @raise if script does not exist
     def reload name
-      raise "Cannot reload: No such script #{name}" unless @scripts.has_key? name
+      raise "Cannot reload: No such script #{name}" unless @scripts.key? name
 
       filename = "#{SCRIPTS_PATH}/#{name}.rb"
 
@@ -159,7 +159,7 @@ module Bot
     # @param name [String] script short name
     # @raise if script does not exist
     def unload name
-      raise "Cannot unload: No such script #{name}" unless @scripts.has_key? name
+      raise "Cannot unload: No such script #{name}" unless @scripts.key? name
 
       @scripts[name].die if @scripts[name].respond_to? "die"
 
@@ -360,7 +360,7 @@ module Bot
     def get_config key, default = nil
       name_key = my_short_name.to_sym
 
-      if Bot::Conf.has_key? name_key
+      if Bot::Conf.key? name_key
         return Bot::Conf[name_key].fetch key, default
       end
 

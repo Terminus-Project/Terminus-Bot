@@ -126,8 +126,8 @@ helpers do
       network = key[0]
       channel = key[1]
 
-      next unless Bot::Connections.has_key? network
-      next unless Bot::Connections[network].channels.has_key? channel
+      next unless Bot::Connections.key? network
+      next unless Bot::Connections[network].channels.key? channel
 
       val.each do |feed|
         next if feed == nil

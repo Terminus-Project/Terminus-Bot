@@ -39,7 +39,7 @@ event :JOIN do
   channel  = @connection.canonize @msg.destination
 
   # Are we configured to be in this channel?
-  next if channels.has_key? channel
+  next if channels.key? channel
 
   $log.debug("channels.on_join") { "Parting channel #{@msg.destination} since we are not configured to be in it." }
 
@@ -59,7 +59,7 @@ helpers do
       channels = get_data name, {}
 
       connection.channels.each_key do |chan|
-        next if channels.has_key? chan
+        next if channels.key? chan
 
         connection.send_part chan, "I am not configured to be in this channel."
       end
@@ -113,7 +113,7 @@ command 'part', 'Part a channel.' do
 
   channels = get_data @connection.name, {}
 
-  unless channels.has_key? name
+  unless channels.key? name
     reply "I am not configured to join that channel, but I'll dispatch a PART for it just in case."
     raw "PART #{name} :Leaving channel at request of #{@msg.nick}"
     next
@@ -137,7 +137,7 @@ command 'cycle', 'Part and then join a channel.' do
 
   channels = get_data @connection.name, {}
 
-  next unless channels.has_key? name
+  next unless channels.key? name
 
   send_part name, "Be right back!"
   send_join name

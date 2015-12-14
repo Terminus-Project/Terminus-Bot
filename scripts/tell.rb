@@ -29,7 +29,7 @@ register 'Leave messages for inactive users.'
 event :PRIVMSG do
   tells = get_data @connection.name, Hash.new
 
-  next unless tells.has_key? @msg.nick_canon
+  next unless tells.key? @msg.nick_canon
 
   tells[@msg.nick_canon].each do |tell|
     time = Time.at(tell[0]).strftime("%Y-%m-%d %H:%M:%S %Z")
@@ -65,7 +65,7 @@ command 'tell', 'Have the bot tell the given user something the next time they s
     raise "You cannot leave tells for yourself."
   end
 
-  if tells.has_key? dest
+  if tells.key? dest
     if tells[dest].length > get_config(:max, 5).to_i
       raise "No more tells can be left for that nick."
     end

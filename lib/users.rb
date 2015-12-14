@@ -102,7 +102,7 @@ module Bot
     # @param user [String] user name of user to add
     # @param host [String] host name of user to add
     def add_user nick, user, host
-      return if has_key? nick
+      return if key? nick
 
       $log.debug("Users.add_user") { "Adding user #{nick} on #{@connection.name}" }
 
@@ -116,7 +116,7 @@ module Bot
     # @param msg [Message] message that triggered the callback
     def change_nick msg
       return if msg.connection != @connection
-      return unless has_key? msg.nick
+      return unless key? msg.nick
 
       $log.debug("Users.add_user") { "Renaming user #{msg.nick} on #{@connection.name}" }
 
@@ -147,7 +147,7 @@ module Bot
     # @param msg [Message] message for which to check the speaker's level
     # @return [Integer] account level of speaker
     def get_level msg
-      add_origin msg unless has_key? msg.nick
+      add_origin msg unless key? msg.nick
 
       return self[msg.nick].level
     end

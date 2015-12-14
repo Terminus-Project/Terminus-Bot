@@ -49,14 +49,14 @@ helpers do
   end
 
   def show_word json
-    unless json.has_key? 'tuc'
+    unless json.key? 'tuc'
       raise 'No results'
     end
 
     buf = []
 
     json['tuc'].each do |val|
-      if val.has_key? 'meanings'
+      if val.key? 'meanings'
         break if buf.length == 3
         buf << "\002(#{buf.length + 1})\002 #{html_decode(val['phrase']['text'])}"
       end

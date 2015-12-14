@@ -87,7 +87,7 @@ module Bot
     bind = Bot::Conf[:core][:bind]
 
     Bot::Conf[:servers].each_pair do |name, config|
-      if Connections.has_key? name
+      if Connections.key? name
         $log.warn("Bot.run") { "Skipping duplicate connection: #{name}" }
         next
       end

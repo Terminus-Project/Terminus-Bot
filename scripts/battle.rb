@@ -34,7 +34,7 @@ command 'battle', 'Start, stop, or reset the battle in the current channel. Para
 
   when "START"
 
-    if @@active.has_key? @msg.destination_canon
+    if @@active.key? @msg.destination_canon
       reply "There is already an active battle in \02#{@msg.destination}\02"
       next
     end
@@ -43,7 +43,7 @@ command 'battle', 'Start, stop, or reset the battle in the current channel. Para
 
   when "STOP"
 
-    unless @@active.has_key? @msg.destination_canon
+    unless @@active.key? @msg.destination_canon
       reply "There is no active battle in \02#{@msg.destination}\02"
       next
     end
@@ -54,7 +54,7 @@ command 'battle', 'Start, stop, or reset the battle in the current channel. Para
 
   when "RESTART"
 
-    unless @@active.has_key? @msg.destination_canon
+    unless @@active.key? @msg.destination_canon
       reply "There is no active battle in \02#{@msg.destination}\02"
       next
     end
@@ -73,7 +73,7 @@ end
 
 command 'health', 'View the health of all active players in this channel.' do
 
-  unless @@active.has_key? @msg.destination_canon
+  unless @@active.key? @msg.destination_canon
     reply "There is no active battle in \02#{@msg.destination}\02"
     next
   end
@@ -91,7 +91,7 @@ end
 command 'heal', 'Heal players to maximum health. If no nick is given, all players are reset. Parameters: nick' do
   channel! and half_op! and argc! 1
 
-  unless @@active.has_key? @msg.destination_canon
+  unless @@active.key? @msg.destination_canon
     reply "There is no active battle in \02#{@msg.destination}\02"
     next
   end
@@ -110,7 +110,7 @@ end
 
 
 event :PRIVMSG do
-  next if query? or not @@active.has_key? @msg.destination_canon
+  next if query? or not @@active.key? @msg.destination_canon
 
   if @msg.text =~ /\01ACTION (atta|hit)[^ ]+ (.*?) with (.*)\01/i
     attack_player $2, $3
@@ -152,7 +152,7 @@ helpers do
       reply "You can't attack me!"
       return
     end
-    unless @connection.channels[@msg.destination_canon].users.has_key? target
+    unless @connection.channels[@msg.destination_canon].users.key? target
       reply "There is no such user in the channel."
       return
     end

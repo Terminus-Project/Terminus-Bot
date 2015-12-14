@@ -193,7 +193,7 @@ module Bot
   load "lib/database.rb"
 
   unless defined? Flags
-    if DB.has_key? :flags
+    if DB.key? :flags
       old_flags = DB[:flags]
 
       Flags = Script_Flags.new

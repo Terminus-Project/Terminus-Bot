@@ -54,7 +54,7 @@ module Bot
     # @param msg [Message] optional message that triggered the event
     # @param data [Hash] optional extra data for the event
     def dispatch name, msg = nil, data = {}
-      return unless self.has_key? name
+      return unless self.key? name
 
       $log.debug("events.dispatch") { name }
 
@@ -79,7 +79,7 @@ module Bot
     # @param msg [Message] optional message that triggered the event
     # @param data [Hash] optional extra data for the event
     def dispatch_for owner, name, msg = nil, data = {}
-      return unless self.has_key? name
+      return unless self.key? name
 
       $log.debug("events.dipatch_for") { "#{owner} #{name}" }
 

@@ -36,7 +36,7 @@ command 'help', 'Show command help. Syntax: help [command]' do
 
   name = @params.shift.downcase
 
-  unless Bot::Commands::COMMANDS.has_key? name
+  unless Bot::Commands::COMMANDS.key? name
     raise "There is no help available for that command."
   end
 

@@ -45,7 +45,7 @@ module Bot
         return
       end
 
-      if @@handlers.has_key? regex
+      if @@handlers.key? regex
         raise "#{parent} attempted to add duplicate URL handler regex: #{regex}"
       end
 

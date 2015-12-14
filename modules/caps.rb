@@ -113,7 +113,7 @@ module Bot
       unless @sasl_pending
         msg.connection.raw "CAP END"
       else
-        timeout = @parent.config.has_key?(:sasl_timeout) ? @parent.config[:sasl_timeout] : 15
+        timeout = @parent.config.key?(:sasl_timeout) ? @parent.config[:sasl_timeout] : 15
         EM.add_timer(timeout) { sasl_timeout msg if @sasl_pending }
       end
     end
@@ -140,7 +140,7 @@ module Bot
     end
 
     def begin_sasl msg
-      if not @parent.config.has_key? :sasl_username or not @parent.config.has_key? :sasl_password
+      if not @parent.config.key? :sasl_username or not @parent.config.key? :sasl_password
         $log.debug("ClientCapabilities.begin_sasl #{@parent.name}") { "Server supports SASL but we aren't configured to use it." }
         return false
       end

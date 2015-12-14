@@ -30,7 +30,7 @@ register "Bot-to-user round trip time checker."
 command 'ping', 'Measure the time it takes for the bot to receive a reply to a CTCP PING from your client.' do
   @@pending[@connection.name] ||= {}
 
-  if @@pending[@connection.name].has_key? @msg.nick
+  if @@pending[@connection.name].key? @msg.nick
     if Time.now.to_f - @@pending[@connection.name][@msg.nick] > 30
       @@pending[@connection.name].delete(@msg.nick)
     else
@@ -45,7 +45,7 @@ command 'ping', 'Measure the time it takes for the bot to receive a reply to a C
 end
 
 event :NOTICE do
-  next unless @@pending.has_key? @connection.name
+  next unless @@pending.key? @connection.name
 
   next unless @@pending[@connection.name][@msg.nick]
 

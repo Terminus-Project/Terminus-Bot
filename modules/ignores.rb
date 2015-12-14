@@ -28,7 +28,7 @@ module Bot
 
   # TODO: Create a class and do ignores add, deletes, and checks therein.
 
-  if DB.has_key? :ignores
+  if DB.key? :ignores
     Ignores = DB[:ignores]
   else
     Ignores = []

@@ -30,8 +30,8 @@ require 'timeout'
 register 'Show corrected text with s/regex/replacement/ is used and allow searching with g/regex/.'
 
 regex(/^(?<action>(s|g))\/(?<search>((\\\\)|(\\\/)|.)+?)\/(?<replace>((\\\\)|(\\\/)|[^\/])*)(\/(?<flags>.*))?$/) do
-  next unless Buffer.has_key? @connection.name
-  next unless Buffer[@connection.name].has_key? @msg.destination
+  next unless Buffer.key? @connection.name
+  next unless Buffer[@connection.name].key? @msg.destination
 
   case @match[:action]
   when 'g'

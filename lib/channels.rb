@@ -69,7 +69,7 @@ module Bot
       return unless msg.connection == @connection
       channel = msg.raw_arr[3]
 
-      unless has_key? channel
+      unless key? channel
         self[channel] = Channel.new channel, @connection
       end
 
@@ -96,7 +96,7 @@ module Bot
     def on_join msg
       return unless msg.connection == @connection
 
-      unless has_key? msg.destination
+      unless key? msg.destination
         self[msg.destination] = Channel.new msg.destination, @connection
         Bot::Flags.add_channel @connection.name.to_s, msg.destination
       end
@@ -123,7 +123,7 @@ module Bot
     def on_part msg
       return unless msg.connection == @connection
 
-      return unless has_key? msg.destination
+      return unless key? msg.destination
 
       if msg.me?
         return delete msg.destination
@@ -146,7 +146,7 @@ module Bot
 
       channel = msg.raw_arr[3]
 
-      return unless has_key? channel
+      return unless key? channel
 
       delete channel
     end
@@ -162,7 +162,7 @@ module Bot
     def on_kick msg
       return unless msg.connection == @connection
 
-      return unless has_key? msg.destination
+      return unless key? msg.destination
       # XXX - delete channel if the bot has been kicked
 
       self[msg.destination].part @connection.canonize msg.raw_arr[3]
@@ -179,7 +179,7 @@ module Bot
     def on_mode msg
       return unless msg.connection == @connection
 
-      return unless has_key? msg.destination
+      return unless key? msg.destination
 
       self[msg.destination].mode_change msg.raw_arr[3..-1]
     end
@@ -195,7 +195,7 @@ module Bot
       return unless msg.connection == @connection
       channel = msg.raw_arr[3]
 
-      return unless has_key? channel
+      return unless key? channel
 
       self[channel].mode_change msg.raw_arr[4..-1]
     end
@@ -211,7 +211,7 @@ module Bot
     def on_topic msg
       return unless msg.connection == @connection
 
-      return unless has_key? msg.destination
+      return unless key? msg.destination
 
       self[msg.destination].topic = msg.text
     end
@@ -227,7 +227,7 @@ module Bot
       return unless msg.connection == @connection
       channel = msg.raw_arr[3]
 
-      return unless has_key? channel
+      return unless key? channel
 
       match = msg.raw_str.match(/^(\S+ ){4}:(?<topic>.*)$/)
 
@@ -456,7 +456,7 @@ module Bot
     end
 
     def op? nick
-      return false unless @users.has_key? nick
+      return false unless @users.key? nick
 
       return true if @users[nick].modes.include? "q"
       return true if @users[nick].modes.include? "a"
@@ -468,7 +468,7 @@ module Bot
     end
 
     def half_op? nick
-      return false unless @users.has_key? nick
+      return false unless @users.key? nick
 
       return true if op? nick
 
@@ -476,7 +476,7 @@ module Bot
     end
 
     def voice? nick
-      return false unless @users.has_key? nick
+      return false unless @users.key? nick
 
       return true if op? nick or half_op? nick
 
@@ -518,7 +518,7 @@ module Bot
 
     # Someone changed nicks. Make the necessary updates.
     def change_nick msg
-      return unless @users.has_key? msg.nick
+      return unless @users.key? msg.nick
 
       $log.debug("Channel.change_nick") { "Renaming user #{msg.nick} on #{@name}" }
 
@@ -539,11 +539,11 @@ module Bot
 
       info.each_char do |c|
 
-        if @prefixes.has_key? c
+        if @prefixes.key? c
 
           $log.debug("Channel.who_modes") { "#{c} => #{@prefixes[c]}" }
 
-          next unless @users.has_key? nick
+          next unless @users.key? nick
 
           @users[nick].modes |= [@prefixes[c]]
 

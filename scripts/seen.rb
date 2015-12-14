@@ -61,7 +61,7 @@ command 'seen', 'Check when the given user was last seen \02speaking\02 on IRC.'
 
   seen_nicks = get_data @connection.name, Hash.new
 
-  unless seen_nicks.has_key? nick
+  unless seen_nicks.key? nick
     reply "I have not seen \02#{@params.first}\02."
     next
   end

@@ -269,26 +269,26 @@ helpers do
   end
 
   def relay_points_exist? source_network, source_channel, target_network, target_channel
-    unless Bot::Connections.has_key? source_network
+    unless Bot::Connections.key? source_network
       reply "Source network \02#{source_network}\02 does not exist."
       return false
     end
 
-    unless Bot::Connections.has_key? target_network
+    unless Bot::Connections.key? target_network
       reply "Target network \02#{target_network}\02 does not exist."
       return false
     end
 
     source_channel = Bot::Connections[source_network].canonize source_channel
 
-    unless Bot::Connections[source_network].channels.has_key? source_channel
+    unless Bot::Connections[source_network].channels.key? source_channel
       reply "Source channel \02#{source_channel}\02 does not exist."
       return false
     end
 
     target_channel = Bot::Connections[target_network].canonize target_channel
 
-    unless Bot::Connections[target_network].channels.has_key? target_channel
+    unless Bot::Connections[target_network].channels.key? target_channel
       reply "Target channel \02#{target_channel}\02 does not exist."
       return false
     end

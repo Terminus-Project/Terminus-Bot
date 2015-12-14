@@ -61,7 +61,7 @@ helpers do
     data = get_all_data
 
     data.reject! do |network, destinations|
-      unless Bot::Connections.has_key? network
+      unless Bot::Connections.key? network
         $log.warn('Script.reminders') { "Skipping reminders for offline network #{network}" }
         next
       end
@@ -86,7 +86,7 @@ helpers do
   def send_reminder network, destination, nick, message
     connection = Bot::Connections[network]
 
-    unless connection.channels.has_key? connection.canonize(destination)
+    unless connection.channels.key? connection.canonize(destination)
       $log.warn('Script.reminders') { "Skipping reminder for parted channel #{destination} on #{network}" }
       return false
     end

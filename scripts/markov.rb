@@ -165,7 +165,7 @@ command 'markov', 'Manage the Markov script. Parameters: ON|OFF|FREQUENCY percen
     if arr.length == 2
       input = arr.join(" ").downcase
 
-      unless @@nodes.has_key? input
+      unless @@nodes.key? input
         raise "No such node."
       end
 
@@ -187,7 +187,7 @@ command 'markov', 'Manage the Markov script. Parameters: ON|OFF|FREQUENCY percen
 
     input = arr.join " "
 
-    unless @@nodes.has_key? input
+    unless @@nodes.key? input
       raise "No such node."
     end
 
@@ -275,7 +275,7 @@ helpers do
       next if word.empty? or word.start_with? "http"
 
       # Add this to our nodes data set if it's not already there.
-      @@nodes[word] = @@node.new word, Hash.new unless @@nodes.has_key? word
+      @@nodes[word] = @@node.new word, Hash.new unless @@nodes.key? word
 
       add_pair last_word, word unless last_word.empty?
       last_word = word
@@ -333,7 +333,7 @@ helpers do
   # Get one word which could reasonably follow the given word based on the link
   # scores in our data set.
   def get_word word
-    return nil unless @@nodes.has_key? word
+    return nil unless @@nodes.key? word
 
     # Get the top 20 most likely words.
     choices = @@nodes[word].links.sort_by {|_, l| l.score }.shift(20)
