@@ -40,7 +40,7 @@ require 'optparse'
 $opts = {}
 
 OptionParser.new do |opts|
-  opts.banner = "Usage: #{$0} [options]"
+  opts.banner = "Usage: #{$PROGRAM_NAME} [options]"
 
   opts.separator ''
   opts.separator 'Options:'
