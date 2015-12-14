@@ -29,7 +29,7 @@ require 'timeout'
 
 register 'Show corrected text with s/regex/replacement/ is used and allow searching with g/regex/.'
 
-regex /^(?<action>(s|g))\/(?<search>((\\\\)|(\\\/)|.)+?)\/(?<replace>((\\\\)|(\\\/)|[^\/])*)(\/(?<flags>.*))?$/ do
+regex(/^(?<action>(s|g))\/(?<search>((\\\\)|(\\\/)|.)+?)\/(?<replace>((\\\\)|(\\\/)|[^\/])*)(\/(?<flags>.*))?$/) do
   next unless Buffer.has_key? @connection.name
   next unless Buffer[@connection.name].has_key? @msg.destination
 

@@ -42,7 +42,7 @@ command 'f-list', 'Interact with F-list. Parameters: CHARACTER name | COMPARE na
   end
 end
 
-url /^https?:\/\/(www\.)?f-list\.net\/c\/.+/ do
+url(/^https?:\/\/(www\.)?f-list\.net\/c\/.+/) do
   $log.info('flist.url') { @uri.inspect }
 
   match = @uri.path.match(/^\/c\/(?<name>[^\/]+)\/?/)

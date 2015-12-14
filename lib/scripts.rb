@@ -183,7 +183,7 @@ module Bot
     def register_script *args
       $log.debug("ScriptManager.register_script") { "Registering script: #{args.to_s}" }
 
-      script = Script_Info.new *args
+      script = Script_Info.new(*args)
 
       @script_info << script
       Bot::Flags.add_script script.name

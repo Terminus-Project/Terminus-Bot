@@ -39,11 +39,16 @@ url do
 
     # http://stackoverflow.com/questions/1732348/regex-match-open-tags-except-xhtml-self-contained-tags
 
+    # Note: I am not attempting to summon Zalgo, here. Our input is HTML that
+    # may or may not be well-formed, and may in fact be not even be HTML. The
+    # best we can do is try to find something that looks like a page title and
+    # extract it. Thus: we are parsing HTML with regular expressions.
+
     begin
       page = StringScanner.new http.response
 
-      page.skip_until /<title[^>]*>/ix
-      title = page.scan_until /<\/title[^>]*>/ix
+      page.skip_until(/<title[^>]*>/ix)
+      title = page.scan_until(/<\/title[^>]*>/ix)
 
       next if title == nil
 

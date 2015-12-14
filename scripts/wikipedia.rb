@@ -35,7 +35,7 @@ command 'wiki', 'Search Wikipedia for the given text.' do
   search @params.first
 end
 
-url /\/\/[^\.]+\.wikipedia\.org\/wiki\/.+/ do
+url(/\/\/[^\.]+\.wikipedia\.org\/wiki\/.+/) do
   site = @uri.host.split(/\./, 2).first
   page = URI.decode @uri.path.match(/\/wiki\/(?<page>.+)/)[:page]
 

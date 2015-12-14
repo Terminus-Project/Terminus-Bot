@@ -36,7 +36,7 @@ class String
     # produce unexpected results.
     #
     # If it isn't obvious, this escapes [ and ]. So many backslashes!
-    s.gsub! /([\[\]])/, '\\\\\1'
+    s.gsub!(/([\[\]])/, '\\\\\1')
 
     # Wildcard matches can be done with fnmatch, a globbing function. This
     # doesn't touch the filesystem.
@@ -45,9 +45,11 @@ class String
   end
 
   def fix_encoding!
-    encode! (Bot::Conf[:core][:encoding] || 'ASCII-8BIT'),
+    encode!(
+      (Bot::Conf[:core][:encoding] || 'ASCII-8BIT'),
       :invalid => :replace,
       :undef   => :replace
+    )
   end
 
 end

@@ -27,7 +27,7 @@ register 'Remember and recall short factoids.'
 
 command 'remember', 'Remember the given factoid. Should be in the form: ___ is|= ___' do
   argc! 1
-  arr = @params.first.split /\sis\s|\s=\s/, 2
+  arr = @params.first.split(/\sis\s|\s=\s/, 2)
   arr[0].downcase!
 
   unless arr.length == 2

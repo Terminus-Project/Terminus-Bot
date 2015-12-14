@@ -43,10 +43,10 @@ module Bot
       # @param data [Hash] extra parameters for the event
       # @param blk [Block] block to eval for the event
       def run owner, msg, cmd, cmd_params, data = {}, &blk
-        helpers &owner.get_helpers
+        helpers(&owner.get_helpers)
 
         begin
-          self.new(owner, msg, cmd, cmd_params, data).instance_eval &blk
+          self.new(owner, msg, cmd, cmd_params, data).instance_eval(&blk)
         rescue Exception => e
           error msg, e
         end
@@ -72,7 +72,7 @@ module Bot
       # Evaluate helpers, if available.
       # @param blk [Block] block to eval
       def helpers &blk
-        class_eval &blk if block_given?
+        class_eval(&blk) if block_given?
       end
     end
 
@@ -329,12 +329,12 @@ module Bot
 
     # @see IRCConnection#raw
     def raw *args
-      @connection.raw *args
+      @connection.raw(*args)
     end
 
     # @see IRCConnection#raw_fast
     def raw_fast *args
-      @connection.raw_fast *args
+      @connection.raw_fast(*args)
     end
   end
 end

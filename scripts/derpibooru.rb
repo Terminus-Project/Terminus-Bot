@@ -48,7 +48,7 @@ command 'derpi', 'Interact with Derpibooru. Where multiple tags are allowed, sep
   end
 end
 
-url /(.+\.)?derpiboo(ru.org|.ru)\/(images\/)?[0-9]+/ do
+url(/(.+\.)?derpiboo(ru.org|.ru)\/(images\/)?[0-9]+/) do
   $log.info('derpibooru.url') { @uri.inspect }
 
   match = @uri.path.match(/\/(?<id>[0-9]+)$/)
@@ -69,7 +69,7 @@ url /(.+\.)?derpiboo(ru.org|.ru)\/(images\/)?[0-9]+/ do
   end
 end
 
-url /\/\/derpicdn\.net\/media\/[^\/]+\/[0-9]+_/ do
+url(/\/\/derpicdn\.net\/media\/[^\/]+\/[0-9]+_/) do
   $log.info('derpibooru.url') { @uri.inspect }
 
   match = @uri.path.match(/\/(?<id>[0-9]+)__/)

@@ -27,7 +27,7 @@ need_module! 'regex_handler'
 
 register 'Fix typos.'
 
-regex /\^[HWUY]/ do
+regex(/\^[HWUY]/) do
   buf, clipboard, caret = '', '', false
 
   match = @msg.text.match(/\01ACTION (?<text>.+)\01/)

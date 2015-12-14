@@ -34,7 +34,7 @@ register 'Provides a high-flexibility dice simulator.'
 command 'dice', 'Roll dice.' do
   argc! 1
 
-  dice_strs = @params.first.scan /\S+/
+  dice_strs = @params.first.scan(/\S+/)
 
   if dice_strs.size > 5
     raise 'You may not request more than 5 dice simulations at a time.'

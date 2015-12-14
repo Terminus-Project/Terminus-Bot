@@ -44,21 +44,21 @@ command 'e621', 'Interact with e621. Parameters: SEARCH tags|RANDOM tags|IMAGE i
   end
 end
 
-url /\/\/e621\.net\/post\/show\/[0-9]+/ do
+url(/\/\/e621\.net\/post\/show\/[0-9]+/) do
   $log.info('e621.url') { @uri.inspect }
 
   match = @uri.path.match(/\/(?<id>[0-9]+)\/?/)
   image match[:id], false, true
 end
 
-url /\/\/.*\.e621\.net\/data\/.+\/[0-9a-fA-F]+\.\w{3}$/ do
+url(/\/\/.*\.e621\.net\/data\/.+\/[0-9a-fA-F]+\.\w{3}$/) do
   $log.info('e621.url') { @uri.inspect }
 
   match = @uri.path.match(/\/(?<id>[0-9a-fA-F]+)\.\w{3}$/)
   search "md5:#{match[:id]}", false, true, true
 end
 
-url /\/\/e621\.net\/comment\/show\/[0-9]+/ do
+url(/\/\/e621\.net\/comment\/show\/[0-9]+/) do
   $log.info('e621.url') { @uri.inspect }
 
   match = @uri.path.match(/\/(?<id>[0-9]+)\/?/)

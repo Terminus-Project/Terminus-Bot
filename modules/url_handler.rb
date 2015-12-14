@@ -115,11 +115,11 @@ module Bot
   class URLHandler < Command
     class << self
       def dispatch owner, uri, msg, &block
-      	return unless Bot::Flags.permit_message? owner, msg
+        return unless Bot::Flags.permit_message? owner, msg
 
-        helpers &owner.get_helpers if owner.respond_to? :helpers
+        helpers(&owner.get_helpers) if owner.respond_to? :helpers
 
-        self.new(owner, uri, msg).instance_eval &block
+        self.new(owner, uri, msg).instance_eval(&block)
       end
     end
 

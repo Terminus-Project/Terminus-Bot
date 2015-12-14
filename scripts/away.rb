@@ -35,7 +35,7 @@ event :PRIVMSG do
   # TODO: This is going to fail for nicks that end with punctuation. Do it a
   # different way.
   @msg.text.split(" ").each do |word|
-    word.sub! /[[:punct:]]*\Z/, ""
+    word.sub!(/[[:punct:]]*\Z/, '')
 
     if channel.users.has_key? word
       check_away word

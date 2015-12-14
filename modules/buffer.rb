@@ -71,7 +71,7 @@ module Bot
       # TODO: This is nasty. I am using a loop here because we might be
       # rehashed with a smaller value and have to shift it down to size. There
       # are better ways of doing this.
-      while self[msg.connection.name][msg.destination].length > (Conf[:modules][:buffer][:max_size].to_i rescue 100)
+      while self[msg.connection.name][msg.destination].length > max
         self[msg.connection.name][msg.destination].shift
       end
     end

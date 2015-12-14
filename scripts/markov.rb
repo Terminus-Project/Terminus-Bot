@@ -310,10 +310,10 @@ helpers do
     end
 
     # Remove terminating punctuation from the first word.
-    chain.sub! /\A(\w+)[!?.]?/, '\1'
+    chain.sub!(/\A(\w+)[!?.]?/, '\1')
 
     # Capitalize "i"
-    chain.gsub! /\si('.+)?\s/, ' I\1 '
+    chain.gsub!(/\si('.+)?\s/, ' I\1 ')
 
     # Strip things that would need to be closed, like parens and quotation
     # marks.

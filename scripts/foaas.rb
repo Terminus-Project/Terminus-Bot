@@ -40,7 +40,7 @@ command 'fuck', 'Retrieve data from FOAAS.' do
     shakespeare king  chainsaw   outside
   ]
 
-  type, to = @params.first.strip.split /\s+/, 2
+  type, to = @params.first.strip.split(/\s+/, 2)
 
   type.downcase!
 

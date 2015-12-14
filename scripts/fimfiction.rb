@@ -27,7 +27,7 @@ need_module! 'url_handler', 'http'
 
 register 'Fetch information from FIMFiction.'
 
-url /\/\/(www\.)?fimfiction\.net\/story\/[0-9]+\// do
+url(/\/\/(www\.)?fimfiction\.net\/story\/[0-9]+\//) do
   $log.info('fimfiction.url') { @uri.inspect }
 
   match = @uri.to_s.match(/\/story\/(?<id>[0-9]+)\//)

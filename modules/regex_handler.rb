@@ -75,9 +75,9 @@ module Bot
       def dispatch owner, msg, match, &block
       	return unless Bot::Flags.permit_message? owner, msg
 
-        helpers &owner.get_helpers if owner.respond_to? :helpers
+        helpers(&owner.get_helpers) if owner.respond_to? :helpers
 
-        self.new(owner, msg, match).instance_eval &block
+        self.new(owner, msg, match).instance_eval(&block)
       end
     end
 
@@ -90,7 +90,7 @@ module Bot
   class Script
 
     def regex regex, &block
-      Bot::RegexHandlerManager.add_handler self, regex, &block
+      Bot::RegexHandlerManager.add_handler(self, regex, &block)
     end
 
   end

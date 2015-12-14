@@ -27,7 +27,7 @@ need_module! 'url_handler', 'regex_handler'
 
 register 'Fetch information about posts and users on reddit.'
 
-url /\/\/((www|pay)\.)?redd(it|id\.com)/ do
+url(/\/\/((www|pay)\.)?redd(it|id\.com)/) do
   $log.info('reddit.url') { @uri.inspect }
 
   match = @uri.path.match(
@@ -60,11 +60,11 @@ url /\/\/((www|pay)\.)?redd(it|id\.com)/ do
   end
 end
 
-regex /(^|\s)\/r\/(?<name>[^\/\s]+)\/?(\s|$)/ do
+regex(/(^|\s)\/r\/(?<name>[^\/\s]+)\/?(\s|$)/) do
   get_subreddit @match[:name]
 end
 
-regex /(^|\s)\/u\/(?<name>[^\/\s]+)\/?(\s|$)/ do
+regex(/(^|\s)\/u\/(?<name>[^\/\s]+)\/?(\s|$)/) do
   get_user @match[:name]
 end
 

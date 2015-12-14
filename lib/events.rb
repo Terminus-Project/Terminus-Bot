@@ -118,17 +118,17 @@ module Bot
       # @param data [Hash]
       # @param blk [Block]
       def dispatch owner, name, func, msg = nil, data = {}, &blk
-        helpers &owner.get_helpers if owner.respond_to? :helpers
+        helpers(&owner.get_helpers) if owner.respond_to? :helpers
 
         if block_given?
           if msg.nil?
             if data.empty?
-              self.new(owner, name).instance_eval &blk
+              self.new(owner, name).instance_eval(&blk)
             else
-              self.new(owner, name, data).instance_eval &blk
+              self.new(owner, name, data).instance_eval(&blk)
             end
           else
-            self.new(owner, name, msg, data).instance_eval &blk
+            self.new(owner, name, msg, data).instance_eval(&blk)
           end
         else
           if msg.nil?

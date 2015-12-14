@@ -48,8 +48,8 @@ command 'gizoogle', 'Translate text using Gizoogle' do
   http_post(uri, {}, false, opts) do |http|
     page = StringScanner.new http.response
 
-    page.skip_until /<textarea[^>]*>/ix
-    text = page.scan_until /<\/textarea[^>]*>/ix
+    page.skip_until(/<textarea[^>]*>/ix)
+    text = page.scan_until(/<\/textarea[^>]*>/ix)
 
     next if text == nil
 

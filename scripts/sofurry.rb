@@ -27,7 +27,7 @@ need_module! 'url_handler', 'http'
 
 register 'Fetch information from SoFurry.'
 
-url /\/\/((www|wiki)\.)?sofurry\.com\/view\/[0-9]+/ do
+url(/\/\/((www|wiki)\.)?sofurry\.com\/view\/[0-9]+/) do
   $log.info('sofurry.url') { @uri.inspect }
 
   match = @uri.to_s.match(/\/view\/(?<id>[0-9]+)(#(?<comment_id>[0-9]+)?)?$/)
@@ -39,7 +39,7 @@ url /\/\/((www|wiki)\.)?sofurry\.com\/view\/[0-9]+/ do
   end
 end
 
-url /\/\/((?!(www|wiki)\.).+)\.sofurry\.com\/?$/ do
+url(/\/\/((?!(www|wiki)\.).+)\.sofurry\.com\/?$/) do
   match = @uri.to_s.match(/\/\/(?<user_name>(?!(www|wiki)\.).+)\.sofurry\.com\/?$/)
 
   get_profile match

@@ -29,7 +29,7 @@ require 'timeout'
 
 register 'Make messages prettier.'
 
-regex /^r\/(?<search>((\\\\)|(\\\/)|.)+?)(\/(?<flags>.*))?$/ do
+regex(/^r\/(?<search>((\\\\)|(\\\/)|.)+?)(\/(?<flags>.*))?$/) do
   next unless Buffer.has_key? @connection.name
   next unless Buffer[@connection.name].has_key? @msg.destination
 

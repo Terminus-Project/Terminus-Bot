@@ -29,7 +29,7 @@ need_module! 'http', 'url_handler'
 
 register 'Fetch information from GitHub.'
 
-url /\/\/(www\.)?github\.com\/[^\/]+\/[^\/]+/ do
+url(/\/\/(www\.)?github\.com\/[^\/]+\/[^\/]+/) do
   $log.info('github.url') { @uri.inspect }
 
   match = @uri.path.match(/^\/(?<owner>[^\/]+)\/(?<project>[^\/]+)(\/(?<action>[^\/]+)(\/(?<path>.*))?)?/)
@@ -103,7 +103,7 @@ helpers do
 
       result = lines[line - 1]
 
-      result.gsub! /[[:cntrl:]]/, ''
+      result.gsub!(/[[:cntrl:]]/, '')
 
       reply_without_prefix "Line #{line}" => result
     end

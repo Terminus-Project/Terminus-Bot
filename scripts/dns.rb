@@ -51,7 +51,7 @@ command 'dns', 'Perform a DNS look-up. Parameters: [type] host_name' do
       next
     end
 
-    reply (results.map {|r| r.rdata_to_string.gsub(/[[:cntrl:]]/, '') }).join(", ")
+    reply((results.map {|r| r.rdata_to_string.gsub(/[[:cntrl:]]/, '') }).join(", "))
   rescue => e
     reply "Look-up Failed: #{e.to_s.split("::")[1]}"
   end

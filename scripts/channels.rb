@@ -85,7 +85,7 @@ command 'join', 'Join a channel with optional key.' do
   level! 8
   argc! 1
 
-  arr = @params.first.split /\s+/, 2
+  arr = @params.first.split(/\s+/, 2)
 
   name = @connection.canonize arr[0]
   key  = arr.length == 2 ? arr[1] : ""

@@ -27,7 +27,7 @@ need_module! 'http', 'url_handler'
 
 register 'Fetch information from Imgur.'
 
-url /\/\/((www|i)\.)?imgur\.com\// do
+url(/\/\/((www|i)\.)?imgur\.com\//) do
   $log.info('imgur.url') { @uri.inspect }
 
   match = @uri.path.match(/\/((?<type>a|gallery)\/)?(?<id>[^\.\/]+)(?<extension>\.[a-z]{3})?(\/comment\/(?<comment_id>\d+)$)?/)

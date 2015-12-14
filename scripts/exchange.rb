@@ -30,7 +30,7 @@ register 'Look up exchange rates on openexchangerates.org.'
 command 'exchange', 'Get exchange rates from openexchangerates.org.' do
   argc! 2, 'base target'
 
-  lookup *@params
+  lookup(*@params)
 end
 
 helpers do

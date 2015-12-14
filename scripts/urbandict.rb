@@ -36,7 +36,7 @@ command 'ud', 'Fetch the definition of a word from UrbanDictionary.com. If no pa
 end
 
 
-url /http:\/\/(www\.)?urbandictionary\.com\/define\.php\?term=.+/ do
+url(/http:\/\/(www\.)?urbandictionary\.com\/define\.php\?term=.+/) do
   word = @uri.query.split('&').detect do |query|
     query.start_with? 'term='
   end.split('=').last
