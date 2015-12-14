@@ -181,7 +181,7 @@ module Bot
     #
     # @see Script_Info#initialize
     def register_script *args
-      $log.debug("ScriptManager.register_script") { "Registering script: #{args.to_s}" }
+      $log.debug("ScriptManager.register_script") { "Registering script: #{args}" }
 
       script = Script_Info.new(*args)
 
