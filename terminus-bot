@@ -47,8 +47,8 @@ OptionParser.new do |opts|
   opts.separator ''
 
   $opts[:verbose] = false
-  opts.on '-v', '--verbose', 'Output a lot of info while starting' do |v|
-    $opts[:verbose] = true
+  opts.on '-v', '--[no-]verbose', 'Output a lot of info while starting' do |v|
+    $opts[:verbose] = v
   end
 
   $opts[:config_file] = 'terminus-bot.conf'
