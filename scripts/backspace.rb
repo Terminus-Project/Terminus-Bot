@@ -94,10 +94,12 @@ helpers do
     buf = ''
 
     if s
-      begin
+      loop do
         buf << s.chars.last
         s.chop!
-      end until s.chars.last == ' ' or s.empty?
+
+        break if s.chars.last == ' ' || s.empty?
+      end
     end
 
     [s, buf.reverse]
