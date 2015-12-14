@@ -36,7 +36,7 @@ module Bot
         Modules << name
       else
         $log.fatal("Modules") { "Attempted to load nonexistent module: #{name}" }
-        exit -1
+        abort
       end
 
     end
