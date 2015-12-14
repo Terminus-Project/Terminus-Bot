@@ -119,7 +119,6 @@ command 'part', 'Part a channel.' do
     next
   end
 
-  results = channels[name]
   channels.delete name
 
   store_data @connection.name, channels
