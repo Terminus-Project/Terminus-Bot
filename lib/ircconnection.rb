@@ -223,17 +223,12 @@ module Bot
     def receive_line line
       msg = Message.new self, line.clone
 
-      Bot::Ignores.each do |ignore|
-        break unless msg.origin
-
-        if msg.origin.wildcard_match ignore
-          $log.debug("IRCConnection.receive_line #{@name}") { "Ignoring message from #{msg.origin}" }
-          return
-        end
+      if ignore_msg? msg
+        $log.debug("IRCConnection.receive_line #{@name}") { "Ignoring message from #{msg.origin}" }
+        return
       end
 
       begin
-
         Events.dispatch :raw,     msg
         Events.dispatch msg.type, msg
 
@@ -548,6 +543,16 @@ module Bot
     # @return [String] human-readable connection description
     def to_s
       "#{@name} (#{@channels.length} channels)"
+    end
+
+    private
+
+    def ignore_msg? msg
+      return false unless msg.origin
+
+      Bot::Ignores.any? do |ignore|
+        msg.origin.wildcard_match ignore
+      end
     end
 
   end
