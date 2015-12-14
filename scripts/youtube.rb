@@ -29,7 +29,7 @@ require 'multi_json'
 
 register 'Fetch information from YouTube.'
 
-url /\/\/(youtu\.be\/.+|(www\.)?youtube\.com\/.+[?&]v=.+)/ do
+url(/\/\/((www\.)?youtu\.be\/.+|(www\.)?youtube\.com\/.+[?&]v=.+)/) do
   $log.info('youtube.url') { @uri.inspect }
 
   link, vid = '', ''
