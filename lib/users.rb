@@ -62,11 +62,11 @@ module Bot
     #
     # @param msg [Message] message that triggered the callback
     def part msg
-      msg.connection.channels.each_value do |chan|
-        unless chan.get_user(msg.nick) == nil
-          return
-        end
+      still_visible = msg.connection.channels.values.any? do |chan|
+        chan.get_user(msg.nick) != nil
       end
+
+      return if still_visible
 
       delete_user msg.nick
     end
