@@ -48,7 +48,7 @@ module Bot
       @data     = Hash.new
       @filename = File.expand_path filename
 
-      if File.exists? @filename
+      if File.exist? @filename
         read_database
       else
         write_database

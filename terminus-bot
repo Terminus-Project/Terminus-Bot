@@ -91,9 +91,9 @@ $log.info('preload') { "Released under #{LICENSE}." }
 
 
 Dir.chdir File.dirname __FILE__
-Dir.mkdir 'var' unless Dir.exists? 'var'
+Dir.mkdir 'var' unless Dir.exist? 'var'
 
-if File.exists? PID_FILE
+if File.exist? PID_FILE
   begin
     pid = File.read(PID_FILE).to_i
 
@@ -159,18 +159,18 @@ load_lib
 
 unless $opts[:fork]
   write_pid_file Process.pid
-  
+
   EM.run { Bot.run }
 
   # Go ahead and try to delete the PID file one more time, just in case EM.run
   # failed for some reason.
-  if File.exists? PID_FILE
+  if File.exist? PID_FILE
     File.delete PID_FILE
   end
-  
+
   exit
 end
- 
+
 pid = EM.fork_reactor { Bot.run }
 
 write_pid_file pid

@@ -427,7 +427,7 @@ helpers do
   def read_files arr
     while file = arr.shift
 
-      unless File.exists? file
+      unless File.exist? file
         reply "File #{file} does not exist. Skipping."
         next
       end
@@ -468,7 +468,7 @@ helpers do
   end
 
   def read_database
-    return unless File.exists? @@filename
+    return unless File.exist? @@filename
 
     $log.info("Markov.read_database") { "If the database is large, this will take a while." }
 

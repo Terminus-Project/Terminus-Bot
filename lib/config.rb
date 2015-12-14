@@ -52,7 +52,7 @@ module Bot
     def read_config
       file_name = $opts[:config_file]
 
-      raise "No Config File" unless File.exists? file_name
+      raise 'No Config File' unless File.exist? file_name
 
       $log.info("Configuration.read_config") { "Loading the configuration file." }
 

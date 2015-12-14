@@ -31,7 +31,7 @@ module Bot
 
       $log.debug("Modules") { "Loading #{name} (#{file_name})" }
 
-      if File.exists? file_name
+      if File.exist? file_name
         load file_name
         Modules << name
       else

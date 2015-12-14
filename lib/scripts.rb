@@ -44,15 +44,15 @@ module Bot
     def initialize
       @scripts, @script_info = {}, []
 
-      unless Dir.exists? "scripts"
+      unless Dir.exist? 'scripts'
         # XXX - raise a better exception here
-        raise "Scripts directory does not exist."
+        raise 'Scripts directory does not exist.'
       end
     end
 
     # Load all the scripts in the scripts directory.
     def load_scripts
-      $log.info("ScriptManager.initilize") { "Loading scripts." }
+      $log.info('ScriptManager.initilize') { 'Loading scripts.' }
 
       noload = Bot::Conf[:core][:noload]
 
@@ -81,7 +81,7 @@ module Bot
     # @raise if script is already loaded
     # @raise if an error occurs while evaluating the script
     def load_file filename
-      unless File.exists? filename
+      unless File.exist? filename
         raise "File #{filename} does not exist."
       end
 
@@ -106,7 +106,7 @@ module Bot
 
         Events.dispatch_for @scripts[name], :done_loading
       rescue Exception => e
-        $log.error("ScriptManager.load_file") { "Problem loading script #{name}. Clearing data and aborting..." }
+        $log.error('ScriptManager.load_file') { "Problem loading script #{name}. Clearing data and aborting..." }
 
         if @scripts.has_key? name
 
@@ -135,9 +135,9 @@ module Bot
 
       filename = "#{SCRIPTS_PATH}/#{name}.rb"
 
-      raise "Script file for #{name} does not exist (#{filename})." unless File.exists? filename
+      raise "Script file for #{name} does not exist (#{filename})." unless File.exist? filename
 
-      @scripts[name].die if @scripts[name].respond_to? "die"
+      @scripts[name].die if @scripts[name].respond_to? 'die'
 
       Events.dispatch_for @scripts[name], :unloading
 
