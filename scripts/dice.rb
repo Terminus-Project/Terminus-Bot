@@ -27,8 +27,6 @@
 #   - Configurable max dice.
 #   - MORE TOKENS (consult the roll20 dice reference if in need of ideas)
 
-# TODO: Add ability to T-b to define constants for your scripts.
-
 register 'Provides a high-flexibility dice simulator.'
 
 command 'dice', 'Roll dice.' do
