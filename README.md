@@ -8,17 +8,23 @@
 
 # About the Bot
 
-Terminus-Bot is an IRC bot written in Ruby under the MIT license. Its purpose
-is to completely avoid the problems of other bots.
+Terminus-Bot is an IRC bot written in Ruby under the MIT license.
 
-The authors of the project are long-time IRC bot users and know how things can
-go badly or be confusing. Hopefully, we can address all of the problems we
-have encountered, as well as all of those everyone else tells us about.
+The authors of the project are long-time IRC bot users and have struggled with
+most of the other bots that are currently available. We know what sucks, and
+what we needed, so we created this.
+
+**Terminus-Bot is the last bot you'll ever need — the terminus of your
+search.**
+
+It is the first and primary project of the
+[Terminus-Project](http://terminus-project) team.
 
 # Requirements
 
 * Linux
-* Ruby 1.9.3 or 2.0
+* Ruby 1.9.3 or 2.0 (**NOTICE: RUBY 1.9.3 IS NOT MAINTAINED; TERMINUS-BOT WILL
+  DISCONTINUE SUPPORT WITHIN DAYS**)
 * gems (mandatory)
     * eventmachine (*should be built with SSL support*)
     * psych (included psych has UTF-8 bugs)
@@ -867,11 +873,16 @@ and help with specific commands.
 
 ## Reporting Problems
 
-Remember, Terminus-Bot is not yet done, so some things may not work correctly.
-If you get stuck, or if something just isn't working, make sure you read the
-relevant help and make sure you are not making a mistake. Once you're sure
-there is a problem with your Terminus-Bot, head to the IRC channel at the top
-of this document and ask one of the channel operators what to do. If there is
-a bug, we'll probably need you to reproduce it with debug logging enabled so
-that we can get a backtrace.
+If you get stuck, or if something just isn't working:
+
+1. Make sure you are running the latest version of Terminus-Bot.
+2. Carefully read the relevant documentation, such as `help` output, and this
+   README file.
+3. Search all of the [issues on the GitGub
+   project](https://github.com/Terminus-Project/Terminus-Bot/issues).
+4. Either open an issue on GitHub or visit our IRC channel (listed at the top
+   of this README) and ask about the issue there, or do both. **Be ready to
+   provide log files.** This will probably include chat logs, and will almost
+   definitely include Terminus-Bot logs [with DEBUG logging
+   enabled](https://github.com/Terminus-Project/Terminus-Bot/blob/master/terminus-bot.conf.dist#L116-L121).
 
