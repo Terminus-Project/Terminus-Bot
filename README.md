@@ -23,8 +23,7 @@ It is the first and primary project of the
 # Requirements
 
 * Linux
-* Ruby 1.9.3 or 2.0 (**NOTICE: RUBY 1.9.3 IS NOT MAINTAINED; TERMINUS-BOT WILL
-  DISCONTINUE SUPPORT WITHIN DAYS**)
+* Ruby 2.0 or above
 * gems (mandatory)
     * eventmachine (*should be built with SSL support*)
     * psych (included psych has UTF-8 bugs)

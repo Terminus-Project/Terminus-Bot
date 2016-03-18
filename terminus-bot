@@ -26,11 +26,11 @@
 #
 
 # Don't comment this out. No, really.
-unless RUBY_VERSION.start_with? '1.9' or RUBY_VERSION.start_with? '2'
-  abort 'Ruby version 1.9 or better is required.'
+unless RUBY_VERSION.start_with? '2'
+  abort 'Ruby version 2.0 or better is required.'
 end
 
-VERSION  = 'Terminus-Bot v0.8'
+VERSION  = 'Terminus-Bot v0.9'
 PID_FILE = 'var/terminus-bot.pid'
 LICENSE  = 'MIT'
 
