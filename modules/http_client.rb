@@ -136,7 +136,7 @@ module Bot
 
     args.merge! opts
 
-    max_time = conf[:max_time].to_i rescue 5
+    max_time = conf[:max_time].to_i or 5
 
     unless max_time.zero?
       EM.add_timer(max_time) do
