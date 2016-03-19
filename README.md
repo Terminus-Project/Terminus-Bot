@@ -1,4 +1,4 @@
-![Terminus-Bot: The IRC Bot to End All Others](http://terminus-project.org/static-assets/terminus-bot-logo-for-white-bg.png)
+![Terminus-Bot: The IRC Bot to End All Others](https://terminus-project.org/static-assets/terminus-bot-logo-for-white-bg.png)
 
 [terminus-bot.net](http://terminus-bot.net/)
 
@@ -18,7 +18,7 @@ what we needed, so we created this.
 search.**
 
 It is the first and primary project of the
-[Terminus-Project](http://terminus-project) team.
+[Terminus-Project](https://terminus-project.org) team.
 
 # Requirements
 
@@ -50,7 +50,7 @@ container, see `doc/Dockerizing.md`.
 ## Code Documentation and Guides
 
 Documentation, including most internal and scripting APIs, is hosted at
-[http://terminus-project.org/terminus-bot/doc/index.html](http://terminus-project.org/terminus-bot/doc/index.html).
+[https://terminus-project.org/terminus-bot/doc/index.html](https://terminus-project.org/terminus-bot/doc/index.html).
 These docs are a work in progress; contributions are welcome!
 
 You may also generate these docs by running `yard` from the project root
